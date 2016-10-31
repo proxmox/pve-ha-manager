@@ -31,7 +31,7 @@ info    163    node2/crm: killed by poweroff
 info    164    node2/lrm: killed by poweroff
 info    164     hardware: server 'node2' stopped by poweroff (watchdog)
 info    240    node1/crm: got lock 'ha_agent_node2_lock'
-info    240    node1/crm: fencing: acknowleged - got agent lock for node 'node2'
+info    240    node1/crm: fencing: acknowledged - got agent lock for node 'node2'
 info    240    node1/crm: node 'node2': state changed from 'fence' => 'unknown'
 err     240    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 info    240    node1/crm: service 'vm:102': state changed from 'fence' to 'error'

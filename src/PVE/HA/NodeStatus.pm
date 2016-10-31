@@ -219,10 +219,10 @@ sub fence_node {
     my $success = $haenv->get_ha_agent_lock($node);
 
     if ($success) {
-	my $msg = "fencing: acknowleged - got agent lock for node '$node'";
+	my $msg = "fencing: acknowledged - got agent lock for node '$node'";
 	$haenv->log("info", $msg);
 	&$set_node_state($self, $node, 'unknown');
-	&$send_fence_state_email($self, 'SUCEED', $msg, $node);
+	&$send_fence_state_email($self, 'SUCCEED', $msg, $node);
     }
 
     return $success;

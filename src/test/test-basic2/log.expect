@@ -9,7 +9,7 @@ info     22    node3/crm: got lock 'ha_manager_lock'
 info     22    node3/crm: status change wait_for_quorum => master
 info     22    node3/crm: node 'node2': state changed from 'online' => 'unknown'
 info     22    node3/crm: got lock 'ha_agent_node1_lock'
-info     22    node3/crm: fencing: acknowleged - got agent lock for node 'node1'
+info     22    node3/crm: fencing: acknowledged - got agent lock for node 'node1'
 info     22    node3/crm: node 'node1': state changed from 'fence' => 'unknown'
 info     22    node3/crm: recover service 'vm:101' from fenced node 'node1' to node 'node3'
 info     22    node3/crm: service 'vm:101': state changed from 'fence' to 'started'  (node = node3)
