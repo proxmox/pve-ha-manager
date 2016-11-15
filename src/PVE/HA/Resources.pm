@@ -16,9 +16,13 @@ my $defaultData = {
 	sid => get_standard_option('pve-ha-resource-or-vm-id',
 				   { completion => \&PVE::HA::Tools::complete_sid }),
 	state => {
-	    description => "Resource state.",
+	    description => "Resource state. When in 'enabled' state, a " .
+	      "resource will be started and recovered on node failures. In " .
+	      "'stopped' state it will be stopped but also recovered on " .
+	      "failures. In 'disabled' state it will be stopped and will not " .
+	      "get recovered on failures",
 	    type => 'string',
-	    enum => ['enabled', 'disabled'],
+	    enum => ['enabled', 'stopped', 'disabled'],
 	    optional => 1,
 	    default => 'enabled',
 	},
