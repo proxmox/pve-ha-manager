@@ -1,0 +1,5 @@
+Test if a simulated template in the stopped state recovers if its node fails.
+
+The template gets simulated by using the VirtFail resource, the configuration
+fa:1501 tells the resource to fail to start and to fail to stop, same behavior
+as a template
