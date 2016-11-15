@@ -11,7 +11,6 @@ info     20    node3/lrm: status change startup => wait_for_agent_lock
 info     20    node1/crm: got lock 'ha_manager_lock'
 info     20    node1/crm: status change wait_for_quorum => master
 info     20    node1/crm: adding new service 'fa:130' on node 'node3'
-info     20    node1/crm: service 'fa:130': state changed from 'started' to 'request_stop'
 info     21    node1/lrm: got lock 'ha_agent_node1_lock'
 info     21    node1/lrm: status change wait_for_agent_lock => active
 info     21    node1/lrm: starting service vm:100
