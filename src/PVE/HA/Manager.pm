@@ -290,7 +290,8 @@ my $recover_fenced_service = sub {
 
 	# $sd *is normally read-only*, fencing is the exception
 	$cd->{node} = $sd->{node} = $recovery_node;
-	&$change_service_state($self, $sid, 'started', node => $recovery_node);
+	my $new_state = ($cd->{state} eq 'enabled') ? 'started' : 'request_stop';
+	&$change_service_state($self, $sid, $new_state, node => $recovery_node);
     } else {
 	# no possible node found, cannot recover
 	$haenv->log('err', "recovering service '$sid' from fenced node " .
@@ -432,7 +433,8 @@ sub manage {
 
 		my $lrm_mode = $sd->{node} ? $lrm_modes->{$sd->{node}} : undef;
 		# unfreeze
-		&$change_service_state($self, $sid, 'started') 
+		my $state = ($cd->{state} eq 'enabled') ? 'started' : 'request_stop';
+		&$change_service_state($self, $sid, $state)
 		    if $lrm_mode && $lrm_mode eq 'active';
 
 	    } elsif ($last_state eq 'error') {
@@ -579,6 +581,16 @@ sub next_state_stopped {
 	return;
     }
 
+    if ($ns->node_is_offline_delayed($sd->{node})) {
+	&$change_service_state($self, $sid, 'fence');
+	return;
+    }
+
+    if ($cd->{state} eq 'stopped') {
+	# almost the same as 'disabled' state but the service will also get recovered
+	return;
+    }
+
     if ($cd->{state} eq 'enabled') {
 	# simply mark it started, if it's on the wrong node
 	# next_state_started will fix that for us
@@ -613,7 +625,7 @@ sub next_state_started {
 	return;
     }
 	
-    if ($cd->{state} eq 'disabled') {
+    if ($cd->{state} eq 'disabled' || $cd->{state} eq 'stopped') {
 	&$change_service_state($self, $sid, 'request_stop');
 	return;
     }

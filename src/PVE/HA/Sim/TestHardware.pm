@@ -87,7 +87,7 @@ sub log {
 # reboot <node>
 # shutdown <node>
 # restart-lrm <node>
-# service <sid> <enabled|disabled>
+# service <sid> <enabled|disabled|stopped>
 # service <sid> <migrate|relocate> <target>
 # service <sid> lock/unlock [lockname]
 
@@ -175,7 +175,7 @@ sub sim_hardware_cmd {
 	    }
 
 	} elsif ($cmd eq 'service') {
-	    if ($action eq 'enabled' || $action eq 'disabled') {
+	    if ($action eq 'enabled' || $action eq 'disabled' || $action eq 'stopped') {
 
 		$self->set_service_state($sid, $action);
 
