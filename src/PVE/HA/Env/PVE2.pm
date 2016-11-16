@@ -231,13 +231,12 @@ sub get_pve_lock {
 	# pve cluster filesystem not online
 	die "can't create '$lockdir' (pmxcfs not mounted?)\n" if ! -d $lockdir;
 
-	# try cfs lock update request (utime)
-	if (utime(0, $ctime, $filename))  {
-	    $got_lock = 1;
-	    return;
-	}
-
 	if (($ctime - $last_lock_time) < $retry_timeout) {
+	    # try cfs lock update request (utime)
+	    if (utime(0, $ctime, $filename))  {
+		$got_lock = 1;
+		return;
+	    }
 	    die "cfs lock update failed - $!\n";
 	}
 
