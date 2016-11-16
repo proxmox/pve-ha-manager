@@ -237,7 +237,7 @@ sub get_pve_lock {
 	    return;
 	}
 
-	if ($last_lock_time && (($ctime - $last_lock_time) < $retry_timeout)) {
+	if (($ctime - $last_lock_time) < $retry_timeout) {
 	    die "cfs lock update failed - $!\n";
 	}
 
