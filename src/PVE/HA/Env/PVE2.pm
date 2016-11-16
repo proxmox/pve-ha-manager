@@ -206,7 +206,7 @@ sub sendmail {
     PVE::Tools::sendmail($mailto, $subject, $text, undef, $mailfrom);
 }
 
-my $last_lock_status = {};
+my $last_lock_status_hash = {};
 
 sub get_pve_lock {
     my ($self, $lockid) = @_;
@@ -215,11 +215,13 @@ sub get_pve_lock {
 
     my $filename = "$lockdir/$lockid";
 
-    my $last = $last_lock_status->{$lockid} || 0;
+    $last_lock_status_hash->{$lockid} //= { lock_time => 0, got_lock => 0};
+    my $last = $last_lock_status_hash->{$lockid};
 
     my $ctime = time();
+    my $last_lock_time = $last->{lock_time} // 0;
+    my $last_got_lock = $last->{got_lock};
 
-    my $retry = 0;
     my $retry_timeout = 100; # fixme: what timeout
 
     eval {
@@ -229,34 +231,33 @@ sub get_pve_lock {
 	# pve cluster filesystem not online
 	die "can't create '$lockdir' (pmxcfs not mounted?)\n" if ! -d $lockdir;
 
-	if ($last && (($ctime - $last) < $retry_timeout)) {
-	     # send cfs lock update request (utime)
-	    if (!utime(0, $ctime, $filename))  {
-		$retry = 1;
-		die "cfs lock update failed - $!\n";
-	    }
-	} else {
-
-	    # fixme: wait some time?
-	    if (!(mkdir $filename)) {
-		utime 0, 0, $filename; # cfs unlock request
-		die "can't get cfs lock\n";
-	    }
+	# try cfs lock update request (utime)
+	if (utime(0, $ctime, $filename))  {
+	    $got_lock = 1;
+	    return;
 	}
 
-	$got_lock = 1;
+	if ($last_lock_time && (($ctime - $last_lock_time) < $retry_timeout)) {
+	    die "cfs lock update failed - $!\n";
+	}
+
+	if (mkdir $filename) {
+	    $got_lock = 1;
+	    return;
+	}
+
+	utime 0, 0, $filename; # cfs unlock request
+	die "can't get cfs lock\n";
     };
 
     my $err = $@;
 
-    if ($retry) {
-	# $self->log('err', $err) if $err; # for debugging
-	return 0;
-    }
+    #$self->log('err', $err) if $err; # for debugging
 
-    $last_lock_status->{$lockid} = $got_lock ? $ctime : 0;
+    $last->{got_lock} = $got_lock;
+    $last->{lock_time} = $ctime if $got_lock;
 
-    if (!!$got_lock != !!$last) {
+    if (!!$got_lock != !!$last_got_lock) {
 	if ($got_lock) {
 	    $self->log('info', "successfully acquired lock '$lockid'");
 	} else {
@@ -264,8 +265,6 @@ sub get_pve_lock {
 	    $msg .= " - $err" if $err;
 	    $self->log('err', $msg);
 	}
-    } else {
-	# $self->log('err', $err) if $err; # for debugging
     }
 
     return $got_lock;
