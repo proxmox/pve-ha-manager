@@ -222,7 +222,7 @@ sub get_pve_lock {
     my $last_lock_time = $last->{lock_time} // 0;
     my $last_got_lock = $last->{got_lock};
 
-    my $retry_timeout = 100; # fixme: what timeout
+    my $retry_timeout = 120; # hardcoded lock lifetime limit from pmxcfs
 
     eval {
 
