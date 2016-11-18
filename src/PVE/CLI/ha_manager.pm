@@ -22,53 +22,6 @@ use base qw(PVE::CLIHandler);
 
 my $nodename = PVE::INotify::nodename();
 
-__PACKAGE__->register_method ({
-    name => 'enable',
-    path => 'enable',
-    method => 'POST',
-    description => "Enable a HA resource.",
-    parameters => {
-	additionalProperties => 0,
-	properties => {
-	    sid => get_standard_option('pve-ha-resource-or-vm-id',
-				      { completion => \&PVE::HA::Tools::complete_disabled_sid }),
-	},
-    },
-    returns => { type => 'null' },
-    code => sub {
-	my ($param) = @_;
-
-	my $sid = PVE::HA::Tools::parse_sid($param->{sid});
-
-	# delete state (default is 'enabled')
-	PVE::API2::HA::Resources->update({ sid => $sid, delete => 'state' });
-
-	return undef;
-    }});
-
-__PACKAGE__->register_method ({
-    name => 'disable',
-    path => 'disable',
-    method => 'POST',
-    description => "Disable a HA resource.",
-    parameters => {
-	additionalProperties => 0,
-	properties => {
-	    sid => get_standard_option('pve-ha-resource-or-vm-id',
-				      { completion => \&PVE::HA::Tools::complete_enabled_sid }),
-	},
-    },
-    returns => { type => 'null' },
-    code => sub {
-	my ($param) = @_;
-
-	my $sid = PVE::HA::Tools::parse_sid($param->{sid});
-
-	PVE::API2::HA::Resources->update({ sid => $sid, state => 'disabled' });
-
-	return undef;
-    }});
-
 my $timestamp_to_status = sub {
     my ($ctime, $timestamp) = @_;
 
@@ -117,8 +70,6 @@ __PACKAGE__->register_method ({
     }});
 
 our $cmddef = {
-    enable => [ __PACKAGE__, 'enable', ['sid']],
-    disable => [ __PACKAGE__, 'disable', ['sid']],
     status => [ __PACKAGE__, 'status'],
     config => [ 'PVE::API2::HA::Resources', 'index', [], {}, sub {
 	my $res = shift;
