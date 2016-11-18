@@ -32,7 +32,7 @@ info     25    node3/lrm: status change wait_for_agent_lock => active
 info     25    node3/lrm: starting service vm:105
 info     25    node3/lrm: service status vm:105 started
 info     40    node1/crm: service 'fa:130': state changed from 'request_stop' to 'stopped'
-info    120      cmdlist: execute service fa:130 enabled
+info    120      cmdlist: execute service fa:130 started
 info    120    node1/crm: service 'fa:130': state changed from 'stopped' to 'started'  (node = node3)
 info    125    node3/lrm: starting service fa:130
 warn    125    node3/lrm: unable to start service fa:130

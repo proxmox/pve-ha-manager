@@ -290,7 +290,7 @@ my $recover_fenced_service = sub {
 
 	# $sd *is normally read-only*, fencing is the exception
 	$cd->{node} = $sd->{node} = $recovery_node;
-	my $new_state = ($cd->{state} eq 'enabled') ? 'started' : 'request_stop';
+	my $new_state = ($cd->{state} eq 'started') ? 'started' : 'request_stop';
 	&$change_service_state($self, $sid, $new_state, node => $recovery_node);
     } else {
 	# no possible node found, cannot recover
@@ -383,7 +383,7 @@ sub manage {
 	my $cd = $sc->{$sid};
 	$haenv->log('info', "adding new service '$sid' on node '$cd->{node}'");
 	# assume we are running to avoid relocate running service at add
-	my $state = ($cd->{state} eq 'enabled') ? 'started' : 'request_stop';
+	my $state = ($cd->{state} eq 'started') ? 'started' : 'request_stop';
 	$ss->{$sid} = { state => $state, node => $cd->{node},
 			uid => compute_new_uuid('started') };
     }
@@ -435,7 +435,7 @@ sub manage {
 
 		my $lrm_mode = $sd->{node} ? $lrm_modes->{$sd->{node}} : undef;
 		# unfreeze
-		my $state = ($cd->{state} eq 'enabled') ? 'started' : 'request_stop';
+		my $state = ($cd->{state} eq 'started') ? 'started' : 'request_stop';
 		&$change_service_state($self, $sid, $state)
 		    if $lrm_mode && $lrm_mode eq 'active';
 
@@ -522,7 +522,7 @@ sub next_state_migrate_relocate {
     # check result from LRM daemon
     if ($lrm_res) {
 	my $exit_code = $lrm_res->{exit_code};
-	my $req_state = $cd->{state} eq 'enabled' ? 'started' : 'request_stop';
+	my $req_state = $cd->{state} eq 'started' ? 'started' : 'request_stop';
 	if ($exit_code == SUCCESS) {
 	    &$change_service_state($self, $sid, $req_state, node => $sd->{target});
 	    return;
@@ -593,7 +593,7 @@ sub next_state_stopped {
 	return;
     }
 
-    if ($cd->{state} eq 'enabled') {
+    if ($cd->{state} eq 'started') {
 	# simply mark it started, if it's on the wrong node
 	# next_state_started will fix that for us
 	&$change_service_state($self, $sid, 'started', node => $sd->{node});
@@ -632,7 +632,7 @@ sub next_state_started {
 	return;
     }
 
-    if ($cd->{state} eq 'enabled') {
+    if ($cd->{state} eq 'started') {
 
 	if ($sd->{cmd}) {
 	    my ($cmd, $target) = @{$sd->{cmd}};

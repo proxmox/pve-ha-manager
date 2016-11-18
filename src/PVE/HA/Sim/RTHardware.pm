@@ -316,7 +316,7 @@ sub set_service_state {
     my ($self, $sid) = @_;
 
     my $d = $self->{service_gui}->{$sid} || die "no such service '$sid'";
-    my $state = $d->{enable_btn}->get_active() ? 'enabled' : 'disabled';
+    my $state = $d->{enable_btn}->get_active() ? 'started' : 'disabled';
 
     $self->{service_config} = $self->SUPER::set_service_state($sid, $state);
 
@@ -461,7 +461,7 @@ sub create_service_control {
 
 	$w = Gtk3::Switch->new();
 	$sgrid->attach($w, 1, $row, 1, 1);
-	$w->set_active(1) if $d->{state} eq 'enabled';
+	$w->set_active(1) if $d->{state} eq 'started';
 	$self->{service_gui}->{$sid}->{enable_btn} = $w;
 	$w->signal_connect('notify::active' => sub {
 	    $self->set_service_state($sid);

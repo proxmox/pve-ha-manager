@@ -239,8 +239,8 @@ sub complete_enabled_sid {
 
     my $res = [];
     foreach my $sid (keys %{$cfg->{ids}}) {
-	my $state = $cfg->{ids}->{$sid}->{state} // 'enabled';
-	next if $state ne 'enabled';
+	my $state = $cfg->{ids}->{$sid}->{state} // 'started';
+	next if $state ne 'started';
 	push @$res, $sid;
     }
 
@@ -253,8 +253,8 @@ sub complete_disabled_sid {
 
     my $res = [];
     foreach my $sid (keys %{$cfg->{ids}}) {
-	my $state = $cfg->{ids}->{$sid}->{state} // 'enabled';
-	next if $state eq 'enabled';
+	my $state = $cfg->{ids}->{$sid}->{state} // 'started';
+	next if $state eq 'started';
 	push @$res, $sid;
     }
 

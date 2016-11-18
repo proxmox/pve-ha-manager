@@ -25,7 +25,7 @@ info    120    node1/crm: service 'vm:103': state changed from 'started' to 'req
 info    125    node3/lrm: stopping service vm:103
 info    125    node3/lrm: service status vm:103 stopped
 info    140    node1/crm: service 'vm:103': state changed from 'request_stop' to 'stopped'
-info    220      cmdlist: execute service vm:103 enabled
+info    220      cmdlist: execute service vm:103 started
 info    220    node1/crm: service 'vm:103': state changed from 'stopped' to 'started'  (node = node3)
 info    225    node3/lrm: starting service vm:103
 info    225    node3/lrm: service status vm:103 started

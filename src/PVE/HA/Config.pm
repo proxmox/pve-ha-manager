@@ -95,7 +95,8 @@ sub read_and_check_resources_config {
     foreach my $sid (keys %{$res->{ids}}) {
 	my $d = $res->{ids}->{$sid};
 	my (undef, undef, $name) = PVE::HA::Tools::parse_sid($sid);
-	$d->{state} = 'enabled' if !defined($d->{state});
+	$d->{state} = 'started' if !defined($d->{state});
+	$d->{state} = 'started' if $d->{state} eq 'enabled'; # backward compatibility
 	$d->{max_restart} = 1 if !defined($d->{max_restart});
 	$d->{max_relocate} = 1 if !defined($d->{max_relocate});
 	if (PVE::HA::Resources->lookup($d->{type})) {
@@ -202,7 +203,7 @@ my $service_check_ha_state = sub {
     if (my $d = $conf->{ids}->{$sid}) {
 	return 1 if !defined($has_state);
 
-	$d->{state} = 'enabled' if !defined($d->{state});
+	$d->{state} = 'started' if !defined($d->{state});
 	return 1 if $d->{state} eq $has_state;
     }
 

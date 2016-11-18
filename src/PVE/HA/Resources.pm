@@ -19,7 +19,7 @@ my $defaultData = {
 	    type => 'string',
 	    enum => ['started', 'stopped', 'enabled', 'disabled'],
 	    optional => 1,
-	    default => 'enabled',
+	    default => 'started',
 	    description => <<EODESC,
 Requested resource state. The CRM reads this state and acts accordingly.
 Please note that `enabled` is just an alias for `started`.
