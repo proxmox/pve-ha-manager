@@ -16,15 +16,34 @@ my $defaultData = {
 	sid => get_standard_option('pve-ha-resource-or-vm-id',
 				   { completion => \&PVE::HA::Tools::complete_sid }),
 	state => {
-	    description => "Resource state. When in 'enabled' state, a " .
-	      "resource will be started and recovered on node failures. In " .
-	      "'stopped' state it will be stopped but also recovered on " .
-	      "failures. In 'disabled' state it will be stopped and will not " .
-	      "get recovered on failures",
 	    type => 'string',
-	    enum => ['enabled', 'stopped', 'disabled'],
+	    enum => ['started', 'stopped', 'enabled', 'disabled'],
 	    optional => 1,
 	    default => 'enabled',
+	    description => <<EODESC,
+Requested resource state. The CRM reads this state and acts accordingly.
+Please note that `enabled` is just an alias for `started`.
+
+`started`;;
+
+The CRM tries to start the resource. Service state is
+set to `started` after successful start. On node failures, or when start
+fails, it tries to recover the resource.  If everything fails, service
+state it set to `error`.
+
+`stopped`;;
+
+The CRM tries to keep the resource in `stopped` state, but it
+still tries to relocate the resources on node failures.
+
+`disabled`;;
+
+The CRM tries to put the resource in `stopped` state, but does not try
+to relocate the resources on node failures. The main purpose of this
+state is error recovery, because it is the only way to move a resource out
+of the `error` state.
+
+EODESC
 	},
 	group => get_standard_option('pve-ha-group-id',
 				    { optional => 1,
