@@ -203,7 +203,12 @@ my $service_check_ha_state = sub {
     if (my $d = $conf->{ids}->{$sid}) {
 	return 1 if !defined($has_state);
 
-	$d->{state} = 'started' if !defined($d->{state});
+	# backward compatibility
+	$has_state = 'started' if $has_state eq 'enabled';
+
+	$d->{state} = 'started' if !defined($d->{state}) ||
+	    ($d->{state} eq 'enabled');
+
 	return 1 if $d->{state} eq $has_state;
     }
 
