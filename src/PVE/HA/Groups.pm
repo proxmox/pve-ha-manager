@@ -20,7 +20,8 @@ my $defaultData = {
 				    { completion => \&PVE::HA::Tools::complete_group }),
 	nodes => get_standard_option('pve-ha-group-node-list', { optional => 1 }),
 	restricted => {
-	    description => "Services on unrestricted groups may run on any cluster members if all group members are offline. But they will migrate back as soon as a group member comes online. One can implement a 'preferred node' behavior using an unrestricted group with one member.",
+	    description => "Resources bound to restricted groups may only run on nodes defined by the group.",
+	    verbose_description => "Resources bound to restricted groups may only run on nodes defined by the group. The resource will be placed in the stopped state if no group node member is online. Resources on unrestricted groups may run on any cluster node if all group members are offline, but they will migrate back as soon as a group member comes online. One can implement a 'preferred node' behavior using an unrestricted group with only one member.",
 	    type => 'boolean', 
 	    optional => 1,
 	    default => 0,
