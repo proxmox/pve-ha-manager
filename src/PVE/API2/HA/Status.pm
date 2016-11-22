@@ -146,19 +146,51 @@ __PACKAGE__->register_method ({
 	    }
 	}
 
+	my $add_service = sub {
+	    my ($sid, $sc, $ss) = @_;
+
+	    if ($ss) {
+		my $req = $sc->{state} || 'ignore';
+		my $cur = $ss->{state};
+		my $state = $cur;
+
+		# give fast feedback to the user
+		if ($cur eq 'stopped') {
+		    if ($req eq 'started') {
+			$state = 'starting';
+		    }
+		} elsif ($cur eq 'started') {
+		    if ($req eq 'stopped' || $req eq 'disabled') {
+			$state = 'stopping';
+		    }
+		} elsif ($cur eq 'error') {
+		    if ($req eq 'disabled') {
+			$state = 'clearing error flag';
+		    }
+		}
+
+		push @$res, { id => "service:$sid", type => 'service', sid => $sid,
+			      node => $ss->{node}, status => "$sid ($ss->{node}, $state)" };
+
+	    } else {
+		push @$res, { id => "service:$sid", type => 'service', sid => $sid,
+			  status => "$sid ($sc->{node}, queued)",
+			  node => $sc->{node} };
+
+	    }
+	};
+
 	foreach my $sid (sort keys %{$status->{service_status}}) {
-	    my $d = $status->{service_status}->{$sid};
-	    push @$res, { id => "service:$sid", type => 'service', sid => $sid,
-			  node => $d->{node}, status => "$sid ($d->{node}, $d->{state})" };
+	    my $sc = $service_config->{$sid};
+	    my $ss = $status->{service_status}->{$sid};
+	    $add_service->($sid, $sc, $ss);
 	}
 
 	# show also service which aren't yet processed by the CRM
 	foreach my $sid (sort keys %$service_config) {
 	    next if $status->{service_status}->{$sid};
-	    my $d = $service_config->{$sid};
-	    push @$res, { id => "service:$sid", type => 'service', sid => $sid,
-			  status => "$sid ($d->{node}, queued)",
-			  node => $d->{node} };
+	    my $sc = $service_config->{$sid};
+	    $add_service->($sid, $sc);
 	}
 
 	return $res;
