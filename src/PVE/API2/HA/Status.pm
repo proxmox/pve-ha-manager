@@ -149,6 +149,8 @@ __PACKAGE__->register_method ({
 	my $add_service = sub {
 	    my ($sid, $sc, $ss) = @_;
 
+	    my $data = { id => "service:$sid", type => 'service', sid => $sid };
+
 	    if ($ss) {
 		my $req = $sc->{state} || 'ignore';
 		my $cur = $ss->{state};
@@ -169,15 +171,25 @@ __PACKAGE__->register_method ({
 		    }
 		}
 
-		push @$res, { id => "service:$sid", type => 'service', sid => $sid,
-			      node => $ss->{node}, status => "$sid ($ss->{node}, $state)" };
-
+		$data->{node} = $ss->{node};
+		$data->{status} =  "$sid ($ss->{node}, $state)"; # backward compatibility
+		$data->{state} = $state;
+		$data->{crm_state} = $ss->{state};
 	    } else {
-		push @$res, { id => "service:$sid", type => 'service', sid => $sid,
-			  status => "$sid ($sc->{node}, queued)",
-			  node => $sc->{node} };
-
+		$data->{node} = $sc->{node};
+		$data->{state} = 'queued';
+		$data->{status} = "$sid ($sc->{node}, queued)"; # backward compatibility
 	    }
+
+	    # also return common resource attributes
+	    if (defined($sc)) {
+		$data->{request_state} = $sc->{state};
+		foreach my $key (qw(group max_restart max_relocate comment)) {
+		    $data->{$key} = $sc->{$key} if defined($sc->{$key});
+		}
+	    }
+
+	    push @$res, $data;
 	};
 
 	foreach my $sid (sort keys %{$status->{service_status}}) {
