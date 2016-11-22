@@ -165,6 +165,7 @@ __PACKAGE__->register_method ({
 		    if ($req eq 'stopped' || $req eq 'disabled') {
 			$state = 'stopping';
 		    }
+		    $state = 'starting' if !$ss->{running};
 		} elsif ($cur eq 'error') {
 		    if ($req eq 'disabled') {
 			$state = 'clearing error flag';

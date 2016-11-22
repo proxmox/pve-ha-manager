@@ -666,7 +666,13 @@ sub next_state_started {
 
 		    delete $sd->{failed_nodes};
 
+		    # store flag to indicate successful start - only valid while state == 'started'
+		    $sd->{running} = 1;
+
 		} elsif ($ec == ERROR) {
+
+		    delete $sd->{running};
+
 		    # apply our relocate policy if we got ERROR from the LRM
 		    $self->record_service_failed_on_node($sid, $sd->{node});
 
