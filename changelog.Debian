@@ -1,3 +1,25 @@
+pve-ha-manager (1.0-37) unstable; urgency=medium
+
+  * HA::Status: provide better/faster feedback
+
+  * Manager.pm: store flag to indicate successful start
+
+  * ha status: include common service attributes
+
+  * Groups.pm: add verbose_description for 'restricted'
+
+  * Resources.pm: use verbose_description for state
+
+  * pve-ha-group-node-list: add verbose_description
+
+  * ha-manager: remove 'enabled' and 'disabled' commands
+
+  * rename request state 'enabled' to 'started'
+
+  * get_pve_lock: correctly send a lock update request
+
+ -- Proxmox Support Team <support@proxmox.com>  Tue, 22 Nov 2016 17:04:57 +0100
+
 pve-ha-manager (1.0-36) unstable; urgency=medium
 
   * Resources: implement 'stopped' state
