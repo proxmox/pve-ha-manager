@@ -160,6 +160,8 @@ __PACKAGE__->register_method ({
 		if ($cur eq 'stopped') {
 		    if ($req eq 'started') {
 			$state = 'starting';
+		    } elsif ($req eq 'disabled') {
+			$state = 'disabled';
 		    }
 		} elsif ($cur eq 'started') {
 		    if ($req eq 'stopped' || $req eq 'disabled') {
