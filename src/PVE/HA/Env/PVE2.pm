@@ -89,10 +89,11 @@ sub is_node_shutdown {
     my $code = sub {
 	my $line = shift;
 
-	$shutdown = 1 if ($line =~ m/shutdown\.target/);
+	# ensure we match the full unit name by matching /^JOB_ID UNIT /
+	$shutdown = 1 if ($line =~ m/^\d+\s+(poweroff|halt)\.target\s+/);
     };
 
-    my $cmd = ['/bin/systemctl', 'list-jobs'];
+    my $cmd = ['/bin/systemctl', '--full', 'list-jobs'];
     eval { PVE::Tools::run_command($cmd, outfunc => $code, noerr => 1); };
 
     return $shutdown;
