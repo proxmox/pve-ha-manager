@@ -156,7 +156,7 @@ sub fork_daemon {
 	    }
 	}
 
-	exit(-1);
+	POSIX::_exit(-1);
     }
 
     # parent
