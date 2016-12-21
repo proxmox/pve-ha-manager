@@ -290,8 +290,6 @@ sub append_text {
 	my $end =  $textbuf->get_iter_at_line($lines - $history);
 	$textbuf->delete($start, $end);
     }
-
-    $logview->scroll_to_mark($textbuf->get_insert(), 0.0, 1, 0.0, 1.0);
 }
 
 sub set_power_state {
@@ -507,6 +505,17 @@ sub create_log_view {
     my $swindow = Gtk3::ScrolledWindow->new();
     $swindow->set_size_request(1024, 768);
     $swindow->add($logview);
+
+    $self->{gui}->{text_view_swindow} = $swindow;
+
+    $logview->signal_connect('size-allocate' => sub {
+	my $swindow = $self->{gui}->{text_view_swindow};
+
+	# swindows V-adjustment controls the child vertical scrollbar, set it to
+	# its upper bound to scroll to the end every time child's size changes
+	my $adjustment = $swindow->get_vadjustment();
+	$adjustment->set_value($adjustment->get_upper());
+    });
 
     $nb->insert_page($swindow, $l1, 0);
 
