@@ -278,11 +278,13 @@ sub append_text {
     my $logview = $self->{gui}->{text_view} || die "GUI not ready";
     my $textbuf = $logview->get_buffer();
 
-    $textbuf->insert_at_cursor($text, -1);
+    my $end_iter = $textbuf->get_end_iter();
+    $textbuf->insert($end_iter, $text, -1);
+
     my $lines = $textbuf->get_line_count();
 
     my $history = 102;
-    
+
     if ($lines > $history) {
 	my $start = $textbuf->get_iter_at_line(0);
 	my $end =  $textbuf->get_iter_at_line($lines - $history);
