@@ -388,7 +388,7 @@ sub show_migrate_dialog {
     $grid->set_column_spacing(5);
     $grid->set('margin', 5);
 
-    my $w = Gtk3::Label->new('Target Mode');
+    my $w = Gtk3::Label->new('Target Node');
     $grid->attach($w, 0, 0, 1, 1);
 
     my @nodes = sort keys %{$self->{nodes}};
