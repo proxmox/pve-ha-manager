@@ -183,6 +183,40 @@ sub count_fenced_services {
     return $count;
 }
 
+sub get_verbose_service_state {
+    my ($service_state, $service_conf) = @_;
+
+    # service not yet processed by manager
+    return 'queued' if !defined($service_state);
+    my $cur = $service_state->{state};
+
+    return 'ignore' if !defined($service_conf) || !defined($service_conf->{state});
+    my $req = $service_conf->{state};
+
+    # give fast feedback to the user
+    my $state = $cur;
+    if (!defined($cur)) {
+	$state = 'queued';
+    } elsif ($cur eq 'stopped') {
+	if ($req eq 'started') {
+	    $state = 'starting';
+	} elsif ($req eq 'disabled') {
+	    $state = 'disabled';
+	}
+    } elsif ($cur eq 'started') {
+	if ($req eq 'stopped' || $req eq 'disabled') {
+	    $state = 'stopping';
+	}
+	$state = 'starting' if !$service_state->{running};
+    } elsif ($cur eq 'error') {
+	if ($req eq 'disabled') {
+	    $state = 'clearing error flag';
+	}
+    }
+
+    return $state;
+}
+
 sub upid_wait {
     my ($upid, $haenv) = @_;
 

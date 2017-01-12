@@ -608,6 +608,7 @@ sub run {
 	foreach my $sid (@services) {
 	    my $sc = $self->{service_config}->{$sid};
 	    my $ss = $service_status->{$sid};
+
 	    my $sgui = $self->{service_gui}->{$sid};
 	    next if !$sgui;
 	    my $nl = $sgui->{node_label};
@@ -615,9 +616,9 @@ sub run {
 
 	    my $sl = $sgui->{status_label};
 	    next if !$sl;
-		
-	    my $text = ($ss && $ss->{state}) ? $ss->{state} : '-';
-	    $sl->set_text($text);
+
+	    my $service_state = PVE::HA::Tools::get_verbose_service_state($ss, $sc);
+	    $sl->set_text($service_state);
 	}
 
 	if (my $sv = $self->{gui}->{stat_view}) {

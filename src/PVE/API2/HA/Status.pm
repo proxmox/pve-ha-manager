@@ -152,37 +152,14 @@ __PACKAGE__->register_method ({
 	    my $data = { id => "service:$sid", type => 'service', sid => $sid };
 
 	    if ($ss) {
-		my $req = $sc->{state} || 'ignore';
-		my $cur = $ss->{state};
-		my $state = $cur;
-
-		# give fast feedback to the user
-		if ($cur eq 'stopped') {
-		    if ($req eq 'started') {
-			$state = 'starting';
-		    } elsif ($req eq 'disabled') {
-			$state = 'disabled';
-		    }
-		} elsif ($cur eq 'started') {
-		    if ($req eq 'stopped' || $req eq 'disabled') {
-			$state = 'stopping';
-		    }
-		    $state = 'starting' if !$ss->{running};
-		} elsif ($cur eq 'error') {
-		    if ($req eq 'disabled') {
-			$state = 'clearing error flag';
-		    }
-		}
-
 		$data->{node} = $ss->{node};
-		$data->{status} =  "$sid ($ss->{node}, $state)"; # backward compatibility
-		$data->{state} = $state;
 		$data->{crm_state} = $ss->{state};
 	    } else {
 		$data->{node} = $sc->{node};
-		$data->{state} = 'queued';
-		$data->{status} = "$sid ($sc->{node}, queued)"; # backward compatibility
 	    }
+
+	    $data->{state} = PVE::HA::Tools::get_verbose_service_state($ss, $sc);
+	    $data->{status} = "$sid ($data->{node}, $data->{state})"; # backward compatibility
 
 	    # also return common resource attributes
 	    if (defined($sc)) {
