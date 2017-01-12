@@ -415,14 +415,15 @@ sub show_migrate_dialog {
 
     $contarea->add($grid);
 
-    $dialog->add_button("_OK", 1);
+    $dialog->add_button("_OK", 'ok');
+    $dialog->add_button("_Cancel", 'cancel');
 
     $dialog->show_all();
     my $res = $dialog->run();
 
     $dialog->destroy();
 
-    if ($res == 1 && $target) {
+    if (defined($res) && $res eq 'ok' && $target) {
 	if ($relocate_btn->get_active()) {
 	    $self->queue_crm_commands("relocate $sid $target");
 	} else {
