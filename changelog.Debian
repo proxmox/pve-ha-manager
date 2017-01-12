@@ -1,3 +1,17 @@
+pve-ha-manager (1.0-39) unstable; urgency=medium
+
+  * add setup_environment hook to CLIHandler class
+
+  * ha-simulator: fix typo s/Mode/Node/
+
+  * is_node_shutdown: check for correct systemd targets
+
+  * Simulator: fix scrolling to end of cluster log view
+
+  * Simulator: do not use cursor position to insert log
+
+ -- Proxmox Support Team <support@proxmox.com>  Thu, 12 Jan 2017 13:15:08 +0100
+
 pve-ha-manager (1.0-38) unstable; urgency=medium
 
   * update manual page
