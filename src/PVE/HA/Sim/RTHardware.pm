@@ -5,10 +5,9 @@ package PVE::HA::Sim::RTHardware;
 
 use strict;
 use warnings;
+
 use POSIX qw(strftime EINTR);
-use Data::Dumper;
-$Data::Dumper::Sortkeys = 1; # fixes 'random' output behaviour of manager status
-use JSON; 
+use JSON;
 use IO::File;
 use IO::Select;
 use Fcntl qw(:DEFAULT :flock);
@@ -619,8 +618,8 @@ sub run {
 	    $sl->set_text($text);
 	}
 
-	if (my $sv = $self->{gui}->{stat_view}) { 
-	    my $text = Dumper($mstatus);
+	if (my $sv = $self->{gui}->{stat_view}) {
+	    my $text = to_json($mstatus, { pretty => 1, canonical => 1});
 	    my $textbuf = $sv->get_buffer();
 	    $textbuf->set_text($text, -1);
 	}
