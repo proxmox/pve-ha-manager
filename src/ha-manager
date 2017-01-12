@@ -11,4 +11,4 @@ my $prepare = sub {
     PVE::Cluster::cfs_update();
 };
     
-PVE::CLI::ha_manager->run_cli(undef, undef, $prepare);
+PVE::CLI::ha_manager->run_cli_handler(prepare => $prepare);

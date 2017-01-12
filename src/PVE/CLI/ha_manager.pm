@@ -10,6 +10,7 @@ use JSON;
 use PVE::JSONSchema qw(get_standard_option);
 use PVE::CLIHandler;
 use PVE::Cluster;
+use PVE::RPCEnvironment;
 
 use PVE::HA::Env::PVE2;
 use PVE::HA::Tools;
@@ -34,6 +35,10 @@ my $timestamp_to_status = sub {
 	return "active";
     }
 };
+
+sub setup_environment {
+    PVE::RPCEnvironment->setup_default_cli_env();
+}
 
 __PACKAGE__->register_method ({
     name => 'status',
