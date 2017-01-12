@@ -596,12 +596,10 @@ sub run {
 	    next if !$d;
 	    my $sl = $d->{node_status_label};
 	    next if !$sl;
-		
-	    if ($mstatus->{master_node} && ($mstatus->{master_node} eq $node)) {
-		$sl->set_text(uc($ns));
-	    } else {
-		$sl->set_text($ns);
-	    }
+
+	    $ns .= " (master)" if ($mstatus->{master_node} && ($mstatus->{master_node} eq $node));
+
+	    $sl->set_text($ns);
 	}
 
 	my $service_status = $mstatus->{service_status} || {};
