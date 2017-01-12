@@ -381,8 +381,9 @@ sub show_migrate_dialog {
 
     $dialog->set_title("Migrate $sid");
     $dialog->set_modal(1);
+    $dialog->set_transient_for($self->{main_window});
 
-    my $grid = Gtk3::Grid->new(); 
+    my $grid = Gtk3::Grid->new();
     $grid->set_row_spacing(2);
     $grid->set_column_spacing(5);
     $grid->set('margin', 5);
@@ -542,7 +543,9 @@ sub create_main_window {
 
     $window->signal_connect( destroy => sub { Gtk3::main_quit(); });
 
-    my $grid = Gtk3::Grid->new(); 
+    $self->{main_window} = $window;
+
+    my $grid = Gtk3::Grid->new();
 
     my $frame = $self->create_log_view();
     $grid->attach($frame, 0, 0, 1, 1);
