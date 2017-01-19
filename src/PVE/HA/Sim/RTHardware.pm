@@ -446,6 +446,56 @@ sub delete_service_from_gui {
     }
 }
 
+sub new_service_gui_entry {
+    my ($self, $sid, $row) = @_;
+
+    my $d = $self->{service_config}->{$sid};
+
+    my $sgrid = $self->{service_grid};
+
+    $sgrid->insert_row($row);
+
+    my $w = Gtk3::Label->new($sid);
+    $sgrid->attach($w, 0, $row, 1, 1);
+
+    $w = Gtk3::ComboBoxText->new();
+    $sgrid->attach($w, 1, $row, 1, 1);
+
+    my $count = 0;
+    foreach my $state (qw(started stopped disabled)) {
+	$w->append_text($state);
+	$w->set_active($count) if $d->{state} eq $state;
+	$count++;
+    }
+    $w->signal_connect(changed => sub {
+	my $w = shift;
+	my $state = $w->get_active_text();
+	$self->set_service_state($sid, $state);
+    });
+
+    $w = Gtk3::Button->new('Migrate');
+    $sgrid->attach($w, 2, $row, 1, 1);
+    $w->signal_connect(clicked => sub {
+	$self->show_migrate_dialog($sid);
+    });
+
+    $w = Gtk3::Label->new($d->{node});
+    $sgrid->attach($w, 3, $row, 1, 1);
+    $self->{service_gui}->{$sid}->{node_label} = $w;
+
+    $w = Gtk3::Label->new('-');
+    $w->set_alignment (0, 0.5);
+    $sgrid->attach($w, 4, $row, 1, 1);
+    $self->{service_gui}->{$sid}->{status_label} = $w;
+
+    $w = Gtk3::Button->new_from_icon_name('edit-delete', 1);
+    $sgrid->attach($w, 5, $row, 1, 1);
+    $w->signal_connect(clicked => sub {
+	$self->show_service_delete_dialog($sid);
+    });
+    $sgrid->show_all();
+}
+
 sub create_service_control {
     my ($self) = @_;
 
@@ -471,47 +521,7 @@ sub create_service_control {
     my @nodes = keys %{$self->{nodes}};
 
     foreach my $sid (sort keys %{$self->{service_config}}) {
-	my $d = $self->{service_config}->{$sid};
-
-	$w = Gtk3::Label->new($sid);
-	$sgrid->attach($w, 0, $row, 1, 1);
-
-	$w = Gtk3::ComboBoxText->new();
-	$sgrid->attach($w, 1, $row, 1, 1);
-	my $count = 0;
-	foreach my $state (qw(started stopped disabled)) {
-	    $w->append_text($state);
-	    $w->set_active($count) if $d->{state} eq $state;
-	    $count++;
-	}
-	$w->signal_connect(changed => sub {
-	    my $w = shift;
-	    my $state = $w->get_active_text();
-	    $self->set_service_state($sid, $state);
-	});
-
-
-	$w = Gtk3::Button->new('Migrate');
-	$sgrid->attach($w, 2, $row, 1, 1);
-	$w->signal_connect(clicked => sub {
-	    $self->show_migrate_dialog($sid);
-	});
-
-	$w = Gtk3::Label->new($d->{node});
-	$sgrid->attach($w, 3, $row, 1, 1);
-	$self->{service_gui}->{$sid}->{node_label} = $w;
-
-	$w = Gtk3::Label->new('-');
-	$w->set_alignment (0, 0.5);
-	$sgrid->attach($w, 4, $row, 1, 1);
-	$self->{service_gui}->{$sid}->{status_label} = $w;
-
-	$w = Gtk3::Button->new_from_icon_name('edit-delete', 1);
-	$sgrid->attach($w, 5, $row, 1, 1);
-	$w->signal_connect(clicked => sub {
-	    $self->show_service_delete_dialog($sid);
-	});
-
+	$self->new_service_gui_entry($sid, $row);
 	$row++;
     }
 
