@@ -81,138 +81,34 @@ sub log {
     $self->{logfh}->flush();
 }
 
-# simulate hardware commands
-# power <node> <on|off>
-# network <node> <on|off>
-# reboot <node>
-# shutdown <node>
-# restart-lrm <node>
-# service <sid> <started|disabled|stopped>
-# service <sid> <migrate|relocate> <target>
-# service <sid> lock/unlock [lockname]
+# for controlling the resource manager services (CRM and LRM)
+sub crm_control {
+    my ($self, $action, $data, $lock_fh) = @_;
 
-sub sim_hardware_cmd {
-    my ($self, $cmdstr, $logid) = @_;
+    if ($action eq 'start') {
+	return PVE::HA::CRM->new($data->{crm_env});
+    } elsif ($action eq 'stop') {
+	# nothing todo sim_hardware_cmd sets us to undef, thats enough
+    } elsif ($action eq 'shutdown') {
+	$data->{crm}->shutdown_request();
+    } else {
+	die "unknown CRM control action: '$action'\n";
+    }
+}
 
-    my $code = sub {
+sub lrm_control {
+    my ($self, $action, $data, $lock_fh) = @_;
 
-	my $cstatus = $self->read_hardware_status_nolock();
+    if ($action eq 'start') {
+	return PVE::HA::LRM->new($data->{lrm_env});
+    } elsif ($action eq 'stop') {
+	# nothing todo sim_hardware_cmd sets us to undef, thats enough
+    } elsif ($action eq 'shutdown') {
+	$data->{lrm}->shutdown_request();
+    } else {
+	die "unknown LRM control action: '$action'\n";
+    }
 
-	my ($cmd, $objid, $action, $target) = split(/\s+/, $cmdstr);
-
-	die "sim_hardware_cmd: no node or service for command specified"
-	    if !$objid;
-
-	my ($node, $sid, $d);
-
-	if ($cmd eq 'service') {
-	    $sid = PVE::HA::Tools::pve_verify_ha_resource_id($objid);
-	} else {
-	    $node = $objid;
-	    $d = $self->{nodes}->{$node} ||
-		die "sim_hardware_cmd: no such node '$node'\n";
-	}
-
-	$self->log('info', "execute $cmdstr", $logid);
-	
-	if ($cmd eq 'power') {
-	    die "sim_hardware_cmd: unknown action '$action'" if $action !~ m/^(on|off)$/;
-	    if ($cstatus->{$node}->{power} ne $action) {
-		if ($action eq 'on') {
-		    $d->{crm} = PVE::HA::CRM->new($d->{crm_env}) if !$d->{crm};
-		    $d->{lrm} = PVE::HA::LRM->new($d->{lrm_env}) if !$d->{lrm};
-		    $d->{lrm_restart} = undef;
-		} else {
-		    if ($d->{crm}) {
-			$d->{crm_env}->log('info', "killed by poweroff");
-			$d->{crm} = undef;
-		    }
-		    if ($d->{lrm}) {
-			$d->{lrm_env}->log('info', "killed by poweroff");
-			$d->{lrm} = undef;
-			$d->{lrm_restart} = undef;
-		    }
-		    $self->watchdog_reset_nolock($node);
-		    $self->write_service_status($node, {});
-		}
-	    }
-
-	    $cstatus->{$node}->{power} = $action;
-	    $cstatus->{$node}->{network} = $action;
-	    $cstatus->{$node}->{shutdown} = undef;
-
-	    $self->write_hardware_status_nolock($cstatus);
-
-	} elsif ($cmd eq 'network') {
-	    die "sim_hardware_cmd: unknown network action '$action'"
-		if $action !~ m/^(on|off)$/;
-	    $cstatus->{$node}->{network} = $action;
-
-	    $self->write_hardware_status_nolock($cstatus);
-
-	} elsif ($cmd eq 'reboot' || $cmd eq 'shutdown') {
-	    $cstatus->{$node}->{shutdown} = $cmd;
-
-	    $self->write_hardware_status_nolock($cstatus);
-
-	    $d->{lrm}->shutdown_request() if $d->{lrm};
-	} elsif ($cmd eq 'restart-lrm') {
-	    if ($d->{lrm}) {
-		$d->{lrm_restart} = 1;
-		$d->{lrm}->shutdown_request();
-	    }
-	} elsif ($cmd eq 'crm') {
-
-	    if ($action eq 'stop') {
-		if ($d->{crm}) {
-		    $d->{crm_stop} = 1;
-		    $d->{crm}->shutdown_request();
-		}
-	    } elsif ($action eq 'start') {
-		$d->{crm} = PVE::HA::CRM->new($d->{crm_env}) if !$d->{crm};
-	    } else {
-		die "sim_hardware_cmd: unknown action '$action'";
-	    }
-
-	} elsif ($cmd eq 'service') {
-	    if ($action eq 'started' || $action eq 'disabled' || $action eq 'stopped') {
-
-		$self->set_service_state($sid, $action);
-
-	    } elsif ($action eq 'migrate' || $action eq 'relocate') {
-
-		die "sim_hardware_cmd: missing target node for '$action' command"
-		    if !$target;
-
-		$self->queue_crm_commands_nolock("$action $sid $target");
-
-	    } elsif ($action eq 'add') {
-
-		$self->add_service($sid, {state => 'started', node => $target});
-
-	    } elsif ($action eq 'delete') {
-
-		$self->delete_service($sid);
-
-	    } elsif ($action eq 'lock') {
-
-		$self->lock_service($sid, $target);
-
-	    } elsif ($action eq 'unlock') {
-
-		$self->unlock_service($sid, $target);
-
-	    } else {
-		die "sim_hardware_cmd: unknown service action '$action' " .
-		    "- not implemented\n"
-	    }
-	} else {
-	    die "sim_hardware_cmd: unknown command '$cmdstr'\n";
-	}
-
-    };
-
-    return $self->global_lock($code);
 }
 
 sub run {

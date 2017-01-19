@@ -178,75 +178,56 @@ sub fork_daemon {
     return $pid;
 }
 
-# simulate hardware commands
-# power <node> <on|off>
-# network <node> <on|off>
+# for controlling the resource manager services (CRM and LRM)
+sub crm_control {
+    my ($self, $action, $data, $lock_fh) = @_;
 
+    if ($action eq 'start') {
+
+	return  $self->fork_daemon($lock_fh, 'crm', $data->{crm_env});
+
+    } elsif ($action eq 'stop') {
+
+	kill(9, $data->{crm});
+	while (waitpid($data->{crm}, 0) != $data->{crm}) {}
+
+    } else {
+	die "unknown CRM control action: '$action'\n";
+    }
+}
+
+sub lrm_control {
+    my ($self, $action, $data, $lock_fh) = @_;
+
+    if ($action eq 'start') {
+
+	return  $self->fork_daemon($lock_fh, 'lrm',  $data->{lrm_env});
+
+    } elsif ($action eq 'stop') {
+
+	kill(9, $data->{lrm});
+	while (waitpid($data->{lrm}, 0) != $data->{lrm}) {}
+
+    } else {
+	die "unknown LRM control action: '$action'\n";
+    }
+
+}
+
+# simulate hardware commands
 sub sim_hardware_cmd {
     my ($self, $cmdstr, $logid) = @_;
 
-    my $cstatus;
-
-    # note: do not fork when we own the lock!
-    my $code = sub {
-	my ($lockfh) = @_;
-
-	$cstatus = $self->read_hardware_status_nolock();
-
-	my ($cmd, $node, $action) = split(/\s+/, $cmdstr);
-
-	die "sim_hardware_cmd: no node specified" if !$node;
-	die "sim_hardware_cmd: unknown action '$action'" if $action !~ m/^(on|off)$/;
-
-	my $d = $self->{nodes}->{$node};
-	die "sim_hardware_cmd: no such node '$node'\n" if !$d;
-
-	$self->log('info', "execute $cmdstr", $logid);
-	
-	if ($cmd eq 'power') {
-	    if ($cstatus->{$node}->{power} ne $action) {
-		if ($action eq 'on') {
-		    $d->{crm} = $self->fork_daemon($lockfh, 'crm', $d->{crm_env}) if !$d->{crm};
-		    $d->{lrm} = $self->fork_daemon($lockfh, 'lrm', $d->{lrm_env}) if !$d->{lrm};
-		} else {
-		    if ($d->{crm}) {
-			$self->log('info', "crm on node '$node' killed by poweroff");
-			kill(9, $d->{crm});
-			$d->{crm} = undef;
-		    }
-		    if ($d->{lrm}) {
-			$self->log('info', "lrm on node '$node' killed by poweroff");
-			kill(9, $d->{lrm});
-			$d->{lrm} = undef;
-		    }
-		    $self->watchdog_reset_nolock($node);
-		    $self->write_service_status($node, {});
-		}
-	    }
-
-	    $cstatus->{$node}->{power} = $action;
-	    $cstatus->{$node}->{network} = $action;
-
-	} elsif ($cmd eq 'network') {
-	    $cstatus->{$node}->{network} = $action;
-	} else {
-	    die "sim_hardware_cmd: unknown command '$cmd'\n";
-	}
-
-	$self->write_hardware_status_nolock($cstatus);
-    };
-
-    my $res = $self->global_lock($code);
+    my $cstatus = $self->SUPER::sim_hardware_cmd($cmdstr, $logid);
 
     # update GUI outside lock
-
     foreach my $node (keys %$cstatus) {
 	my $d = $self->{nodes}->{$node};
 	$d->{network_btn}->set_active($cstatus->{$node}->{network} eq 'on');
 	$d->{power_btn}->set_active($cstatus->{$node}->{power} eq 'on');
     }
 
-    return $res;
+    return $cstatus;
 }
 
 sub cleanup {
