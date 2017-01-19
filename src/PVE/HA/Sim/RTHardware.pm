@@ -344,6 +344,106 @@ sub create_node_control {
     return $ngrid;
 }
 
+sub show_service_add_dialog {
+    my ($self) = @_;
+
+    my ($service_type, $service_id, $service_node) = ('', '', '');
+
+    my $win = $self->{main_window};
+    my $flags = [qw( modal destroy-with-parent )];
+    my $dialog = Gtk3::Dialog->new_with_buttons('Add Service', $win, $flags);
+
+    my $ok_btn = $dialog->add_button('_OK', 'ok');
+    $ok_btn->set_sensitive(0);
+
+    $dialog->add_button('_Cancel', 'cancel');
+
+    my $service_description = Gtk3::Label->new(undef);
+    $service_description->set_line_wrap(1);
+    $service_description->set_width_chars(76);
+
+    my $grid = Gtk3::Grid->new();
+    $grid->set_row_spacing(2);
+    $grid->set_column_spacing(5);
+    $grid->set('margin', 5);
+
+    my $w = Gtk3::Label->new('Type');
+    $grid->attach($w, 0, 0, 1, 1);
+    $w = Gtk3::Label->new('ID');
+    $grid->attach($w, 1, 0, 1, 1);
+    $w = Gtk3::Label->new('Node');
+    $grid->attach($w, 2, 0, 1, 1);
+
+
+    # service type combo box
+    my $type_cb = Gtk3::ComboBoxText->new();
+    my $service_types = ['vm', 'ct']; # TODO: PVE::HA::Resources->lookup_types();
+    foreach my $type (@$service_types) {
+	$type_cb->append_text($type);
+    }
+
+    $type_cb->signal_connect('notify::active' => sub {
+	my $w = shift;
+
+	my $sel = $w->get_active();
+	return if $sel < 0;
+
+	$service_type = $service_types->[$sel];
+    });
+
+    $type_cb->set_active(0);
+    $grid->attach($type_cb, 0, 1, 1, 1);
+
+    my $id_entry = Gtk3::Entry->new();
+    $id_entry->set_max_length(7);
+    $id_entry->signal_connect('changed' => sub {
+	my $w = shift;
+
+	$service_id = $w->get_text();
+	chomp $service_id;
+
+	if ($service_id =~ m/^\d+$/) {
+	    my $sid = "$service_type:$service_id";
+	    if (!defined($self->{service_gui}->{$sid})) {
+		$ok_btn->set_sensitive(1);
+	    } else {
+		$ok_btn->set_sensitive(0);
+	    }
+	} else {
+	    $ok_btn->set_sensitive(0);
+	}
+    });
+
+    $grid->attach($id_entry, 1, 1, 1, 1);
+
+    my @nodes = sort keys %{$self->{nodes}};
+    my $node_cb = Gtk3::ComboBoxText->new();
+    foreach my $node (@nodes) {
+	$node_cb->append_text($node);
+    }
+    $node_cb->signal_connect('notify::active' => sub {
+	my $w = shift;
+
+	$service_node = $node_cb->get_active_text();
+    });
+    $node_cb->set_active(0);
+    $grid->attach($node_cb, 2, 1, 1, 1);
+
+    my $contarea = $dialog->get_content_area();
+    $contarea->add($grid);
+
+    $dialog->show_all();
+    my $res = $dialog->run();
+
+    if (defined($res) && $res eq 'ok') {
+	my $sid = "$service_type:$service_id";
+	$self->sim_hardware_cmd("service $sid add $service_node", 'command');
+	$self->add_service_to_gui($sid);
+    }
+
+    $dialog->destroy();
+}
+
 sub show_service_delete_dialog {
     my ($self, $sid) = @_;
 
@@ -420,6 +520,24 @@ sub show_migrate_dialog {
 	    $self->queue_crm_commands("migrate $sid $target");
 	}
     }
+}
+
+sub add_service_to_gui {
+    my ($self, $sid) = @_;
+
+    my $sgrid = $self->{service_grid};
+
+    die "service grid not initialised yet\n" if !defined($sgrid);
+
+    die "service '$sid' has already an entry in service_gui table!\n"
+	if defined($self->{service_gui}->{$sid});
+
+    my $row = 0;
+    while (my $label = $sgrid->get_child_at(0, $row)) {
+	$row++;
+    }
+
+    $self->new_service_gui_entry($sid, $row);
 }
 
 sub delete_service_from_gui {
@@ -524,6 +642,12 @@ sub create_service_control {
 	$self->new_service_gui_entry($sid, $row);
 	$row++;
     }
+
+    $w = Gtk3::Button->new_from_icon_name('list-add', 1);
+    $sgrid->attach($w, 5, $row, 1, 1);
+    $w->signal_connect(clicked => sub {
+	$self->show_service_add_dialog();
+    });
 
     return $sgrid;
 }
