@@ -39,7 +39,10 @@ sub new {
 	my $d = $self->{nodes}->{$node};
 
 	$d->{crm} = undef; # create on power on
+	$d->{crm_env} = PVE::HA::Env->new('PVE::HA::Sim::RTEnv', $node, $self, 'crm');
+
 	$d->{lrm} = undef; # create on power on
+	$d->{lrm_env} = PVE::HA::Env->new('PVE::HA::Sim::RTEnv', $node, $self, 'lrm');
     }
 
     $self->create_main_window();
@@ -78,7 +81,7 @@ sub read_manager_status {
 }
 
 sub fork_daemon {
-    my ($self, $lockfh, $type, $node) = @_;
+    my ($self, $lockfh, $type, $haenv) = @_;
 
     my @psync = POSIX::pipe();
 
@@ -122,8 +125,6 @@ sub fork_daemon {
 
 	if ($type eq 'crm') {
 
-	    my $haenv = PVE::HA::Env->new('PVE::HA::Sim::RTEnv', $node, $self, 'crm');
-
 	    my $crm = PVE::HA::CRM->new($haenv);
 
 	    for (;;) {
@@ -138,8 +139,6 @@ sub fork_daemon {
 	    }
 
 	} else {
-
-	    my $haenv = PVE::HA::Env->new('PVE::HA::Sim::RTEnv', $node, $self, 'lrm');
 
 	    my $lrm = PVE::HA::LRM->new($haenv);
 
@@ -207,8 +206,8 @@ sub sim_hardware_cmd {
 	if ($cmd eq 'power') {
 	    if ($cstatus->{$node}->{power} ne $action) {
 		if ($action eq 'on') {
-		    $d->{crm} = $self->fork_daemon($lockfh, 'crm', $node) if !$d->{crm};
-		    $d->{lrm} = $self->fork_daemon($lockfh, 'lrm', $node) if !$d->{lrm};
+		    $d->{crm} = $self->fork_daemon($lockfh, 'crm', $d->{crm_env}) if !$d->{crm};
+		    $d->{lrm} = $self->fork_daemon($lockfh, 'lrm', $d->{lrm_env}) if !$d->{lrm};
 		} else {
 		    if ($d->{crm}) {
 			$self->log('info', "crm on node '$node' killed by poweroff");
