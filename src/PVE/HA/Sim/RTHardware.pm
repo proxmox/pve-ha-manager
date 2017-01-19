@@ -291,16 +291,6 @@ sub set_network_state {
     $self->sim_hardware_cmd("network $node $action"); 
 }
 
-sub set_service_state {
-    my ($self, $sid) = @_;
-
-    my $d = $self->{service_gui}->{$sid} || die "no such service '$sid'";
-    my $state = $d->{enable_btn}->get_active() ? 'started' : 'disabled';
-
-    $self->{service_config} = $self->SUPER::set_service_state($sid, $state);
-
-}
-
 sub create_node_control {
     my ($self) = @_;
 
@@ -420,9 +410,9 @@ sub create_service_control {
     $sgrid->set_column_spacing(5);
     $sgrid->set('margin', 5);
 
-    my $w = Gtk3::Label->new('Service');
+    my $w = Gtk3::Label->new('Service ID');
     $sgrid->attach($w, 0, 0, 1, 1);
-    $w = Gtk3::Label->new('Enable');
+    $w = Gtk3::Label->new('Request State');
     $sgrid->attach($w, 1, 0, 1, 1);
     $w = Gtk3::Label->new('Node');
     $sgrid->attach($w, 3, 0, 1, 1);
@@ -440,13 +430,19 @@ sub create_service_control {
 	$w = Gtk3::Label->new($sid);
 	$sgrid->attach($w, 0, $row, 1, 1);
 
-	$w = Gtk3::Switch->new();
+	$w = Gtk3::ComboBoxText->new();
 	$sgrid->attach($w, 1, $row, 1, 1);
-	$w->set_active(1) if $d->{state} eq 'started';
-	$self->{service_gui}->{$sid}->{enable_btn} = $w;
-	$w->signal_connect('notify::active' => sub {
-	    $self->set_service_state($sid);
-	}),
+	my $count = 0;
+	foreach my $state (qw(started stopped disabled)) {
+	    $w->append_text($state);
+	    $w->set_active($count) if $d->{state} eq $state;
+	    $count++;
+	}
+	$w->signal_connect(changed => sub {
+	    my $w = shift;
+	    my $state = $w->get_active_text();
+	    $self->set_service_state($sid, $state);
+	});
 
 
 	$w = Gtk3::Button->new('Migrate');
