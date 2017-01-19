@@ -344,6 +344,26 @@ sub create_node_control {
     return $ngrid;
 }
 
+sub show_service_delete_dialog {
+    my ($self, $sid) = @_;
+
+    my $win = $self->{main_window};
+    my $flags = [qw( modal destroy-with-parent )];
+
+    my $dialog = Gtk3::MessageDialog->new($win, $flags, 'warning', 'yes_no', "Delete Service '$sid'?");
+
+    $dialog->set_title("Delete $sid");
+
+    my $res = $dialog->run();
+
+    $dialog->destroy();
+
+    if (defined($res) && $res eq 'yes') {
+	$self->sim_hardware_cmd("service $sid delete", 'command');
+	$self->delete_service_from_gui($sid);
+    }
+}
+
 sub show_migrate_dialog {
     my ($self, $sid) = @_;
 
@@ -402,6 +422,30 @@ sub show_migrate_dialog {
     }
 }
 
+sub delete_service_from_gui {
+    my ($self, $sid) = @_;
+
+    my $sgrid = $self->{service_grid};
+
+    die "service grid not initialised yet" if !defined($sgrid);
+
+    die "service '$sid' has no entry in service_gui table"
+	if !defined($self->{service_gui}->{$sid});
+
+    delete $self->{service_gui}->{$sid};
+
+    my $row = 1;
+
+    while (my $label = $sgrid->get_child_at(0, $row)) {
+	if ($sid eq $label->get_text()) {
+	    $sgrid->remove_row($row);
+	    last;
+	}
+
+	$row++;
+    }
+}
+
 sub create_service_control {
     my ($self) = @_;
 
@@ -409,6 +453,8 @@ sub create_service_control {
     $sgrid->set_row_spacing(2);
     $sgrid->set_column_spacing(5);
     $sgrid->set('margin', 5);
+
+    $self->{service_grid} = $sgrid;
 
     my $w = Gtk3::Label->new('Service ID');
     $sgrid->attach($w, 0, 0, 1, 1);
@@ -459,6 +505,12 @@ sub create_service_control {
 	$w->set_alignment (0, 0.5);
 	$sgrid->attach($w, 4, $row, 1, 1);
 	$self->{service_gui}->{$sid}->{status_label} = $w;
+
+	$w = Gtk3::Button->new_from_icon_name('edit-delete', 1);
+	$sgrid->attach($w, 5, $row, 1, 1);
+	$w->signal_connect(clicked => sub {
+	    $self->show_service_delete_dialog($sid);
+	});
 
 	$row++;
     }
