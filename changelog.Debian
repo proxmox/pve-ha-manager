@@ -1,3 +1,15 @@
+pve-ha-manager (1.0-40) unstable; urgency=medium
+
+  * ha-simulator: allow adding service on runtime
+
+  * ha-simulator: allow deleting service via GUI
+
+  * ha-simulator: allow new service request states over gui
+
+  * ha-simulator: use JSON instead of Dumper for manager status view
+
+ -- Proxmox Support Team <support@proxmox.com>  Tue, 24 Jan 2017 10:03:07 +0100
+
 pve-ha-manager (1.0-39) unstable; urgency=medium
 
   * add setup_environment hook to CLIHandler class
