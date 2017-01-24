@@ -186,12 +186,12 @@ sub count_fenced_services {
 sub get_verbose_service_state {
     my ($service_state, $service_conf) = @_;
 
+    my $req = $service_conf->{state} // 'ignored';
+    return 'ignored' if $req eq 'ignored';
+
     # service not yet processed by manager
     return 'queued' if !defined($service_state);
     my $cur = $service_state->{state};
-
-    return 'ignore' if !defined($service_conf) || !defined($service_conf->{state});
-    my $req = $service_conf->{state};
 
     # give fast feedback to the user
     my $state = $cur;
