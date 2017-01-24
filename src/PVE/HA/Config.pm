@@ -201,7 +201,11 @@ my $service_check_ha_state = sub {
     my ($conf, $sid, $has_state) = @_;
 
     if (my $d = $conf->{ids}->{$sid}) {
-	return 1 if !defined($has_state);
+	if (!defined($has_state)) {
+	    # ignored service behave as if they were not managed by HA
+	    return 0 if defined($d->{state}) && $d->{state} eq 'ignored';
+	    return 1;
+	}
 
 	# backward compatibility
 	$has_state = 'started' if $has_state eq 'enabled';

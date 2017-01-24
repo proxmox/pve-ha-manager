@@ -16,7 +16,7 @@ my $defaultData = {
 				   { completion => \&PVE::HA::Tools::complete_sid }),
 	state => {
 	    type => 'string',
-	    enum => ['started', 'stopped', 'enabled', 'disabled'],
+	    enum => ['started', 'stopped', 'enabled', 'disabled', 'ignored'],
 	    optional => 1,
 	    default => 'started',
 	    description => "Requested resource state.",
@@ -42,6 +42,14 @@ The CRM tries to put the resource in `stopped` state, but does not try
 to relocate the resources on node failures. The main purpose of this
 state is error recovery, because it is the only way to move a resource out
 of the `error` state.
+
+`ignored`;;
+
+The resource gets removed from the manager status and so the CRM and the LRM do
+not touch the resource anymore. All {pve} API calls affecting this resource
+will be executed, directly bypassing the HA stack. CRM commands will be thrown
+away while there source is in this state. The resource will not get relocated
+on node failures.
 
 EODESC
 	},

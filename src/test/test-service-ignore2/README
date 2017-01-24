@@ -1,0 +1,4 @@
+Set the request state of a service to ignored. Then simulate a node failure
+through network outage. The HA stack should not touch the 'ignored' service.
+
+Set the service to 'started' again, now the service should be fenced.

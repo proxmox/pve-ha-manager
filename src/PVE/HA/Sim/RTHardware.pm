@@ -580,7 +580,7 @@ sub new_service_gui_entry {
     $sgrid->attach($w, 1, $row, 1, 1);
 
     my $count = 0;
-    foreach my $state (qw(started stopped disabled)) {
+    foreach my $state (qw(started stopped disabled ignored)) {
 	$w->append_text($state);
 	$w->set_active($count) if $d->{state} eq $state;
 	$count++;

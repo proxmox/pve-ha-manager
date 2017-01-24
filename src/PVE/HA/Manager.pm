@@ -380,6 +380,8 @@ sub manage {
     foreach my $sid (sort keys %$sc) {
 	next if $ss->{$sid}; # already there
 	my $cd = $sc->{$sid};
+	next if $cd->{state} eq 'ignored';
+
 	$haenv->log('info', "adding new service '$sid' on node '$cd->{node}'");
 	# assume we are running to avoid relocate running service at add
 	my $state = ($cd->{state} eq 'started') ? 'started' : 'request_stop';
@@ -387,10 +389,13 @@ sub manage {
 			uid => compute_new_uuid('started') };
     }
 
-    # remove stale service from manager state
+    # remove stale or ignored services from manager state
     foreach my $sid (keys %$ss) {
-	next if $sc->{$sid};
-	$haenv->log('info', "removing stale service '$sid' (no config)");
+	next if $sc->{$sid} && $sc->{$sid}->{state} ne 'ignored';
+
+	my $reason =  defined($sc->{$sid}) ? 'ignored state requested' : 'no config';
+	$haenv->log('info', "removing stale service '$sid' ($reason)");
+
 	# remove all service related state information
 	delete $ss->{$sid};
     }
