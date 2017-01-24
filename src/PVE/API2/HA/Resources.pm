@@ -34,6 +34,18 @@ my $api_copy_config = sub {
     return $scfg;
 };
 
+sub check_service_state {
+    my ($sid, $req_state) = @_;
+
+    my $service_status = PVE::HA::Config::get_service_status($sid);
+    if ($service_status->{managed} && $service_status->{state} eq 'error') {
+	# service in error state, must get disabled before new state request
+	# can be executed
+	return if defined($req_state) && $req_state eq 'disabled';
+	die "service '$sid' in error state, must be disabled and fixed first\n";
+    }
+}
+
 __PACKAGE__->register_method ({
     name => 'index',
     path => '',
@@ -187,6 +199,8 @@ __PACKAGE__->register_method ({
 		if !$group_cfg->{ids}->{$group};
 	}
 
+	check_service_state($sid, $param->{state});
+
 	PVE::HA::Config::lock_ha_domain(
 	    sub {
 
@@ -288,6 +302,8 @@ __PACKAGE__->register_method ({
 
 	PVE::HA::Config::service_is_ha_managed($sid);
 
+	check_service_state($sid);
+
 	PVE::HA::Config::queue_crm_commands("migrate $sid $param->{node}");
 	    
 	return undef;
@@ -318,6 +334,8 @@ __PACKAGE__->register_method ({
 	my ($sid, $type, $name) = PVE::HA::Tools::parse_sid(extract_param($param, 'sid'));
 
 	PVE::HA::Config::service_is_ha_managed($sid);
+
+	check_service_state($sid);
 
 	PVE::HA::Config::queue_crm_commands("relocate $sid $param->{node}");
 	    
