@@ -35,6 +35,7 @@ info    124    node3/crm: status change slave => wait_for_quorum
 info    125    node3/lrm: status change active => lost_agent_lock
 info    160    node1/crm: service 'vm:103': state changed from 'started' to 'fence'
 info    160    node1/crm: node 'node3': state changed from 'unknown' => 'fence'
+emai    160    node1/crm: FENCE: Try to fence node 'node3'
 info    166     watchdog: execute power node3 off
 info    165    node3/crm: killed by poweroff
 info    166    node3/lrm: killed by poweroff
@@ -42,6 +43,7 @@ info    166     hardware: server 'node3' stopped by poweroff (watchdog)
 info    240    node1/crm: got lock 'ha_agent_node3_lock'
 info    240    node1/crm: fencing: acknowledged - got agent lock for node 'node3'
 info    240    node1/crm: node 'node3': state changed from 'fence' => 'unknown'
+emai    240    node1/crm: SUCCEED: fencing: acknowledged - got agent lock for node 'node3'
 info    240    node1/crm: recover service 'vm:103' from fenced node 'node3' to node 'node2'
 info    240    node1/crm: service 'vm:103': state changed from 'fence' to 'started'  (node = node2)
 info    243    node2/lrm: starting service vm:103
