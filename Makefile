@@ -14,12 +14,13 @@ SIMDEB=${SIMPACKAGE}_${VERSION}-${PKGREL}_all.deb
 all: ${DEB} ${SIMDEB}
 
 .PHONY: dinstall simdeb
-dinstall: deb simdeb
+dinstall: $(DEB) $(SIMDEB)
 	dpkg -i ${DEB} ${SIMDEB}
 
 
-.PHONY: simdeb ${SIMDEB}
-simdeb ${SIMDEB}:
+.PHONY: simdeb
+simdeb: ${SIMDEB}
+${SIMDEB}:
 	rm -rf build
 	mkdir build
 	rsync -a src/ build
@@ -29,8 +30,9 @@ simdeb ${SIMDEB}:
 	cd build; dpkg-buildpackage -rfakeroot -b -us -uc
 	lintian ${SIMDEB}
 
-.PHONY: deb ${DEB}
-deb ${DEB}:
+.PHONY: deb
+deb: ${DEB}
+${DEB}:
 	rm -rf build
 	mkdir build
 	rsync -a src/ build
