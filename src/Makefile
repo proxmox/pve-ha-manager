@@ -19,15 +19,15 @@ include /usr/share/pve-doc-generator/pve-doc-generator.mk
 all: watchdog-mux
 
 pve-ha-crm.bash-completion:
-	perl -I. -T -e "use PVE::Service::pve_ha_crm; PVE::Service::pve_ha_crm->generate_bash_completions();" >$@.tmp
+	PVE_GENERATING_DOCS=1 perl -I. -T -e "use PVE::Service::pve_ha_crm; PVE::Service::pve_ha_crm->generate_bash_completions();" >$@.tmp
 	mv $@.tmp $@
 
 pve-ha-lrm.bash-completion:
-	perl -I. -T -e "use PVE::Service::pve_ha_lrm; PVE::Service::pve_ha_lrm->generate_bash_completions();" >$@.tmp
+	PVE_GENERATING_DOCS=1 perl -I. -T -e "use PVE::Service::pve_ha_lrm; PVE::Service::pve_ha_lrm->generate_bash_completions();" >$@.tmp
 	mv $@.tmp $@
 
 ha-manager.bash-completion:
-	perl -I. -T -e "use PVE::CLI::ha_manager; PVE::CLI::ha_manager->generate_bash_completions();" >$@.tmp
+	PVE_GENERATING_DOCS=1 perl -I. -T -e "use PVE::CLI::ha_manager; PVE::CLI::ha_manager->generate_bash_completions();" >$@.tmp
 	mv $@.tmp $@
 
 watchdog-mux: watchdog-mux.c
@@ -35,9 +35,9 @@ watchdog-mux: watchdog-mux.c
 
 .PHONY: install
 install: watchdog-mux pve-ha-crm pve-ha-lrm ha-manager.1 pve-ha-crm.8 pve-ha-lrm.8 ha-manager.bash-completion pve-ha-lrm.bash-completion pve-ha-crm.bash-completion
-	perl -I. -T -e "use PVE::Service::pve_ha_crm; PVE::Service::pve_ha_crm->verify_api();"
-	perl -I. -T -e "use PVE::Service::pve_ha_lrm; PVE::Service::pve_ha_lrm->verify_api();"
-	perl -I. -T -e "use PVE::CLI::ha_manager; PVE::CLI::ha_manager->verify_api();"
+	PVE_GENERATING_DOCS=1 perl -I. -T -e "use PVE::Service::pve_ha_crm; PVE::Service::pve_ha_crm->verify_api();"
+	PVE_GENERATING_DOCS=1 perl -I. -T -e "use PVE::Service::pve_ha_lrm; PVE::Service::pve_ha_lrm->verify_api();"
+	PVE_GENERATING_DOCS=1 perl -I. -T -e "use PVE::CLI::ha_manager; PVE::CLI::ha_manager->verify_api();"
 	install -d ${DESTDIR}${SBINDIR}
 	install -m 0755 pve-ha-crm ${DESTDIR}${SBINDIR}
 	install -m 0755 pve-ha-lrm ${DESTDIR}${SBINDIR}

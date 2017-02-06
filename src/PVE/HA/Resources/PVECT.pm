@@ -5,10 +5,18 @@ use warnings;
 
 use PVE::HA::Tools;
 
-use PVE::LXC;
-use PVE::LXC::Config;
-use PVE::API2::LXC;
-use PVE::API2::LXC::Status;
+BEGIN {
+    if (!$ENV{PVE_GENERATING_DOCS}) {
+	require PVE::LXC;
+	import  PVE::LXC;
+	require PVE::LXC::Config;
+	import  PVE::LXC::Config;
+	require PVE::API2::LXC;
+	import  PVE::API2::LXC;
+	require PVE::API2::LXC::Status;
+	import  PVE::API2::LXC::Status;
+    }
+}
 
 use base qw(PVE::HA::Resources);
 

@@ -5,9 +5,16 @@ use warnings;
 
 use PVE::HA::Tools;
 
-use PVE::QemuConfig;
-use PVE::QemuServer;
-use PVE::API2::Qemu;
+BEGIN {
+    if (!$ENV{PVE_GENERATING_DOCS}) {
+	require PVE::QemuConfig;
+	import  PVE::QemuConfig;
+	require PVE::QemuServer;
+	import  PVE::QemuServer;
+	require PVE::API2::Qemu;
+	import  PVE::API2::Qemu;
+    }
+}
 
 use base qw(PVE::HA::Resources);
 
