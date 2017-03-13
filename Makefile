@@ -53,5 +53,5 @@ distclean: clean
 
 .PHONY: upload
 upload: ${DEB} ${SIMDEB}
-	tar cf - ${DEB} ${SIMDEB}|ssh repoman@repo.proxmox.com upload
+	tar cf - ${DEB} ${SIMDEB}|ssh repoman@repo.proxmox.com -- upload --product pve --dist stretch --arch ${ARCH}
 
