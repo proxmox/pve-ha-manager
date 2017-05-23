@@ -27,6 +27,8 @@
 
 #define WATCHDOG_DEV "/dev/watchdog"
 
+#define JOURNALCTL_BIN "/bin/journalctl"
+
 int watchdog_fd = -1;
 int watchdog_timeout = 10;
 int client_watchdog_timeout = 60;
@@ -98,7 +100,21 @@ watchdog_close(void)
 
     watchdog_fd = -1;
 }
- 
+
+static void
+sync_journal_unsafe(void)
+{
+
+    pid_t child = fork();
+
+    // do not care about fork error or collecting the childs exit status,
+    // we are resetting soon anyway and just want to sync out the journal
+    if (child == 0) {
+	execl(JOURNALCTL_BIN, JOURNALCTL_BIN, "--sync", NULL);
+	exit(-1);
+    }
+}
+
 int 
 main(void)
 {
@@ -327,6 +343,7 @@ main(void)
 
                         if (!wd_client->magic_close) {
                             fprintf(stderr, "client did not stop watchdog - disable watchdog updates\n");
+                            sync_journal_unsafe();
                             update_watchdog = 0;
                         } else {
                             free_client(wd_client);
@@ -346,6 +363,7 @@ main(void)
     int active_count = active_client_count();
     if (active_count > 0) {
         fprintf(stderr, "exit watchdog-mux with active connections\n");
+        sync_journal_unsafe();
     } else {
         fprintf(stderr, "clean exit\n");
         watchdog_close();
