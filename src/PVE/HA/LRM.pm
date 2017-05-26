@@ -51,14 +51,12 @@ sub shutdown_request {
 
     my $nodename = $haenv->nodename();
 
-    my $shutdown = $haenv->is_node_shutdown();
+    my ($shutdown, $reboot) = $haenv->is_node_shutdown();
 
     if ($shutdown) {
-	$haenv->log('info', "shutdown LRM, stop all services");
-	$self->{mode} = 'shutdown';
-
-	# queue stop jobs for all services
-
+	# *always* queue stop jobs for all services if the node shuts down,
+	# independent if it's a reboot or a poweroff, else we may corrupt
+	# services or hinder node shutdown
 	my $ss = $self->{service_status};
 
 	foreach my $sid (keys %$ss) {
@@ -68,7 +66,16 @@ sub shutdown_request {
 	    # Note: use undef uid to mark shutdown/stop jobs
 	    $self->queue_resource_command($sid, undef, 'request_stop');
 	}
+    }
 
+    if ($shutdown) {
+	if ($reboot) {
+	    $haenv->log('info', "reboot LRM, stop and freeze all services");
+	    $self->{mode} = 'restart';
+	} else {
+	    $haenv->log('info', "shutdown LRM, stop all services");
+	    $self->{mode} = 'shutdown';
+	}
     } else {
 	$haenv->log('info', "restart LRM, freeze all services");
 	$self->{mode} = 'restart';
