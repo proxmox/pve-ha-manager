@@ -158,7 +158,25 @@ sub write_lrm_status {
 sub is_node_shutdown {
     my ($self) = @_;
 
-    return 0; # default to freezing services if not overwritten by subclass
+    my $node = $self->{nodename};
+    my $cstatus = $self->{hardware}->read_hardware_status_nolock();
+
+    die "undefined node status for node '$node'" if !defined($cstatus->{$node});
+
+    my ($shutdown, $reboot) = (0, 0);
+
+    if (my $target = $cstatus->{$node}->{shutdown}) {
+	if ($target eq 'shutdown') {
+	    $shutdown = 1;
+	} elsif ($target eq 'reboot') {
+	    $shutdown = 1;
+	    $reboot = 1;
+	} else {
+	    die "unknown shutdown target '$target'";
+	}
+    }
+
+    return ($shutdown, $reboot);
 }
 
 sub read_service_config {

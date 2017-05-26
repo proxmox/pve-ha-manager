@@ -85,18 +85,21 @@ sub is_node_shutdown {
     my ($self) = @_;
 
     my $shutdown = 0;
+    my $reboot = 0;
 
     my $code = sub {
 	my $line = shift;
 
 	# ensure we match the full unit name by matching /^JOB_ID UNIT /
-	$shutdown = 1 if ($line =~ m/^\d+\s+(poweroff|halt)\.target\s+/);
+	# see: man systemd.special
+	$shutdown = 1 if ($line =~ m/^\d+\s+shutdown\.target\s+/);
+	$reboot = 1 if ($line =~ m/^\d+\s+reboot\.target\s+/);
     };
 
     my $cmd = ['/bin/systemctl', '--full', 'list-jobs'];
     eval { PVE::Tools::run_command($cmd, outfunc => $code, noerr => 1); };
 
-    return $shutdown;
+    return ($shutdown, $reboot);
 }
 
 sub queue_crm_commands {
