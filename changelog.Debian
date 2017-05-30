@@ -1,3 +1,11 @@
+pve-ha-manager (1.0-41) unstable; urgency=medium
+
+  * Resources/API: abort early if resouce is in error state
+
+  * shutdown/reboot: always queue service stop
+
+ -- Proxmox Support Team <support@proxmox.com>  Tue, 30 May 2017 12:20:26 +0200
+
 pve-ha-manager (1.0-40) unstable; urgency=medium
 
   * ha-simulator: allow adding service on runtime
