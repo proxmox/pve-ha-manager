@@ -1,3 +1,15 @@
+pve-ha-manager (2.0-2) unstable; urgency=medium
+
+  * explicitly sync journal when disabling watchdog updates
+
+  * always queue service stop if node shuts down
+
+  * Fix shutdown order of HA and storage services
+
+  * Resource/API: abort early if resource in error state
+
+ -- Proxmox Support Team <support@proxmox.com>  Wed, 14 Jun 2017 07:49:59 +0200
+
 pve-ha-manager (2.0-1) unstable; urgency=medium
 
   * rebuild for PVE 5.0 / Debian Stretch
