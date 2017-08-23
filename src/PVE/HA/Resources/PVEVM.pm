@@ -120,7 +120,18 @@ sub check_running {
 
     my $nodename = $haenv->nodename();
 
-    return PVE::QemuServer::check_running($vmid, 1, $nodename);
+    if (PVE::QemuServer::check_running($vmid, 1, $nodename)) {
+	# do not count VMs which are suspended for a backup job as running
+	my $conf = PVE::QemuConfig->load_config($vmid, $nodename);
+	if (defined($conf->{lock}) && $conf->{lock} eq 'backup') {
+	    my $qmpstatus = PVE::QemuServer::vm_qmp_command($vmid, {execute => 'query-status'});
+	    return 0 if $qmpstatus->{status} eq 'prelaunch';
+	}
+
+	return 1;
+    } else {
+	return 0;
+    }
 }
 
 sub remove_locks {
