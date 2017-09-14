@@ -204,8 +204,11 @@ sub log {
 sub sendmail {
     my ($self, $subject, $text) = @_;
 
-    my $mailfrom = 'root@' . $self->nodename();
-    my $mailto = 'root@localhost';
+    # Leave it to postfix to append the correct hostname
+    my $mailfrom = 'root';
+    # /root/.forward makes pvemailforward redirect the
+    # mail to the address configured in the datacenter
+    my $mailto = 'root';
 
     PVE::Tools::sendmail($mailto, $subject, $text, undef, $mailfrom);
 }
