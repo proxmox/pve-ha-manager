@@ -20,7 +20,7 @@ After=lxc.service
 ExecStart=/usr/sbin/pve-ha-lrm start
 ExecStop=/usr/sbin/pve-ha-lrm stop
 PIDFile=/var/run/pve-ha-lrm.pid
-TimeoutStopSec=95
+TimeoutStopSec=infinity
 KillMode=process
 Type=forking
 
