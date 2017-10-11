@@ -4,7 +4,6 @@ package PVE::HA::LRM;
 
 use strict;
 use warnings;
-use Data::Dumper;
 use POSIX qw(:sys_wait_h);
 
 use PVE::SafeSyslog;

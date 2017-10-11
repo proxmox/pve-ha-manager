@@ -4,7 +4,6 @@ use strict;
 use warnings;
 
 use PVE::Daemon;
-use Data::Dumper;
 
 use PVE::HA::Env;
 use PVE::HA::Env::PVE2;

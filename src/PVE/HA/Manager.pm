@@ -4,7 +4,6 @@ use strict;
 use warnings;
 use Digest::MD5 qw(md5_base64);
 
-use Data::Dumper;
 use PVE::Tools;
 use PVE::HA::Tools ':exit_codes';
 use PVE::HA::NodeStatus;

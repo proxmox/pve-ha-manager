@@ -3,7 +3,6 @@ package PVE::HA::Resources;
 use strict;
 use warnings;
 
-use Data::Dumper;
 use PVE::JSONSchema qw(get_standard_option);
 use PVE::SectionConfig;
 use PVE::HA::Tools;

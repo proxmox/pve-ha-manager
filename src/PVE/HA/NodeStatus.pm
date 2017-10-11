@@ -4,7 +4,6 @@ use strict;
 use warnings;
 
 use JSON;
-use Data::Dumper;
 
 my $fence_delay = 60;
 

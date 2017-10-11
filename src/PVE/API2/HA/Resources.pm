@@ -12,7 +12,6 @@ use HTTP::Status qw(:constants);
 use Storable qw(dclone);
 use PVE::JSONSchema qw(get_standard_option);
 use PVE::RPCEnvironment;
-use Data::Dumper;
 
 use PVE::RESTHandler;
 

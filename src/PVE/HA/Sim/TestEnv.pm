@@ -3,7 +3,6 @@ package PVE::HA::Sim::TestEnv;
 use strict;
 use warnings;
 use POSIX qw(strftime EINTR);
-use Data::Dumper;
 use JSON; 
 use IO::File;
 use Fcntl qw(:DEFAULT :flock);

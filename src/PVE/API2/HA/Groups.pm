@@ -2,7 +2,6 @@ package PVE::API2::HA::Groups;
 
 use strict;
 use warnings;
-use Data::Dumper;
 
 use PVE::SafeSyslog;
 use PVE::Tools qw(extract_param);

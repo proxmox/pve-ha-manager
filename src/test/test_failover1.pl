@@ -7,8 +7,6 @@ use lib '..';
 use PVE::HA::Config;
 use PVE::HA::Manager;
 
-use Data::Dumper;
-
 my $groups = PVE::HA::Config::parse_groups_config("groups.tmp", <<EOD);
 group: prefer_node1
 	nodes node1

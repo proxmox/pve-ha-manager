@@ -4,7 +4,6 @@ use strict;
 use warnings;
 use PVE::Tools;
 use PVE::Cluster qw(cfs_register_file cfs_read_file cfs_write_file);
-use Data::Dumper;
 
 sub parse_config {
     my ($fn, $raw) = @_;

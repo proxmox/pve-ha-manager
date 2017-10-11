@@ -2,7 +2,6 @@ package PVE::CLI::ha_manager;
 
 use strict;
 use warnings;
-use Data::Dumper;
 
 use PVE::INotify;
 use JSON;
