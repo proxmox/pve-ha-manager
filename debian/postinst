@@ -20,6 +20,8 @@ case "$1" in
   triggered)
     # We don't print a status message here, as dpkg already said
     # "Processing triggers for ...".
+    systemctl --quiet is-active pve-ha-lrm.service && deb-systemd-invoke reload-or-try-restart pve-ha-lrm.service
+    systemctl --quiet is-active pve-ha-crm.service && deb-systemd-invoke reload-or-try-restart pve-ha-crm.service
     exit 0;;
 
   configure)
