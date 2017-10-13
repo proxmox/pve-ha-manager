@@ -11,7 +11,7 @@ DEB=${PACKAGE}_${VERSION}-${PKGREL}_${ARCH}.deb
 SIMDEB=${SIMPACKAGE}_${VERSION}-${PKGREL}_all.deb
 
 
-all: ${DEB} ${SIMDEB}
+all: deb
 
 .PHONY: dinstall simdeb
 dinstall: $(DEB) $(SIMDEB)
@@ -31,7 +31,7 @@ ${SIMDEB}:
 	lintian ${SIMDEB}
 
 .PHONY: deb
-deb: ${DEB}
+deb: ${DEB} ${SIMDEB}
 ${DEB}:
 	rm -rf build
 	mkdir build
