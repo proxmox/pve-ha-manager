@@ -1,3 +1,17 @@
+pve-ha-manager (2.0-3) unstable; urgency=medium
+
+  * add ignore state for resources
+
+  * lrm/crm service: restart on API changes
+
+  * lrm.service: do not timeout on stop
+
+  * fix #1347: let postfix fill in FQDN in fence mails
+
+  * fix #1073: do not count backup-suspended VMs as running
+
+ -- Proxmox Support Team <support@proxmox.com>  Fri, 13 Oct 2017 11:10:51 +0200
+
 pve-ha-manager (2.0-2) unstable; urgency=medium
 
   * explicitly sync journal when disabling watchdog updates
