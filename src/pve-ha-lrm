@@ -27,4 +27,4 @@ my $prepare = sub {
 
 };
 
-PVE::Service::pve_ha_lrm->run_cli(undef, undef, $prepare);
+PVE::Service::pve_ha_lrm->run_cli_handler(prepare => $prepare);
