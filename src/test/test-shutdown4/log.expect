@@ -26,6 +26,7 @@ info    121    node1/lrm: stopping service vm:100
 info    121    node1/lrm: service status vm:100 stopped
 info    122    node1/lrm: exit (loop end)
 info    122     shutdown: execute crm node1 stop
+info    121    node1/crm: server received shutdown request
 info    140    node1/crm: voluntary release CRM lock
 info    141    node1/crm: exit (loop end)
 info    141     shutdown: execute power node1 off

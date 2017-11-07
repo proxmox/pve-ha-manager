@@ -5,7 +5,6 @@ package PVE::HA::CRM;
 use strict;
 use warnings;
 
-use PVE::SafeSyslog;
 use PVE::Tools;
 use PVE::HA::Tools;
 
@@ -39,7 +38,7 @@ sub new {
 sub shutdown_request {
     my ($self) = @_;
 
-    syslog('info' , "server received shutdown request")
+    $self->{haenv}->log('info' , "server received shutdown request")
 	if !$self->{shutdown_request};
 
     $self->{shutdown_request} = 1;
