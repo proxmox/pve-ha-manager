@@ -328,7 +328,8 @@ sub update_crm_commands {
     my ($haenv, $ms, $ns, $ss) = ($self->{haenv}, $self->{ms}, $self->{ns}, $self->{ss});
 
     my $cmdlist = $haenv->read_crm_commands();
-    
+    return if !defined($cmdlist);
+
     foreach my $cmd (split(/\n/, $cmdlist)) {
 	chomp $cmd;
 
