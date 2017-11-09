@@ -1,3 +1,9 @@
+pve-ha-manager (2.0-4) unstable; urgency=medium
+
+  * address timing issues happening when pve-cluster.service is being restarted
+
+ -- Proxmox Support Team <support@proxmox.com>  Thu, 09 Nov 2017 11:46:50 +0100
+
 pve-ha-manager (2.0-3) unstable; urgency=medium
 
   * add ignore state for resources

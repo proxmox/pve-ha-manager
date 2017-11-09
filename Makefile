@@ -1,7 +1,7 @@
 VERSION=2.0
 PACKAGE=pve-ha-manager
 SIMPACKAGE=pve-ha-simulator
-PKGREL=3
+PKGREL=4
 
 GITVERSION:=$(shell cat .git/refs/heads/master)
 
