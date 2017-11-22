@@ -1,0 +1,59 @@
+info      0     hardware: starting simulation
+info     20      cmdlist: execute power node1 on
+info     20    node1/crm: status change startup => wait_for_quorum
+info     20    node1/lrm: status change startup => wait_for_agent_lock
+info     20      cmdlist: execute power node2 on
+info     20    node2/crm: status change startup => wait_for_quorum
+info     20    node2/lrm: status change startup => wait_for_agent_lock
+info     20      cmdlist: execute power node3 on
+info     20    node3/crm: status change startup => wait_for_quorum
+info     20    node3/lrm: status change startup => wait_for_agent_lock
+info     20    node1/crm: got lock 'ha_manager_lock'
+info     20    node1/crm: status change wait_for_quorum => master
+info     20    node1/crm: node 'node1': state changed from 'unknown' => 'online'
+info     20    node1/crm: node 'node2': state changed from 'unknown' => 'online'
+info     20    node1/crm: node 'node3': state changed from 'unknown' => 'online'
+info     20    node1/crm: adding new service 'vm:101' on node 'node1'
+info     20    node1/crm: adding new service 'vm:102' on node 'node2'
+info     20    node1/crm: adding new service 'vm:103' on node 'node3'
+info     21    node1/lrm: got lock 'ha_agent_node1_lock'
+info     21    node1/lrm: status change wait_for_agent_lock => active
+info     21    node1/lrm: starting service vm:101
+info     21    node1/lrm: service status vm:101 started
+info     22    node2/crm: status change wait_for_quorum => slave
+info     23    node2/lrm: got lock 'ha_agent_node2_lock'
+info     23    node2/lrm: status change wait_for_agent_lock => active
+info     24    node3/crm: status change wait_for_quorum => slave
+info     25    node3/lrm: got lock 'ha_agent_node3_lock'
+info     25    node3/lrm: status change wait_for_agent_lock => active
+info     25    node3/lrm: starting service vm:103
+info     25    node3/lrm: service status vm:103 started
+info     40    node1/crm: service 'vm:102': state changed from 'request_stop' to 'stopped'
+info    120      cmdlist: execute cfs node1 rw fail
+info    120      cmdlist: execute service vm:101 stopped
+err     120    node1/crm: got unexpected error - cfs connection refused - not mounted?
+err     121    node1/lrm: updating service status from manager failed: cfs connection refused - not mounted?
+err     121    node1/lrm: updating service status from manager failed: cfs connection refused - not mounted?
+err     121    node1/lrm: unable to write lrm status file - cfs connection refused - not mounted?
+err     140    node1/crm: got unexpected error - cfs connection refused - not mounted?
+err     141    node1/lrm: updating service status from manager failed: cfs connection refused - not mounted?
+err     141    node1/lrm: updating service status from manager failed: cfs connection refused - not mounted?
+err     141    node1/lrm: unable to write lrm status file - cfs connection refused - not mounted?
+err     160    node1/crm: got unexpected error - cfs connection refused - not mounted?
+err     161    node1/lrm: updating service status from manager failed: cfs connection refused - not mounted?
+err     161    node1/lrm: updating service status from manager failed: cfs connection refused - not mounted?
+err     161    node1/lrm: unable to write lrm status file - cfs connection refused - not mounted?
+err     180    node1/crm: got unexpected error - cfs connection refused - not mounted?
+err     181    node1/lrm: updating service status from manager failed: cfs connection refused - not mounted?
+err     181    node1/lrm: updating service status from manager failed: cfs connection refused - not mounted?
+err     181    node1/lrm: unable to write lrm status file - cfs connection refused - not mounted?
+err     200    node1/crm: got unexpected error - cfs connection refused - not mounted?
+err     201    node1/lrm: updating service status from manager failed: cfs connection refused - not mounted?
+err     201    node1/lrm: updating service status from manager failed: cfs connection refused - not mounted?
+err     201    node1/lrm: unable to write lrm status file - cfs connection refused - not mounted?
+info    220      cmdlist: execute cfs node1 rw work
+info    220    node1/crm: service 'vm:101': state changed from 'started' to 'request_stop'
+info    221    node1/lrm: stopping service vm:101
+info    221    node1/lrm: service status vm:101 stopped
+info    240    node1/crm: service 'vm:101': state changed from 'request_stop' to 'stopped'
+info    820     hardware: exit simulation - done

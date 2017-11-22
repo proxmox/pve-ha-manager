@@ -81,13 +81,13 @@ sub parse_resources_config {
 
 sub read_resources_config {
 
-    return eval { cfs_read_file($ha_resources_config) };
+    return cfs_read_file($ha_resources_config);
 }
 
 # checks if resource exists and sets defaults for unset values
 sub read_and_check_resources_config {
 
-    my $res = eval { cfs_read_file($ha_resources_config) };
+    my $res = cfs_read_file($ha_resources_config);
 
     my $vmlist = PVE::Cluster::get_vmlist();
     my $conf = {};
@@ -122,7 +122,7 @@ sub read_and_check_resources_config {
 
 sub read_group_config {
 
-    return eval { cfs_read_file($ha_groups_config) };
+    return cfs_read_file($ha_groups_config);
 }
 
 sub write_group_config {
@@ -140,7 +140,7 @@ sub write_resources_config {
 sub read_manager_status {
     my () = @_;
 
-    return eval { cfs_read_file($manager_status_filename) };
+    return cfs_read_file($manager_status_filename);
 }
 
 sub write_manager_status {
@@ -152,7 +152,7 @@ sub write_manager_status {
 sub read_fence_config {
     my () = @_;
 
-    return eval { cfs_read_file($ha_fence_config) };
+    cfs_read_file($ha_fence_config);
 }
 
 sub write_fence_config {
@@ -189,8 +189,7 @@ sub queue_crm_commands {
 sub read_crm_commands {
 
     my $code = sub {
-	my $data = eval { cfs_read_file($crm_commands_filename) };
-	return undef if !$data;
+	my $data = cfs_read_file($crm_commands_filename);
 	cfs_write_file($crm_commands_filename, '');
 	return $data;
     };
