@@ -136,6 +136,21 @@ sub update_lrm_status {
     return 1;
 }
 
+sub update_service_status {
+    my ($self) = @_;
+
+    my $haenv = $self->{haenv};
+
+    my $ms = eval { $haenv->read_manager_status(); };
+    if (my $err = $@) {
+	$haenv->log('err', "updating service status from manager failed: $err");
+	return undef;
+    } else {
+	$self->{service_status} = $ms->{service_status} || {};
+	return 1;
+    }
+}
+
 sub get_protected_ha_agent_lock {
     my ($self) = @_;
 
@@ -215,8 +230,7 @@ sub do_one_iteration {
     my $status = $self->get_local_status();
     my $state = $status->{state};
 
-    my $ms = $haenv->read_manager_status();
-    $self->{service_status} =  $ms->{service_status} || {};
+    $self->update_service_status();
 
     my $fence_request = PVE::HA::Tools::count_fenced_services($self->{service_status}, $haenv->nodename());
     
@@ -276,6 +290,10 @@ sub do_one_iteration {
 	# do work (max_time seconds)
 	eval {
 	    # fixme: set alert timer
+
+	    # if we could not get the current service status there's no point
+	    # in doing anything, try again next round.
+	    return if !$self->update_service_status();
 
 	    if ($self->{shutdown_request}) {
 
