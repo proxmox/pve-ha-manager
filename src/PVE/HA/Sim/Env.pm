@@ -53,6 +53,15 @@ sub hardware {
     return $self->{hardware};
 }
 
+my $assert_cfs_can_rw = sub {
+    my ($self, $emsg) = @_;
+
+    $emsg //= 'cfs connection refused - not mounted?';
+
+    die "$emsg\n"
+	if !$self->{hardware}->get_cfs_state($self->{nodename}, 'rw');
+};
+
 sub sim_get_lock {
     my ($self, $lock_name, $unlock) = @_;
 
@@ -125,6 +134,8 @@ sub sim_get_lock {
 sub read_manager_status {
     my ($self) = @_;
 
+    $assert_cfs_can_rw->($self);
+
     my $filename = "$self->{statusdir}/manager_status";
 
     return PVE::HA::Tools::read_json_from_file($filename, {});
@@ -132,6 +143,8 @@ sub read_manager_status {
 
 sub write_manager_status {
     my ($self, $status_obj) = @_;
+
+    $assert_cfs_can_rw->($self);
 
     my $filename = "$self->{statusdir}/manager_status";
 
@@ -143,6 +156,8 @@ sub read_lrm_status {
 
     $node = $self->{nodename} if !defined($node);
 
+    $assert_cfs_can_rw->($self);
+
     return $self->{hardware}->read_lrm_status($node);
 }
 
@@ -150,6 +165,8 @@ sub write_lrm_status {
     my ($self, $status_obj) = @_;
 
     my $node = $self->{nodename};
+
+    $assert_cfs_can_rw->($self);
 
     return $self->{hardware}->write_lrm_status($node, $status_obj);
 }
@@ -181,11 +198,15 @@ sub is_node_shutdown {
 sub read_service_config {
     my ($self) = @_;
 
+    $assert_cfs_can_rw->($self);
+
     return $self->{hardware}->read_service_config();
 }
 
 sub read_fence_config {
     my ($self) = @_;
+
+    $assert_cfs_can_rw->($self);
 
     return $self->{hardware}->read_fence_config();
 }
@@ -209,6 +230,8 @@ sub exec_fence_agent {
 sub read_group_config {
     my ($self) = @_;
 
+    $assert_cfs_can_rw->($self);
+
     return $self->{hardware}->read_group_config();
 }
 
@@ -216,17 +239,23 @@ sub read_group_config {
 sub steal_service {
     my ($self, $sid, $current_node, $new_node) = @_;
 
+    $assert_cfs_can_rw->($self);
+
     return $self->{hardware}->change_service_location($sid, $current_node, $new_node);
 }
 
 sub queue_crm_commands {
     my ($self, $cmd) = @_;
 
+    $assert_cfs_can_rw->($self);
+
     return $self->{hardware}->queue_crm_commands($cmd);
 }
 
 sub read_crm_commands {
     my ($self) = @_;
+
+    $assert_cfs_can_rw->($self);
 
     return $self->{hardware}->read_crm_commands();
 }

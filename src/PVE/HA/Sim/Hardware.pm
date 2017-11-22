@@ -494,9 +494,22 @@ sub get_node_info {
     return ($node_info, $quorate);
 }
 
+# helper for Sim/ only
+sub get_cfs_state {
+    my ($self, $node, $state) = @_;
+
+    # TODO: ensure nolock is OK when adding this to RTSim
+    my $cstatus = $self->read_hardware_status_nolock();
+    my $res = $cstatus->{$node}->{cfs}->{$state};
+
+    # we assume default true if not defined
+    return !defined($res) || $res;
+}
+
 # simulate hardware commands
 # power <node> <on|off>
 # network <node> <on|off>
+# cfs <node> <rw|update> <work|fail>
 # reboot <node>
 # shutdown <node>
 # restart-lrm <node>
@@ -539,6 +552,7 @@ sub sim_hardware_cmd {
 		    $d->{crm} = $self->crm_control('start', $d, $lock_fh) if !defined($d->{crm});
 		    $d->{lrm} = $self->lrm_control('start', $d, $lock_fh) if !defined($d->{lrm});
 		    $d->{lrm_restart} = undef;
+		    $cstatus->{$node}->{cfs} = {};
 
 		} else {
 
@@ -570,6 +584,15 @@ sub sim_hardware_cmd {
 		if $action !~ m/^(on|off)$/;
 	    $cstatus->{$node}->{network} = $action;
 
+	    $self->write_hardware_status_nolock($cstatus);
+
+	} elsif ($cmd eq 'cfs') {
+	    die "sim_hardware_cmd: unknown cfs action '$action' for node '$node'"
+		if $action !~ m/^(rw|update)$/;
+	    die "sim_hardware_cmd: unknown cfs command '$target' for '$action' on node '$node'"
+		if $target !~ m/^(work|fail)$/;
+
+	    $cstatus->{$node}->{cfs}->{$action} = $target eq 'work';
 	    $self->write_hardware_status_nolock($cstatus);
 
 	} elsif ($cmd eq 'reboot' || $cmd eq 'shutdown') {
