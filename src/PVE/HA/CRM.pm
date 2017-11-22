@@ -120,6 +120,9 @@ sub can_get_active {
 
     return 0 if !$haenv->quorate();
 
+    # we may not do any active work with an incosistent cluster state
+    return 0 if !$self->{cluster_state_update};
+
     my $manager_status = eval { $haenv->read_manager_status() };
     if (my $err = $@) {
 	$haenv->log('err', "could not read manager status: $err");
@@ -246,6 +249,13 @@ sub work {
 		$shutdown = 1;
 
 	    } else {
+		if (!$self->{cluster_state_update}) {
+		    # update failed but we could still renew our lock (cfs restart?),
+		    # safely skip manage and expect to update just fine next round
+		    $haenv->log('notice', "temporary inconsistent cluster state " .
+		                "(cfs restart?), skip round");
+		    return;
+		}
 
 		$manager->manage();
 	    }

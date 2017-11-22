@@ -349,6 +349,13 @@ sub work {
 		    }
 		}
 	    } else {
+		if (!$self->{cluster_state_update}) {
+		    # update failed but we could still renew our lock (cfs restart?),
+		    # safely skip manage and expect to update just fine next round
+		    $haenv->log('notice', "temporary inconsistent cluster state " .
+		                "(cfs restart?), skip round");
+		    return;
+		}
 
 		$self->manage_resources();
 
