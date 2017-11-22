@@ -34,6 +34,7 @@ sub new {
 	shutdown_errors => 0,
 	# mode can be: active, reboot, shutdown, restart
 	mode => 'active',
+	cluster_state_update => 0,
     }, $class;
 
     $self->set_local_status({ state => 	'wait_for_agent_lock' });   
@@ -218,6 +219,8 @@ sub do_one_iteration {
     my $haenv = $self->{haenv};
 
     $haenv->loop_start_hook();
+
+    $self->{cluster_state_update} = $haenv->cluster_state_update();
 
     my $res = $self->work();
 

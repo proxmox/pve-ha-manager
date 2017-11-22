@@ -28,6 +28,7 @@ sub new {
 	haenv => $haenv,
 	manager => undef,
 	status => { state => 'startup' },
+	cluster_state_update => 0,
     }, $class;
 
     $self->set_local_status({ state => 'wait_for_quorum' });
@@ -146,6 +147,8 @@ sub do_one_iteration {
 
     $haenv->loop_start_hook();
 
+    $self->{cluster_state_update} = $haenv->cluster_state_update();
+
     my $res = $self->work();
 
     $haenv->loop_end_hook();
@@ -243,6 +246,7 @@ sub work {
 		$shutdown = 1;
 
 	    } else {
+
 		$manager->manage();
 	    }
 	};

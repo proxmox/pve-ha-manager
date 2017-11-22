@@ -348,9 +348,8 @@ sub sleep_until {
 sub loop_start_hook {
     my ($self) = @_;
 
-    PVE::Cluster::cfs_update();
-
     $self->{loop_start} = $self->get_time();
+
 }
 
 sub loop_end_hook {
@@ -359,6 +358,18 @@ sub loop_end_hook {
     my $delay = $self->get_time() - $self->{loop_start};
 
     warn "loop take too long ($delay seconds)\n" if $delay > 30;
+}
+
+sub cluster_state_update {
+    my ($self) = @_;
+
+    eval { PVE::Cluster::cfs_update(1) };
+    if (my $err = $@) {
+	$self->log('warn', "cluster file system update failed - $err");
+	return 0;
+    }
+
+    return 1;
 }
 
 my $watchdog_fh;

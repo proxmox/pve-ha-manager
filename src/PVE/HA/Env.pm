@@ -209,6 +209,12 @@ sub loop_end_hook {
     return $self->{plug}->loop_end_hook(@args);
 }
 
+sub cluster_state_update {
+    my ($self) = @_;
+
+    return $self->{plug}->cluster_state_update();
+}
+
 sub watchdog_open {
     my ($self) = @_;
 

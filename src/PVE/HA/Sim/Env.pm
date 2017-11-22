@@ -366,6 +366,13 @@ sub loop_end_hook {
     # do nothing, overwrite in subclass
 }
 
+
+sub cluster_state_update {
+    my ($self) = @_;
+
+    return $self->{hardware}->get_cfs_state($self->{nodename}, 'update');
+}
+
 sub watchdog_open {
     my ($self) = @_;
 
