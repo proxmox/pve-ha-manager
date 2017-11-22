@@ -111,14 +111,32 @@ sub get_protected_ha_manager_lock {
     return 0;
 }
 
-sub check_pending_fencing {
-    my ($manager_status, $node) = @_;
+# checks quorum, for no active pending fence jobs and if services are configured
+sub can_get_active {
+    my ($self, $allow_no_service) = @_;
 
+    my $haenv = $self->{haenv};
+
+    return 0 if !$haenv->quorate();
+
+    my $manager_status = eval { $haenv->read_manager_status() };
+    if (my $err = $@) {
+	$haenv->log('err', "could not read manager status: $err");
+	return 0;
+    }
     my $ss = $manager_status->{service_status};
+    return 0 if PVE::HA::Tools::count_fenced_services($ss, $haenv->nodename());
 
-    return 1 if PVE::HA::Tools::count_fenced_services($ss, $node);
+    if (!$allow_no_service) {
+	my $conf = eval { $haenv->read_service_config() };
+	if (my $err = $@) {
+	    $haenv->log('err', "could not read service config: $err");
+	    return undef;
+	}
+	return 0 if !scalar(%{$conf});
+    }
 
-    return 0;
+    return 1;
 }
 
 sub do_one_iteration {
@@ -129,15 +147,11 @@ sub do_one_iteration {
     my $status = $self->get_local_status();
     my $state = $status->{state};
 
-    my $manager_status = $haenv->read_manager_status();
-    my $pending_fencing = check_pending_fencing($manager_status, $haenv->nodename());
-    
     # do state changes first 
 
     if ($state eq 'wait_for_quorum') {
 
-	if (!$pending_fencing && $haenv->quorate() &&
-	    PVE::HA::Tools::has_services($haenv)) {
+	if ($self->can_get_active()) {
 	    if ($self->get_protected_ha_manager_lock()) {
 		$self->set_local_status({ state => 'master' });
 	    } else {
@@ -147,8 +161,7 @@ sub do_one_iteration {
 
     } elsif ($state eq 'slave') {
 
-	if (!$pending_fencing && $haenv->quorate() &&
-	    PVE::HA::Tools::has_services($haenv)) {
+	if ($self->can_get_active()) {
 	    if ($self->get_protected_ha_manager_lock()) {
 		$self->set_local_status({ state => 'master' });
 	    }
@@ -158,7 +171,7 @@ sub do_one_iteration {
 
     } elsif ($state eq 'lost_manager_lock') {
 
-	if (!$pending_fencing && $haenv->quorate()) {
+	if ($self->can_get_active(1)) {
 	    if ($self->get_protected_ha_manager_lock()) {
 		$self->set_local_status({ state => 'master' });
 	    }
