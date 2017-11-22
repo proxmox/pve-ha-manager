@@ -25,13 +25,7 @@ sub run {
     $self->{crm} = PVE::HA::CRM->new($self->{haenv});
 
     for (;;) {
-	$self->{haenv}->loop_start_hook();
-
-	my $repeat = $self->{crm}->do_one_iteration();
-
-	$self->{haenv}->loop_end_hook();
-
-	last if !$repeat;
+	last if !$self->{crm}->do_one_iteration();
     }
 }
 

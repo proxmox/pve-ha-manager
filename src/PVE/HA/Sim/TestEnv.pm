@@ -86,11 +86,11 @@ sub get_ha_agent_lock {
 }
 
 sub loop_start_hook {
-    my ($self, $starttime) = @_;
+    my ($self) = @_;
 
     $self->{loop_delay} = 0;
 
-    die "no starttime" if !defined($starttime);
+    my $starttime = $self->{hardware}->get_time();
     die "strange start time" if $starttime < $self->{cur_time};
 
     $self->{cur_time} = $starttime;

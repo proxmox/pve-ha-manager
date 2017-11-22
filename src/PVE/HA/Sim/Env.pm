@@ -355,7 +355,7 @@ sub get_node_info {
 }
 
 sub loop_start_hook {
-    my ($self, $starttime) = @_;
+    my ($self) = @_;
 
     # do nothing, overwrite in subclass
 }

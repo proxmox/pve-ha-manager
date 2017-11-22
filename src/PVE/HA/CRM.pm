@@ -144,6 +144,20 @@ sub do_one_iteration {
 
     my $haenv = $self->{haenv};
 
+    $haenv->loop_start_hook();
+
+    my $res = $self->work();
+
+    $haenv->loop_end_hook();
+
+    return $res;
+}
+
+sub work {
+    my ($self) = @_;
+
+    my $haenv = $self->{haenv};
+
     my $status = $self->get_local_status();
     my $state = $status->{state};
 

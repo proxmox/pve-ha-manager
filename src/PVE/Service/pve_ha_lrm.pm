@@ -25,13 +25,7 @@ sub run {
     $self->{lrm} = PVE::HA::LRM->new($self->{haenv});
 
     for (;;) {
-	$self->{haenv}->loop_start_hook();
-
-	my $repeat = $self->{lrm}->do_one_iteration();
-
-	$self->{haenv}->loop_end_hook();
-
-	last if !$repeat;
+	last if !$self->{lrm}->do_one_iteration();
     }
 }
 

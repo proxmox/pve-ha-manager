@@ -128,14 +128,10 @@ sub fork_daemon {
 	    my $crm = PVE::HA::CRM->new($haenv);
 
 	    for (;;) {
-		$haenv->loop_start_hook();
-
 		if (!$crm->do_one_iteration()) {
 		    $haenv->log("info", "daemon stopped");
 		    exit (0);
 		}
-
-		$haenv->loop_end_hook();
 	    }
 
 	} else {
@@ -143,14 +139,10 @@ sub fork_daemon {
 	    my $lrm = PVE::HA::LRM->new($haenv);
 
 	    for (;;) {
-		$haenv->loop_start_hook();
-
 		if (!$lrm->do_one_iteration()) {
 		    $haenv->log("info", "daemon stopped");
 		    exit (0);
 		}
-
-		$haenv->loop_end_hook();
 	    }
 	}
 

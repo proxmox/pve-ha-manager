@@ -136,11 +136,7 @@ sub run {
 	    
 	    if (my $crm = $d->{crm}) {
 
-		$d->{crm_env}->loop_start_hook($self->get_time());
-
 		my $exit_crm = !$crm->do_one_iteration();
-
-		$d->{crm_env}->loop_end_hook();
 
 		my $nodetime = $d->{crm_env}->get_time();
 		$self->{cur_time} = $nodetime if $nodetime > $self->{cur_time};
@@ -166,11 +162,7 @@ sub run {
 
 	    if (my $lrm = $d->{lrm}) {
 
-		$d->{lrm_env}->loop_start_hook($self->get_time());
-
 		my $exit_lrm = !$lrm->do_one_iteration();
-
-		$d->{lrm_env}->loop_end_hook();
 
 		my $nodetime = $d->{lrm_env}->get_time();
 		$self->{cur_time} = $nodetime if $nodetime > $self->{cur_time};
@@ -213,8 +205,8 @@ sub run {
 	foreach my $node (@nodes) {
 	    my $d = $self->{nodes}->{$node};
 	    # forced time update
-	    $d->{lrm_env}->loop_start_hook($self->get_time());
-	    $d->{crm_env}->loop_start_hook($self->get_time());
+	    $d->{lrm_env}->loop_start_hook();
+	    $d->{crm_env}->loop_start_hook();
 	}
 
 	next if $self->{cur_time} < $next_cmd_at;

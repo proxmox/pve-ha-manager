@@ -217,6 +217,20 @@ sub do_one_iteration {
 
     my $haenv = $self->{haenv};
 
+    $haenv->loop_start_hook();
+
+    my $res = $self->work();
+
+    $haenv->loop_end_hook();
+
+    return $res;
+}
+
+sub work {
+    my ($self) = @_;
+
+    my $haenv = $self->{haenv};
+
     if (!$wrote_lrm_status_at_startup) {
 	if ($self->update_lrm_status()) {
 	    $wrote_lrm_status_at_startup = 1;
