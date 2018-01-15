@@ -11,4 +11,4 @@ Priority: optional
 Architecture: all
 Depends: ${perl:Depends}, ${misc:Depends}, libpve-common-perl, libglib-perl, libgtk3-perl
 Description: Proxmox VE HA Simulator
- This is a simple GUI to simulate the bebavior of a Proxmox VE HA cluster.
+ This is a simple GUI to simulate the behavior of a Proxmox VE HA cluster.
