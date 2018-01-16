@@ -21,7 +21,7 @@
 #define WD_SOCK_PATH "/run/watchdog-mux.sock"
 #define WD_ACTIVE_MARKER "/run/watchdog-mux.active"
 
-#define LISTEN_BACKLOG 32 /* set same value in watchdog-mux.socket */
+#define LISTEN_BACKLOG 32
 
 #define MAX_EVENTS 10
 
