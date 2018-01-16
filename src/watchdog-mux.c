@@ -32,7 +32,7 @@
 int watchdog_fd = -1;
 int watchdog_timeout = 10;
 int client_watchdog_timeout = 60;
-int update_watchdog = 1; 
+int update_watchdog = 1;
 
 typedef struct {
     int fd;
@@ -82,11 +82,11 @@ active_client_count(void)
             count++;
         }
     }
-    
+
     return count;
 }
 
-static void 
+static void
 watchdog_close(void)
 {
     if (watchdog_fd != -1) {
@@ -115,7 +115,7 @@ sync_journal_unsafe(void)
     }
 }
 
-int 
+int
 main(void)
 {
     struct sockaddr_un my_addr, peer_addr;
@@ -127,7 +127,7 @@ main(void)
 
     if (stat(WD_ACTIVE_MARKER, &fs) == 0) {
         fprintf(stderr, "watchdog active - unable to restart watchdog-mux\n");
-        exit(EXIT_FAILURE);       
+        exit(EXIT_FAILURE);
     }
 
     /* if you want to debug, set options in /lib/modprobe.d/aliases.conf
@@ -153,7 +153,7 @@ main(void)
          perror("watchdog open");
          exit(EXIT_FAILURE);
     }
-       
+
     if (ioctl(watchdog_fd, WDIOC_SETTIMEOUT, &watchdog_timeout) == -1) {
         perror("watchdog set timeout");
         watchdog_close();
@@ -185,7 +185,7 @@ main(void)
     strncpy(my_addr.sun_path, WD_SOCK_PATH, sizeof(my_addr.sun_path) - 1);
 
     if (bind(listen_sock, (struct sockaddr *) &my_addr,
-	     sizeof(struct sockaddr_un)) == -1) {
+             sizeof(struct sockaddr_un)) == -1) {
       perror("socket bind");
       exit(EXIT_FAILURE);
     }
@@ -213,9 +213,9 @@ main(void)
     sigaddset(&mask, SIGINT);
     sigaddset(&mask, SIGTERM);
     sigaddset(&mask, SIGHUP);
-    
+
     sigprocmask(SIG_BLOCK, &mask, NULL);
-   
+
     if ((sigfd = signalfd(-1, &mask, SFD_NONBLOCK)) < 0) {
         perror("unable to open signalfd");
         goto err;
@@ -227,13 +227,13 @@ main(void)
         perror("epoll_ctl add sigfd");
         goto err;
     }
-  
+
     for (;;) {
         nfds = epoll_wait(epollfd, events, MAX_EVENTS, 1000);
         if (nfds == -1) {
             if (errno == EINTR)
                 continue;
-            
+
             perror("epoll_pwait");
             goto err;
         }
@@ -248,7 +248,7 @@ main(void)
                     if (client_list[i].fd != 0 && client_list[i].time != 0 &&
                         ((ctime - client_list[i].time) > client_watchdog_timeout)) {
                         update_watchdog = 0;
-                        fprintf(stderr, "client watchdog expired - disable watchdog updates\n"); 
+                        fprintf(stderr, "client watchdog expired - disable watchdog updates\n");
                     }
                 }
             }
@@ -258,15 +258,15 @@ main(void)
                     perror("watchdog update failed");
                 }
             }
-            
+
             continue;
         }
 
         if (!update_watchdog)
             break;
-            
+
         int terminate = 0;
-        
+
         int n;
         for (n = 0; n < nfds; ++n) {
             wd_client_t *wd_client = events[n].data.ptr;
@@ -286,14 +286,14 @@ main(void)
                     fprintf(stderr, "unable to alloc wd_client structure\n");
                     goto err; // fixme;
                 }
-                
+
                 mkdir(WD_ACTIVE_MARKER, 0600);
-                
+
                 ev.events = EPOLLIN;
                 ev.data.ptr = new_client;
                 if (epoll_ctl(epollfd, EPOLL_CTL_ADD, conn_sock, &ev) == -1) {
                     perror("epoll_ctl: add conn_sock");
-                    goto err; // fixme                   
+                    goto err; // fixme
                 }
             } else if (wd_client->fd == sigfd) {
 
@@ -310,15 +310,15 @@ main(void)
                         fprintf(stderr, "got terminate request\n");
                     }
                 }
-                
+
             } else {
                 char buf[4096];
                 int cfd = wd_client->fd;
-                
+
                 ssize_t bytes = read(cfd, buf, sizeof(buf));
                 if (bytes == -1) {
                     perror("read");
-                    goto err; // fixme                   
+                    goto err; // fixme
                 } else if (bytes > 0) {
                     int i;
                     for (i = 0; i < bytes; i++) {
@@ -334,11 +334,11 @@ main(void)
                         //printf("GOT %016x event\n", events[n].events);
                         if (epoll_ctl(epollfd, EPOLL_CTL_DEL, cfd, NULL) == -1) {
                             perror("epoll_ctl: del conn_sock");
-                            goto err; // fixme                   
+                            goto err; // fixme
                         }
                         if (close(cfd) == -1) {
                             perror("close conn_sock");
-                            goto err; // fixme                   
+                            goto err; // fixme
                         }
 
                         if (!wd_client->magic_close) {
@@ -348,7 +348,7 @@ main(void)
                         } else {
                             free_client(wd_client);
                         }
-                        
+
                         if (!active_client_count()) {
                             rmdir(WD_ACTIVE_MARKER);
                         }
