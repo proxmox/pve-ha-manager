@@ -3,7 +3,7 @@ PACKAGE=pve-ha-manager
 SIMPACKAGE=pve-ha-simulator
 PKGREL=4
 
-GITVERSION:=$(shell cat .git/refs/heads/master)
+GITVERSION:=$(shell git rev-parse HEAD)
 
 ARCH:=$(shell dpkg-architecture -qDEB_BUILD_ARCH)
 
