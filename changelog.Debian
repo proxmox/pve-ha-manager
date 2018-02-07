@@ -1,3 +1,13 @@
+pve-ha-manager (2.0-5) unstable; urgency=medium
+
+  * skip CRM and LRM work if last cfs update failed
+
+  * regression test system: allow to simulate cluster fs failures
+
+  * postinst: drop transitional cleanup for systemd watchdog mux socket
+
+ -- Proxmox Support Team <support@proxmox.com>  Wed, 07 Feb 2018 11:00:12 +0100
+
 pve-ha-manager (2.0-4) unstable; urgency=medium
 
   * address timing issues happening when pve-cluster.service is being restarted
