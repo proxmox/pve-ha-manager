@@ -67,7 +67,7 @@ sub run_fence_jobs {
 		    $haenv->after_fork(); # cleanup child
 
 		    $haenv->exec_fence_agent($cmd->{agent}, $node, @{$cmd->{param}});
-		    Posix::_exit(-1);
+		    POSIX::_exit(-1);
 		} else {
 
 		    $workers->{$pid} = {
