@@ -21,6 +21,7 @@ Architecture: any
 Depends: libjson-perl,
          libpve-common-perl,
          pve-cluster (>= 3.0-17),
+         pve-container,
          qemu-server,
          systemd,
          ${misc:Depends},
