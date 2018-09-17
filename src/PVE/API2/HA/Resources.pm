@@ -106,7 +106,44 @@ __PACKAGE__->register_method ({
 				      { completion => \&PVE::HA::Tools::complete_sid }),
 	},
     },
-    returns => {},
+    returns => {
+	type => 'object',
+	properties => {
+	    sid => get_standard_option('pve-ha-resource-or-vm-id'),
+	    digest => {
+		type => 'string',
+		description => 'Can be used to prevent concurrent modifications.',
+	    },
+	    type => {
+		type => 'string',
+		description => 'The type of the resources.',
+	    },
+	    state => {
+		type => 'string',
+		enum => ['started', 'stopped', 'enabled', 'disabled', 'ignored'],
+		optional => 1,
+		description => "Requested resource state.",
+	    },
+	    group => get_standard_option('pve-ha-group-id', { optional => 1, }),
+	    max_restart => {
+		description => "Maximal number of tries to restart the service on".
+		" a node after its start failed.",
+		type => 'integer',
+		optional => 1,
+	    },
+	    max_relocate => {
+		description => "Maximal number of service relocate tries when a".
+		" service failes to start.",
+		type => 'integer',
+		optional => 1,
+	    },
+	    comment => {
+		description => "Description.",
+		type => 'string',
+		optional => 1,
+	    },
+	},
+    },
     code => sub {
 	my ($param) = @_;
 
