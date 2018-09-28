@@ -99,4 +99,7 @@ sub parse_section_header {
     return undef;
 }
 
+__PACKAGE__->register();
+__PACKAGE__->init();
+
 1;

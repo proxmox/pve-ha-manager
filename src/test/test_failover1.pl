@@ -4,10 +4,10 @@ use strict;
 use warnings;
 
 use lib '..';
-use PVE::HA::Config;
+use PVE::HA::Groups;
 use PVE::HA::Manager;
 
-my $groups = PVE::HA::Config::parse_groups_config("groups.tmp", <<EOD);
+my $groups = PVE::HA::Groups->parse_config("groups.tmp", <<EOD);
 group: prefer_node1
 	nodes node1
 EOD

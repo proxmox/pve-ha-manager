@@ -9,10 +9,6 @@ use PVE::HA::Groups;
 use PVE::Cluster qw(cfs_register_file cfs_read_file cfs_write_file cfs_lock_file);
 use PVE::HA::Resources;
 
-PVE::HA::Groups->register();
-
-PVE::HA::Groups->init();
-
 my $manager_status_filename = "ha/manager_status";
 my $ha_groups_config = "ha/groups.cfg";
 my $ha_resources_config = "ha/resources.cfg";
