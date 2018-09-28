@@ -3,7 +3,8 @@
 use strict;
 use warnings;
 use JSON;
-use lib '..';
+
+use lib '.';
 
 use PVE::Tools;
 use PVE::HA::Config;
