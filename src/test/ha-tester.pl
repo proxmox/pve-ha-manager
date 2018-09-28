@@ -6,9 +6,6 @@ use Getopt::Long;
 
 use File::Path qw(make_path remove_tree);
 
-use PVE::Tools;
-
-
 my $opt_nodiff;
 
 if (!GetOptions ("nodiff"   => \$opt_nodiff)) {
