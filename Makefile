@@ -13,7 +13,7 @@ SIMDEB=${SIMPACKAGE}_${VERSION}-${PKGREL}_all.deb
 
 all: deb
 
-.PHONY: dinstall simdeb
+.PHONY: dinstall
 dinstall: $(DEB) $(SIMDEB)
 	dpkg -i ${DEB} ${SIMDEB}
 
