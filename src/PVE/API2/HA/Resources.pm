@@ -149,7 +149,7 @@ __PACKAGE__->register_method ({
 
 	my $cfg = PVE::HA::Config::read_resources_config();
 
-	my $sid = PVE::HA::Tools::parse_sid($param->{sid});
+	my $sid = PVE::HA::Config::parse_sid($param->{sid});
 
 	return &$api_copy_config($cfg, $sid);
     }});
@@ -172,7 +172,7 @@ __PACKAGE__->register_method ({
 	PVE::Cluster::check_cfs_quorum();
 	mkdir("/etc/pve/ha");
 	
-	my ($sid, $type, $name) = PVE::HA::Tools::parse_sid(extract_param($param, 'sid'));
+	my ($sid, $type, $name) = PVE::HA::Config::parse_sid(extract_param($param, 'sid'));
 
 	if (my $param_type = extract_param($param, 'type')) {
 	    # useless, but do it anyway
@@ -221,7 +221,7 @@ __PACKAGE__->register_method ({
 	my $digest = extract_param($param, 'digest');
 	my $delete = extract_param($param, 'delete');
 
-	my ($sid, $type, $name) = PVE::HA::Tools::parse_sid(extract_param($param, 'sid'));
+	my ($sid, $type, $name) = PVE::HA::Config::parse_sid(extract_param($param, 'sid'));
 
 	if (my $param_type = extract_param($param, 'type')) {
 	    # useless, but do it anyway
@@ -294,7 +294,7 @@ __PACKAGE__->register_method ({
     code => sub {
 	my ($param) = @_;
 
-	my ($sid, $type, $name) = PVE::HA::Tools::parse_sid(extract_param($param, 'sid'));
+	my ($sid, $type, $name) = PVE::HA::Config::parse_sid(extract_param($param, 'sid'));
 
 	PVE::HA::Config::service_is_ha_managed($sid);
 
@@ -334,7 +334,7 @@ __PACKAGE__->register_method ({
     code => sub {
 	my ($param) = @_;
 
-	my ($sid, $type, $name) = PVE::HA::Tools::parse_sid(extract_param($param, 'sid'));
+	my ($sid, $type, $name) = PVE::HA::Config::parse_sid(extract_param($param, 'sid'));
 
 	PVE::HA::Config::service_is_ha_managed($sid);
 
@@ -367,7 +367,7 @@ __PACKAGE__->register_method ({
     code => sub {
 	my ($param) = @_;
 
-	my ($sid, $type, $name) = PVE::HA::Tools::parse_sid(extract_param($param, 'sid'));
+	my ($sid, $type, $name) = PVE::HA::Config::parse_sid(extract_param($param, 'sid'));
 
 	PVE::HA::Config::service_is_ha_managed($sid);
 

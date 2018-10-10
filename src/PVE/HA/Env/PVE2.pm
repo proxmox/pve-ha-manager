@@ -120,6 +120,12 @@ sub read_service_config {
     return PVE::HA::Config::read_and_check_resources_config();
 }
 
+sub parse_sid {
+    my ($self, $sid) = @_;
+
+    return PVE::HA::Config::parse_sid($sid);
+}
+
 sub read_fence_config {
     my ($self) = @_;
 

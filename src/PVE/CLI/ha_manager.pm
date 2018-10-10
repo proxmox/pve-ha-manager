@@ -11,9 +11,9 @@ use PVE::CLIHandler;
 use PVE::Cluster;
 use PVE::RPCEnvironment;
 
+use PVE::HA::Config; # needed for bash completion in PVE::HA::Tools!
 use PVE::HA::Env::PVE2;
 use PVE::HA::Tools;
-use PVE::HA::Config;
 use PVE::API2::HA::Resources;
 use PVE::API2::HA::Groups;
 use PVE::API2::HA::Status;

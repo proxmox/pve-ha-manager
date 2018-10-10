@@ -87,6 +87,12 @@ sub read_service_config {
     return $self->{plug}->read_service_config();
 }
 
+sub parse_sid {
+    my ($self, $sid) = @_;
+
+    return $self->{plug}->parse_sid($sid);
+}
+
 sub read_fence_config {
     my ($self) = @_;
 

@@ -203,6 +203,18 @@ sub read_service_config {
     return $self->{hardware}->read_service_config();
 }
 
+sub parse_sid {
+    my ($self, $sid) = @_;
+
+    die "unable to parse service id '$sid'\n"
+	if !($sid =~ m/^(\S+):(\S+)$/);
+
+    my $name = $2;
+    my $type = $1;
+
+    return wantarray ? ($sid, $type, $name) : $sid;
+}
+
 sub read_fence_config {
     my ($self) = @_;
 

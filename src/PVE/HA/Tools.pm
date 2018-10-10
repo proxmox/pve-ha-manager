@@ -3,9 +3,9 @@ package PVE::HA::Tools;
 use strict;
 use warnings;
 use JSON;
+
 use PVE::JSONSchema;
 use PVE::Tools;
-use PVE::Cluster;
 use PVE::ProcFSTools;
 
 # return codes used in the ha environment
@@ -83,38 +83,6 @@ PVE::JSONSchema::register_standard_option('pve-ha-group-id', {
     description => "The HA group identifier.",
     type => 'string', format => 'pve-configid',
 });
-
-sub parse_sid {
-    my ($sid) = @_;
-
-    my ($type, $name);
-
-    if ($sid =~ m/^(\d+)$/) {
-	$name = $1;
-	my $vmlist = PVE::Cluster::get_vmlist();
-	if (defined($vmlist->{ids}->{$name})) {
-	    my $vm_type = $vmlist->{ids}->{$name}->{type};
-	    if ($vm_type eq 'lxc') {
-		$type = 'ct';
-	    } elsif ($vm_type eq 'qemu') {
-		$type = 'vm';
-	    } else {
-		die "internal error";
-	    }
-	    $sid = "$type:$name";
-	}
-	else {
-	    die "unable do add resource - VM/CT $1 does not exist\n";
-	}
-    } elsif  ($sid =~m/^(\S+):(\S+)$/) {
-	$name = $2;
-	$type = $1;
-    } else {
-	die "unable to parse service id '$sid'\n";
-    }
-
-    return wantarray ? ($sid, $type, $name) : $sid;
-}
 
 sub read_json_from_file {
     my ($filename, $default) = @_;
@@ -245,7 +213,6 @@ sub complete_sid {
 }
 
 sub complete_enabled_sid {
-
     my $cfg = PVE::HA::Config::read_resources_config();
 
     my $res = [];
@@ -259,7 +226,6 @@ sub complete_enabled_sid {
 }
 
 sub complete_disabled_sid {
-
     my $cfg = PVE::HA::Config::read_resources_config();
 
     my $res = [];
@@ -288,6 +254,5 @@ sub complete_group {
 
     return $res;
 }
-
 
 1;

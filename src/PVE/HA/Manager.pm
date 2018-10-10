@@ -243,7 +243,7 @@ my $fence_recovery_cleanup = sub {
 
     my $haenv = $self->{haenv};
 
-    my (undef, $type, $id) = PVE::HA::Tools::parse_sid($sid);
+    my (undef, $type, $id) = $haenv->parse_sid($sid);
     my $plugin = PVE::HA::Resources->lookup($type);
 
     # should not happen

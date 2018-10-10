@@ -94,7 +94,7 @@ sub read_and_check_resources_config {
 
     foreach my $sid (keys %{$res->{ids}}) {
 	my $d = $res->{ids}->{$sid};
-	my (undef, undef, $name) = PVE::HA::Tools::parse_sid($sid);
+	my (undef, undef, $name) = parse_sid($sid);
 	$d->{state} = 'started' if !defined($d->{state});
 	$d->{state} = 'started' if $d->{state} eq 'enabled'; # backward compatibility
 	$d->{max_restart} = 1 if !defined($d->{max_restart});
@@ -118,6 +118,39 @@ sub read_and_check_resources_config {
     }
 
     return $conf;
+}
+
+sub parse_sid {
+    my ($sid) = @_;
+
+    my ($type, $name);
+
+    if ($sid =~ m/^(\d+)$/) {
+	$name = $1;
+
+	my $vmlist = PVE::Cluster::get_vmlist();
+	if (defined($vmlist->{ids}->{$name})) {
+	    my $vm_type = $vmlist->{ids}->{$name}->{type};
+	    if ($vm_type eq 'lxc') {
+		$type = 'ct';
+	    } elsif ($vm_type eq 'qemu') {
+		$type = 'vm';
+	    } else {
+		die "internal error";
+	    }
+	    $sid = "$type:$name";
+	}
+	else {
+	    die "unable do add resource - VM/CT $1 does not exist\n";
+	}
+    } elsif ($sid =~m/^(\S+):(\S+)$/) {
+	$name = $2;
+	$type = $1;
+    } else {
+	die "unable to parse service id '$sid'\n";
+    }
+
+    return wantarray ? ($sid, $type, $name) : $sid;
 }
 
 sub read_group_config {
