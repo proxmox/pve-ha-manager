@@ -12,6 +12,20 @@
 %:
 	dh $@ --with=systemd
 
+override_dh_install:
+	# embed copies of libpve-common-perl files needed by simulator
+	install -d -m 0755 debian/tmp/usr/share/pve-ha-simulator/PVE
+	install -m 0644 \
+		/usr/share/perl5/PVE/Exception.pm \
+		/usr/share/perl5/PVE/JSONSchema.pm \
+		/usr/share/perl5/PVE/ProcFSTools.pm \
+		/usr/share/perl5/PVE/SafeSyslog.pm \
+		/usr/share/perl5/PVE/SectionConfig.pm \
+		/usr/share/perl5/PVE/Syscall.pm \
+		/usr/share/perl5/PVE/Tools.pm \
+		debian/tmp/usr/share/pve-ha-simulator/PVE/
+	dh_install --fail-missing
+
 # dh_systemd_enable watchdog-mux despite it being static to get it installed in
 # the correct location/package without manual intervention
 override_dh_systemd_enable:

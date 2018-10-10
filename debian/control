@@ -16,7 +16,8 @@ Package: pve-ha-manager
 Section: perl
 Priority: optional
 Architecture: any
-Depends: libpve-common-perl,
+Depends: libjson-perl,
+         libpve-common-perl,
          pve-cluster (>= 3.0-17),
          qemu-server,
          systemd,
@@ -26,3 +27,21 @@ Depends: libpve-common-perl,
 Conflicts: watchdog,
 Description: Proxmox VE HA Manager
  HA Manager Proxmox VE.
+
+Package: pve-ha-simulator
+Section: perl
+Priority: optional
+Architecture: all
+Depends: libclone-perl,
+         libdevel-cycle-perl,
+         libfilesys-df-perl,
+         libglib-perl,
+         libgtk3-perl,
+         libjson-perl,
+         libnet-ip-perl,
+         libstring-shellquote-perl,
+         liburi-perl,
+         ${misc:Depends},
+         ${perl:Depends},
+Description: Proxmox VE HA Simulator
+ This is a simple GUI to simulate the behavior of a Proxmox VE HA cluster.

@@ -17,19 +17,6 @@ all: deb
 dinstall: $(DEB) $(SIMDEB)
 	dpkg -i ${DEB} ${SIMDEB}
 
-
-.PHONY: simdeb
-simdeb: ${SIMDEB}
-${SIMDEB}:
-	rm -rf build
-	mkdir build
-	rsync -a src/ build
-	rsync -a simdebian/ build/debian
-	cp changelog.Debian build/debian/changelog
-	echo "git clone git://git.proxmox.com/git/pve-ha-manager.git\\ngit checkout ${GITVERSION}" > build/debian/SOURCE
-	cd build; dpkg-buildpackage -rfakeroot -b -us -uc
-	lintian ${SIMDEB}
-
 .PHONY: deb
 deb: ${DEB} ${SIMDEB}
 ${DEB}:
@@ -37,10 +24,10 @@ ${DEB}:
 	mkdir build
 	rsync -a src/ build
 	rsync -a debian/ build/debian
-	cp changelog.Debian build/debian/changelog
 	echo "git clone git://git.proxmox.com/git/pve-ha-manager.git\\ngit checkout ${GITVERSION}" > build/debian/SOURCE
-	cd build; dpkg-buildpackage -rfakeroot -b -us -uc
+	cd build; dpkg-buildpackage -b -us -uc
 	lintian ${DEB}
+	lintian ${SIMDEB}
 
 .PHONY: clean
 clean:
