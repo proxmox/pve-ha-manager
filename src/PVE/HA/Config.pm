@@ -48,9 +48,13 @@ sub read_lrm_status {
 
     die "undefined node" if !defined($node);
 
-    my $filename = "/etc/pve/nodes/$node/lrm_status";
+    my $cfs_path = "nodes/$node/lrm_status";
 
-    return PVE::HA::Tools::read_json_from_file($filename, {});  
+    my $raw = PVE::Cluster::get_config($cfs_path);
+    die "unable to read file '/etc/pve/$cfs_path'\n"
+	if !defined($raw);
+
+    return json_reader(undef, $raw);
 }
 
 sub write_lrm_status {
