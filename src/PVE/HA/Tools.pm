@@ -174,6 +174,11 @@ sub upid_wait {
 
 # bash auto completion helper
 
+# NOTE: we use PVE::HA::Config here without declaring an 'use' clause above as
+# an hack. It uses the PVE::Cluster module from pve-cluster, which we do not
+# have nor want as dependency in the simulator - where the completion helpers
+# are never called. The PVE::CLI::ha_manager package pulls it in for us.
+
 sub complete_sid {
     my ($cmd, $pname, $cur) = @_;
 
