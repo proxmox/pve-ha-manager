@@ -43,7 +43,8 @@ install: watchdog-mux pve-ha-crm pve-ha-lrm ha-manager.1 pve-ha-crm.8 pve-ha-lrm
 	install -m 0755 pve-ha-lrm ${DESTDIR}${SBINDIR}
 	install -m 0755 ha-manager ${DESTDIR}${SBINDIR}
 	install -m 0755 watchdog-mux ${DESTDIR}${SBINDIR}
-	install -m 0755 pve-ha-simulator ${DESTDIR}${SBINDIR}
+	install -d ${DESTDIR}${BINDIR}
+	install -m 0755 pve-ha-simulator ${DESTDIR}${BINDIR}
 	install -m 0644 -D pve-ha-crm.bash-completion ${DESTDIR}${BASHCOMPLDIR}/pve-ha-crm
 	install -m 0644 -D pve-ha-lrm.bash-completion ${DESTDIR}${BASHCOMPLDIR}/pve-ha-lrm
 	install -m 0644 -D ha-manager.bash-completion ${DESTDIR}${BASHCOMPLDIR}/ha-manager
