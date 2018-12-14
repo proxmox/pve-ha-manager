@@ -6,9 +6,11 @@ Build-Depends: debhelper (>= 10~),
                dh-systemd,
                libglib-perl,
                libgtk3-perl,
+               libpve-access-control,
                libpve-common-perl,
                libsystemd-dev,
                lintian,
+               pve-cluster,
                pve-doc-generator,
 Standards-Version: 3.8.4
 
