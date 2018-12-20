@@ -56,6 +56,10 @@ sub shutdown_request {
     my $dc_ha_cfg = $haenv->get_ha_settings();
     my $shutdown_policy = $dc_ha_cfg->{shutdown_policy} // 'conditional';
 
+    if ($shutdown) { # don't log this on service restart, only on node shutdown
+	$haenv->log('info', "got shutdown request with shutdown policy '$shutdown_policy'");
+    }
+
     my $freeze_all = $reboot;
     if ($shutdown_policy eq 'conditional') {
 	$freeze_all = $reboot;

@@ -21,6 +21,7 @@ info     21    node1/lrm: service status vm:100 started
 info     22    node2/crm: status change wait_for_quorum => slave
 info     24    node3/crm: status change wait_for_quorum => slave
 info    120      cmdlist: execute shutdown node1
+info    120    node1/lrm: got shutdown request with shutdown policy 'conditional'
 info    120    node1/lrm: shutdown LRM, stop all services
 info    121    node1/lrm: stopping service vm:100
 info    121    node1/lrm: service status vm:100 stopped
