@@ -53,6 +53,20 @@ sub shutdown_request {
 
     my ($shutdown, $reboot) = $haenv->is_node_shutdown();
 
+    my $dc_ha_cfg = $haenv->get_ha_settings();
+    my $shutdown_policy = $dc_ha_cfg->{shutdown_policy} // 'conditional';
+
+    my $freeze_all = $reboot;
+    if ($shutdown_policy eq 'conditional') {
+	$freeze_all = $reboot;
+    } elsif ($shutdown_policy eq 'freeze') {
+	$freeze_all = 1;
+    } elsif ($shutdown_policy eq 'failover') {
+	$freeze_all = 0;
+    } else {
+	$haenv->log('err', "unkown shutdown policy '$shutdown_policy', fall back to conditional");
+    }
+
     if ($shutdown) {
 	# *always* queue stop jobs for all services if the node shuts down,
 	# independent if it's a reboot or a poweroff, else we may corrupt
@@ -69,8 +83,12 @@ sub shutdown_request {
     }
 
     if ($shutdown) {
-	if ($reboot) {
-	    $haenv->log('info', "reboot LRM, stop and freeze all services");
+	if ($freeze_all) {
+	    if ($shutdown_policy eq 'conditional') {
+		$haenv->log('info', "reboot LRM, stop and freeze all services");
+	    } else {
+		$haenv->log('info', "shutdown LRM, stop and freeze all services");
+	    }
 	    $self->{mode} = 'restart';
 	} else {
 	    $haenv->log('info', "shutdown LRM, stop all services");
