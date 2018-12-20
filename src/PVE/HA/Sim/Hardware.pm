@@ -30,6 +30,7 @@ my $watchdog_timeout = 60;
 # $testdir/service_config             Service configuration
 # $testdir/groups                     HA groups configuration
 # $testdir/service_status_<node>      Service status
+# $testdir/datacenter.cfg             Datacenter wide HA configuration
 
 #
 # runtime status for simulation system
@@ -383,6 +384,10 @@ sub new {
 	copy("$testdir/fence.cfg", "$statusdir/fence.cfg");
     }
 
+    if (-f "$testdir/datacenter.cfg") {
+	copy("$testdir/datacenter.cfg", "$statusdir/datacenter.cfg");
+    }
+
     my $cstatus = $self->read_hardware_status_nolock();
 
     foreach my $node (sort keys %$cstatus) {
@@ -422,6 +427,13 @@ sub statusdir {
     my ($self, $node) = @_;
 
     return $self->{statusdir};
+}
+
+sub read_datacenter_conf {
+    my ($self, $node) = @_;
+
+    my $filename = "$self->{statusdir}/datacenter.cfg";
+    return PVE::HA::Tools::read_json_from_file($filename, {});
 }
 
 sub global_lock {

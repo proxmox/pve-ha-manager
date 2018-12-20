@@ -256,4 +256,11 @@ sub get_max_workers {
     return $self->{plug}->get_max_workers();
 }
 
+# return cluster wide enforced HA settings
+sub get_ha_settings {
+    my ($self) = @_;
+
+    return $self->{plug}->get_ha_settings();
+}
+
 1;

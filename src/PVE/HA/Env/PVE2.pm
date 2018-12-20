@@ -439,4 +439,13 @@ sub get_max_workers {
     return $datacenterconfig->{max_workers} || 4;
 }
 
+# return cluster wide enforced HA settings
+sub get_ha_settings {
+    my ($self) = @_;
+
+    my $datacenterconfig = cfs_read_file('datacenter.cfg');
+
+    return $datacenterconfig->{ha};
+}
+
 1;
