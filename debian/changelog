@@ -1,8 +1,9 @@
 pve-ha-manager (2.0-6) unstable; urgency=medium
 
-  * fix #1378: allow to specify a service shutdown policy
+  * fix #1378: allow one to specify a service shutdown policy
 
-  * remove some unused external dependencies from the standalone simulator package
+  * remove some unused external dependencies from the standalone simulator
+    package
 
   * document api result for ha resources
 
