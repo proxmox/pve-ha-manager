@@ -60,7 +60,7 @@ sub shutdown_request {
 	$haenv->log('info', "got shutdown request with shutdown policy '$shutdown_policy'");
     }
 
-    my $freeze_all = $reboot;
+    my $freeze_all;
     if ($shutdown_policy eq 'conditional') {
 	$freeze_all = $reboot;
     } elsif ($shutdown_policy eq 'freeze') {
@@ -68,7 +68,8 @@ sub shutdown_request {
     } elsif ($shutdown_policy eq 'failover') {
 	$freeze_all = 0;
     } else {
-	$haenv->log('err', "unkown shutdown policy '$shutdown_policy', fall back to conditional");
+	$haenv->log('err', "unknown shutdown policy '$shutdown_policy', fall back to conditional");
+	$freeze_all = $reboot;
     }
 
     if ($shutdown) {
@@ -88,7 +89,7 @@ sub shutdown_request {
 
     if ($shutdown) {
 	if ($freeze_all) {
-	    if ($shutdown_policy eq 'conditional') {
+	    if ($reboot) {
 		$haenv->log('info', "reboot LRM, stop and freeze all services");
 	    } else {
 		$haenv->log('info', "shutdown LRM, stop and freeze all services");
