@@ -2,6 +2,7 @@ package PVE::HA::FenceConfig;
 
 use strict;
 use warnings;
+
 use PVE::Tools;
 
 sub parse_config {
@@ -124,10 +125,13 @@ sub gen_arg_str {
     foreach my $arg (@arguments) {
 	my ($key, $val) = split /=/, $arg;
 	# we need to differ long and short opts!
-	my $prefix = (length($key) == 1) ? '-' : '--';
-	# shellquote values and add them again
-	$key  .= '='. PVE::Tools::shellquote($val) if $val;
-	push @shell_args, "$prefix$key";
+	if (length($key) == 1) {
+	    push @shell_args, "-${key}";
+	    push @shell_args, PVE::Tools::shellquote($val) if defined($val);
+	} else {
+	    $key  .= '='. PVE::Tools::shellquote($val) if defined($val);
+	    push @shell_args, "--$key";
+	}
     }
 
     return join (' ', @shell_args);
