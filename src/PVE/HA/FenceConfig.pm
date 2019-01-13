@@ -47,7 +47,7 @@ sub parse_config {
 
 	    $config->{$dev_name} = $dev;
 
-	} else { # connect nodes to devices
+	} elsif ($command eq 'connect') { # connect nodes to devices
 	    die "device '$dev_name' must be declared before you can connect to it\n"
 		if !$config->{$dev_name};
 
@@ -66,6 +66,9 @@ sub parse_config {
 	    $sdev->{node_args}->{$node} = $arg_array;
 
 	    $config->{$dev_name}->{sub_devs}->{$dev_number} = $sdev;
+	# } elsif ($command eq 'fence_all') { # FIXME: TODO
+	} else {
+	    die "command '$command' not implemented!";
 	}
     };
 
