@@ -8,7 +8,7 @@ use PVE::Tools;
 sub parse_config {
     my ($fn, $raw) = @_;
 
-    $raw = '' if !$raw;
+    return {} if !$raw;
 
     my $config = {};
 
