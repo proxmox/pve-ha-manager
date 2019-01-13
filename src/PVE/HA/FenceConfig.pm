@@ -18,58 +18,53 @@ sub parse_config {
     my $parse_line = sub {
 	my ($line) = @_;
 
-	if ($line =~ m/^(device|connect)\s+(\S+)\s+(\S+)\s+(.+)$/) {
-	    my ($command, $dev_name, $target) = ($1, $2, $3);
+	if ($line !~ m/^(device|connect)\s+(\S+)\s+(\S+)\s+(.+)$/) {
+	    warn "$fn ignore line $lineno: $line\n";
+	    return;
+	}
+	my ($command, $dev_name, $target) = ($1, $2, $3);
+	my $arg_array = PVE::Tools::split_args($4);
+	my $dev_number = 1; # default
 
-	    my $arg_array = PVE::Tools::split_args($4);
+	# check for parallel devices
+	if ($dev_name =~ m/^(\w+)(:(\d+))?/) {
+	    $dev_name = $1;
+	    $dev_number = $3 if $3;
+	}
 
-	    my $dev_number = 1; # default
+	if ($command eq "device") {
+	    my $dev = $config->{$dev_name} || {};
 
-	    # check for parallel devices
-	    if ($dev_name =~ m/^(\w+)(:(\d+))?/) {
-		$dev_name = $1;
-		$dev_number = $3 if $3;
-	    }
+	    die "device '$dev_name:$dev_number' already declared\n"
+		if $dev && $dev->{sub_devs}->{$dev_number};
 
-	    if ($command eq "device") {
+	    $dev->{sub_devs}->{$dev_number} = {
+		agent => $target,
+		args =>  $arg_array,
+	    };
+	    $dev->{priority} = $priority++ if !$dev->{priority};
 
-		my $dev = $config->{$dev_name} || {};
+	    $config->{$dev_name} = $dev;
 
-		die "device '$dev_name:$dev_number' already declared\n"
-		    if $dev && $dev->{sub_devs}->{$dev_number};
+	} else { # connect nodes to devices
+	    die "device '$dev_name' must be declared before you can connect to it\n"
+		if !$config->{$dev_name};
 
-		$dev->{sub_devs}->{$dev_number} = {
-		    agent => $target,
-		    args =>  $arg_array,
-		};
-		$dev->{priority} = $priority++ if !$dev->{priority};
+	    die "No parallel device '$dev_name:$dev_number' found\n"
+		if !$config->{$dev_name}->{sub_devs}->{$dev_number};
 
-		$config->{$dev_name} = $dev;
+	    my $sdev = $config->{$dev_name}->{sub_devs}->{$dev_number};
 
-	    } else { # connect nodes to devices
+	    my ($node) = $target =~ /node=(\w+)/;
+	    die "node=nodename needed to connect device '$dev_name' to node\n"
+		if !$node;
 
-		die "device '$dev_name' must be declared before you can connect to it\n"
-		    if !$config->{$dev_name};
+	    die "node '$node' already connected to device '$dev_name:$dev_number'\n"
+		if $sdev->{node_args}->{$node};
 
-		die "No parallel device '$dev_name:$dev_number' found\n"
-		    if !$config->{$dev_name}->{sub_devs}->{$dev_number};
+	    $sdev->{node_args}->{$node} = $arg_array;
 
-		my $sdev = $config->{$dev_name}->{sub_devs}->{$dev_number};
-
-		my ($node) = $target =~ /node=(\w+)/;
-		die "node=nodename needed to connect device '$dev_name' to node\n"
-		    if !$node;
-
-		die "node '$node' already connected to device '$dev_name:$dev_number'\n"
-		    if $sdev->{node_args}->{$node};
-
-		$sdev->{node_args}->{$node} = $arg_array;
-
-		$config->{$dev_name}->{sub_devs}->{$dev_number} = $sdev;
-	    }
-
-	} else {
-	    warn "$fn ignore line $lineno: $line\n"
+	    $config->{$dev_name}->{sub_devs}->{$dev_number} = $sdev;
 	}
     };
 
@@ -77,7 +72,6 @@ sub parse_config {
 	while ($raw =~ /^\h*(.*?)\h*$/gm) {
 	    my $line = $1;
 	    $lineno++;
-
 	    next if !$line || $line =~ /^#/;
 
 	    $parse_line->($line);
