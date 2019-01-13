@@ -61,10 +61,10 @@ sub parse_config {
 		    my $sdev = $config->{$dev_name}->{sub_devs}->{$dev_number};
 
 		    my ($node) = $target =~ /node=(\w+)/;
-		    die "node=nodename needed to connect device '$dev_name' to node\n" 
+		    die "node=nodename needed to connect device '$dev_name' to node\n"
 			if !$node;
 
-		    die "node '$node' already connected to device '$dev_name:$dev_number'\n" 
+		    die "node '$node' already connected to device '$dev_name:$dev_number'\n"
 			if $sdev->{node_args}->{$node};
 
 		    $sdev->{node_args}->{$node} = $arg_array;
