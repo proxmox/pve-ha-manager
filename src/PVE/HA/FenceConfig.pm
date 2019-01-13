@@ -189,7 +189,7 @@ sub count_devices {
 	foreach my $sub_dev (values %{$device->{sub_devs}}) {
 	    if ($sub_dev->{node_args}->{$node}) {
 		$count++;
-		last; # no need to count parallel devices
+		last; # no need to count parallel devices multiple times
 	    }
 	}
     }
