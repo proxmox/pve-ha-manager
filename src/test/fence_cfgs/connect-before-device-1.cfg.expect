@@ -1,1 +1,3 @@
-[FenceConfig] error in 'fence_cfgs/connect-before-device-1.cfg' at 3: device 'first_dev' must be declared before you can connect to it
+[FenceConfig] Encountered error(s) on parsing 'fence_cfgs/connect-before-device-1.cfg':
+line 3: device 'first_dev' must be declared before you can connect to it
+line 4: device 'first_dev' must be declared before you can connect to it

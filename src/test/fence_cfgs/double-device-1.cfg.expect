@@ -1,1 +1,3 @@
-[FenceConfig] error in 'fence_cfgs/double-device-1.cfg' at 7: device 'unique_dev:1' already declared
+[FenceConfig] Encountered error(s) on parsing 'fence_cfgs/double-device-1.cfg':
+line 7: device 'unique_dev:1' already declared
+line 8: node 'node1' already connected to device 'unique_dev:1'

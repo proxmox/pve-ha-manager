@@ -14,6 +14,7 @@ sub parse_config {
 
     my $lineno = 0;
     my $priority = 0;
+    my $parse_errors = '';
 
     my $parse_line = sub {
 	my ($line) = @_;
@@ -68,18 +69,17 @@ sub parse_config {
 	}
     };
 
-    eval  {
-	while ($raw =~ /^\h*(.*?)\h*$/gm) {
-	    my $line = $1;
-	    $lineno++;
-	    next if !$line || $line =~ /^#/;
+    while ($raw =~ /^\h*(.*?)\h*$/gm) {
+	my $line = $1;
+	$lineno++;
+	next if !$line || $line =~ /^#/;
 
-	    $parse_line->($line);
+	eval { $parse_line->($line) };
+	if (my $err = $@) {
+	    $parse_errors .= "line $lineno: $err";
 	}
-    };
-    if (my $err = $@) {
-	die "error in '$fn' at $lineno: $err";
     }
+    die "Encountered error(s) on parsing '$fn':\n$parse_errors" if $parse_errors;
 
     return $config;
 }
