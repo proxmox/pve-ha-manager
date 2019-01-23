@@ -124,8 +124,12 @@ sub check_running {
 	# do not count VMs which are suspended for a backup job as running
 	my $conf = PVE::QemuConfig->load_config($vmid, $nodename);
 	if (defined($conf->{lock}) && $conf->{lock} eq 'backup') {
-	    my $qmpstatus = PVE::QemuServer::vm_qmp_command($vmid, {execute => 'query-status'});
-	    return 0 if $qmpstatus->{status} eq 'prelaunch';
+	    my $qmpstatus = eval {
+		PVE::QemuServer::vm_qmp_command($vmid, { execute => 'query-status' })
+	    };
+	    warn "$@\n" if $@;
+
+	    return 0 if defined($qmpstatus) && $qmpstatus->{status} eq 'prelaunch';
 	}
 
 	return 1;
