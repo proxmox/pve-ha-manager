@@ -304,16 +304,13 @@ __PACKAGE__->register_method ({
 	    die "cannot delete service '$sid', not HA managed!\n";
 	}
 
-	PVE::HA::Config::lock_ha_domain(
-	    sub {
+	PVE::HA::Config::lock_ha_domain(sub {
 
-		$cfg = PVE::HA::Config::read_resources_config();
+	    $cfg = PVE::HA::Config::read_resources_config();
+	    delete $cfg->{ids}->{$sid} or die "'$sid' not configured!\n";
+	    PVE::HA::Config::write_resources_config($cfg);
 
-		delete $cfg->{ids}->{$sid};
-
-		PVE::HA::Config::write_resources_config($cfg)
-
-	    }, "delete resource failed");
+	}, "delete resource failed");
 
 	return undef;
     }});
