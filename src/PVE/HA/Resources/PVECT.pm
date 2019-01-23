@@ -83,7 +83,6 @@ sub shutdown {
 	node => $nodename,
 	vmid => $id,
 	timeout => $shutdown_timeout,
-	forceStop => 1,
     };
 
     my $upid = PVE::API2::LXC::Status->vm_shutdown($params);
