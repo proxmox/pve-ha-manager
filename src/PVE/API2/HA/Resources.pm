@@ -326,8 +326,10 @@ __PACKAGE__->register_method ({
 	properties => {
 	    sid => get_standard_option('pve-ha-resource-or-vm-id',
 				      { completion => \&PVE::HA::Tools::complete_sid }),
-	    node => get_standard_option('pve-node',
-				       { completion => \&PVE::Cluster::get_nodelist }),
+	    node => get_standard_option('pve-node', {
+		completion =>  \&PVE::Cluster::complete_migration_target,
+		description => "Target node.",
+	    }),
 	},
     },
     returns => { type => 'null' },
@@ -359,8 +361,10 @@ __PACKAGE__->register_method ({
 	properties => {
 	    sid => get_standard_option('pve-ha-resource-or-vm-id',
 				      { completion => \&PVE::HA::Tools::complete_sid }),
-	    node => get_standard_option('pve-node',
-				       { completion => \&PVE::Cluster::get_nodelist }),
+	    node => get_standard_option('pve-node', {
+		completion =>  \&PVE::Cluster::complete_migration_target,
+		description => "Target node.",
+	    }),
 	},
     },
     returns => { type => 'null' },
