@@ -10,6 +10,7 @@ SIMDOCDIR=${PREFIX}/share/doc/${SIMPACKAGE}
 MAN1DIR=${MANDIR}/man1/
 MAN8DIR=${MANDIR}/man8/
 BASHCOMPLDIR=${PREFIX}/share/bash-completion/completions/
+ZSHCOMPLDIR=${PREFIX}/share/zsh/vendor-completions/
 export PERLDIR=${PREFIX}/share/perl5
 
 # this requires package pve-doc-generator
@@ -30,11 +31,24 @@ ha-manager.bash-completion:
 	PVE_GENERATING_DOCS=1 perl -I. -T -e "use PVE::CLI::ha_manager; PVE::CLI::ha_manager->generate_bash_completions();" >$@.tmp
 	mv $@.tmp $@
 
+pve-ha-crm.zsh-completion:
+	PVE_GENERATING_DOCS=1 perl -I. -T -e "use PVE::Service::pve_ha_crm; PVE::Service::pve_ha_crm->generate_zsh_completions();" >$@.tmp
+	mv $@.tmp $@
+
+pve-ha-lrm.zsh-completion:
+	PVE_GENERATING_DOCS=1 perl -I. -T -e "use PVE::Service::pve_ha_lrm; PVE::Service::pve_ha_lrm->generate_zsh_completions();" >$@.tmp
+	mv $@.tmp $@
+
+ha-manager.zsh-completion:
+	PVE_GENERATING_DOCS=1 perl -I. -T -e "use PVE::CLI::ha_manager; PVE::CLI::ha_manager->generate_zsh_completions();" >$@.tmp
+	mv $@.tmp $@
+
 watchdog-mux: watchdog-mux.c
 	gcc watchdog-mux.c -o watchdog-mux -Wall -Wl,-z,relro
 
 .PHONY: install
-install: watchdog-mux pve-ha-crm pve-ha-lrm ha-manager.1 pve-ha-crm.8 pve-ha-lrm.8 ha-manager.bash-completion pve-ha-lrm.bash-completion pve-ha-crm.bash-completion pve-ha-simulator
+install: watchdog-mux pve-ha-crm pve-ha-lrm ha-manager.1 pve-ha-crm.8 pve-ha-lrm.8 ha-manager.bash-completion pve-ha-lrm.bash-completion \
+	    pve-ha-crm.bash-completion ha-manager.zsh-completion pve-ha-lrm.zsh-completion pve-ha-crm.zsh-completion pve-ha-simulator
 	PVE_GENERATING_DOCS=1 perl -I. -T -e "use PVE::Service::pve_ha_crm; PVE::Service::pve_ha_crm->verify_api();"
 	PVE_GENERATING_DOCS=1 perl -I. -T -e "use PVE::Service::pve_ha_lrm; PVE::Service::pve_ha_lrm->verify_api();"
 	PVE_GENERATING_DOCS=1 perl -I. -T -e "use PVE::CLI::ha_manager; PVE::CLI::ha_manager->verify_api();"
@@ -48,6 +62,9 @@ install: watchdog-mux pve-ha-crm pve-ha-lrm ha-manager.1 pve-ha-crm.8 pve-ha-lrm
 	install -m 0644 -D pve-ha-crm.bash-completion ${DESTDIR}${BASHCOMPLDIR}/pve-ha-crm
 	install -m 0644 -D pve-ha-lrm.bash-completion ${DESTDIR}${BASHCOMPLDIR}/pve-ha-lrm
 	install -m 0644 -D ha-manager.bash-completion ${DESTDIR}${BASHCOMPLDIR}/ha-manager
+	install -m 0644 -D pve-ha-crm.zsh-completion ${DESTDIR}${ZSHCOMPLDIR}/_pve-ha-crm
+	install -m 0644 -D pve-ha-lrm.zsh-completion ${DESTDIR}${ZSHCOMPLDIR}/_pve-ha-lrm
+	install -m 0644 -D ha-manager.zsh-completion ${DESTDIR}${ZSHCOMPLDIR}/_ha-manager
 	make -C PVE install
 	make -C PVE PERLDIR=${PREFIX}/share/${SIMPACKAGE} installsim
 	install -d ${DESTDIR}/${MAN8DIR}
@@ -67,7 +84,7 @@ test:
 clean:
 	make cleanup-docgen
 	make -C test clean
-	rm -rf watchdog-mux *.1.pod *.1.gz *.bash-completion *.tmp
+	rm -rf watchdog-mux *.1.pod *.1.gz *.bash-completion *.zsh-completion *.tmp
 	find . -name '*~' -exec rm {} ';'
 
 .PHONY: distclean

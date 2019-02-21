@@ -5,6 +5,9 @@
 /usr/share/bash-completion/completions/ha-manager
 /usr/share/bash-completion/completions/pve-ha-crm
 /usr/share/bash-completion/completions/pve-ha-lrm
+/usr/share/zsh/vendor-completions/_ha-manager
+/usr/share/zsh/vendor-completions/_pve-ha-crm
+/usr/share/zsh/vendor-completions/_pve-ha-lrm
 /usr/share/man
 /usr/share/man/man1
 /usr/share/man/man1/ha-manager.1.gz
