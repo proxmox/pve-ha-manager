@@ -11,7 +11,7 @@ Build-Depends: debhelper (>= 10~),
                libsystemd-dev,
                lintian,
                pve-cluster,
-               pve-doc-generator,
+               pve-doc-generator (>= 5.3-3),
 Standards-Version: 3.8.4
 
 Package: pve-ha-manager
