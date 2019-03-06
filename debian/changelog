@@ -1,3 +1,10 @@
+pve-ha-manager (2.0-8) unstable; urgency=medium
+
+  * address an issue in dpkg 1.18 with wrong trigger cycle detections if cyclic
+    dependencies are involed
+
+ -- Proxmox Support Team <support@proxmox.com>  Wed, 06 Mar 2019 07:49:58 +0100
+
 pve-ha-manager (2.0-7) unstable; urgency=medium
 
   * fix #1842: do not pass forceStop to CT shutdown
