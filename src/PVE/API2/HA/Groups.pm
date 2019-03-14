@@ -21,7 +21,7 @@ my $api_copy_config = sub {
     my ($cfg, $group) = @_;
 
     die "no such ha group '$group'\n" if !$cfg->{ids}->{$group};
-    
+
     my $group_cfg = dclone($cfg->{ids}->{$group});
     $group_cfg->{group} = $group;
     $group_cfg->{digest} = $cfg->{digest};
@@ -33,7 +33,7 @@ my $api_copy_config = sub {
 };
 
 __PACKAGE__->register_method ({
-    name => 'index', 
+    name => 'index',
     path => '',
     method => 'GET',
     description => "Get HA groups.",
@@ -109,10 +109,10 @@ __PACKAGE__->register_method ({
 	# create /etc/pve/ha directory
 	PVE::Cluster::check_cfs_quorum();
 	mkdir("/etc/pve/ha");
-	
+
 	my $group = extract_param($param, 'group');
 	my $type = 'group';
-	
+
 	if (my $param_type = extract_param($param, 'type')) {
 	    # useless, but do it anyway
 	    die "types does not match\n" if $param_type ne $type;
@@ -230,7 +230,7 @@ __PACKAGE__->register_method ({
 		my $rcfg = PVE::HA::Config::read_resources_config();
 		foreach my $sid (keys %{$rcfg->{ids}}) {
 		    my $sg = $rcfg->{ids}->{$sid}->{group};
-		    die "ha group is used by service '$sid'\n" 
+		    die "ha group is used by service '$sid'\n"
 			if ($sg && $sg eq $group);
 		}
 

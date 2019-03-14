@@ -95,7 +95,7 @@ sub format_section_header {
     my ($class, $type, $sectionId) = @_;
 
     my (undef, $name) = split(':', $sectionId, 2);
-    
+
     return "$type: $name\n";
 }
 

@@ -37,7 +37,7 @@ sub new {
 	cluster_state_update => 0,
     }, $class;
 
-    $self->set_local_status({ state => 	'wait_for_agent_lock' });   
+    $self->set_local_status({ state => 	'wait_for_agent_lock' });
 
     return $self;
 }
@@ -127,7 +127,7 @@ sub set_local_status {
 
     my $old = $self->{status};
 
-    # important: only update if if really changed 
+    # important: only update if if really changed
     return if $old->{state} eq $new->{state};
 
     $haenv->log('info', "status change $old->{state} => $new->{state}");
@@ -143,14 +143,14 @@ sub update_lrm_status {
     my $haenv = $self->{haenv};
 
     return 0 if !$haenv->quorate();
-    
-    my $lrm_status = {	
+
+    my $lrm_status = {
 	state => $self->{status}->{state},
 	mode => $self->{mode},
 	results => $self->{results},
 	timestamp => $haenv->get_time(),
     };
-    
+
     eval { $haenv->write_lrm_status($lrm_status); };
     if (my $err = $@) {
 	$haenv->log('err', "unable to write lrm status file - $err");
@@ -184,7 +184,7 @@ sub get_protected_ha_agent_lock {
     my $starttime = $haenv->get_time();
 
     for (;;) {
-	
+
 	if ($haenv->get_ha_agent_lock()) {
 	    if ($self->{ha_agent_wd}) {
 		$haenv->watchdog_update($self->{ha_agent_wd});
@@ -194,7 +194,7 @@ sub get_protected_ha_agent_lock {
 	    }
 	    return 1;
 	}
-	    
+
 	last if ++$count > 5; # try max 5 time
 
 	my $delay = $haenv->get_time() - $starttime;
@@ -202,13 +202,13 @@ sub get_protected_ha_agent_lock {
 
 	$haenv->sleep(1);
     }
-    
+
     return 0;
 }
 
 sub active_service_count {
     my ($self) = @_;
-    
+
     my $haenv = $self->{haenv};
 
     my $nodename = $haenv->nodename();
@@ -216,7 +216,7 @@ sub active_service_count {
     my $ss = $self->{service_status};
 
     my $count = 0;
-    
+
     foreach my $sid (keys %$ss) {
 	my $sd = $ss->{$sid};
 	next if !$sd->{node};
@@ -230,7 +230,7 @@ sub active_service_count {
 
 	$count++;
     }
-    
+
     return $count;
 }
 
@@ -266,15 +266,15 @@ sub work {
 	    return $self->{shutdown_request} ? 0 : 1;
 	}
     }
-    
+
     my $status = $self->get_local_status();
     my $state = $status->{state};
 
     $self->update_service_status();
 
     my $fence_request = PVE::HA::Tools::count_fenced_services($self->{service_status}, $haenv->nodename());
-    
-    # do state changes first 
+
+    # do state changes first
 
     my $ctime = $haenv->get_time();
 
@@ -287,7 +287,7 @@ sub work {
 		$self->set_local_status({ state => 'active' });
 	    }
 	}
-	
+
     } elsif ($state eq 'lost_agent_lock') {
 
 	if (!$fence_request && $haenv->quorate()) {
@@ -298,9 +298,9 @@ sub work {
 
     } elsif ($state eq 'active') {
 
-	if ($fence_request) {		
+	if ($fence_request) {
 	    $haenv->log('err', "node need to be fenced - releasing agent_lock\n");
-	    $self->set_local_status({ state => 'lost_agent_lock'});	
+	    $self->set_local_status({ state => 'lost_agent_lock'});
 	} elsif (!$self->get_protected_ha_agent_lock()) {
 	    $self->set_local_status({ state => 'lost_agent_lock'});
 	}
@@ -314,11 +314,11 @@ sub work {
     if ($state eq 'wait_for_agent_lock') {
 
 	return 0 if $self->{shutdown_request};
-	
+
 	$self->update_lrm_status();
-	
+
 	$haenv->sleep(5);
-	   
+
     } elsif ($state eq 'active') {
 
 	my $startime = $haenv->get_time();
@@ -389,13 +389,13 @@ sub work {
 	}
 
 	$self->update_lrm_status();
-	
+
 	return 0 if $shutdown;
 
 	$haenv->sleep_until($startime + $max_time);
 
     } elsif ($state eq 'lost_agent_lock') {
-	
+
 	# Note: watchdog is active an will triger soon!
 
 	# so we hope to get the lock back soon!
@@ -405,7 +405,7 @@ sub work {
 	    my $service_count = $self->active_service_count();
 
 	    if ($service_count > 0) {
-		$haenv->log('err', "get shutdown request in state 'lost_agent_lock' - " . 
+		$haenv->log('err', "get shutdown request in state 'lost_agent_lock' - " .
 			    "detected $service_count running services");
 
 	    } else {
@@ -416,7 +416,7 @@ sub work {
 		    $haenv->watchdog_close($self->{ha_agent_wd});
 		    delete $self->{ha_agent_wd};
 		}
-		
+
 		return 0;
 	    }
 	}
@@ -470,8 +470,8 @@ sub run_workers {
 			if (my $err = $@) {
 			    $haenv->log('err', $err);
 			    POSIX::_exit(-1);
-			}  
-			POSIX::_exit($res); 
+			}
+			POSIX::_exit($res);
 		    } else {
 			$count++;
 			$w->{pid} = $pid;
@@ -576,7 +576,7 @@ sub check_active_workers {
 	    }
 	}
     }
-    
+
     return $count;
 }
 
@@ -614,7 +614,7 @@ sub resource_command_finished {
     my $exit_code = -1;
 
     if ($status == -1) {
-	$haenv->log('err', "resource agent $sid finished - failed to execute");    
+	$haenv->log('err', "resource agent $sid finished - failed to execute");
     }  elsif (my $sig = ($status & 127)) {
 	$haenv->log('err', "resource agent $sid finished - got signal $sig");
     } else {

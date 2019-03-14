@@ -32,7 +32,7 @@ sub new {
     }, $class;
 
     $self->set_local_status({ state => 'wait_for_quorum' });
-    
+
     return $self;
 }
 
@@ -60,7 +60,7 @@ sub set_local_status {
 
     my $old = $self->{status};
 
-    # important: only update if if really changed 
+    # important: only update if if really changed
     return if $old->{state} eq $new->{state};
 
     $haenv->log('info', "status change $old->{state} => $new->{state}");
@@ -90,7 +90,7 @@ sub get_protected_ha_manager_lock {
     my $starttime = $haenv->get_time();
 
     for (;;) {
-	
+
 	if ($haenv->get_ha_manager_lock()) {
 	    if ($self->{ha_manager_wd}) {
 		$haenv->watchdog_update($self->{ha_manager_wd});
@@ -100,7 +100,7 @@ sub get_protected_ha_manager_lock {
 	    }
 	    return 1;
 	}
-	    
+
 	last if ++$count > 5; # try max 5 time
 
 	my $delay = $haenv->get_time() - $starttime;
@@ -108,7 +108,7 @@ sub get_protected_ha_manager_lock {
 
 	$haenv->sleep(1);
     }
-    
+
     return 0;
 }
 
@@ -167,7 +167,7 @@ sub work {
     my $status = $self->get_local_status();
     my $state = $status->{state};
 
-    # do state changes first 
+    # do state changes first
 
     if ($state eq 'wait_for_quorum') {
 
@@ -203,7 +203,7 @@ sub work {
 	    $self->set_local_status({ state => 'lost_manager_lock'});
 	}
     }
-   
+
     $status = $self->get_local_status();
     $state = $status->{state};
 
@@ -214,7 +214,7 @@ sub work {
 	return 0 if $self->{shutdown_request};
 
 	$haenv->sleep(5);
-	   
+
     } elsif ($state eq 'master') {
 
 	my $manager = $self->{manager};
@@ -269,7 +269,7 @@ sub work {
 	$haenv->sleep_until($startime + $max_time);
 
     } elsif ($state eq 'lost_manager_lock') {
-	
+
 	if ($self->{ha_manager_wd}) {
 	    $haenv->watchdog_close($self->{ha_manager_wd});
 	    delete $self->{ha_manager_wd};

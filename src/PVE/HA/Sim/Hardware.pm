@@ -9,7 +9,7 @@ package PVE::HA::Sim::Hardware;
 use strict;
 use warnings;
 use POSIX qw(strftime EINTR);
-use JSON; 
+use JSON;
 use IO::File;
 use Fcntl qw(:DEFAULT :flock);
 use File::Copy;
@@ -53,7 +53,7 @@ sub read_lrm_status {
 
     my $filename = "$self->{statusdir}/lrm_status_$node";
 
-    return PVE::HA::Tools::read_json_from_file($filename, {});  
+    return PVE::HA::Tools::read_json_from_file($filename, {});
 }
 
 sub write_lrm_status {
@@ -61,7 +61,7 @@ sub write_lrm_status {
 
     my $filename = "$self->{statusdir}/lrm_status_$node";
 
-    PVE::HA::Tools::write_json_to_file($filename, $status_obj); 
+    PVE::HA::Tools::write_json_to_file($filename, $status_obj);
 }
 
 sub read_hardware_status_nolock {
@@ -87,7 +87,7 @@ sub read_service_config {
     my ($self) = @_;
 
     my $filename = "$self->{statusdir}/service_config";
-    my $conf = PVE::HA::Tools::read_json_from_file($filename); 
+    my $conf = PVE::HA::Tools::read_json_from_file($filename);
 
     foreach my $sid (keys %$conf) {
 	my $d = $conf->{$sid};
@@ -187,9 +187,9 @@ sub change_service_location {
 
     die "no such service '$sid'\n" if !$conf->{$sid};
 
-    die "current_node for '$sid' does not match ($current_node != $conf->{$sid}->{node})\n" 
+    die "current_node for '$sid' does not match ($current_node != $conf->{$sid}->{node})\n"
 	if $current_node ne $conf->{$sid}->{node};
-    
+
     $conf->{$sid}->{node} = $new_node;
 
     $self->write_service_config($conf);
@@ -262,7 +262,7 @@ sub queue_crm_commands {
     my ($self, $cmd) = @_;
 
     my $code = sub { $self->queue_crm_commands_nolock($cmd); };
- 
+
     $self->global_lock($code);
 
     return undef;
@@ -282,7 +282,7 @@ sub read_crm_commands {
 
 	return $data;
     };
- 
+
     return $self->global_lock($code);
 }
 
@@ -300,7 +300,7 @@ sub read_service_status {
     my ($self, $node) = @_;
 
     my $filename = "$self->{statusdir}/service_status_$node";
-    return PVE::HA::Tools::read_json_from_file($filename); 
+    return PVE::HA::Tools::read_json_from_file($filename);
 }
 
 sub write_service_status {
@@ -312,7 +312,7 @@ sub write_service_status {
     # fixme: add test if a service runs on two nodes!!!
 
     return $res;
-} 
+}
 
 my $default_group_config = <<__EOD;
 group: prefer_node1
@@ -395,7 +395,7 @@ sub new {
 
 	if (-f "$testdir/service_status_$node") {
 	    copy("$testdir/service_status_$node", "$statusdir/service_status_$node");
-	} else {	
+	} else {
 	    $self->write_service_status($node, {});
 	}
     }
@@ -459,11 +459,11 @@ sub global_lock {
 
     eval { $res = &$code($fh, @param) };
     my $err = $@;
-    
+
     close($fh);
 
     die $err if $err;
-    
+
     return $res;
 }
 
@@ -486,7 +486,7 @@ my $compute_node_info = sub {
     }
 
     my $quorate = ($online_count > int($node_count/2)) ? 1 : 0;
-		   
+
     if (!$quorate) {
 	foreach my $node (keys %$cstatus) {
 	    my $d = $cstatus->{$node};
@@ -699,7 +699,7 @@ my $modify_watchog = sub {
     my $update_cmd = sub {
 
 	my $filename = "$self->{statusdir}/watchdog_status";
- 
+
 	my ($res, $wdstatus);
 
 	if (-f $filename) {
@@ -708,7 +708,7 @@ my $modify_watchog = sub {
 	} else {
 	    $wdstatus = {};
 	}
-	
+
 	($wdstatus, $res) = &$code($wdstatus);
 
 	PVE::Tools::file_set_contents($filename, encode_json($wdstatus));
@@ -731,7 +731,7 @@ sub watchdog_reset_nolock {
 	foreach my $id (keys %$wdstatus) {
 	    delete $wdstatus->{$id} if $wdstatus->{$id}->{node} eq $node;
 	}
-	
+
 	PVE::Tools::file_set_contents($filename, encode_json($wdstatus));
     }
 }
@@ -756,7 +756,7 @@ sub watchdog_check {
 		delete $wdstatus->{$wfh};
 	    }
 	}
-	
+
 	return ($wdstatus, $res);
     };
 
@@ -822,7 +822,7 @@ sub watchdog_update {
 	my $tdiff = $ctime - $wd->{update_time};
 
 	die "watchdog expired" if $tdiff > $watchdog_timeout;
-	
+
 	$wd->{update_time} = $ctime;
 
 	return ($wdstatus);

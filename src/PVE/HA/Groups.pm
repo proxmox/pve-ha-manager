@@ -21,19 +21,19 @@ my $defaultData = {
 	restricted => {
 	    description => "Resources bound to restricted groups may only run on nodes defined by the group.",
 	    verbose_description => "Resources bound to restricted groups may only run on nodes defined by the group. The resource will be placed in the stopped state if no group node member is online. Resources on unrestricted groups may run on any cluster node if all group members are offline, but they will migrate back as soon as a group member comes online. One can implement a 'preferred node' behavior using an unrestricted group with only one member.",
-	    type => 'boolean', 
+	    type => 'boolean',
 	    optional => 1,
 	    default => 0,
 	},
 	nofailback => {
 	    description => "The CRM tries to run services on the node with the highest priority. If a node with higher priority comes online, the CRM migrates the service to that node. Enabling nofailback prevents that behavior.",
-	    type => 'boolean', 
+	    type => 'boolean',
 	    optional => 1,
-	    default => 0,	    
+	    default => 0,
 	},
-	comment => { 
+	comment => {
 	    description => "Description.",
-	    type => 'string', 
+	    type => 'string',
 	    optional => 1,
 	    maxLength => 4096,
 	},
@@ -77,11 +77,11 @@ sub decode_value {
 
 sub encode_value {
     my ($class, $type, $key, $value) = @_;
-    
+
     if ($key eq 'nodes') {
         return join(',', keys(%$value));
     }
-    
+
     return $value;
 }
 

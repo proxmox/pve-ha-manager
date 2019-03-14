@@ -3,7 +3,7 @@ package PVE::HA::Sim::RTEnv;
 use strict;
 use warnings;
 use POSIX qw(strftime EINTR);
-use JSON; 
+use JSON;
 use IO::File;
 use Fcntl qw(:DEFAULT :flock);
 
@@ -13,7 +13,7 @@ use base qw(PVE::HA::Sim::Env);
 
 sub new {
     my ($this, $nodename, $hardware, $log_id) = @_;
-    
+
     my $class = ref($this) || $this;
 
     my $self = $class->SUPER::new($nodename, $hardware, $log_id);
@@ -34,7 +34,7 @@ sub log {
 
     my $time = $self->get_time();
 
-    printf("%-5s %10s %12s: $msg\n", $level, strftime("%H:%M:%S", localtime($time)), 
+    printf("%-5s %10s %12s: $msg\n", $level, strftime("%H:%M:%S", localtime($time)),
 	   "$self->{nodename}/$self->{log_id}");
 }
 
@@ -66,7 +66,7 @@ sub loop_end_hook {
     my ($self) = @_;
 
     my $delay = $self->get_time() - $self->{loop_start};
- 
+
     die "loop take too long ($delay seconds)\n" if $delay > 30;
 }
 

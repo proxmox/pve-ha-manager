@@ -3,7 +3,7 @@ package PVE::HA::Sim::TestEnv;
 use strict;
 use warnings;
 use POSIX qw(strftime EINTR);
-use JSON; 
+use JSON;
 use IO::File;
 use Fcntl qw(:DEFAULT :flock);
 
@@ -13,7 +13,7 @@ use base qw(PVE::HA::Sim::Env);
 
 sub new {
     my ($this, $nodename, $hardware, $log_id) = @_;
-    
+
     my $class = ref($this) || $this;
 
     my $self = $class->SUPER::new($nodename, $hardware, $log_id);
@@ -47,7 +47,7 @@ sub log {
 
     my $line = sprintf("%-5s %5d %12s: $msg\n", $level, $time, "$self->{nodename}/$self->{log_id}");
     print $line;
-    
+
     $self->{logfh}->print($line);
     $self->{logfh}->flush();
 }

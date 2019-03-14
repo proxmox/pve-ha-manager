@@ -171,7 +171,7 @@ __PACKAGE__->register_method ({
 	# create /etc/pve/ha directory
 	PVE::Cluster::check_cfs_quorum();
 	mkdir("/etc/pve/ha");
-	
+
 	my ($sid, $type, $name) = PVE::HA::Config::parse_sid(extract_param($param, 'sid'));
 
 	if (my $param_type = extract_param($param, 'type')) {
@@ -346,7 +346,7 @@ __PACKAGE__->register_method ({
 	check_service_state($sid);
 
 	PVE::HA::Config::queue_crm_commands("migrate $sid $param->{node}");
-	    
+
 	return undef;
     }});
 
@@ -381,7 +381,7 @@ __PACKAGE__->register_method ({
 	check_service_state($sid);
 
 	PVE::HA::Config::queue_crm_commands("relocate $sid $param->{node}");
-	    
+
 	return undef;
     }});
 

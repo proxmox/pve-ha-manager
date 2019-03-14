@@ -30,8 +30,8 @@ my $timestamp_to_status = sub {
 };
 
 __PACKAGE__->register_method ({
-    name => 'index', 
-    path => '', 
+    name => 'index',
+    path => '',
     method => 'GET',
     permissions => { user => 'all' },
     description => "Directory index.",
@@ -49,7 +49,7 @@ __PACKAGE__->register_method ({
     },
     code => sub {
 	my ($param) = @_;
-    
+
 	my $result = [
 	    { name => 'current' },
 	    { name => 'manager_status' },
@@ -59,7 +59,7 @@ __PACKAGE__->register_method ({
     }});
 
 __PACKAGE__->register_method ({
-    name => 'status', 
+    name => 'status',
     path => 'current',
     method => 'GET',
     description => "Get HA manger status.",
@@ -116,13 +116,13 @@ __PACKAGE__->register_method ({
 	    next if $req_state eq 'freeze';
 	    $active_count->{$sd->{node}}++;
 	}
-	
+
 	foreach my $node (sort keys %{$status->{node_status}}) {
 	    my $lrm_status = PVE::HA::Config::read_lrm_status($node);
 	    my $id = "lrm:$node";
 	    if (!$lrm_status->{timestamp}) {
-		push @$res, { id => $id, type => 'lrm',  node => $node, 
-			      status => "$node (unable to read lrm status)"}; 
+		push @$res, { id => $id, type => 'lrm',  node => $node,
+			      status => "$node (unable to read lrm status)"};
 	    } else {
 		my $status_str = &$timestamp_to_status($ctime, $lrm_status->{timestamp});
 		if ($status_str eq 'active') {
@@ -141,8 +141,8 @@ __PACKAGE__->register_method ({
 
 		my $time_str = localtime($lrm_status->{timestamp});
 		my $status_text = "$node ($status_str, $time_str)";
-		push @$res, { id => $id, type => 'lrm',  node => $node, 
-			      status => $status_text, timestamp => $lrm_status->{timestamp} }; 
+		push @$res, { id => $id, type => 'lrm',  node => $node,
+			      status => $status_text, timestamp => $lrm_status->{timestamp} };
 	    }
 	}
 
@@ -189,7 +189,7 @@ __PACKAGE__->register_method ({
     }});
 
 __PACKAGE__->register_method ({
-    name => 'manager_status', 
+    name => 'manager_status',
     path => 'manager_status',
     method => 'GET',
     description => "Get full HA manger status, including LRM status.",
@@ -205,14 +205,14 @@ __PACKAGE__->register_method ({
 	my ($param) = @_;
 
 	my $status = PVE::HA::Config::read_manager_status();
-	
+
 	my $data = { manager_status => $status };
 
 	$data->{quorum} = {
 	    node => $nodename,
 	    quorate => PVE::Cluster::check_cfs_quorum(1),
 	};
-	
+
 	foreach my $node (sort keys %{$status->{node_status}}) {
 	    my $lrm_status = PVE::HA::Config::read_lrm_status($node);
 	    $data->{lrm_status}->{$node} = $lrm_status;

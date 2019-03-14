@@ -43,9 +43,9 @@ sub flush_master_status {
     $ms->{node_status} = $ns->{status};
     $ms->{service_status} = $ss;
     $ms->{timestamp} = $haenv->get_time();
-    
+
     $haenv->write_manager_status($ms);
-} 
+}
 
 sub get_service_group {
     my ($groups, $online_node_usage, $service_conf) = @_;
@@ -57,7 +57,7 @@ sub get_service_group {
     }
 
     # overwrite default if service is bound to a specific group
-    $group =  $groups->{ids}->{$service_conf->{group}} if $service_conf->{group} && 
+    $group =  $groups->{ids}->{$service_conf->{group}} if $service_conf->{group} &&
 	$groups->{ids}->{$service_conf->{group}};
 
     return $group;
@@ -118,7 +118,7 @@ sub select_service_node {
 	}
     }
 
-    my @nodes = sort { 
+    my @nodes = sort {
 	$online_node_usage->{$a} <=> $online_node_usage->{$b} || $a cmp $b
     } keys %{$pri_groups->{$top_pri}};
 
@@ -152,7 +152,7 @@ my $uid_counter = 0;
 
 sub compute_new_uuid {
     my ($state) = @_;
-    
+
     $uid_counter++;
     return md5_base64($state . $$ . time() . $uid_counter);
 }
@@ -183,7 +183,7 @@ sub recompute_online_node_usage {
 	my $sd = $self->{ss}->{$sid};
 	my $state = $sd->{state};
 	if (defined($online_node_usage->{$sd->{node}})) {
-	    if (($state eq 'started') || ($state eq 'request_stop') || 
+	    if (($state eq 'started') || ($state eq 'request_stop') ||
 		($state eq 'fence') || ($state eq 'freeze') || ($state eq 'error')) {
 		$online_node_usage->{$sd->{node}}++;
 	    } elsif (($state eq 'migrate') || ($state eq 'relocate')) {
@@ -299,7 +299,7 @@ my $recover_fenced_service = sub {
     }
 };
 
-# read LRM status for all nodes 
+# read LRM status for all nodes
 sub read_lrm_status {
     my ($self) = @_;
 
@@ -317,7 +317,7 @@ sub read_lrm_status {
 	}
     }
 
-    
+
     return ($results, $modes);
 }
 
@@ -333,14 +333,14 @@ sub update_crm_commands {
 	chomp $cmd;
 
 	if ($cmd =~ m/^(migrate|relocate)\s+(\S+)\s+(\S+)$/) {
-	    my ($task, $sid, $node) = ($1, $2, $3); 
+	    my ($task, $sid, $node) = ($1, $2, $3);
 	    if (my $sd = $ss->{$sid}) {
 		if (!$ns->node_is_online($node)) {
 		    $haenv->log('err', "crm command error - node not online: $cmd");
 		} else {
 		    if ($node eq $sd->{node}) {
 			$haenv->log('info', "ignore crm command - service already on target node: $cmd");
-		    } else { 
+		    } else {
 			$haenv->log('info', "got crm command: $cmd");
 			$ss->{$sid}->{cmd} = [ $task, $node];
 		    }
@@ -404,7 +404,7 @@ sub manage {
 
     for (;;) {
 	my $repeat = 0;
-	
+
 	$self->recompute_online_node_usage();
 
 	foreach my $sid (sort keys %$ss) {
@@ -558,7 +558,7 @@ sub next_state_stopped {
 	# this can happen if we fence a node with active migrations
 	# hack: modify $sd (normally this should be considered read-only)
 	$haenv->log('info', "fixup service '$sid' location ($sd->{node} => $cd->{node})");
-	$sd->{node} = $cd->{node}; 
+	$sd->{node} = $cd->{node};
     }
 
     if ($sd->{cmd}) {
@@ -576,7 +576,7 @@ sub next_state_stopped {
 		return;
 	    }
 	} else {
-	    $haenv->log('err', "unknown command '$cmd' for service '$sid'"); 
+	    $haenv->log('err', "unknown command '$cmd' for service '$sid'");
 	}
     }
 
@@ -630,7 +630,7 @@ sub next_state_started {
 	}
 	return;
     }
-	
+
     if ($cd->{state} eq 'disabled' || $cd->{state} eq 'stopped') {
 	&$change_service_state($self, $sid, 'request_stop');
 	return;
@@ -652,7 +652,7 @@ sub next_state_started {
 		    &$change_service_state($self, $sid, $cmd, node => $sd->{node}, target => $target);
 		}
 	    } else {
-		$haenv->log('err', "unknown command '$cmd' for service '$sid'"); 
+		$haenv->log('err', "unknown command '$cmd' for service '$sid'");
 	    }
 	} else {
 

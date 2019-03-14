@@ -211,7 +211,7 @@ sub loop_start_hook {
 
 sub loop_end_hook {
     my ($self, @args) = @_;
-    
+
     return $self->{plug}->loop_end_hook(@args);
 }
 

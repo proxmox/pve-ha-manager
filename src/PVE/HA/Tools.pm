@@ -41,7 +41,7 @@ sub pve_verify_ha_resource_id {
 PVE::JSONSchema::register_standard_option('pve-ha-resource-id', {
     description => "HA resource ID. This consists of a resource type followed by a resource specific name, separated with colon (example: vm:100 / ct:100).",
     typetext => "<type>:<name>",
-    type => 'string', format => 'pve-ha-resource-id',					 
+    type => 'string', format => 'pve-ha-resource-id',
 });
 
 PVE::JSONSchema::register_format('pve-ha-resource-or-vm-id', \&pve_verify_ha_resource_or_vm_id);
@@ -58,7 +58,7 @@ sub pve_verify_ha_resource_or_vm_id {
 PVE::JSONSchema::register_standard_option('pve-ha-resource-or-vm-id', {
     description => "HA resource ID. This consists of a resource type followed by a resource specific name, separated with colon (example: vm:100 / ct:100). For virtual machines and containers, you can simply use the VM or CT id as a shortcut (example: 100).",
     typetext => "<type>:<name>",
-    type => 'string', format => 'pve-ha-resource-or-vm-id',					 
+    type => 'string', format => 'pve-ha-resource-or-vm-id',
 });
 
 PVE::JSONSchema::register_format('pve-ha-group-node', \&pve_verify_ha_group_node);
@@ -111,7 +111,7 @@ sub count_fenced_services {
     my ($ss, $node) = @_;
 
     my $count = 0;
-    
+
     foreach my $sid (keys %$ss) {
 	my $sd = $ss->{$sid};
 	next if !$sd->{node};
@@ -123,7 +123,7 @@ sub count_fenced_services {
 	    next;
 	}
     }
-    
+
     return $count;
 }
 

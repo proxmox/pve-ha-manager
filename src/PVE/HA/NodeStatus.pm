@@ -32,7 +32,7 @@ my $valid_node_states = {
 sub get_node_state {
     my ($self, $node) = @_;
 
-    $self->{status}->{$node} = 'unknown' 
+    $self->{status}->{$node} = 'unknown'
 	if !$self->{status}->{$node};
 
     return $self->{status}->{$node};

@@ -9,7 +9,7 @@ package PVE::HA::Sim::TestHardware;
 use strict;
 use warnings;
 use POSIX qw(strftime EINTR);
-use JSON; 
+use JSON;
 use IO::File;
 use Fcntl qw(:DEFAULT :flock);
 use File::Copy;
@@ -45,10 +45,10 @@ sub new {
 
 	my $d = $self->{nodes}->{$node};
 
-	$d->{crm_env} = 
+	$d->{crm_env} =
 	    PVE::HA::Env->new('PVE::HA::Sim::TestEnv', $node, $self, 'crm');
 
-	$d->{lrm_env} = 
+	$d->{lrm_env} =
 	    PVE::HA::Env->new('PVE::HA::Sim::TestEnv', $node, $self, 'lrm');
 
 	$d->{crm} = undef; # create on power on
@@ -115,7 +115,7 @@ sub run {
 
     my $last_command_time = 0;
     my $next_cmd_at = 0;
-	
+
     for (;;) {
 
 	my $starttime = $self->get_time();
@@ -133,7 +133,7 @@ sub run {
 	foreach my $node (@nodes) {
 
 	    my $d = $self->{nodes}->{$node};
-	    
+
 	    if (my $crm = $d->{crm}) {
 
 		my $exit_crm = !$crm->do_one_iteration();
@@ -196,8 +196,8 @@ sub run {
 	    }
 	}
 
-	
-	$self->{cur_time} = $starttime + $looptime 
+
+	$self->{cur_time} = $starttime + $looptime
 	    if ($self->{cur_time} - $starttime) < $looptime;
 
 	die "simulation end\n" if $self->{cur_time} > $max_sim_time;
@@ -210,7 +210,7 @@ sub run {
 	}
 
 	next if $self->{cur_time} < $next_cmd_at;
- 
+
 	# apply new comand after 5 loop iterations
 
 	if (($self->{loop_count} % 5) == 0) {

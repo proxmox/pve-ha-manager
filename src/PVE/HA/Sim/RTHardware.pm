@@ -65,7 +65,7 @@ sub log {
 
     $id = 'hardware' if !$id;
 
-    my $text = sprintf("%-5s %10s %12s: $msg\n", $level, 
+    my $text = sprintf("%-5s %10s %12s: $msg\n", $level,
 		       strftime("%H:%M:%S", localtime($time)), $id);
 
     $self->append_text($text);
@@ -74,10 +74,10 @@ sub log {
 # fixme: duplicate code in Env?
 sub read_manager_status {
     my ($self) = @_;
-    
+
     my $filename = "$self->{statusdir}/manager_status";
 
-    return PVE::HA::Tools::read_json_from_file($filename, {});  
+    return PVE::HA::Tools::read_json_from_file($filename, {});
 }
 
 sub fork_daemon {
@@ -88,10 +88,10 @@ sub fork_daemon {
     my $pid = fork();
     die "fork failed" if ! defined($pid);
 
-    if ($pid == 0) { 
+    if ($pid == 0) {
 
 	close($lockfh) if defined($lockfh); # unlock global lock
-	
+
 	POSIX::close($psync[0]);
 
 	my $outfh = $psync[1];
@@ -100,7 +100,7 @@ sub fork_daemon {
 	close STDIN;
 	POSIX::close(0) if $fd != 0;
 
-	die "unable to redirect STDIN - $!" 
+	die "unable to redirect STDIN - $!"
 	    if !open(STDIN, "</dev/null");
 
 	# redirect STDOUT
@@ -108,7 +108,7 @@ sub fork_daemon {
 	close STDOUT;
 	POSIX::close (1) if $fd != 1;
 
-	die "unable to redirect STDOUT - $!" 
+	die "unable to redirect STDOUT - $!"
 	    if !open(STDOUT, ">&", $outfh);
 
 	STDOUT->autoflush (1);
@@ -118,9 +118,9 @@ sub fork_daemon {
 	close STDERR;
 	POSIX::close(2) if $fd != 2;
 
-	die "unable to redirect STDERR - $!" 
+	die "unable to redirect STDERR - $!"
 	    if !open(STDERR, ">&1");
-	
+
 	STDERR->autoflush(1);
 
 	if ($type eq 'crm') {
@@ -162,11 +162,11 @@ sub fork_daemon {
 	    }
 	    return 1;
 	} else {
-	    POSIX::close($fd);	
+	    POSIX::close($fd);
 	    return 0;
 	}
     });
-    	
+
     return $pid;
 }
 
@@ -269,8 +269,8 @@ sub set_power_state {
     my $d = $self->{nodes}->{$node} || die "no such node '$node'";
 
     my $action = $d->{power_btn}->get_active() ? 'on' : 'off';
-    
-    $self->sim_hardware_cmd("power $node $action"); 
+
+    $self->sim_hardware_cmd("power $node $action");
 }
 
 sub set_network_state {
@@ -279,14 +279,14 @@ sub set_network_state {
     my $d = $self->{nodes}->{$node} || die "no such node '$node'";
 
     my $action = $d->{network_btn}->get_active() ? 'on' : 'off';
-    
-    $self->sim_hardware_cmd("network $node $action"); 
+
+    $self->sim_hardware_cmd("network $node $action");
 }
 
 sub create_node_control {
     my ($self) = @_;
 
-    my $ngrid = Gtk3::Grid->new(); 
+    my $ngrid = Gtk3::Grid->new();
     $ngrid->set_row_spacing(2);
     $ngrid->set_column_spacing(5);
     $ngrid->set('margin-left', 5);
@@ -301,7 +301,7 @@ sub create_node_control {
     $w->set_size_request(150, -1);
     $w->set_alignment (0, 0.5);
     $ngrid->attach($w, 3, 0, 1, 1);
-   
+
     my $row = 1;
 
     my @nodes = sort keys %{$self->{nodes}};
@@ -482,7 +482,7 @@ sub show_migrate_dialog {
     my $target = '';
     $w->signal_connect('notify::active' => sub {
 	my $w = shift;
-		
+
 	my $sel = $w->get_active();
 	return if $sel < 0;
 
@@ -490,7 +490,7 @@ sub show_migrate_dialog {
     });
     $grid->attach($w, 1, 0, 1, 1);
 
-    my $relocate_btn = Gtk3::CheckButton->new_with_label("stop service (relocate)"); 
+    my $relocate_btn = Gtk3::CheckButton->new_with_label("stop service (relocate)");
     $grid->attach($relocate_btn, 1, 1, 1, 1);
 
     my $contarea = $dialog->get_content_area();
@@ -609,7 +609,7 @@ sub new_service_gui_entry {
 sub create_service_control {
     my ($self) = @_;
 
-    my $sgrid = Gtk3::Grid->new(); 
+    my $sgrid = Gtk3::Grid->new();
     $sgrid->set_row_spacing(2);
     $sgrid->set_column_spacing(5);
     $sgrid->set('margin', 5);
@@ -708,8 +708,8 @@ sub create_main_window {
 
     my $vbox = Gtk3::VBox->new(0, 0);
     $grid->attach($vbox, 1, 0, 1, 1);
-    
-    my $ngrid = $self->create_node_control(); 
+
+    my $ngrid = $self->create_node_control();
     $vbox->pack_start($ngrid, 0, 0, 0);
 
     my $sep = Gtk3::HSeparator->new;
