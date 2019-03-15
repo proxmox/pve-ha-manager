@@ -408,6 +408,18 @@ sub work {
 		$haenv->log('err', "get shutdown request in state 'lost_agent_lock' - " .
 			    "detected $service_count running services");
 
+		if ($self->{mode} eq 'restart') {
+		    my $state_mt = $self->{status}->{state_change_time};
+
+		    # watchdog should have already triggered, so either it's set
+		    # set to noboot or it failed. As we are in restart mode, and
+		    # have infinity stoptimeout -> exit now - we don't touch  services
+		    # or change state, so this is save, relatively speaking
+		    if (($haenv->get_time() - $state_mt) > 90) {
+			$haenv->log('err', "lost agent lock and restart request for over 90 seconds - giving up!");
+			return 0;
+		    }
+		}
 	    } else {
 
 		# all services are stopped, so we can close the watchdog
