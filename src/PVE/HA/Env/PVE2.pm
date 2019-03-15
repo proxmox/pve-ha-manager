@@ -443,7 +443,11 @@ sub get_max_workers {
 sub get_ha_settings {
     my ($self) = @_;
 
-    my $datacenterconfig = cfs_read_file('datacenter.cfg');
+    my $datacenterconfig = eval { cfs_read_file('datacenter.cfg') };
+    if (my $err = $@) {
+	$self->log('err', "unable to get HA settings from datacenter.cfg - $err");
+	return {};
+    }
 
     return $datacenterconfig->{ha};
 }
