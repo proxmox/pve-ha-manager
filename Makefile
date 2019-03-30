@@ -39,7 +39,7 @@ ${DSC}: ${BUILDDIR}
 .PHONY: clean
 clean:
 	make -C src clean
-	rm -rf ${BUILDDIR} *.dsc *.deb ${PACKAGE}-*.tar.gz *.changes *.buildinfo
+	rm -rf ${BUILDDIR} *.tar.gz *.dsc *.deb ${PACKAGE}-*.tar.gz *.changes *.buildinfo
 	find . -name '*~' -exec rm {} ';'
 
 .PHONY: distclean
