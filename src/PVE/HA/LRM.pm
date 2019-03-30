@@ -16,7 +16,6 @@ use PVE::HA::Resources;
 my $valid_states = {
     wait_for_agent_lock => "waiting for agent lock",
     active => "got agent_lock",
-    maintenance => "got agent_lock (maintenance)",
     lost_agent_lock => "lost agent_lock",
 };
 
@@ -278,8 +277,6 @@ sub work {
     # do state changes first
 
     my $ctime = $haenv->get_time();
-
-    # FIXME:
 
     if ($state eq 'wait_for_agent_lock') {
 

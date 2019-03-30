@@ -72,13 +72,6 @@ EODESC
 	    default => 1,
 	    minimum => 0,
 	},
-	affinity => {
-	    description => "How the groups member should be located to each other.",
-	    type => 'string',
-	    enum => ['none', 'separate', 'together'],
-	    default => 'none',
-	    optional => 1,
-	},
 	comment => {
 	    description => "Description.",
 	    type => 'string',
