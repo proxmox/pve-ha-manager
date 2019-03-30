@@ -4,14 +4,20 @@ SIMPACKAGE=pve-ha-simulator
 PKGREL=8
 
 GITVERSION:=$(shell git rev-parse HEAD)
-
+BUILDDIR ?= ${PACKAGE}-${VERSION}
 ARCH:=$(shell dpkg-architecture -qDEB_BUILD_ARCH)
 
 DEB=${PACKAGE}_${VERSION}-${PKGREL}_${ARCH}.deb
+DSC=${PACKAGE}_${VERSION}-${PKGREL}.dsc
 SIMDEB=${SIMPACKAGE}_${VERSION}-${PKGREL}_all.deb
-
+SIMDSC=${PACKAGE}_${VERSION}-${PKGREL}_${ARCH}.deb
 
 all: deb
+
+${BUILDDIR}:
+	rm -rf ${BUILDDIR}
+	rsync -a src/ debian ${BUILDDIR}
+	echo "git clone git://git.proxmox.com/git/pve-ha-manager.git\\ngit checkout ${GITVERSION}" > ${BUILDDIR}/debian/SOURCE
 
 .PHONY: dinstall
 dinstall: $(DEB) $(SIMDEB)
@@ -19,20 +25,21 @@ dinstall: $(DEB) $(SIMDEB)
 
 .PHONY: deb
 deb: ${DEB} ${SIMDEB}
-${DEB}:
-	rm -rf build
-	mkdir build
-	rsync -a src/ build
-	rsync -a debian/ build/debian
-	echo "git clone git://git.proxmox.com/git/pve-ha-manager.git\\ngit checkout ${GITVERSION}" > build/debian/SOURCE
-	cd build; dpkg-buildpackage -b -us -uc
+${DEB}: ${BUILDDIR}
+	cd ${BUILDDIR}; dpkg-buildpackage -b -us -uc
 	lintian ${DEB}
 	lintian ${SIMDEB}
+
+.PHONY: dsc
+dsc: ${DSC}
+${DSC}: ${BUILDDIR}
+	cd ${BUILDDIR}; dpkg-buildpackage -S -us -uc -d -nc
+	lintian ${DSC}
 
 .PHONY: clean
 clean:
 	make -C src clean
-	rm -rf build *.deb ${PACKAGE}-*.tar.gz *.changes *.buildinfo
+	rm -rf ${BUILDDIR} *.dsc *.deb ${PACKAGE}-*.tar.gz *.changes *.buildinfo
 	find . -name '*~' -exec rm {} ';'
 
 .PHONY: distclean
