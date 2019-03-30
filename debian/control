@@ -3,7 +3,6 @@ Section: perl
 Priority: extra
 Maintainer: Proxmox Support Team <support@proxmox.com>
 Build-Depends: debhelper (>= 10~),
-               dh-systemd,
                libglib-perl,
                libgtk3-perl,
                libpve-access-control,
