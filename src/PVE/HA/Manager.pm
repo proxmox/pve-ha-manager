@@ -218,7 +218,7 @@ my $change_service_state = sub {
 
     $sd->{state} = $new_state;
     $sd->{node} = $old_node;
-    $sd->{failed_nodes} = $old_failed_nodes;
+    $sd->{failed_nodes} = $old_failed_nodes if defined($old_failed_nodes);
 
     my $text_state = '';
     foreach my $k (sort keys %params) {
