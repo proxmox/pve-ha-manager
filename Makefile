@@ -1,7 +1,7 @@
 VERSION=2.0
 PACKAGE=pve-ha-manager
 SIMPACKAGE=pve-ha-simulator
-PKGREL=8
+PKGREL=9
 
 GITVERSION:=$(shell git rev-parse HEAD)
 BUILDDIR ?= ${PACKAGE}-${VERSION}

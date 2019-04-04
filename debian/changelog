@@ -1,3 +1,13 @@
+pve-ha-manager (2.0-9) unstable; urgency=medium
+
+  * get_ha_settings: cope with (temporarily) unavailable pmxcfs
+
+  * lrm: exit on restart and agent lock lost for > 90s
+
+  * service data: only set failed_nodes key if needed
+
+ -- Proxmox Support Team <support@proxmox.com>  Thu, 04 Apr 2019 16:27:32 +0200
+
 pve-ha-manager (2.0-8) unstable; urgency=medium
 
   * address an issue in dpkg 1.18 with wrong trigger cycle detections if cyclic
