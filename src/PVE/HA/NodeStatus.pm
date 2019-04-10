@@ -159,7 +159,7 @@ sub update {
 	} elsif ($state eq 'fence') {
 	    # do nothing, wait until fenced
 	} elsif($state eq 'gone') {
-	    if($self->node_is_offline_delayed($node, 3600)) {
+	    if ($self->node_is_offline_delayed($node, 3600)) {
 		&$delete_node($self, $node);
 	    }
 	} else {
