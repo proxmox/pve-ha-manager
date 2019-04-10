@@ -51,8 +51,13 @@ sub read_lrm_status {
     my $cfs_path = "nodes/$node/lrm_status";
 
     my $raw = PVE::Cluster::get_config($cfs_path);
-    die "unable to read file '/etc/pve/$cfs_path'\n"
-	if !defined($raw);
+    if (!defined($raw)) {
+	# ENOENT -> possible deleted node, don't die here as it breaks our node
+	# 'gone' logic
+	warn "unable to read file '/etc/pve/$cfs_path'\n";
+	# unkown mode set explicitly as 'active' is assumed as default..
+	return { mode => 'unknown' } if ! -e "/etc/pve/$cfs_path";
+    }
 
     return json_reader(undef, $raw);
 }
