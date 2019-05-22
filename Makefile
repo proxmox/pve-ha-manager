@@ -1,16 +1,16 @@
-VERSION=2.0
+include /usr/share/dpkg/pkg-info.mk
+include /usr/share/dpkg/architecture.mk
+
 PACKAGE=pve-ha-manager
 SIMPACKAGE=pve-ha-simulator
-PKGREL=9
 
 GITVERSION:=$(shell git rev-parse HEAD)
 BUILDDIR ?= ${PACKAGE}-${VERSION}
-ARCH:=$(shell dpkg-architecture -qDEB_BUILD_ARCH)
 
-DEB=${PACKAGE}_${VERSION}-${PKGREL}_${ARCH}.deb
-DSC=${PACKAGE}_${VERSION}-${PKGREL}.dsc
-SIMDEB=${SIMPACKAGE}_${VERSION}-${PKGREL}_all.deb
-SIMDSC=${PACKAGE}_${VERSION}-${PKGREL}_${ARCH}.deb
+DEB=${PACKAGE}_${DEB_VERSION_UPSTREAM_REVISION}_${DEB_BUILD_ARCH}.deb
+DSC=${PACKAGE}_${DEB_VERSION_UPSTREAM_REVISION}.dsc
+SIMDEB=${SIMPACKAGE}_${DEB_VERSION_UPSTREAM_REVISION}_all.deb
+SIMDSC=${SIMPACKAGE}_${DEB_VERSION_UPSTREAM_REVISION}.dsc
 
 all: deb
 
@@ -33,7 +33,7 @@ ${DEB}: ${BUILDDIR}
 .PHONY: dsc
 dsc: ${DSC}
 ${DSC}: ${BUILDDIR}
-	cd ${BUILDDIR}; dpkg-buildpackage -S -us -uc -d -nc
+	cd ${BUILDDIR}; dpkg-buildpackage -S -us -uc -d
 	lintian ${DSC}
 
 .PHONY: clean
