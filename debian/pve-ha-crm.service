@@ -13,7 +13,7 @@ After=syslog.service
 [Service]
 ExecStart=/usr/sbin/pve-ha-crm start
 ExecStop=/usr/sbin/pve-ha-crm stop
-PIDFile=/var/run/pve-ha-crm.pid
+PIDFile=/run/pve-ha-crm.pid
 TimeoutStopSec=65
 Type=forking
 
