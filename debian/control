@@ -37,9 +37,11 @@ Priority: optional
 Architecture: all
 Depends: libclone-perl,
          libdevel-cycle-perl,
+         libencode-locale-perl,
          libfilesys-df-perl,
          libglib-perl,
          libgtk3-perl,
+         libhttp-message-perl,
          libjson-perl,
          libnet-ip-perl,
          libstring-shellquote-perl,
