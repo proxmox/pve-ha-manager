@@ -1,3 +1,13 @@
+pve-ha-manager (3.0-2) pve; urgency=medium
+
+  * services: update PIDFile to point directly to /run
+
+  * fix #2234: fix typo in service description
+
+  * Add missing Dependencies to pve-ha-simulator
+
+ -- Proxmox Support Team <support@proxmox.com>  Thu, 11 Jul 2019 19:26:03 +0200
+
 pve-ha-manager (3.0-1) pve; urgency=medium
 
   * handle the case where a node gets fully purged
