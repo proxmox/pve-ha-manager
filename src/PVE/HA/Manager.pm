@@ -342,7 +342,7 @@ sub update_crm_commands {
 			$haenv->log('info', "ignore crm command - service already on target node: $cmd");
 		    } else {
 			$haenv->log('info', "got crm command: $cmd");
-			$ss->{$sid}->{cmd} = [ $task, $node];
+			$ss->{$sid}->{cmd} = [ $task, $node ];
 		    }
 		}
 	    } else {
