@@ -54,7 +54,7 @@ __PACKAGE__->register_method ({
 	check => ['perm', '/', [ 'Sys.Audit' ]],
     },
     parameters => {
-    	additionalProperties => 0,
+	additionalProperties => 0,
 	properties => {
 	    type => {
 		description => "Only list resources of specific type",
@@ -100,7 +100,7 @@ __PACKAGE__->register_method ({
     },
     description => "Read resource configuration.",
     parameters => {
-    	additionalProperties => 0,
+	additionalProperties => 0,
 	properties => {
 	    sid => get_standard_option('pve-ha-resource-or-vm-id',
 				      { completion => \&PVE::HA::Tools::complete_sid }),
@@ -284,7 +284,7 @@ __PACKAGE__->register_method ({
 	check => ['perm', '/', [ 'Sys.Console' ]],
     },
     parameters => {
-    	additionalProperties => 0,
+	additionalProperties => 0,
 	properties => {
 	    sid => get_standard_option('pve-ha-resource-or-vm-id',
 				      { completion => \&PVE::HA::Tools::complete_sid }),
@@ -325,7 +325,7 @@ __PACKAGE__->register_method ({
 	check => ['perm', '/', [ 'Sys.Console' ]],
     },
     parameters => {
-    	additionalProperties => 0,
+	additionalProperties => 0,
 	properties => {
 	    sid => get_standard_option('pve-ha-resource-or-vm-id',
 				      { completion => \&PVE::HA::Tools::complete_sid }),
@@ -360,7 +360,7 @@ __PACKAGE__->register_method ({
 	check => ['perm', '/', [ 'Sys.Console' ]],
     },
     parameters => {
-    	additionalProperties => 0,
+	additionalProperties => 0,
 	properties => {
 	    sid => get_standard_option('pve-ha-resource-or-vm-id',
 				      { completion => \&PVE::HA::Tools::complete_sid }),

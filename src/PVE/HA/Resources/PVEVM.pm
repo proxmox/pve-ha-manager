@@ -88,7 +88,6 @@ sub shutdown {
     PVE::HA::Tools::upid_wait($upid, $haenv);
 }
 
-
 sub migrate {
     my ($class, $haenv, $id, $target, $online) = @_;
 

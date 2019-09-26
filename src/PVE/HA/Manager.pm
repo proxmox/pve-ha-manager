@@ -547,7 +547,6 @@ sub next_state_migrate_relocate {
     }
 }
 
-
 sub next_state_stopped {
     my ($self, $sid, $cd, $sd, $lrm_res) = @_;
 
