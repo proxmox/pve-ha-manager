@@ -477,7 +477,7 @@ sub run_workers {
 			# do work
 			my $res = -1;
 			eval {
-			    $res = $self->exec_resource_agent($sid, $sc->{$sid}, $w->{state}, $w->{target});
+			    $res = $self->exec_resource_agent($sid, $sc->{$sid}, $w->{state}, $w->{params});
 			};
 			if (my $err = $@) {
 			    $haenv->log('err', $err);
@@ -491,7 +491,7 @@ sub run_workers {
 		} else {
 		    my $res = -1;
 		    eval {
-			$res = $self->exec_resource_agent($sid, $sc->{$sid}, $w->{state}, $w->{target});
+			$res = $self->exec_resource_agent($sid, $sc->{$sid}, $w->{state}, $w->{params});
 			$res = $res << 8 if $res > 0;
 		    };
 		    if (my $err = $@) {
@@ -535,14 +535,14 @@ sub manage_resources {
 	my $req_state = $sd->{state};
 	next if !defined($req_state);
 	next if $req_state eq 'freeze';
-	$self->queue_resource_command($sid, $sd->{uid}, $req_state, $sd->{target});
+	$self->queue_resource_command($sid, $sd->{uid}, $req_state, {'target' => $sd->{target}});
     }
 
     return $self->run_workers();
 }
 
 sub queue_resource_command {
-    my ($self, $sid, $uid, $state, $target) = @_;
+    my ($self, $sid, $uid, $state, $params) = @_;
 
     # do not queue the excatly same command twice as this may lead to
     # an inconsistent HA state when the first command fails but the CRM
@@ -564,7 +564,7 @@ sub queue_resource_command {
 	state => $state,
     };
 
-    $self->{workers}->{$sid}->{target} = $target if $target;
+    $self->{workers}->{$sid}->{params} = $params if $params;
 }
 
 sub check_active_workers {
@@ -711,7 +711,7 @@ sub handle_service_exitcode {
 }
 
 sub exec_resource_agent {
-    my ($self, $sid, $service_config, $cmd, @params) = @_;
+    my ($self, $sid, $service_config, $cmd, $params) = @_;
 
     # setup execution environment
 
@@ -790,7 +790,7 @@ sub exec_resource_agent {
 
     } elsif ($cmd eq 'migrate' || $cmd eq 'relocate') {
 
-	my $target = $params[0];
+	my $target = $params->{target};
 	if (!defined($target)) {
 	    die "$cmd '$sid' failed - missing target\n" if !defined($target);
 	    return EINVALID_PARAMETER;
