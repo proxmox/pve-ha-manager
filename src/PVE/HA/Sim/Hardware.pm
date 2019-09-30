@@ -537,7 +537,7 @@ sub sim_hardware_cmd {
 
 	my $cstatus = $self->read_hardware_status_nolock();
 
-	my ($cmd, $objid, $action, $target) = split(/\s+/, $cmdstr);
+	my ($cmd, $objid, $action, $param) = split(/\s+/, $cmdstr);
 
 	die "sim_hardware_cmd: no node or service for command specified"
 	    if !$objid;
@@ -601,10 +601,10 @@ sub sim_hardware_cmd {
 	} elsif ($cmd eq 'cfs') {
 	    die "sim_hardware_cmd: unknown cfs action '$action' for node '$node'"
 		if $action !~ m/^(rw|update)$/;
-	    die "sim_hardware_cmd: unknown cfs command '$target' for '$action' on node '$node'"
-		if $target !~ m/^(work|fail)$/;
+	    die "sim_hardware_cmd: unknown cfs command '$param' for '$action' on node '$node'"
+		if $param !~ m/^(work|fail)$/;
 
-	    $cstatus->{$node}->{cfs}->{$action} = $target eq 'work';
+	    $cstatus->{$node}->{cfs}->{$action} = $param eq 'work';
 	    $self->write_hardware_status_nolock($cstatus);
 
 	} elsif ($cmd eq 'reboot' || $cmd eq 'shutdown') {
@@ -640,13 +640,13 @@ sub sim_hardware_cmd {
 	    } elsif ($action eq 'migrate' || $action eq 'relocate') {
 
 		die "sim_hardware_cmd: missing target node for '$action' command"
-		    if !$target;
+		    if !$param;
 
-		$self->queue_crm_commands_nolock("$action $sid $target");
+		$self->queue_crm_commands_nolock("$action $sid $param");
 
 	    } elsif ($action eq 'add') {
 
-		$self->add_service($sid, {state => 'started', node => $target});
+		$self->add_service($sid, {state => 'started', node => $param});
 
 	    } elsif ($action eq 'delete') {
 
@@ -654,11 +654,11 @@ sub sim_hardware_cmd {
 
 	    } elsif ($action eq 'lock') {
 
-		$self->lock_service($sid, $target);
+		$self->lock_service($sid, $param);
 
 	    } elsif ($action eq 'unlock') {
 
-		$self->unlock_service($sid, $target);
+		$self->unlock_service($sid, $param);
 
 	    } else {
 		die "sim_hardware_cmd: unknown service action '$action' " .
