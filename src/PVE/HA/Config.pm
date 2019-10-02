@@ -125,6 +125,43 @@ sub read_and_check_resources_config {
     return $conf;
 }
 
+sub update_resources_config {
+    my ($sid, $param, $delete, $digest) = @_;
+
+    lock_ha_domain(
+	sub {
+	    my $cfg = read_resources_config();
+	    ($sid, my $type, my $name) = parse_sid($sid);
+
+	    PVE::SectionConfig::assert_if_modified($cfg, $digest);
+
+	    my $scfg = $cfg->{ids}->{$sid} ||
+		die "no such resource '$sid'\n";
+
+	    my $plugin = PVE::HA::Resources->lookup($scfg->{type});
+	    my $opts = $plugin->check_config($sid, $param, 0, 1);
+
+	    foreach my $k (%$opts) {
+		$scfg->{$k} = $opts->{$k};
+	    }
+
+	    if ($delete) {
+		my $options = $plugin->private()->{options}->{$type};
+		foreach my $k (PVE::Tools::split_list($delete)) {
+		    my $d = $options->{$k} ||
+			die "no such option '$k'\n";
+		    die "unable to delete required option '$k'\n"
+			if !$d->{optional};
+		    die "unable to delete fixed option '$k'\n"
+			if $d->{fixed};
+		    delete $scfg->{$k};
+		}
+	    }
+
+	    write_resources_config($cfg);
+	}, "update resources config failed");
+}
+
 sub parse_sid {
     my ($sid) = @_;
 

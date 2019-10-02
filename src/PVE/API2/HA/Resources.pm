@@ -237,39 +237,7 @@ __PACKAGE__->register_method ({
 
 	check_service_state($sid, $param->{state});
 
-	PVE::HA::Config::lock_ha_domain(
-	    sub {
-
-		my $cfg = PVE::HA::Config::read_resources_config();
-
-		PVE::SectionConfig::assert_if_modified($cfg, $digest);
-
-		my $scfg = $cfg->{ids}->{$sid} ||
-		    die "no such resource '$sid'\n";
-
-		my $plugin = PVE::HA::Resources->lookup($scfg->{type});
-		my $opts = $plugin->check_config($sid, $param, 0, 1);
-
-		foreach my $k (%$opts) {
-		    $scfg->{$k} = $opts->{$k};
-		}
-
-		if ($delete) {
-		    my $options = $plugin->private()->{options}->{$type};
-		    foreach my $k (PVE::Tools::split_list($delete)) {
-			my $d = $options->{$k} ||
-			    die "no such option '$k'\n";
-			die "unable to delete required option '$k'\n"
-			    if !$d->{optional};
-			die "unable to delete fixed option '$k'\n"
-			    if $d->{fixed};
-			delete $scfg->{$k};
-		    }
-		}
-
-		PVE::HA::Config::write_resources_config($cfg)
-
-	    }, "update resource failed");
+	PVE::HA::Config::update_resources_config($sid, $param, $delete, $digest);
 
 	return undef;
     }});
