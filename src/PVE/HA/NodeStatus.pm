@@ -24,6 +24,7 @@ sub new {
 # possible node state:
 my $valid_node_states = {
     online => "node online and member of quorate partition",
+    maintenance => "node is a member of quorate partition but currently not able to do work",
     unknown => "not member of quorate partition, but possibly still running",
     fence => "node needs to be fenced",
     gone => "node vanished from cluster members list, possibly deleted"
@@ -36,6 +37,11 @@ sub get_node_state {
 	if !$self->{status}->{$node};
 
     return $self->{status}->{$node};
+}
+
+sub node_is_operational {
+    my ($self, $node) = @_;
+    return $self->node_is_online($node) || $self->get_node_state($node) eq 'maintenance';
 }
 
 sub node_is_online {
@@ -117,12 +123,13 @@ my $set_node_state = sub {
 };
 
 sub update {
-    my ($self, $node_info) = @_;
+    my ($self, $node_info, $lrm_modes) = @_;
 
     my $haenv = $self->{haenv};
 
     foreach my $node (sort keys %$node_info) {
 	my $d = $node_info->{$node};
+	my $lrm_mode = $lrm_modes->{$node} // 'unkown';
 	next if !$d->{online};
 
 	# record last time the node was online (required to implement fence delay)
@@ -131,11 +138,19 @@ sub update {
 	my $state = $self->get_node_state($node);
 
 	if ($state eq 'online') {
+	    if ($lrm_mode eq 'maintenance') {
+		#$haenv->log('info', "update node state maintance");
+		$set_node_state->($self, $node, 'maintenance');
+	    }
 	    # &$set_node_state($self, $node, 'online');
 	} elsif ($state eq 'unknown' || $state eq 'gone') {
 	    &$set_node_state($self, $node, 'online');
 	} elsif ($state eq 'fence') {
 	    # do nothing, wait until fenced
+	} elsif ($state eq 'maintenance') {
+	    if ($lrm_mode ne 'maintenance') {
+		$set_node_state->($self, $node, 'online');
+	    }
 	} else {
 	    die "detected unknown node state '$state";
 	}
@@ -149,7 +164,7 @@ sub update {
 
 	# node is not inside quorate partition, possibly not active
 
-	if ($state eq 'online') {
+	if ($state eq 'online' || $state eq 'maintenance') {
 	    &$set_node_state($self, $node, 'unknown');
 	} elsif ($state eq 'unknown') {
 

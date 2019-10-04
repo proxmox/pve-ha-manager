@@ -1,0 +1,4 @@
+{
+    "vm:103": { "node": "node1", "state": "enabled" },
+    "ct:102": { "node": "node1", "state": "enabled" }
+}

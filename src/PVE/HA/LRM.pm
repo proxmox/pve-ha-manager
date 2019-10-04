@@ -16,6 +16,7 @@ use PVE::HA::Resources;
 my $valid_states = {
     wait_for_agent_lock => "waiting for agent lock",
     active => "got agent_lock",
+    maintenance => "going into maintenance",
     lost_agent_lock => "lost agent_lock",
 };
 
@@ -61,18 +62,27 @@ sub shutdown_request {
     }
 
     my $freeze_all;
+    my $maintenance;
     if ($shutdown_policy eq 'conditional') {
 	$freeze_all = $reboot;
     } elsif ($shutdown_policy eq 'freeze') {
 	$freeze_all = 1;
     } elsif ($shutdown_policy eq 'failover') {
 	$freeze_all = 0;
+    } elsif ($shutdown_policy eq 'migrate') {
+	$maintenance = 1;
     } else {
 	$haenv->log('err', "unknown shutdown policy '$shutdown_policy', fall back to conditional");
 	$freeze_all = $reboot;
     }
 
-    if ($shutdown) {
+    if ($maintenance) {
+	# we get marked as unaivalable by the manager, then all services will
+	# be migrated away, we'll still have the same "can we exit" clause than
+	# a normal shutdown -> no running service on this node
+	# FIXME: after X minutes, add shutdown command for remaining services,
+	# e.g., if they have no alternative node???
+    } elsif ($shutdown) {
 	# *always* queue stop jobs for all services if the node shuts down,
 	# independent if it's a reboot or a poweroff, else we may corrupt
 	# services or hinder node shutdown
@@ -89,7 +99,10 @@ sub shutdown_request {
 
     if ($shutdown) {
 	my $shutdown_type = $reboot ? 'reboot' : 'shutdown';
-	if ($freeze_all) {
+	if ($maintenance) {
+	    $haenv->log('info', "$shutdown_type LRM, doing maintenance, removing this node from active list");
+	    $self->{mode} = 'maintenance';
+	} elsif ($freeze_all) {
 	    $haenv->log('info', "$shutdown_type LRM, stop and freeze all services");
 	    $self->{mode} = 'restart';
 	} else {
@@ -101,7 +114,7 @@ sub shutdown_request {
 	$self->{mode} = 'restart';
     }
 
-    $self->{shutdown_request} = 1;
+    $self->{shutdown_request} = $haenv->get_time();
 
     eval { $self->update_lrm_status() or die "not quorate?\n"; };
     if (my $err = $@) {
@@ -300,6 +313,16 @@ sub work {
 	    $self->set_local_status({ state => 'lost_agent_lock'});
 	} elsif (!$self->get_protected_ha_agent_lock()) {
 	    $self->set_local_status({ state => 'lost_agent_lock'});
+	} elsif ($self->{mode} eq 'maintenance') {
+	    $self->set_local_status({ state => 'maintenance'});
+	}
+    } elsif ($state eq 'maintenance') {
+
+	if ($fence_request) {
+	    $haenv->log('err', "node need to be fenced during maintenance mode - releasing agent_lock\n");
+	    $self->set_local_status({ state => 'lost_agent_lock'});
+	} elsif (!$self->get_protected_ha_agent_lock()) {
+	    $self->set_local_status({ state => 'lost_agent_lock'});
 	}
     }
 
@@ -431,6 +454,38 @@ sub work {
 	}
 
 	$haenv->sleep(5);
+
+    } elsif ($state eq 'maintenance') {
+
+	my $startime = $haenv->get_time();
+	return if !$self->update_service_status();
+
+	# wait until all active services moved away
+	my $service_count = $self->active_service_count();
+
+	my $exit_lrm = 0;
+
+	if ($self->{shutdown_request}) {
+	    if ($service_count == 0 && $self->run_workers() == 0) {
+		if ($self->{ha_agent_wd}) {
+		    $haenv->watchdog_close($self->{ha_agent_wd});
+		    delete $self->{ha_agent_wd};
+		}
+
+		$exit_lrm = 1;
+
+		# restart with no or freezed services, release the lock
+		$haenv->release_ha_agent_lock();
+	    }
+	}
+
+	$self->manage_resources() if !$exit_lrm;
+
+	$self->update_lrm_status();
+
+	return 0 if $exit_lrm;
+
+	$haenv->sleep_until($startime + 5);
 
     } else {
 

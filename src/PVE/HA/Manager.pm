@@ -369,14 +369,15 @@ sub manage {
 
     my ($haenv, $ms, $ns, $ss) = ($self->{haenv}, $self->{ms}, $self->{ns}, $self->{ss});
 
-    $ns->update($haenv->get_node_info());
+    my ($node_info) = $haenv->get_node_info();
+    my ($lrm_results, $lrm_modes) = $self->read_lrm_status();
 
-    if (!$ns->node_is_online($haenv->nodename())) {
+    $ns->update($node_info, $lrm_modes);
+
+    if (!$ns->node_is_operational($haenv->nodename())) {
 	$haenv->log('info', "master seems offline");
 	return;
     }
-
-    my ($lrm_results, $lrm_modes) = $self->read_lrm_status();
 
     my $sc = $haenv->read_service_config();
 
@@ -638,7 +639,9 @@ sub next_state_started {
 	if ($ns->node_is_offline_delayed($sd->{node})) {
 	    &$change_service_state($self, $sid, 'fence');
 	}
-	return;
+	if ($ns->get_node_state($sd->{node}) ne 'maintenance') {
+	    return;
+	}
     }
 
     if ($cd->{state} eq 'disabled' || $cd->{state} eq 'stopped') {
