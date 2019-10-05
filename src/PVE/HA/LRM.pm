@@ -106,7 +106,7 @@ sub shutdown_request {
 
     $self->{shutdown_request} = 1;
 
-    eval { $self->update_lrm_status(); };
+    eval { $self->update_lrm_status() or die "not quorate?\n"; };
     if (my $err = $@) {
 	$self->log('err', "unable to update lrm status file - $err");
     }
