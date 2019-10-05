@@ -154,7 +154,7 @@ __PACKAGE__->register_method ({
 	    if ($ss) {
 		$data->{node} = $ss->{node};
 		$data->{crm_state} = $ss->{state};
-	    } elsif ($ss) {
+	    } elsif ($sc) {
 		$data->{node} = $sc->{node};
 	    }
 	    my $node = $data->{node} // '---'; # to be save against manual tinkering
