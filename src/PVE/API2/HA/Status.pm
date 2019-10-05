@@ -157,9 +157,10 @@ __PACKAGE__->register_method ({
 	    } else {
 		$data->{node} = $sc->{node};
 	    }
+	    my $node = $data->{node} // '---'; # to be save against manual tinkering
 
 	    $data->{state} = PVE::HA::Tools::get_verbose_service_state($ss, $sc);
-	    $data->{status} = "$sid ($data->{node}, $data->{state})"; # backward compatibility
+	    $data->{status} = "$sid ($node, $data->{state})"; # backward compat. and CLI
 
 	    # also return common resource attributes
 	    if (defined($sc)) {

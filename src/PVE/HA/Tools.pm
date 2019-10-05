@@ -133,6 +133,8 @@ sub get_verbose_service_state {
     my $req = $service_conf->{state} // 'ignored';
     return 'ignored' if $req eq 'ignored';
 
+    return 'not found' if !defined($service_conf->{node});
+
     # service not yet processed by manager
     return 'queued' if !defined($service_state);
     my $cur = $service_state->{state};

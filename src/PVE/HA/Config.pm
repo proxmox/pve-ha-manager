@@ -109,11 +109,9 @@ sub read_and_check_resources_config {
 		$d->{node} = $vmd->{node};
 		$conf->{$sid} = $d;
 	    } else {
-		if (defined($d->{node})) {
-		    $conf->{$sid} = $d;
-		} else {
-		    warn "service '$sid' without node\n";
-		}
+		# undef $d->{node} is handled in get_verbose_service_state and
+		# status API, don't spam logs or ignore it; allow to delete it!
+		$conf->{$sid} = $d;
 	    }
 	}
     }
