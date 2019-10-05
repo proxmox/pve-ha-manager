@@ -106,12 +106,8 @@ sub read_and_check_resources_config {
 	$d->{max_relocate} = 1 if !defined($d->{max_relocate});
 	if (PVE::HA::Resources->lookup($d->{type})) {
 	    if (my $vmd = $vmlist->{ids}->{$name}) {
-		if (!$vmd) {
-		    warn "no such VM '$name'\n";
-		} else {
-		    $d->{node} = $vmd->{node};
-		    $conf->{$sid} = $d;
-		}
+		$d->{node} = $vmd->{node};
+		$conf->{$sid} = $d;
 	    } else {
 		if (defined($d->{node})) {
 		    $conf->{$sid} = $d;
