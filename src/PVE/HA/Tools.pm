@@ -130,6 +130,8 @@ sub count_fenced_services {
 sub get_verbose_service_state {
     my ($service_state, $service_conf) = @_;
 
+    return 'deleting' if !$service_conf;
+
     my $req = $service_conf->{state} // 'ignored';
     return 'ignored' if $req eq 'ignored';
 
