@@ -96,6 +96,10 @@ sub migrate {
     my $params = {
 	node => $nodename,
 	vmid => $id,
+	# bug #2241 forces is for local resource only, people can ensure that
+	# different host have the same hardware, so this can be fine, and qemu
+	# knows when not, so can only win here
+	force => 1,
 	target => $target,
 	online => $online,
     };
