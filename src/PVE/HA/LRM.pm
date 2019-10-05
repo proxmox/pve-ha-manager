@@ -88,12 +88,9 @@ sub shutdown_request {
     }
 
     if ($shutdown) {
+	my $shutdown_type = $reboot ? 'reboot' : 'shutdown';
 	if ($freeze_all) {
-	    if ($reboot) {
-		$haenv->log('info', "reboot LRM, stop and freeze all services");
-	    } else {
-		$haenv->log('info', "shutdown LRM, stop and freeze all services");
-	    }
+	    $haenv->log('info', "$shutdown_type LRM, stop and freeze all services");
 	    $self->{mode} = 'restart';
 	} else {
 	    $haenv->log('info', "shutdown LRM, stop all services");
