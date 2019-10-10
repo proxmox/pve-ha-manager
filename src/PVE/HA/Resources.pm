@@ -126,7 +126,7 @@ sub start {
 }
 
 sub shutdown {
-    my ($class, $haenv, $id) = @_;
+    my ($class, $haenv, $id, $timeout) = @_;
 
     die "implement in subclass";
 }

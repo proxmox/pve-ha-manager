@@ -72,19 +72,25 @@ sub start {
 }
 
 sub shutdown {
-    my ($class, $haenv, $id) = @_;
+    my ($class, $haenv, $id, $timeout) = @_;
 
     my $nodename = $haenv->nodename();
-    my $shutdown_timeout = 60; # fixme: make this configurable
+    my $shutdown_timeout = $timeout // 60;
 
+    my $upid;
     my $params = {
 	node => $nodename,
 	vmid => $id,
-	timeout => $shutdown_timeout,
-	forceStop => 1,
     };
 
-    my $upid = PVE::API2::Qemu->vm_shutdown($params);
+    if ($shutdown_timeout) {
+	$params->{timeout} = $shutdown_timeout;
+	$params->{forceStop} = 1;
+	$upid = PVE::API2::Qemu->vm_shutdown($params);
+    } else {
+	$upid = PVE::API2::Qemu->vm_stop($params);
+    }
+
     PVE::HA::Tools::upid_wait($upid, $haenv);
 }
 

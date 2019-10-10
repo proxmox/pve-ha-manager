@@ -532,7 +532,7 @@ sub manage_resources {
 	my $req_state = $sd->{state};
 	next if !defined($req_state);
 	next if $req_state eq 'freeze';
-	$self->queue_resource_command($sid, $sd->{uid}, $req_state, {'target' => $sd->{target}});
+	$self->queue_resource_command($sid, $sd->{uid}, $req_state, {'target' => $sd->{target}, 'timeout' => $sd->{timeout}});
     }
 
     return $self->run_workers();
@@ -771,9 +771,13 @@ sub exec_resource_agent {
 
 	return SUCCESS if !$running;
 
-	$haenv->log("info", "stopping service $sid");
+	if (defined($params->{timeout})) {
+	    $haenv->log("info", "stopping service $sid (timeout=$params->{timeout})");
+	} else {
+	    $haenv->log("info", "stopping service $sid");
+	}
 
-	$plugin->shutdown($haenv, $id);
+	$plugin->shutdown($haenv, $id, $params->{timeout});
 
 	$running = $plugin->check_running($haenv, $id);
 
