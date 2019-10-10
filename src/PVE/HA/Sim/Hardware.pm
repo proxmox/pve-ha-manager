@@ -541,6 +541,7 @@ sub get_cfs_state {
 # restart-lrm <node>
 # service <sid> <started|disabled|stopped|ignored>
 # service <sid> <migrate|relocate> <target>
+# service <sid> stop <timeout>
 # service <sid> lock/unlock [lockname]
 
 sub sim_hardware_cmd {
@@ -655,6 +656,13 @@ sub sim_hardware_cmd {
 
 		die "sim_hardware_cmd: missing target node for '$action' command"
 		    if !$param;
+
+		$self->queue_crm_commands_nolock("$action $sid $param");
+
+	    } elsif ($action eq 'stop') {
+
+		die "sim_hardware_cmd: missing timeout for '$action' command"
+		    if !defined($param);
 
 		$self->queue_crm_commands_nolock("$action $sid $param");
 

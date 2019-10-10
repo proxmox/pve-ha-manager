@@ -1,0 +1,8 @@
+[
+    [ "power node1 on", "power node2 on", "power node3 on" ],
+    [ "service vm:101 stop 0" ],
+    [ "service vm:101 stop 1" ],
+    [ "service vm:102 stop 37" ],
+    [ "service vm:103 stop 60" ],
+    [ "service fa:1001 stop 0" ]
+]

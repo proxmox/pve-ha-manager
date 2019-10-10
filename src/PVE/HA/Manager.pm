@@ -349,6 +349,14 @@ sub update_crm_commands {
 		$haenv->log('err', "crm command error - no such service: $cmd");
 	    }
 
+	} elsif ($cmd =~ m/^stop\s+(\S+)\s+(\S+)$/) {
+	    my ($sid, $timeout) = ($1, $2);
+	    if (my $sd = $ss->{$sid}) {
+		$haenv->log('info', "got crm command: $cmd");
+		$ss->{$sid}->{cmd} = [ 'stop', $timeout ];
+	    } else {
+		$haenv->log('err', "crm command error - no such service: $cmd");
+	    }
 	} else {
 	    $haenv->log('err', "unable to parse crm command: $cmd");
 	}
@@ -561,10 +569,10 @@ sub next_state_stopped {
     }
 
     if ($sd->{cmd}) {
-	my ($cmd, $target) = @{$sd->{cmd}};
-	delete $sd->{cmd};
+	my $cmd = shift @{$sd->{cmd}};
 
 	if ($cmd eq 'migrate' || $cmd eq 'relocate') {
+	    my $target = shift @{$sd->{cmd}};
 	    if (!$ns->node_is_online($target)) {
 		$haenv->log('err', "ignore service '$sid' $cmd request - node '$target' not online");
 	    } elsif ($sd->{node} eq $target) {
@@ -574,9 +582,12 @@ sub next_state_stopped {
 				       target => $target);
 		return;
 	    }
+	} elsif ($cmd eq 'stop') {
+		$haenv->log('info', "ignore service '$sid' $cmd request - service already stopped");
 	} else {
 	    $haenv->log('err', "unknown command '$cmd' for service '$sid'");
 	}
+	delete $sd->{cmd};
     }
 
     if ($cd->{state} eq 'disabled') {
@@ -638,10 +649,10 @@ sub next_state_started {
     if ($cd->{state} eq 'started') {
 
 	if ($sd->{cmd}) {
-	    my ($cmd, $target) = @{$sd->{cmd}};
-	    delete $sd->{cmd};
+	    my $cmd = shift @{$sd->{cmd}};
 
 	    if ($cmd eq 'migrate' || $cmd eq 'relocate') {
+		my $target = shift @{$sd->{cmd}};
 		if (!$ns->node_is_online($target)) {
 		    $haenv->log('err', "ignore service '$sid' $cmd request - node '$target' not online");
 		} elsif ($sd->{node} eq $target) {
@@ -650,9 +661,17 @@ sub next_state_started {
 		    $haenv->log('info', "$cmd service '$sid' to node '$target'");
 		    &$change_service_state($self, $sid, $cmd, node => $sd->{node}, target => $target);
 		}
+	    } elsif ($cmd eq 'stop') {
+		my $timeout = shift @{$sd->{cmd}};
+		$haenv->log('info', "$cmd service with timeout '$timeout'");
+		&$change_service_state($self, $sid, 'request_stop', timeout => $timeout);
+		$haenv->update_service_config($sid, {'state' => 'stopped'});
 	    } else {
 		$haenv->log('err', "unknown command '$cmd' for service '$sid'");
 	    }
+
+	    delete $sd->{cmd};
+
 	} else {
 
 	    my $try_next = 0;
