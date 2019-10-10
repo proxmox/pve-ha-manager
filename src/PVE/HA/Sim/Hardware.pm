@@ -109,6 +109,20 @@ sub read_service_config {
     return $conf;
 }
 
+sub update_service_config {
+    my ($self, $sid, $param) = @_;
+
+    my $conf = $self->read_service_config();
+
+    my $sconf = $conf->{$sid} || die "no such resource '$sid'\n";
+
+    foreach my $k (%$param) {
+	$sconf->{$k} = $param->{$k};
+    }
+
+    $self->write_service_config($conf);
+}
+
 sub write_service_config {
     my ($self, $conf) = @_;
 

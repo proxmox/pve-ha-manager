@@ -203,6 +203,12 @@ sub read_service_config {
     return $self->{hardware}->read_service_config();
 }
 
+sub update_service_config {
+    my ($self, $sid, $param) = @_;
+
+    return $self->{hardware}->update_service_config($sid, $param);
+}
+
 sub parse_sid {
     my ($self, $sid) = @_;
 
