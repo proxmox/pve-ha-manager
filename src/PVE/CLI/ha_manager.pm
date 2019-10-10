@@ -9,6 +9,7 @@ use JSON;
 use PVE::JSONSchema qw(get_standard_option);
 use PVE::CLIHandler;
 use PVE::Cluster;
+use PVE::Tools qw(extract_param);
 use PVE::RPCEnvironment;
 
 use PVE::HA::Config; # needed for bash completion in PVE::HA::Tools!
@@ -73,6 +74,41 @@ __PACKAGE__->register_method ({
 	return undef;
     }});
 
+__PACKAGE__->register_method ({
+    name => 'stop',
+    path => 'stop',
+    method => 'POST',
+    description => "Request the service to be stopped.",
+    permissions => {
+	check => ['perm', '/', [ 'Sys.Console' ]],
+    },
+    parameters => {
+	additionalProperties => 0,
+	properties => {
+	    sid => get_standard_option('pve-ha-resource-or-vm-id',
+				      { completion => \&PVE::HA::Tools::complete_sid }),
+	    timeout => {
+		description => "Timeout in seconds. If set to 0 a hard stop will be performed.",
+		type => 'integer',
+		minimum => 0,
+	    },
+	},
+    },
+    returns => { type => 'null' },
+    code => sub {
+	my ($param) = @_;
+
+	my $sid = PVE::HA::Config::parse_sid(extract_param($param, 'sid'));
+
+	PVE::HA::Config::service_is_ha_managed($sid);
+
+	PVE::API2::HA::Resources::check_service_state($sid);
+
+	PVE::HA::Config::queue_crm_commands("stop $sid $param->{timeout}");
+
+	return undef;
+    }});
+
 our $cmddef = {
     status => [ __PACKAGE__, 'status'],
     config => [ 'PVE::API2::HA::Resources', 'index', [], {}, sub {
@@ -111,8 +147,14 @@ our $cmddef = {
     remove => [ "PVE::API2::HA::Resources", 'delete', ['sid'] ],
     set => [ "PVE::API2::HA::Resources", 'update', ['sid'] ],
 
-    migrate => [ "PVE::API2::HA::Resources", 'migrate', ['sid', 'node'] ],
-    relocate => [ "PVE::API2::HA::Resources", 'relocate', ['sid', 'node'] ],
+    migrate => { alias => 'crm-command migrate' },
+    relocate => { alias => 'crm-command relocate' },
+
+    'crm-command' => {
+	migrate => [ "PVE::API2::HA::Resources", 'migrate', ['sid', 'node'] ],
+	relocate => [ "PVE::API2::HA::Resources", 'relocate', ['sid', 'node'] ],
+	stop => [ __PACKAGE__, 'stop', ['sid', 'timeout'] ],
+    }
 
 };
 
