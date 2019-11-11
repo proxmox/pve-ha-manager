@@ -9,6 +9,7 @@ use IO::Socket::UNIX;
 use PVE::SafeSyslog;
 use PVE::Tools;
 use PVE::Cluster qw(cfs_register_file cfs_read_file cfs_write_file cfs_lock_file);
+use PVE::DataCenterConfig;
 use PVE::INotify;
 use PVE::RPCEnvironment;
 
