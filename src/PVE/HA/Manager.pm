@@ -663,7 +663,11 @@ sub next_state_started {
 		}
 	    } elsif ($cmd eq 'stop') {
 		my $timeout = shift @{$sd->{cmd}};
-		$haenv->log('info', "$cmd service with timeout '$timeout'");
+		if ($timeout == 0) {
+		    $haenv->log('info', "request immediate service hard-stop for service '$sid'");
+		} else {
+		    $haenv->log('info', "request graceful stop with timeout '$timeout' for service '$sid'");
+		}
 		&$change_service_state($self, $sid, 'request_stop', timeout => $timeout);
 		$haenv->update_service_config($sid, {'state' => 'stopped'});
 	    } else {

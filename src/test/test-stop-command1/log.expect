@@ -35,7 +35,7 @@ info     25    node3/lrm: starting service vm:103
 info     25    node3/lrm: service status vm:103 started
 info    120      cmdlist: execute service vm:101 stop 0
 info    120    node1/crm: got crm command: stop vm:101 0
-info    120    node1/crm: stop service with timeout '0'
+info    120    node1/crm: request immediate service hard-stop for service 'vm:101'
 info    120    node1/crm: service 'vm:101': state changed from 'started' to 'request_stop'  (timeout = 0)
 info    121    node1/lrm: stopping service vm:101 (timeout=0)
 info    121    node1/lrm: service status vm:101 stopped
@@ -45,21 +45,21 @@ info    220    node1/crm: got crm command: stop vm:101 1
 info    220    node1/crm: ignore service 'vm:101' stop request - service already stopped
 info    320      cmdlist: execute service vm:102 stop 37
 info    320    node1/crm: got crm command: stop vm:102 37
-info    320    node1/crm: stop service with timeout '37'
+info    320    node1/crm: request graceful stop with timeout '37' for service 'vm:102'
 info    320    node1/crm: service 'vm:102': state changed from 'started' to 'request_stop'  (timeout = 37)
 info    323    node2/lrm: stopping service vm:102 (timeout=37)
 info    323    node2/lrm: service status vm:102 stopped
 info    340    node1/crm: service 'vm:102': state changed from 'request_stop' to 'stopped'
 info    420      cmdlist: execute service vm:103 stop 60
 info    420    node1/crm: got crm command: stop vm:103 60
-info    420    node1/crm: stop service with timeout '60'
+info    420    node1/crm: request graceful stop with timeout '60' for service 'vm:103'
 info    420    node1/crm: service 'vm:103': state changed from 'started' to 'request_stop'  (timeout = 60)
 info    425    node3/lrm: stopping service vm:103 (timeout=60)
 info    425    node3/lrm: service status vm:103 stopped
 info    440    node1/crm: service 'vm:103': state changed from 'request_stop' to 'stopped'
 info    520      cmdlist: execute service fa:1001 stop 0
 info    520    node1/crm: got crm command: stop fa:1001 0
-info    520    node1/crm: stop service with timeout '0'
+info    520    node1/crm: request immediate service hard-stop for service 'fa:1001'
 info    520    node1/crm: service 'fa:1001': state changed from 'started' to 'request_stop'  (timeout = 0)
 info    525    node3/lrm: stopping service fa:1001 (timeout=0)
 info    525    node3/lrm: unable to stop stop service fa:1001 (still running)
