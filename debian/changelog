@@ -1,3 +1,16 @@
+pve-ha-manager (3.0-3) pve; urgency=medium
+
+  * fix #1919, #1920: improve handling zombie (without node) services
+
+  * fix # 2241: VM resource: allow migration with local device, when not running
+
+  * HA status: render removal transition of service as 'deleting'
+
+  * fix #1140: add crm command 'stop', which allows to request immediate
+    service hard-stops if a timeout of zero (0) is passed
+
+ -- Proxmox Support Team <support@proxmox.com>  Mon, 11 Nov 2019 17:04:35 +0100
+
 pve-ha-manager (3.0-2) pve; urgency=medium
 
   * services: update PIDFile to point directly to /run
