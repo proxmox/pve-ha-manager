@@ -1,0 +1,70 @@
+info      0     hardware: starting simulation
+info     20      cmdlist: execute power node1 on
+info     20    node1/crm: status change startup => wait_for_quorum
+info     20    node1/lrm: status change startup => wait_for_agent_lock
+info     20      cmdlist: execute power node2 on
+info     20    node2/crm: status change startup => wait_for_quorum
+info     20    node2/lrm: status change startup => wait_for_agent_lock
+info     20      cmdlist: execute power node3 on
+info     20    node3/crm: status change startup => wait_for_quorum
+info     20    node3/lrm: status change startup => wait_for_agent_lock
+info     20    node1/crm: got lock 'ha_manager_lock'
+info     20    node1/crm: status change wait_for_quorum => master
+info     20    node1/crm: node 'node1': state changed from 'unknown' => 'online'
+info     20    node1/crm: node 'node2': state changed from 'unknown' => 'online'
+info     20    node1/crm: node 'node3': state changed from 'unknown' => 'online'
+info     20    node1/crm: adding new service 'vm:103' on node 'node3'
+info     22    node2/crm: status change wait_for_quorum => slave
+info     24    node3/crm: status change wait_for_quorum => slave
+info     25    node3/lrm: got lock 'ha_agent_node3_lock'
+info     25    node3/lrm: status change wait_for_agent_lock => active
+info     25    node3/lrm: starting service vm:103
+info     25    node3/lrm: service status vm:103 started
+info    120      cmdlist: execute service vm:103 lock create
+info    220      cmdlist: execute network node3 off
+info    220    node1/crm: node 'node3': state changed from 'online' => 'unknown'
+info    224    node3/crm: status change slave => wait_for_quorum
+info    225    node3/lrm: status change active => lost_agent_lock
+info    260    node1/crm: service 'vm:103': state changed from 'started' to 'fence'
+info    260    node1/crm: node 'node3': state changed from 'unknown' => 'fence'
+emai    260    node1/crm: FENCE: Try to fence node 'node3'
+info    266     watchdog: execute power node3 off
+info    265    node3/crm: killed by poweroff
+info    266    node3/lrm: killed by poweroff
+info    266     hardware: server 'node3' stopped by poweroff (watchdog)
+info    340    node1/crm: got lock 'ha_agent_node3_lock'
+info    340    node1/crm: fencing: acknowledged - got agent lock for node 'node3'
+info    340    node1/crm: node 'node3': state changed from 'fence' => 'unknown'
+emai    340    node1/crm: SUCCEED: fencing: acknowledged - got agent lock for node 'node3'
+info    340    node1/crm: recover service 'vm:103' from fenced node 'node3' to node 'node1'
+info    340    node1/crm: service 'vm:103': state changed from 'fence' to 'started'  (node = node1)
+info    341    node1/lrm: got lock 'ha_agent_node1_lock'
+info    341    node1/lrm: status change wait_for_agent_lock => active
+info    341    node1/lrm: starting service vm:103
+err     341    node1/lrm: service 'vm:103' locked (create), unable to start!
+warn    341    node1/lrm: unable to start service vm:103
+warn    341    node1/lrm: restart policy: retry number 1 for service 'vm:103'
+info    361    node1/lrm: starting service vm:103
+err     361    node1/lrm: service 'vm:103' locked (create), unable to start!
+warn    361    node1/lrm: unable to start service vm:103
+err     361    node1/lrm: unable to start service vm:103 on local node after 1 retries
+warn    380    node1/crm: starting service vm:103 on node 'node1' failed, relocating service.
+info    380    node1/crm: migrate service 'vm:103' to node 'node2' (running)
+info    380    node1/crm: service 'vm:103': state changed from 'started' to 'migrate'  (node = node1, target = node2)
+info    381    node1/lrm: service vm:103 - start migrate to node 'node2'
+err     381    node1/lrm: service 'vm:103' locked (create), unable to migrate!
+err     381    node1/lrm: service vm:103 not moved (migration error)
+err     400    node1/crm: service 'vm:103' - migration failed (exit code 1)
+info    400    node1/crm: service 'vm:103': state changed from 'migrate' to 'started'  (node = node1)
+info    401    node1/lrm: starting service vm:103
+err     401    node1/lrm: service 'vm:103' locked (create), unable to start!
+warn    401    node1/lrm: unable to start service vm:103
+warn    401    node1/lrm: restart policy: retry number 1 for service 'vm:103'
+info    421    node1/lrm: starting service vm:103
+err     421    node1/lrm: service 'vm:103' locked (create), unable to start!
+warn    421    node1/lrm: unable to start service vm:103
+err     421    node1/lrm: unable to start service vm:103 on local node after 1 retries
+err     440    node1/crm: recovery policy for service vm:103 failed, entering error state. Failed nodes: node1, node1
+info    440    node1/crm: service 'vm:103': state changed from 'started' to 'error'
+err     441    node1/lrm: service vm:103 is in an error state and needs manual intervention. Look up 'ERROR RECOVERY' in the documentation.
+info    820     hardware: exit simulation - done

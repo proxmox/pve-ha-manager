@@ -249,8 +249,9 @@ my $fence_recovery_cleanup = sub {
     # should not happen
     die "unknown resource type '$type'" if !$plugin;
 
-    # locks may block recovery, cleanup those which are safe to remove after fencing
-    my $removable_locks = ['backup', 'mounted'];
+    # locks may block recovery, cleanup those which are safe to remove after fencing,
+    # i.e., after the original node was reset and thus all it's state
+    my $removable_locks = ['backup', 'mounted', 'migrate', 'clone', 'rollback', 'snapshot', 'snapshot-delete', 'suspending', 'suspended'];
     if (my $removed_lock = $plugin->remove_locks($haenv, $id, $removable_locks, $fenced_node)) {
 	$haenv->log('warning', "removed leftover lock '$removed_lock' from recovered " .
 	            "service '$sid' to allow its start.");
