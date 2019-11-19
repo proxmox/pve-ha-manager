@@ -11,6 +11,8 @@ BEGIN {
 	import  PVE::QemuConfig;
 	require PVE::QemuServer;
 	import  PVE::QemuServer;
+	require PVE::QemuServer::Monitor;
+	import  PVE::QemuServer::Monitor;
 	require PVE::API2::Qemu;
 	import  PVE::API2::Qemu;
     }
@@ -134,7 +136,7 @@ sub check_running {
 	my $conf = PVE::QemuConfig->load_config($vmid, $nodename);
 	if (defined($conf->{lock}) && $conf->{lock} eq 'backup') {
 	    my $qmpstatus = eval {
-		PVE::QemuServer::vm_qmp_command($vmid, { execute => 'query-status' })
+		PVE::QemuServer::Monitor::mon_cmd($vmid, 'query-status')
 	    };
 	    warn "$@\n" if $@;
 
