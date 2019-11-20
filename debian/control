@@ -21,10 +21,8 @@ Depends: libjson-perl,
          libpve-cluster-perl,
          libpve-common-perl,
          pve-cluster (>= 3.0-17),
-# TODO: for PVE 6 re-add thos two, we just removed them to avoid a dpkg issue
-# with cyclic depdnencies and wrong trigger cycle detections
-#        pve-container,
-#        qemu-server,
+         pve-container,
+         qemu-server (>= 6.0-15),
          systemd,
          ${misc:Depends},
          ${perl:Depends},
