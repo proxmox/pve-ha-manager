@@ -7,14 +7,14 @@ Wants=pvedaemon.service
 Wants=pve-ha-crm.service
 Wants=lxc.service
 Wants=pve-storage.target
-After=pve-storage.target
-After=pve-ha-crm.service
-After=pve-cluster.service
 After=corosync.service
-After=pvedaemon.service
-After=watchdog-mux.service
-After=syslog.service
 After=lxc.service
+After=pve-cluster.service
+After=pve-ha-crm.service
+After=pve-storage.target
+After=pvedaemon.service
+After=syslog.service
+After=watchdog-mux.service
 
 [Service]
 ExecStart=/usr/sbin/pve-ha-lrm start
