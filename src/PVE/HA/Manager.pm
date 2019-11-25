@@ -183,6 +183,8 @@ sub recompute_online_node_usage {
 		($state eq 'fence') || ($state eq 'freeze') || ($state eq 'error')) {
 		$online_node_usage->{$sd->{node}}++;
 	    } elsif (($state eq 'migrate') || ($state eq 'relocate')) {
+		# count it for both, source and target as load is put on both
+		$online_node_usage->{$sd->{node}}++;
 		$online_node_usage->{$sd->{target}}++;
 	    } elsif ($state eq 'stopped') {
 		# do nothing
@@ -283,6 +285,7 @@ my $recover_fenced_service = sub {
 	&$fence_recovery_cleanup($self, $sid, $fenced_node);
 
 	$haenv->steal_service($sid, $sd->{node}, $recovery_node);
+	$self->{online_node_usage}->{$recovery_node}++;
 
 	# $sd *is normally read-only*, fencing is the exception
 	$cd->{node} = $sd->{node} = $recovery_node;
@@ -731,6 +734,7 @@ sub next_state_started {
 					   $cd, $sd->{node}, $try_next, $sd->{failed_nodes});
 
 	    if ($node && ($sd->{node} ne $node)) {
+		$self->{online_node_usage}->{$node}++;
 		if ($cd->{type} eq 'vm') {
 		    $haenv->log('info', "migrate service '$sid' to node '$node' (running)");
 		    &$change_service_state($self, $sid, 'migrate', node => $sd->{node}, target => $node);
