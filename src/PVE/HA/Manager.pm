@@ -93,7 +93,7 @@ sub get_node_priority_groups {
 }
 
 sub select_service_node {
-    my ($groups, $online_node_usage, $service_conf, $current_node, $try_next, $tried_nodes) = @_;
+    my ($groups, $online_node_usage, $service_conf, $current_node, $try_next, $tried_nodes, $maintenance_fallback) = @_;
 
     my $group = get_service_group($groups, $online_node_usage, $service_conf);
 
@@ -123,12 +123,19 @@ sub select_service_node {
     } keys %{$pri_groups->{$top_pri}};
 
     my $found;
+    my $found_maintenace_fallback;
     for (my $i = scalar(@nodes) - 1; $i >= 0; $i--) {
 	my $node = $nodes[$i];
 	if ($node eq $current_node) {
 	    $found = $i;
-	    last;
 	}
+	if (defined($maintenance_fallback) && $node eq $maintenance_fallback) {
+	    $found_maintenace_fallback = $i;
+	}
+    }
+
+    if (defined($found_maintenace_fallback)) {
+	return $nodes[$found_maintenace_fallback];
     }
 
     if ($try_next) {
@@ -207,6 +214,7 @@ my $change_service_state = sub {
     my $old_state = $sd->{state};
     my $old_node = $sd->{node};
     my $old_failed_nodes = $sd->{failed_nodes};
+    my $old_maintenance_node = $sd->{maintenance_node};
 
     die "no state change" if $old_state eq $new_state; # just to be sure
 
@@ -217,6 +225,7 @@ my $change_service_state = sub {
     $sd->{state} = $new_state;
     $sd->{node} = $old_node;
     $sd->{failed_nodes} = $old_failed_nodes if defined($old_failed_nodes);
+    $sd->{maintenance_node} = $old_maintenance_node if defined($old_maintenance_node);
 
     my $text_state = '';
     foreach my $k (sort keys %params) {
@@ -641,6 +650,10 @@ sub next_state_started {
 	}
 	if ($ns->get_node_state($sd->{node}) ne 'maintenance') {
 	    return;
+	} else {
+	    # save current node as fallback for when it comes out of
+	    # maintenance
+	    $sd->{maintenance_node} = $sd->{node};
 	}
     }
 
@@ -733,11 +746,29 @@ sub next_state_started {
 		}
 	    }
 
-	    my $node = select_service_node($self->{groups}, $self->{online_node_usage},
-					   $cd, $sd->{node}, $try_next, $sd->{failed_nodes});
+	    my $node = select_service_node(
+	        $self->{groups},
+		$self->{online_node_usage},
+		$cd,
+		$sd->{node},
+		$try_next,
+		$sd->{failed_nodes},
+		$sd->{maintenance_node},
+	    );
 
 	    if ($node && ($sd->{node} ne $node)) {
 		$self->{online_node_usage}->{$node}++;
+
+		if (defined(my $fallback = $sd->{maintenance_node})) {
+		    if ($node eq $fallback) {
+			$haenv->log('info', "moving service '$sid' back to '$fallback', node came back from maintenance.");
+			delete $sd->{maintenance_node};
+		    } elsif ($sd->{node} ne $fallback) {
+			$haenv->log('info', "dropping maintenance fallback node '$fallback' for '$sid'");
+			delete $sd->{maintenance_node};
+		    }
+		}
+
 		if ($cd->{type} eq 'vm') {
 		    $haenv->log('info', "migrate service '$sid' to node '$node' (running)");
 		    &$change_service_state($self, $sid, 'migrate', node => $sd->{node}, target => $node);

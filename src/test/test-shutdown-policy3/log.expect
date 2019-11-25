@@ -55,5 +55,25 @@ info    165       reboot: execute power node3 on
 info    165    node3/crm: status change startup => wait_for_quorum
 info    160    node3/lrm: status change startup => wait_for_agent_lock
 info    180    node1/crm: node 'node3': state changed from 'maintenance' => 'online'
+info    180    node1/crm: moving service 'ct:102' back to 'node3', node came back from maintenance.
+info    180    node1/crm: relocate service 'ct:102' to node 'node3'
+info    180    node1/crm: service 'ct:102': state changed from 'started' to 'relocate'  (node = node1, target = node3)
+info    180    node1/crm: moving service 'vm:103' back to 'node3', node came back from maintenance.
+info    180    node1/crm: migrate service 'vm:103' to node 'node3' (running)
+info    180    node1/crm: service 'vm:103': state changed from 'started' to 'migrate'  (node = node1, target = node3)
+info    181    node1/lrm: service ct:102 - start relocate to node 'node3'
+info    181    node1/lrm: stopping service ct:102 (relocate)
+info    181    node1/lrm: service status ct:102 stopped
+info    181    node1/lrm: service ct:102 - end relocate to node 'node3'
+info    181    node1/lrm: service vm:103 - start migrate to node 'node3'
+info    181    node1/lrm: service vm:103 - end migrate to node 'node3'
 info    184    node3/crm: status change wait_for_quorum => slave
+info    200    node1/crm: service 'ct:102': state changed from 'relocate' to 'started'  (node = node3)
+info    200    node1/crm: service 'vm:103': state changed from 'migrate' to 'started'  (node = node3)
+info    205    node3/lrm: got lock 'ha_agent_node3_lock'
+info    205    node3/lrm: status change wait_for_agent_lock => active
+info    205    node3/lrm: starting service ct:102
+info    205    node3/lrm: service status ct:102 started
+info    205    node3/lrm: starting service vm:103
+info    205    node3/lrm: service status vm:103 started
 info    720     hardware: exit simulation - done
