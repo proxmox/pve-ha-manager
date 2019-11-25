@@ -132,19 +132,15 @@ sub select_service_node {
     }
 
     if ($try_next) {
-
 	if (defined($found) && ($found < (scalar(@nodes) - 1))) {
 	    return $nodes[$found + 1];
 	} else {
 	    return $nodes[0];
 	}
-
+    } elsif (defined($found)) {
+	return $nodes[$found];
     } else {
-
-	return $nodes[$found] if defined($found);
-
 	return $nodes[0];
-
     }
 }
 
