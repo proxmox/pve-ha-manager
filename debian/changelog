@@ -1,3 +1,17 @@
+pve-ha-manager (3.0-6) pve; urgency=medium
+
+  * add 'migrate' node shutdown policy
+
+  * do simple fallback if node comes back online from maintenance
+
+  * account service to both, source and target during migration
+
+  * add 'After' ordering for SSH and pveproxy to LRM service, ensuring the node
+    stays accessible until HA services got moved or shutdown, depending on
+    policy.
+
+ -- Proxmox Support Team <support@proxmox.com>  Tue, 26 Nov 2019 18:03:26 +0100
+
 pve-ha-manager (3.0-5) pve; urgency=medium
 
   * fix #1339: remove more locks from services IF the node got fenced
