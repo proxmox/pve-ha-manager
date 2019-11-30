@@ -607,7 +607,7 @@ sub next_state_stopped {
 	return;
     }
 
-    if ($ns->node_is_offline_delayed($sd->{node})) {
+    if ($ns->node_is_offline_delayed($sd->{node}) && !$ns->get_node_state($sd->{node}) ne 'maintenance') {
 	&$change_service_state($self, $sid, 'fence');
 	return;
     }

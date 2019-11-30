@@ -54,5 +54,4 @@ info    161    node1/crm: exit (loop end)
 info    161     shutdown: execute power node1 off
 info    161    node2/crm: got lock 'ha_manager_lock'
 info    161    node2/crm: status change slave => master
-info    161    node2/crm: node 'node1': state changed from 'maintenance' => 'unknown'
 info    720     hardware: exit simulation - done

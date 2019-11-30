@@ -139,7 +139,6 @@ sub update {
 
 	if ($state eq 'online') {
 	    if ($lrm_mode eq 'maintenance') {
-		#$haenv->log('info', "update node state maintance");
 		$set_node_state->($self, $node, 'maintenance');
 	    }
 	    # &$set_node_state($self, $node, 'online');
@@ -164,8 +163,13 @@ sub update {
 
 	# node is not inside quorate partition, possibly not active
 
-	if ($state eq 'online' || $state eq 'maintenance') {
+	if ($state eq 'online') {
 	    &$set_node_state($self, $node, 'unknown');
+	} elsif ($state eq 'maintenance') {
+	    my $lrm_mode = $lrm_modes->{$node} // 'unkown';
+	    if ($lrm_mode ne 'maintenance') {
+		$set_node_state->($self, $node, 'unknown');
+	    }
 	} elsif ($state eq 'unknown') {
 
 	    # node isn't in the member list anymore, deleted from the cluster?

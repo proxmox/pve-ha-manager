@@ -51,5 +51,4 @@ info    146     shutdown: execute crm node3 stop
 info    145    node3/crm: server received shutdown request
 info    165    node3/crm: exit (loop end)
 info    165     shutdown: execute power node3 off
-info    180    node1/crm: node 'node3': state changed from 'maintenance' => 'unknown'
 info    720     hardware: exit simulation - done
