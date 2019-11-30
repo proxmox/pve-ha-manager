@@ -1,3 +1,13 @@
+pve-ha-manager (3.0-7) pve; urgency=medium
+
+  * bump LRM stop wait time to an hour
+
+  * do not mark maintenaned nodes as unkown
+
+  * api/status: extra handling of maintenance mode
+
+ -- Proxmox Support Team <support@proxmox.com>  Sat, 30 Nov 2019 19:47:45 +0100
+
 pve-ha-manager (3.0-6) pve; urgency=medium
 
   * add 'migrate' node shutdown policy
