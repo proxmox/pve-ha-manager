@@ -125,8 +125,10 @@ __PACKAGE__->register_method ({
 			      status => "$node (unable to read lrm status)"};
 	    } else {
 		my $status_str = &$timestamp_to_status($ctime, $lrm_status->{timestamp});
+		my $lrm_mode = $lrm_status->{mode};
+
 		if ($status_str eq 'active') {
-		    my $lrm_mode = $lrm_status->{mode} || 'active';
+		    $lrm_mode ||= 'active';
 		    my $lrm_state = $lrm_status->{state} || 'unknown';
 		    if ($lrm_mode ne 'active') {
 			$status_str = "$lrm_mode mode";
@@ -137,6 +139,8 @@ __PACKAGE__->register_method ({
 			    $status_str = $lrm_state;
 			}
 		    }
+		} elsif ($lrm_mode && $lrm_mode eq 'maintenance') {
+		    $status_str = "$lrm_mode mode";
 		}
 
 		my $time_str = localtime($lrm_status->{timestamp});
