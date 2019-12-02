@@ -14,6 +14,7 @@ info     20    node1/crm: node 'node1': state changed from 'unknown' => 'online'
 info     20    node1/crm: node 'node2': state changed from 'unknown' => 'online'
 info     20    node1/crm: node 'node3': state changed from 'unknown' => 'online'
 info     20    node1/crm: adding new service 'ct:102' on node 'node3'
+info     20    node1/crm: adding new service 'ct:105' on node 'node3'
 info     20    node1/crm: adding new service 'vm:103' on node 'node3'
 info     22    node2/crm: status change wait_for_quorum => slave
 info     24    node3/crm: status change wait_for_quorum => slave
@@ -23,6 +24,7 @@ info     25    node3/lrm: starting service ct:102
 info     25    node3/lrm: service status ct:102 started
 info     25    node3/lrm: starting service vm:103
 info     25    node3/lrm: service status vm:103 started
+info     40    node1/crm: service 'ct:105': state changed from 'request_stop' to 'stopped'
 info    120      cmdlist: execute shutdown node3
 info    120    node3/lrm: got shutdown request with shutdown policy 'migrate'
 info    120    node3/lrm: shutdown LRM, doing maintenance, removing this node from active list
