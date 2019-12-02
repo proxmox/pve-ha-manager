@@ -53,4 +53,22 @@ info    146     shutdown: execute crm node3 stop
 info    145    node3/crm: server received shutdown request
 info    165    node3/crm: exit (loop end)
 info    165     shutdown: execute power node3 off
-info    720     hardware: exit simulation - done
+info    220      cmdlist: execute service ct:105 started
+info    220    node1/crm: service 'ct:105': state changed from 'stopped' to 'started'  (node = node3)
+info    220    node1/crm: service 'ct:105': state changed from 'started' to 'fence'
+info    220    node1/crm: relocate service 'ct:105' to node 'node2'
+info    220    node1/crm: service 'ct:105': state changed from 'fence' to 'relocate'  (node = node3, target = node2)
+info    220    node1/crm: service 'ct:105': state changed from 'relocate' to 'fence'
+info    220    node1/crm: node 'node3': state changed from 'maintenance' => 'fence'
+emai    220    node1/crm: FENCE: Try to fence node 'node3'
+info    220    node1/crm: got lock 'ha_agent_node3_lock'
+info    220    node1/crm: fencing: acknowledged - got agent lock for node 'node3'
+info    220    node1/crm: node 'node3': state changed from 'fence' => 'unknown'
+emai    220    node1/crm: SUCCEED: fencing: acknowledged - got agent lock for node 'node3'
+info    220    node1/crm: recover service 'ct:105' from fenced node 'node3' to node 'node2'
+info    220    node1/crm: service 'ct:105': state changed from 'fence' to 'started'  (node = node2)
+info    223    node2/lrm: got lock 'ha_agent_node2_lock'
+info    223    node2/lrm: status change wait_for_agent_lock => active
+info    223    node2/lrm: starting service ct:105
+info    223    node2/lrm: service status ct:105 started
+info    820     hardware: exit simulation - done

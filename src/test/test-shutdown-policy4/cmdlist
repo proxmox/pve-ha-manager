@@ -1,4 +1,5 @@
 [
     [ "power node1 on", "power node2 on", "power node3 on"],
-    [ "shutdown node3" ]
+    [ "shutdown node3" ],
+    [ "service ct:105 started" ]
 ]
