@@ -1,4 +1,4 @@
-pve-ha-manager (3.0-7) pve; urgency=medium
+pve-ha-manager (3.0-8) pve; urgency=medium
 
   * bump LRM stop wait time to an hour
 
@@ -6,7 +6,7 @@ pve-ha-manager (3.0-7) pve; urgency=medium
 
   * api/status: extra handling of maintenance mode
 
- -- Proxmox Support Team <support@proxmox.com>  Sat, 30 Nov 2019 19:47:45 +0100
+ -- Proxmox Support Team <support@proxmox.com>  Mon, 02 Dec 2019 10:33:03 +0100
 
 pve-ha-manager (3.0-6) pve; urgency=medium
 
