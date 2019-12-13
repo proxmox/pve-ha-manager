@@ -52,7 +52,7 @@ sub exists {
     my $vmlist = PVE::Cluster::get_vmlist();
 
     if(!defined($vmlist->{ids}->{$vmid})) {
-	die "resource 'vm:$vmid' does not exists in cluster\n" if !$noerr;
+	die "resource 'vm:$vmid' does not exist in cluster\n" if !$noerr;
 	return undef;
     } else {
 	return 1;
