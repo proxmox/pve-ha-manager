@@ -1,5 +1,5 @@
 [Unit]
-Description=PVE Cluster Resource Manager Daemon
+Description=PVE Cluster HA Resource Manager Daemon
 ConditionPathExists=/usr/sbin/pve-ha-crm
 Wants=pve-cluster.service
 Wants=watchdog-mux.service
