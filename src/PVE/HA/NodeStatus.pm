@@ -141,9 +141,9 @@ sub update {
 	    if ($lrm_mode eq 'maintenance') {
 		$set_node_state->($self, $node, 'maintenance');
 	    }
-	    # &$set_node_state($self, $node, 'online');
+	    # $set_node_state->($self, $node, 'online');
 	} elsif ($state eq 'unknown' || $state eq 'gone') {
-	    &$set_node_state($self, $node, 'online');
+	    $set_node_state->($self, $node, 'online');
 	} elsif ($state eq 'fence') {
 	    # do nothing, wait until fenced
 	} elsif ($state eq 'maintenance') {
@@ -164,7 +164,7 @@ sub update {
 	# node is not inside quorate partition, possibly not active
 
 	if ($state eq 'online') {
-	    &$set_node_state($self, $node, 'unknown');
+	    $set_node_state->($self, $node, 'unknown');
 	} elsif ($state eq 'maintenance') {
 	    my $lrm_mode = $lrm_modes->{$node} // 'unkown';
 	    if ($lrm_mode ne 'maintenance') {
@@ -173,13 +173,13 @@ sub update {
 	} elsif ($state eq 'unknown') {
 
 	    # node isn't in the member list anymore, deleted from the cluster?
-	    &$set_node_state($self, $node, 'gone') if(!defined($d));
+	    $set_node_state->($self, $node, 'gone') if !defined($d) ;
 
 	} elsif ($state eq 'fence') {
 	    # do nothing, wait until fenced
 	} elsif($state eq 'gone') {
 	    if ($self->node_is_offline_delayed($node, 3600)) {
-		&$delete_node($self, $node);
+		$delete_node->($self, $node);
 	    }
 	} else {
 	    die "detected unknown node state '$state";
@@ -229,9 +229,9 @@ sub fence_node {
     my $state = $self->get_node_state($node);
 
     if ($state ne 'fence') {
-	&$set_node_state($self, $node, 'fence');
+	$set_node_state->($self, $node, 'fence');
 	my $msg = "Try to fence node '$node'";
-	&$send_fence_state_email($self, 'FENCE', $msg, $node);
+	$send_fence_state_email->($self, 'FENCE', $msg, $node);
     }
 
     my $success = $haenv->get_ha_agent_lock($node);
@@ -239,8 +239,8 @@ sub fence_node {
     if ($success) {
 	my $msg = "fencing: acknowledged - got agent lock for node '$node'";
 	$haenv->log("info", $msg);
-	&$set_node_state($self, $node, 'unknown');
-	&$send_fence_state_email($self, 'SUCCEED', $msg, $node);
+	$set_node_state->($self, $node, 'unknown');
+	$send_fence_state_email->($self, 'SUCCEED', $msg, $node);
     }
 
     return $success;
