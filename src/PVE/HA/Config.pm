@@ -177,7 +177,7 @@ sub parse_sid {
 	    $sid = "$type:$name";
 	}
 	else {
-	    die "unable do add resource - VM/CT $1 does not exist\n";
+	    die "unable do detect SID from VMID - VM/CT $1 does not exist\n";
 	}
     } elsif ($sid =~m/^(\S+):(\S+)$/) {
 	$name = $2;
