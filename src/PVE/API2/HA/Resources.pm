@@ -264,21 +264,11 @@ __PACKAGE__->register_method ({
 
 	my ($sid, $type, $name) = PVE::HA::Config::parse_sid(extract_param($param, 'sid'));
 
-	my $cfg = PVE::HA::Config::read_resources_config();
-
-	# cannot use service_is_ha_managed as it ignores 'ignored' services,
-	# see bug report #1602
-	if (!defined($cfg->{ids}) || !defined($cfg->{ids}->{$sid})) {
+	if (!PVE::HA::Config::service_is_configured($sid)) {
 	    die "cannot delete service '$sid', not HA managed!\n";
 	}
 
-	PVE::HA::Config::lock_ha_domain(sub {
-
-	    $cfg = PVE::HA::Config::read_resources_config();
-	    delete $cfg->{ids}->{$sid} or die "'$sid' not configured!\n";
-	    PVE::HA::Config::write_resources_config($cfg);
-
-	}, "delete resource failed");
+	PVE::HA::Config::delete_service_from_config($sid);
 
 	return undef;
     }});

@@ -288,6 +288,34 @@ my $service_check_ha_state = sub {
     return undef;
 };
 
+# cannot use service_is_ha_managed as it skips 'ignored' services, see bug #1602
+sub service_is_configured {
+    my ($sid) = @_;
+
+    my $conf = read_resources_config();
+    if (defined($conf->{ids}) && defined($conf->{ids}->{$sid})) {
+	return 1;
+    }
+    return 0;
+}
+
+# graceful, as long as locking + cfs_write works
+sub delete_service_from_config {
+    my ($sid) = @_;
+
+    return 1 if !service_is_configured($sid);
+
+    my $res;
+    PVE::HA::Config::lock_ha_domain(sub {
+	my $conf = read_resources_config();
+	$res = delete $conf->{ids}->{$sid};
+	write_resources_config($conf);
+
+    }, "delete resource failed");
+
+    return !!$res;
+}
+
 sub vm_is_ha_managed {
     my ($vmid, $has_state) = @_;
 
