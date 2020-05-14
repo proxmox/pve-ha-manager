@@ -108,6 +108,7 @@ sub migrate {
 	# different host have the same hardware, so this can be fine, and qemu
 	# knows when not, so can only win here
 	force => 1,
+	'with-local-disks' => 1,
 	target => $target,
 	online => $online,
     };
