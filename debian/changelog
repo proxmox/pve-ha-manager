@@ -1,3 +1,9 @@
+pve-ha-manager (3.1-1) pve; urgency=medium
+
+  * allow 'with-local-disks' migration for replicated guests
+
+ -- Proxmox Support Team <support@proxmox.com>  Mon, 31 Aug 2020 10:52:23 +0200
+
 pve-ha-manager (3.0-9) pve; urgency=medium
 
   * factor out service configured/delete helpers
