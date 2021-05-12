@@ -1,3 +1,9 @@
+pve-ha-manager (3.2-1) bullseye; urgency=medium
+
+  * Re-build for Debian Bullseye / PVE 7
+
+ -- Proxmox Support Team <support@proxmox.com>  Wed, 12 May 2021 20:55:53 +0200
+
 pve-ha-manager (3.1-1) pve; urgency=medium
 
   * allow 'with-local-disks' migration for replicated guests
