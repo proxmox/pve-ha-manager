@@ -57,8 +57,9 @@ sub get_service_group {
     }
 
     # overwrite default if service is bound to a specific group
-    $group =  $groups->{ids}->{$service_conf->{group}} if $service_conf->{group} &&
-	$groups->{ids}->{$service_conf->{group}};
+    if (my $group_id = $service_conf->{group}) {
+	$group = $groups->{ids}->{$group_id} if $groups->{ids}->{$group_id};
+    }
 
     return $group;
 }
@@ -258,7 +259,17 @@ my $fence_recovery_cleanup = sub {
 
     # locks may block recovery, cleanup those which are safe to remove after fencing,
     # i.e., after the original node was reset and thus all it's state
-    my $removable_locks = ['backup', 'mounted', 'migrate', 'clone', 'rollback', 'snapshot', 'snapshot-delete', 'suspending', 'suspended'];
+    my $removable_locks = [
+	'backup',
+	'mounted',
+	'migrate',
+	'clone',
+	'rollback',
+	'snapshot',
+	'snapshot-delete',
+	'suspending',
+	'suspended',
+    ];
     if (my $removed_lock = $plugin->remove_locks($haenv, $id, $removable_locks, $fenced_node)) {
 	$haenv->log('warning', "removed leftover lock '$removed_lock' from recovered " .
 	            "service '$sid' to allow its start.");
@@ -274,8 +285,7 @@ my $recover_fenced_service = sub {
     my $sd = $ss->{$sid};
 
     if ($sd->{state} ne 'fence') { # should not happen
-	$haenv->log('err', "cannot recover service '$sid' from fencing," .
-		    " wrong state '$sd->{state}'");
+	$haenv->log('err', "cannot recover service '$sid' from fencing, wrong state '$sd->{state}'");
 	return;
     }
 
@@ -283,13 +293,15 @@ my $recover_fenced_service = sub {
 
     $self->recompute_online_node_usage(); # we want the most current node state
 
-    my $recovery_node = select_service_node($self->{groups},
-					    $self->{online_node_usage},
-					    $cd, $sd->{node});
+    my $recovery_node = select_service_node(
+	$self->{groups},
+	$self->{online_node_usage},
+	$cd,
+	$sd->{node},
+    );
 
     if ($recovery_node) {
-	$haenv->log('info', "recover service '$sid' from fenced node " .
-		    "'$fenced_node' to node '$recovery_node'");
+	$haenv->log('info', "recover service '$sid' from fenced node '$fenced_node' to node '$recovery_node'");
 
 	&$fence_recovery_cleanup($self, $sid, $fenced_node);
 
@@ -302,8 +314,7 @@ my $recover_fenced_service = sub {
 	&$change_service_state($self, $sid, $new_state, node => $recovery_node);
     } else {
 	# no possible node found, cannot recover
-	$haenv->log('err', "recovering service '$sid' from fenced node " .
-		    "'$fenced_node' failed, no recovery node found");
+	$haenv->log('err', "recovering service '$sid' from fenced node '$fenced_node' failed, no recovery node found");
 	&$change_service_state($self, $sid, 'error');
     }
 };
