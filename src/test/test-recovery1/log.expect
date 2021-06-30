@@ -35,6 +35,7 @@ info    240    node1/crm: got lock 'ha_agent_node2_lock'
 info    240    node1/crm: fencing: acknowledged - got agent lock for node 'node2'
 info    240    node1/crm: node 'node2': state changed from 'fence' => 'unknown'
 emai    240    node1/crm: SUCCEED: fencing: acknowledged - got agent lock for node 'node2'
+info    240    node1/crm: service 'vm:102': state changed from 'fence' to 'recovery'
 err     240    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
-info    240    node1/crm: service 'vm:102': state changed from 'fence' to 'error'
+info    240    node1/crm: service 'vm:102': state changed from 'recovery' to 'error'
 info    720     hardware: exit simulation - done

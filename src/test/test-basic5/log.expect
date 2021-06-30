@@ -48,8 +48,9 @@ info    282    node3/crm: got lock 'ha_agent_node1_lock'
 info    282    node3/crm: fencing: acknowledged - got agent lock for node 'node1'
 info    282    node3/crm: node 'node1': state changed from 'fence' => 'unknown'
 emai    282    node3/crm: SUCCEED: fencing: acknowledged - got agent lock for node 'node1'
+info    282    node3/crm: service 'vm:101': state changed from 'fence' to 'recovery'
 info    282    node3/crm: recover service 'vm:101' from fenced node 'node1' to node 'node2'
-info    282    node3/crm: service 'vm:101': state changed from 'fence' to 'started'  (node = node2)
+info    282    node3/crm: service 'vm:101': state changed from 'recovery' to 'started'  (node = node2)
 info    301    node2/lrm: starting service vm:101
 info    301    node2/lrm: service status vm:101 started
 info    500      cmdlist: execute power node1 on

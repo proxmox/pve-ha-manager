@@ -65,8 +65,9 @@ info    220    node1/crm: got lock 'ha_agent_node3_lock'
 info    220    node1/crm: fencing: acknowledged - got agent lock for node 'node3'
 info    220    node1/crm: node 'node3': state changed from 'fence' => 'unknown'
 emai    220    node1/crm: SUCCEED: fencing: acknowledged - got agent lock for node 'node3'
+info    220    node1/crm: service 'ct:105': state changed from 'fence' to 'recovery'
 info    220    node1/crm: recover service 'ct:105' from fenced node 'node3' to node 'node2'
-info    220    node1/crm: service 'ct:105': state changed from 'fence' to 'started'  (node = node2)
+info    220    node1/crm: service 'ct:105': state changed from 'recovery' to 'started'  (node = node2)
 info    223    node2/lrm: got lock 'ha_agent_node2_lock'
 info    223    node2/lrm: status change wait_for_agent_lock => active
 info    223    node2/lrm: starting service ct:105
