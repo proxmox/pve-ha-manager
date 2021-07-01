@@ -532,18 +532,19 @@ sub get_cfs_state {
     return !defined($res) || $res;
 }
 
-# simulate hardware commands
-# power <node> <on|off>
-# network <node> <on|off>
-# cfs <node> <rw|update> <work|fail>
-# reboot <node>
-# shutdown <node>
-# restart-lrm <node>
-# service <sid> <started|disabled|stopped|ignored>
-# service <sid> <migrate|relocate> <target>
-# service <sid> stop <timeout>
-# service <sid> lock/unlock [lockname]
-
+# simulate hardware commands, the following commands are available:
+#   power <node> <on|off>
+#   network <node> <on|off>
+#   delay <seconds>
+#   cfs <node> <rw|update> <work|fail>
+#   reboot <node>
+#   shutdown <node>
+#   restart-lrm <node>
+#   service <sid> <started|disabled|stopped|ignored>
+#   service <sid> <migrate|relocate> <target>
+#   service <sid> stop <timeout>
+#   service <sid> lock/unlock [lockname]
+#   service <sid> <add|delete>
 sub sim_hardware_cmd {
     my ($self, $cmdstr, $logid) = @_;
 
