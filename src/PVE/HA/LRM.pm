@@ -262,6 +262,17 @@ sub do_one_iteration {
     return $res;
 }
 
+# NOTE: this is disabling the self-fence mechanism, so it must NOT be called with active services
+# It's normally *only* OK on graceful shutdown (with no services, or all services frozen)
+my sub give_up_watchdog_protection {
+    my ($self) = @_;
+
+    if ($self->{ha_agent_wd}) {
+	$self->{haenv}->watchdog_close($self->{ha_agent_wd});
+	delete $self->{ha_agent_wd}; # only delete after close!
+    }
+}
+
 sub work {
     my ($self) = @_;
 
@@ -362,13 +373,9 @@ sub work {
 		    my $service_count = $self->active_service_count();
 
 		    if ($service_count == 0) {
-
 			if ($self->run_workers() == 0) {
-			    if ($self->{ha_agent_wd}) {
-				$haenv->watchdog_close($self->{ha_agent_wd});
-				delete $self->{ha_agent_wd};
-			    }
-
+			    # safety: no active services or workers -> OK
+			    give_up_watchdog_protection($self);
 			    $shutdown = 1;
 
 			    # restart with no or freezed services, release the lock
@@ -379,10 +386,8 @@ sub work {
 
 		    if ($self->run_workers() == 0) {
 			if ($self->{shutdown_errors} == 0) {
-			    if ($self->{ha_agent_wd}) {
-				$haenv->watchdog_close($self->{ha_agent_wd});
-				delete $self->{ha_agent_wd};
-			    }
+			    # safety: no active services and LRM shutdown -> OK
+			    give_up_watchdog_protection($self);
 
 			    # shutdown with all services stopped thus release the lock
 			    $haenv->release_ha_agent_lock();
@@ -416,10 +421,8 @@ sub work {
 
     } elsif ($state eq 'lost_agent_lock') {
 
-	# Note: watchdog is active an will triger soon!
-
+	# NOTE: watchdog is active an will trigger soon!
 	# so we hope to get the lock back soon!
-
 	if ($self->{shutdown_request}) {
 
 	    my $service_count = $self->active_service_count();
@@ -441,13 +444,8 @@ sub work {
 		    }
 		}
 	    } else {
-
-		# all services are stopped, so we can close the watchdog
-
-		if ($self->{ha_agent_wd}) {
-		    $haenv->watchdog_close($self->{ha_agent_wd});
-		    delete $self->{ha_agent_wd};
-		}
+		# safety: all services are stopped, so we can close the watchdog
+		give_up_watchdog_protection($self);
 
 		return 0;
 	    }
@@ -467,10 +465,8 @@ sub work {
 
 	if ($self->{shutdown_request}) {
 	    if ($service_count == 0 && $self->run_workers() == 0) {
-		if ($self->{ha_agent_wd}) {
-		    $haenv->watchdog_close($self->{ha_agent_wd});
-		    delete $self->{ha_agent_wd};
-		}
+		# safety: going into maintenance and all active services got moved -> OK
+		give_up_watchdog_protection($self);
 
 		$exit_lrm = 1;
 
