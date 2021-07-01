@@ -1,0 +1,7 @@
+Test an user triggered service removal from a previously active LRM, which
+should make said LRM going idle and dropping the lock once enough cycles passed
+without any new service.
+
+We use some delays to stall execution, as else we'd exit the test-simulation
+earlier than the 60 rounds idle time required before the LRM gives up their
+lock and watchdog.

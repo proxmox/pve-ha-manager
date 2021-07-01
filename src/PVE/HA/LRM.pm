@@ -20,6 +20,10 @@ my $valid_states = {
     lost_agent_lock => "lost agent_lock",
 };
 
+# we sleep ~10s per 'active' round, so if no services is available for >= 10 min we'd go in wait
+# state givining up the watchdog and the LRM lock acquire voluntary, ensuring the WD can do no harm
+my $max_active_idle_rounds = 60;
+
 sub new {
     my ($this, $haenv) = @_;
 
@@ -36,6 +40,7 @@ sub new {
 	# mode can be: active, reboot, shutdown, restart
 	mode => 'active',
 	cluster_state_update => 0,
+	active_idle_rounds => 0,
     }, $class;
 
     $self->set_local_status({ state => 	'wait_for_agent_lock' });
@@ -216,6 +221,23 @@ sub get_protected_ha_agent_lock {
     return 0;
 }
 
+# only cares if any service has the local node as their node, independent of which req.state it is
+sub has_configured_service_on_local_node {
+    my ($self) = @_;
+
+    my $haenv = $self->{haenv};
+    my $nodename = $haenv->nodename();
+
+    my $ss = $self->{service_status};
+    foreach my $sid (keys %$ss) {
+	my $sd = $ss->{$sid};
+	next if !$sd->{node} || $sd->{node} ne $nodename;
+
+	return 1;
+    }
+    return 0;
+}
+
 sub active_service_count {
     my ($self) = @_;
 
@@ -326,6 +348,21 @@ sub work {
 	    $self->set_local_status({ state => 'lost_agent_lock'});
 	} elsif ($self->{mode} eq 'maintenance') {
 	    $self->set_local_status({ state => 'maintenance'});
+	} else {
+	    if (!$self->has_configured_service_on_local_node() && !$self->run_workers()) {
+		# no active service configured for this node and all (old) workers are done
+		$self->{active_idle_rounds}++;
+		if ($self->{active_idle_rounds} > $max_active_idle_rounds) {
+		    $haenv->log('info', "node had no service configured for $max_active_idle_rounds rounds, going idle.\n");
+		    # safety: no active service & no running worker for quite some time -> OK
+		    $haenv->release_ha_agent_lock();
+		    give_up_watchdog_protection($self);
+		    $self->set_local_status({ state => 'wait_for_agent_lock'});
+		    $self->{active_idle_rounds} = 0;
+		}
+	    } elsif ($self->{active_idle_rounds}) {
+		$self->{active_idle_rounds} = 0;
+	    }
 	}
     } elsif ($state eq 'maintenance') {
 
