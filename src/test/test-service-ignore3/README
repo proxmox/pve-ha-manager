@@ -1,0 +1,2 @@
+A ignored service should not count towards active node services, so the LRM
+should stay in the wait_for_agent_lock state.

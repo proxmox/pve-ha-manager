@@ -242,13 +242,11 @@ sub active_service_count {
     my ($self) = @_;
 
     my $haenv = $self->{haenv};
-
     my $nodename = $haenv->nodename();
 
     my $ss = $self->{service_status};
 
     my $count = 0;
-
     foreach my $sid (keys %$ss) {
 	my $sd = $ss->{$sid};
 	next if !$sd->{node};
@@ -256,6 +254,7 @@ sub active_service_count {
 	my $req_state = $sd->{state};
 	next if !defined($req_state);
 	next if $req_state eq 'stopped';
+	# NOTE: 'ignored' ones are already dropped by the manager from service_status
 	next if $req_state eq 'freeze';
 	# erroneous services are not managed by HA, don't count them as active
 	next if $req_state eq 'error';
