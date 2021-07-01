@@ -8,16 +8,21 @@ use File::Path qw(make_path remove_tree);
 
 my $opt_nodiff;
 my $opt_nofail;
+my $opt_notestout;
 
 if (!GetOptions(
     "no-diff" => \$opt_nodiff,
+    "no-test-output" => \$opt_notestout,
     "c|continue-on-fail" => \$opt_nofail,
 )) {
-    print "usage: $0 testdir [--no-diff] [-c | --continue-on-fail]\n";
+    print "usage: $0 testdir [--no-diff] [-c | --continue-on-fail] [--no-test-output]\n";
     exit -1;
 }
 
 my ($run, $failed) = (0, []);
+
+
+my $STDOLD;
 
 sub do_run_test {
     my $dir = shift;
@@ -27,13 +32,21 @@ sub do_run_test {
     $run++;
     print "run: $dir\n";
 
-    my $logfile = "$dir/status/log";
-    my $logexpect = "$dir/log.expect";
+    if ($opt_notestout) {
+	open($STDOLD, '>&', STDOUT); # if request redirect stdout into nirvana but save old one
+	open(STDOUT, '>>', '/dev/null');
+    }
 
-    my $res = system("perl -I ../ ../pve-ha-tester $dir");
+    my $res = system('perl', '-I../', '../pve-ha-tester', "$dir"); # actually running the test
+
+    open (STDOUT, '>&', $STDOLD) if $opt_notestout; # restore back again
+
     return "Test '$dir' failed\n" if $res != 0;
 
     return if $opt_nodiff;
+
+    my $logfile = "$dir/status/log";
+    my $logexpect = "$dir/log.expect";
 
     if (-f $logexpect) {
 	my $cmd = ['diff', '-u', $logexpect, $logfile]; 
