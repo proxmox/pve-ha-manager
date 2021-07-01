@@ -17,11 +17,14 @@ if (!GetOptions(
     exit -1;
 }
 
+my ($run, $failed) = (0, []);
+
 sub do_run_test {
     my $dir = shift;
 
     $dir =~ s!/+$!!;
 
+    $run++;
     print "run: $dir\n";
 
     my $logfile = "$dir/status/log";
@@ -50,6 +53,8 @@ my sub handle_test_result {
 
     return if !defined($res); # undef -> passed
 
+    push $failed->@*, $test;
+
     die "$res\n" if !$opt_nofail;
     warn "$res\n";
 }
@@ -70,5 +75,17 @@ if (my $testdir = shift) {
     }
 }
 
+my $failed_count = scalar($failed->@*);
+my $passed = $run - $failed_count;
 
+my $summary_msg = "passed $passed out of $run tests";
 
+if ($failed_count) {
+    $summary_msg .= ", failed test(s):\n  " . join("\n  ", $failed->@*);
+} else {
+    $summary_msg .= " -> OK";
+}
+
+print "$summary_msg\n";
+
+exit($failed_count > 0 ? -1 : 0);
