@@ -4,4 +4,6 @@ like `migration`, `stop` and finally a `disable`
 
 Expected Result:
 Try recovery continuosly, ignore the migrate and stop command, we cannot honor
-them for a in `recovery` service. For now also the `disabled` one is a no-op.
+them for a in `recovery` service. Only the `disabled` one can get us out here,
+besides, naturally, if a recovery node would be found or the service would get
+deleted from the HA resource configuration completely.

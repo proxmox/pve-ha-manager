@@ -829,6 +829,13 @@ sub next_state_recovery {
     } else {
 	# no possible node found, cannot recover - but retry later, as we always try to make it available
 	$haenv->log('err', "recovering service '$sid' from fenced node '$fenced_node' failed, no recovery node found");
+
+	if ($cd->{state} eq 'disabled') {
+	    # allow getting a service out of recovery manually if an admin disables it.
+	    delete $sd->{failed_nodes}; # clean up on recovery to stopped
+	    $change_service_state->($self, $sid, 'stopped'); # must NOT go through request_stop
+	    return;
+	}
     }
 }
 
