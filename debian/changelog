@@ -1,3 +1,24 @@
+pve-ha-manager (3.3-1) bullseye; urgency=medium
+
+  * LRM: release lock and close watchdog if no service configured for >10min
+
+  * manager: make recovery actual state in finite state machine, showing a
+    clear transition from fence -> reocvery.
+
+  * fix #3415: never switch in error state on recovery, try to find a new node
+    harder. This improves using the HA manager for services with local
+    resources (e.g., local storage) to ensure it always gets started, which is
+    an OK use-case as long as the service is restricted to a group with only
+    that node. Previously failure of that node would have a high possibility
+    of the service going into the errors state, as no new node can be found.
+    Now it will retry finding a new node, and if one of the restricted set,
+    e.g., the node it was previous on, comes back up, it will start again
+    there.
+
+  * recovery: allow disabling a in-recovery service manually
+
+ -- Proxmox Support Team <support@proxmox.com>  Fri, 02 Jul 2021 20:03:29 +0200
+
 pve-ha-manager (3.2-2) bullseye; urgency=medium
 
   * fix systemd service restart behavior on package upgrade with Debian
