@@ -828,7 +828,6 @@ sub exec_resource_agent {
 
     # process error state early
     if ($cmd eq 'error') {
-
 	$haenv->log('err', "service $sid is in an error state and needs manual " .
 		    "intervention. Look up 'ERROR RECOVERY' in the documentation.");
 

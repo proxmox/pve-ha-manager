@@ -200,7 +200,7 @@ sub recompute_online_node_usage {
 	    } elsif ($state eq 'stopped') {
 		# do nothing
 	    } else {
-		die "should not be reached";
+		die "should not be reached (sid = '$sid', state = '$state')";
 	    }
 	}
     }
@@ -296,7 +296,6 @@ sub read_lrm_status {
 	    $results->{$uid} = $lrm_status->{results}->{$uid};
 	}
     }
-
 
     return ($results, $modes);
 }
