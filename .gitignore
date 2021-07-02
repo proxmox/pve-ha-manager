@@ -3,3 +3,4 @@
 *.changes
 *.buildinfo
 *.tar.gz
+/src/test/test-*/status/*
