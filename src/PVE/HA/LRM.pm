@@ -618,8 +618,16 @@ sub manage_resources {
 	next if $sd->{node} ne $nodename;
 	my $req_state = $sd->{state};
 	next if !defined($req_state);
+	# can only happen for restricted groups where the failed node itself needs to be the
+	# reocvery target. Always let the master first do so, it will then marked as 'stopped' and
+	# we can just continue normally. But we must NOT do anything with it while still in recovery
+	next if $req_state eq 'recovery';
 	next if $req_state eq 'freeze';
-	$self->queue_resource_command($sid, $sd->{uid}, $req_state, {'target' => $sd->{target}, 'timeout' => $sd->{timeout}});
+
+	$self->queue_resource_command($sid, $sd->{uid}, $req_state, {
+	    'target' => $sd->{target},
+	    'timeout' => $sd->{timeout},
+	});
     }
 
     return $self->run_workers();

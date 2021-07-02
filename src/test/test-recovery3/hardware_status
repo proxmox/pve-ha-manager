@@ -1,0 +1,5 @@
+{
+  "node1": { "power": "on", "network": "on" },
+  "node2": { "power": "off", "network": "off" },
+  "node3": { "power": "on", "network": "on" }
+}

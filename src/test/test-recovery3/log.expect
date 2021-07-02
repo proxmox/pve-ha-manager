@@ -1,0 +1,14 @@
+info      0     hardware: starting simulation
+info     20      cmdlist: execute power node2 on
+info     20    node2/crm: status change startup => wait_for_quorum
+info     20    node2/lrm: status change startup => wait_for_agent_lock
+info     20    node2/crm: got lock 'ha_manager_lock'
+info     20    node2/crm: status change wait_for_quorum => master
+info     20    node2/crm: node 'node2': state changed from 'unknown' => 'online'
+info     20    node2/crm: recover service 'vm:102' to previous failed and fenced node 'node2' again
+info     20    node2/crm: service 'vm:102': state changed from 'recovery' to 'started'  (node = node2)
+info     21    node2/lrm: got lock 'ha_agent_node2_lock'
+info     21    node2/lrm: status change wait_for_agent_lock => active
+info     21    node2/lrm: starting service vm:102
+info     21    node2/lrm: service status vm:102 started
+info    720     hardware: exit simulation - done

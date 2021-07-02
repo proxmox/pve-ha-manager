@@ -1,0 +1,3 @@
+Test what happens if a service needs to get recovered but select_service_node
+cannot return any possible node due to restricted groups, but after a while the
+original node comes up, in which case the service must be recovered.

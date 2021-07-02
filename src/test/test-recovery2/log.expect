@@ -60,4 +60,41 @@ err     640    node1/crm: recovering service 'vm:102' from fenced node 'node2' f
 err     660    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 err     680    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 err     700    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
-info    720     hardware: exit simulation - done
+err     720    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
+err     740    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
+err     760    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
+err     780    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
+err     800    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
+err     820    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
+err     840    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
+err     860    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
+err     880    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
+err     900    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
+err     920    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
+err     940    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
+err     960    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
+err     980    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
+err    1000    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
+err    1020    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
+err    1040    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
+err    1060    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
+err    1080    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
+err    1100    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
+err    1120    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
+err    1140    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
+err    1160    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
+err    1180    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
+err    1200    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
+info   1220      cmdlist: execute power node2 on
+info   1220    node2/crm: status change startup => wait_for_quorum
+info   1220    node2/lrm: status change startup => wait_for_agent_lock
+info   1220      cmdlist: execute network node2 on
+info   1220    node1/crm: node 'node2': state changed from 'unknown' => 'online'
+info   1220    node1/crm: recover service 'vm:102' to previous failed and fenced node 'node2' again
+info   1220    node1/crm: service 'vm:102': state changed from 'recovery' to 'started'  (node = node2)
+info   1222    node2/crm: status change wait_for_quorum => slave
+info   1223    node2/lrm: got lock 'ha_agent_node2_lock'
+info   1223    node2/lrm: status change wait_for_agent_lock => active
+info   1223    node2/lrm: starting service vm:102
+info   1223    node2/lrm: service status vm:102 started
+info   1820     hardware: exit simulation - done

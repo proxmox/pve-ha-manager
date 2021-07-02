@@ -1,0 +1,9 @@
+This starts out with a "active scenario", i.e., a non-empty/default manager and
+HW status.
+
+We test what happens if a service needs to get recovered but
+select_service_node cannot return any possible node, while it's original node
+it was on is already online again (after fencing).
+
+Ensures that the node does not starts the service before the HA manager
+transitions it away from the "recovery" state 

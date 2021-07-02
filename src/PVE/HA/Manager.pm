@@ -811,7 +811,12 @@ sub next_state_recovery {
     );
 
     if ($recovery_node) {
-	$haenv->log('info', "recover service '$sid' from fenced node '$fenced_node' to node '$recovery_node'");
+	my $msg = "recover service '$sid' from fenced node '$fenced_node' to node '$recovery_node'";
+	if ($recovery_node eq $fenced_node) {
+	    # can happen if restriced groups and the node came up again OK
+	    $msg = "recover service '$sid' to previous failed and fenced node '$fenced_node' again";
+	}
+	$haenv->log('info', "$msg");
 
 	$fence_recovery_cleanup->($self, $sid, $fenced_node);
 
@@ -825,7 +830,6 @@ sub next_state_recovery {
     } else {
 	# no possible node found, cannot recover - but retry later, as we always try to make it available
 	$haenv->log('err', "recovering service '$sid' from fenced node '$fenced_node' failed, no recovery node found");
-	$change_service_state->($self, $sid, 'error');
     }
 }
 

@@ -1,0 +1,1 @@
+{"master_node":"node1","service_status":{"vm:102":{"state":"recovery","node":"node2","uid":"w69Yqf4/pmeb8ymueYNPvQ"}},"timestamp":700,"node_status":{"node1":"online","node2":"unknown","node3":"online"}}
