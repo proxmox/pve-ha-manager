@@ -1,0 +1,8 @@
+[
+    [ "power node1 on", "power node2 on", "power node3 on"],
+    [ "network node2 off" ],
+    [ "delay 0" ],
+    [ "service vm:102 migrate node3" ],
+    [ "service vm:102 stop 5" ],
+    [ "service vm:102 disabled" ]
+]

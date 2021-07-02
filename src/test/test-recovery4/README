@@ -1,0 +1,7 @@
+Test what happens if a service needs to get recovered but select_service_node
+cannot return any possible node, and then the user triggers some CRM comand
+like `migration`, `stop` and finally a `disable`
+
+Expected Result:
+Try recovery continuosly, ignore the migrate and stop command, we cannot honor
+them for a in `recovery` service. For now also the `disabled` one is a no-op.
