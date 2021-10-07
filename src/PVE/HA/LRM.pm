@@ -123,7 +123,7 @@ sub shutdown_request {
 
     eval { $self->update_lrm_status() or die "not quorate?\n"; };
     if (my $err = $@) {
-	$self->log('err', "unable to update lrm status file - $err");
+	$haenv->log('err', "unable to update lrm status file - $err");
     }
 }
 
