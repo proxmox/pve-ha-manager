@@ -10,13 +10,25 @@ info     20    node3/crm: status change startup => wait_for_quorum
 info     20    node3/lrm: status change startup => wait_for_agent_lock
 info     20    node1/crm: got lock 'ha_manager_lock'
 info     20    node1/crm: status change wait_for_quorum => master
+info     20    node1/crm: fence of node 'node3' without any service left
+info     20    node1/crm: got lock 'ha_agent_node3_lock'
+info     20    node1/crm: fencing: acknowledged - got agent lock for node 'node3'
+info     20    node1/crm: node 'node3': state changed from 'fence' => 'unknown'
+emai     20    node1/crm: SUCCEED: fencing: acknowledged - got agent lock for node 'node3'
 info     21    node1/lrm: got lock 'ha_agent_node1_lock'
 info     21    node1/lrm: status change wait_for_agent_lock => active
 info     21    node1/lrm: starting service vm:101
 info     21    node1/lrm: service status vm:101 started
 info     22    node2/crm: status change wait_for_quorum => slave
 info     24    node3/crm: status change wait_for_quorum => slave
+info     40    node1/crm: node 'node3': state changed from 'unknown' => 'online'
 info    120      cmdlist: execute service vm:103 add node3 stopped
 info    120    node1/crm: adding new service 'vm:103' on node 'node3'
+info    145    node3/lrm: got lock 'ha_agent_node3_lock'
+info    145    node3/lrm: status change wait_for_agent_lock => active
+info    160    node1/crm: service 'vm:103': state changed from 'request_stop' to 'stopped'
 info    220      cmdlist: execute service vm:103 started
+info    220    node1/crm: service 'vm:103': state changed from 'stopped' to 'started'  (node = node3)
+info    225    node3/lrm: starting service vm:103
+info    225    node3/lrm: service status vm:103 started
 info    820     hardware: exit simulation - done

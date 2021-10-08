@@ -18,6 +18,16 @@ info     20    node1/lrm: service status vm:101 started
 info     40     run-loop: skipping CRM round
 info     60    node1/crm: got lock 'ha_manager_lock'
 info     60    node1/crm: status change wait_for_quorum => master
+info     60    node1/crm: fence of node 'node3' without any service left
+info     60    node1/crm: got lock 'ha_agent_node3_lock'
+info     60    node1/crm: fencing: acknowledged - got agent lock for node 'node3'
+info     60    node1/crm: node 'node3': state changed from 'fence' => 'unknown'
+emai     60    node1/crm: SUCCEED: fencing: acknowledged - got agent lock for node 'node3'
 info     62    node2/crm: status change wait_for_quorum => slave
 info     64    node3/crm: status change wait_for_quorum => slave
+info     80    node1/crm: node 'node3': state changed from 'unknown' => 'online'
+info    185    node3/lrm: got lock 'ha_agent_node3_lock'
+info    185    node3/lrm: status change wait_for_agent_lock => active
+info    185    node3/lrm: starting service vm:103
+info    185    node3/lrm: service status vm:103 started
 info    620     hardware: exit simulation - done

@@ -474,6 +474,15 @@ sub manage {
 	    $repeat = 1; # for faster recovery execution
 	}
 
+	# Avoid that a node without services in 'fence' state gets stuck in 'fence' state.
+	for my $node (sort keys $ns->{status}->%*) {
+	    next if $ns->get_node_state($node) ne 'fence';
+	    next if defined($fenced_nodes->{$node});
+
+	    $haenv->log('info', "fence of node '$node' without any service left");
+	    $fenced_nodes->{$node} = $ns->fence_node($node) || 0;
+	}
+
 	last if !$repeat;
     }
 
