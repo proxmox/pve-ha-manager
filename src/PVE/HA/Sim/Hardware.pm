@@ -175,6 +175,7 @@ sub add_service {
     die "resource ID '$sid' already defined\n" if $conf->{$sid};
 
     $conf->{$sid} = $opts;
+    $conf->{$sid}->@{qw(type name)} = split(/:/, $sid);
 
     $self->write_service_config($conf);
 
