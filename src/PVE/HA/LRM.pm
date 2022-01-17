@@ -21,7 +21,7 @@ my $valid_states = {
 };
 
 # we sleep ~10s per 'active' round, so if no services is available for >= 10 min we'd go in wait
-# state givining up the watchdog and the LRM lock acquire voluntary, ensuring the WD can do no harm
+# state giving up the watchdog and the LRM lock voluntary, ensuring the WD can do no harm
 my $max_active_idle_rounds = 60;
 
 sub new {
