@@ -1,0 +1,3 @@
+Test a fenced node where a admin removed all service after fence start but
+before fencing succeeded. This shouldn't keep the node in "fence" state
+forever.

@@ -1,0 +1,13 @@
+{
+    "timestamp": 100,
+    "master_node": "node1",
+    "service_status": {
+        "vm:101": {"state": "started", "node": "node1", "uid": "0StZls8UGuAhEGuKm7xNhA", "running": 1},
+        "vm:102": {"state": "stopped", "node": "node2", "uid": "47mrPA7fNXjAyaN5n9IEJg"}
+    },
+    "node_status": {
+        "node1": "online",
+        "node2": "online",
+        "node3": "fence"
+    }
+}

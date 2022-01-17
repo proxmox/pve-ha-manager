@@ -1,0 +1,7 @@
+[
+    [
+        "power node1 on", "power node2 on", "power node3 on",
+        "skip-round crm 2",
+        "service vm:103 started"
+    ]
+]

@@ -1,0 +1,27 @@
+info      0     hardware: starting simulation
+info     20      cmdlist: execute power node1 on
+info     20    node1/crm: status change startup => wait_for_quorum
+info     20    node1/lrm: status change startup => wait_for_agent_lock
+info     20      cmdlist: execute power node2 on
+info     20    node2/crm: status change startup => wait_for_quorum
+info     20    node2/lrm: status change startup => wait_for_agent_lock
+info     20      cmdlist: execute power node3 on
+info     20    node3/crm: status change startup => wait_for_quorum
+info     20    node3/lrm: status change startup => wait_for_agent_lock
+info     20      cmdlist: execute skip-round crm 2
+info     20      cmdlist: execute service vm:103 started
+info     20     run-loop: skipping CRM round
+info     20    node1/lrm: got lock 'ha_agent_node1_lock'
+info     20    node1/lrm: status change wait_for_agent_lock => active
+info     20    node1/lrm: starting service vm:101
+info     20    node1/lrm: service status vm:101 started
+info     22    node3/lrm: got lock 'ha_agent_node3_lock'
+info     22    node3/lrm: status change wait_for_agent_lock => active
+info     22    node3/lrm: starting service vm:103
+info     22    node3/lrm: service status vm:103 started
+info     40     run-loop: skipping CRM round
+info     60    node1/crm: got lock 'ha_manager_lock'
+info     60    node1/crm: status change wait_for_quorum => master
+info     62    node2/crm: status change wait_for_quorum => slave
+info     64    node3/crm: status change wait_for_quorum => slave
+info    620     hardware: exit simulation - done
