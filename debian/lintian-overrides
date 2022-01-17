@@ -1,1 +1,1 @@
-pve-ha-manager: repeated-trigger-name interest-noawait pve-api-updates (line 2) vs activate-noawait pve-api-updates (line 1)
+pve-ha-manager: repeated-trigger-name pve-api-updates (lines 1 2)
