@@ -8,17 +8,18 @@ package PVE::HA::Sim::Hardware;
 
 use strict;
 use warnings;
-use POSIX qw(strftime EINTR);
-use JSON;
-use IO::File;
+
 use Fcntl qw(:DEFAULT :flock);
 use File::Copy;
 use File::Path qw(make_path remove_tree);
+use IO::File;
+use JSON;
+use POSIX qw(strftime EINTR);
+
 use PVE::HA::FenceConfig;
 use PVE::HA::Groups;
 
 my $watchdog_timeout = 60;
-
 
 # Status directory layout
 #
