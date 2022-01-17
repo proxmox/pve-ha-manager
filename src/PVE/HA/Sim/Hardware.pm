@@ -555,7 +555,8 @@ sub sim_hardware_cmd {
 
 	my $cstatus = $self->read_hardware_status_nolock();
 
-	my ($cmd, $objid, $action, $param) = split(/\s+/, $cmdstr);
+	my ($cmd, $objid, $action, @params) = split(/\s+/, $cmdstr);
+	my $param = $params[0]; # for convenience/legacy
 
 	die "sim_hardware_cmd: no node or service for command specified"
 	    if !$objid;
@@ -671,7 +672,7 @@ sub sim_hardware_cmd {
 
 	    } elsif ($action eq 'add') {
 
-		$self->add_service($sid, {state => 'started', node => $param});
+		$self->add_service($sid, {state => $params[1] || 'started', node => $param});
 
 	    } elsif ($action eq 'delete') {
 
