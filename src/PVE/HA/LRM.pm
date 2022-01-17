@@ -238,6 +238,18 @@ sub has_configured_service_on_local_node {
     return 0;
 }
 
+sub is_fence_requested {
+    my ($self) = @_;
+
+    my $haenv = $self->{haenv};
+    my $nodename = $haenv->nodename();
+    my $ss = $self->{service_status};
+
+    my $fenced_services = PVE::HA::Tools::count_fenced_services($ss, $nodename);
+
+    return $fenced_services;
+}
+
 sub active_service_count {
     my ($self) = @_;
 
@@ -314,7 +326,7 @@ sub work {
 
     $self->update_service_status();
 
-    my $fence_request = PVE::HA::Tools::count_fenced_services($self->{service_status}, $haenv->nodename());
+    my $fence_request = $self->is_fence_requested();
 
     # do state changes first
 
