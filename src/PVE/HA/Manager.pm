@@ -461,15 +461,17 @@ sub manage {
 	    my $sd = $ss->{$sid};
 	    next if $sd->{state} ne 'fence';
 
-	    if (!defined($fenced_nodes->{$sd->{node}})) {
-		$fenced_nodes->{$sd->{node}} = $ns->fence_node($sd->{node}) || 0;
+	    my $service_node = $sd->{node};
+
+	    if (!defined($fenced_nodes->{$service_node})) {
+		$fenced_nodes->{$service_node} = $ns->fence_node($sd->{node}) || 0;
 	    }
 
-	    next if !$fenced_nodes->{$sd->{node}};
+	    next if !$fenced_nodes->{$service_node};
 
 	    # node fence was successful - recover service
 	    $change_service_state->($self, $sid, 'recovery');
-	    $repeat = 1; # for faster execution
+	    $repeat = 1; # for faster recovery execution
 	}
 
 	last if !$repeat;
