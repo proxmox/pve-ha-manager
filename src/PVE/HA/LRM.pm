@@ -186,6 +186,8 @@ sub update_service_status {
 	return undef;
     } else {
 	$self->{service_status} = $ms->{service_status} || {};
+	my $nodename = $haenv->nodename();
+	$self->{node_status} = $ms->{node_status}->{$nodename} || 'unknown';
 	return 1;
     }
 }
@@ -242,12 +244,13 @@ sub is_fence_requested {
     my ($self) = @_;
 
     my $haenv = $self->{haenv};
+
     my $nodename = $haenv->nodename();
     my $ss = $self->{service_status};
 
     my $fenced_services = PVE::HA::Tools::count_fenced_services($ss, $nodename);
 
-    return $fenced_services;
+    return $fenced_services || $self->{node_status} eq 'fence';
 }
 
 sub active_service_count {
