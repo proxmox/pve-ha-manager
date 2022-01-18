@@ -113,25 +113,20 @@ sub lrm_control {
 sub run {
     my ($self) = @_;
 
-    my $last_command_time = 0;
-    my $next_cmd_at = 0;
+    my ($last_command_time, $next_cmd_at) = (0, 0);
 
     for (;;) {
-
 	my $starttime = $self->get_time();
 
 	my @nodes = sort keys %{$self->{nodes}};
 
-	my $nodecount = scalar(@nodes);
-
-	my $looptime = $nodecount*2;
+	my $looptime = scalar(@nodes) * 2; # twice the node count
 	$looptime = 20 if $looptime < 20;
 
 	die "unable to simulate so many nodes. You need to increate watchdog/lock timeouts.\n"
 	    if $looptime >= 60;
 
 	foreach my $node (@nodes) {
-
 	    my $d = $self->{nodes}->{$node};
 
 	    if (my $crm = $d->{crm}) {
@@ -197,10 +192,10 @@ sub run {
 	}
 
 
-	$self->{cur_time} = $starttime + $looptime
-	    if ($self->{cur_time} - $starttime) < $looptime;
+	$self->{cur_time} = $starttime + $looptime if ($self->{cur_time} - $starttime) < $looptime;
 
-	die "simulation end\n" if $self->{cur_time} > $max_sim_time;
+	die "simulation exceeded maximum time ($max_sim_time) - force end\n"
+	    if $self->{cur_time} > $max_sim_time;
 
 	foreach my $node (@nodes) {
 	    my $d = $self->{nodes}->{$node};
@@ -211,13 +206,11 @@ sub run {
 
 	next if $self->{cur_time} < $next_cmd_at;
 
-	# apply new comand after 5 loop iterations
-
-	if (($self->{loop_count} % 5) == 0) {
+	if (($self->{loop_count} % 5) == 0) { # apply new command every 5 loop iterations
 	    my $list = shift @{$self->{cmdlist}};
 	    if (!$list) {
-		# end sumulation (500 seconds after last command)
-		return if (($self->{cur_time} - $last_command_time) > 500);
+		# end simulation 500 seconds after the last command was executed
+		return if ($self->{cur_time} - $last_command_time) > 500;
 	    }
 
 	    foreach my $cmd (@$list) {
