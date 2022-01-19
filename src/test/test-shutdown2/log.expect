@@ -45,6 +45,7 @@ info    201    node1/lrm: got lock 'ha_agent_node1_lock'
 info    201    node1/lrm: status change wait_for_agent_lock => active
 info    201    node1/lrm: starting service vm:103
 info    201    node1/lrm: service status vm:103 started
+info    220      cmdlist: execute delay 200
 info    500      cmdlist: execute power node3 on
 info    500    node3/crm: status change startup => wait_for_quorum
 info    500    node3/lrm: status change startup => wait_for_agent_lock

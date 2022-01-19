@@ -11,4 +11,5 @@ info     21    node2/lrm: got lock 'ha_agent_node2_lock'
 info     21    node2/lrm: status change wait_for_agent_lock => active
 info     21    node2/lrm: starting service vm:102
 info     21    node2/lrm: service status vm:102 started
+info    120      cmdlist: execute delay 0
 info    720     hardware: exit simulation - done

@@ -31,6 +31,7 @@ info    164     watchdog: execute power node2 off
 info    163    node2/crm: killed by poweroff
 info    164    node2/lrm: killed by poweroff
 info    164     hardware: server 'node2' stopped by poweroff (watchdog)
+info    220      cmdlist: execute delay 0
 info    240    node1/crm: got lock 'ha_agent_node2_lock'
 info    240    node1/crm: fencing: acknowledged - got agent lock for node 'node2'
 info    240    node1/crm: node 'node2': state changed from 'fence' => 'unknown'
@@ -40,46 +41,55 @@ err     240    node1/crm: recovering service 'vm:102' from fenced node 'node2' f
 err     260    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 err     280    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 err     300    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
+info    320      cmdlist: execute delay 0
 err     320    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 err     340    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 err     360    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 err     380    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 err     400    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
+info    420      cmdlist: execute delay 0
 err     420    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 err     440    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 err     460    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 err     480    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 err     500    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
+info    520      cmdlist: execute delay 0
 err     520    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 err     540    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 err     560    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 err     580    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 err     600    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
+info    620      cmdlist: execute delay 0
 err     620    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 err     640    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 err     660    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 err     680    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 err     700    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
+info    720      cmdlist: execute delay 0
 err     720    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 err     740    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 err     760    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 err     780    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 err     800    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
+info    820      cmdlist: execute delay 0
 err     820    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 err     840    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 err     860    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 err     880    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 err     900    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
+info    920      cmdlist: execute delay 0
 err     920    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 err     940    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 err     960    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 err     980    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 err    1000    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
+info   1020      cmdlist: execute delay 0
 err    1020    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 err    1040    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 err    1060    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 err    1080    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 err    1100    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
+info   1120      cmdlist: execute delay 0
 err    1120    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 err    1140    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 err    1160    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found

@@ -224,6 +224,7 @@ sub run {
 		$last_command_time = $self->{cur_time};
 
 		if ($cmd =~ m/^delay\s+(\d+)\s*$/) {
+		    $self->log('info', "execute $cmd", 'cmdlist');
 		    $next_cmd_at = $self->{cur_time} + $1;
 		} else {
 		    $self->sim_hardware_cmd($cmd, 'cmdlist');

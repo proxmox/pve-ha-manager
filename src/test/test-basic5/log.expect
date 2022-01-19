@@ -38,6 +38,7 @@ info    162     watchdog: execute power node1 off
 info    161    node1/crm: killed by poweroff
 info    162    node1/lrm: killed by poweroff
 info    162     hardware: server 'node1' stopped by poweroff (watchdog)
+info    220      cmdlist: execute delay 200
 info    222    node3/crm: got lock 'ha_manager_lock'
 info    222    node3/crm: status change slave => master
 info    222    node3/crm: node 'node1': state changed from 'online' => 'unknown'

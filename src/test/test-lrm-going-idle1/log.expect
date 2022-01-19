@@ -24,6 +24,13 @@ info    120      cmdlist: execute service vm:103 delete
 info    120    node1/crm: removing stale service 'vm:103' (no config)
 info    122    node2/crm: status change slave => wait_for_quorum
 info    124    node3/crm: status change slave => wait_for_quorum
+info    220      cmdlist: execute delay 0
+info    320      cmdlist: execute delay 0
+info    420      cmdlist: execute delay 0
+info    520      cmdlist: execute delay 0
+info    620      cmdlist: execute delay 0
+info    720      cmdlist: execute delay 0
+info    820      cmdlist: execute delay 0
 info   1325    node3/lrm: node had no service configured for 60 rounds, going idle.
 info   1325    node3/lrm: status change active => wait_for_agent_lock
 info   1420     hardware: exit simulation - done
