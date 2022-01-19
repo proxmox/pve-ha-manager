@@ -1,3 +1,24 @@
+pve-ha-manager (3.3-2) bullseye; urgency=medium
+
+  * fix #3826: fix restarting LRM/CRM when triggered by package management
+    system due to other updates
+
+  * lrm: also check CRM node-status for determining if there's a fence-request
+    and avoid starting up in that case to ensure that the current manager can
+    get our lock and do a clean fence -> unknown -> online FSM transition.
+    This avoids a problematic edge case where an admin manually removed all
+    nodes of a to-be-fenced node, and re-added them again before the manager
+    could actually get that nodes LRM lock.
+
+  * manage: handle edge case where a node gets seemingly stuck in 'fence'
+    state if all its services got manually removed by an admin before the
+    fence transition could be finished. While the LRM could come up again in
+    previous versions (it won't now, see above point) and start/stop services
+    got executed, the node was seen as unavailable for all recovery,
+    relocation and migrate actions.
+
+ -- Proxmox Support Team <support@proxmox.com>  Wed, 19 Jan 2022 14:30:15 +0100
+
 pve-ha-manager (3.3-1) bullseye; urgency=medium
 
   * LRM: release lock and close watchdog if no service configured for >10min
