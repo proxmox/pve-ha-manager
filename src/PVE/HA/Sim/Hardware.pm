@@ -538,6 +538,7 @@ sub get_cfs_state {
 #   power <node> <on|off>
 #   network <node> <on|off>
 #   delay <seconds>
+#   skip-round <crm|lrm> [<rounds=1>]
 #   cfs <node> <rw|update> <work|fail>
 #   reboot <node>
 #   shutdown <node>

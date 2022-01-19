@@ -113,7 +113,7 @@ sub lrm_control {
 sub run {
     my ($self) = @_;
 
-    my ($last_command_time, $next_cmd_at) = (0, 0);
+    my ($last_command_time, $next_cmd_at, $skip_service_round) = (0, 0, {});
 
     for (;;) {
 	my $starttime = $self->get_time();
@@ -126,12 +126,18 @@ sub run {
 	die "unable to simulate so many nodes. You need to increate watchdog/lock timeouts.\n"
 	    if $looptime >= 60;
 
+	my $first_loop = 1;
 	foreach my $node (@nodes) {
 	    my $d = $self->{nodes}->{$node};
 
 	    if (my $crm = $d->{crm}) {
+		my $exit_crm;
 
-		my $exit_crm = !$crm->do_one_iteration();
+		if (!$skip_service_round->{crm}) {
+		    $exit_crm = !$crm->do_one_iteration();
+		} else {
+		    $self->log('info', "skipping CRM round", 'run-loop') if $first_loop;
+		}
 
 		my $nodetime = $d->{crm_env}->get_time();
 		$self->{cur_time} = $nodetime if $nodetime > $self->{cur_time};
@@ -156,8 +162,13 @@ sub run {
 	    }
 
 	    if (my $lrm = $d->{lrm}) {
+		my $exit_lrm;
 
-		my $exit_lrm = !$lrm->do_one_iteration();
+		if (!$skip_service_round->{lrm}) {
+		    $exit_lrm = !$lrm->do_one_iteration();
+		} else {
+		    $self->log('info', "skipping LRM round", 'run-loop') if $first_loop;
+		}
 
 		my $nodetime = $d->{lrm_env}->get_time();
 		$self->{cur_time} = $nodetime if $nodetime > $self->{cur_time};
@@ -189,8 +200,11 @@ sub run {
 		    $self->{nodes}->{$n}->{lrm} = undef;
 		}
 	    }
+	    $first_loop = 0;
 	}
 
+	$skip_service_round->{crm}-- if $skip_service_round->{crm};
+	$skip_service_round->{lrm}-- if $skip_service_round->{lrm};
 
 	$self->{cur_time} = $starttime + $looptime if ($self->{cur_time} - $starttime) < $looptime;
 
@@ -219,6 +233,11 @@ sub run {
 		if ($cmd =~ m/^delay\s+(\d+)\s*$/) {
 		    $self->log('info', "execute $cmd", 'cmdlist');
 		    $next_cmd_at = $self->{cur_time} + $1;
+		} elsif ($cmd =~ m/^skip-round\s+(lrm|crm)(?:\s+(\d+))?\s*$/) {
+		    $self->log('info', "execute $cmd", 'cmdlist');
+		    my ($what, $rounds) = ($1, $2 // 1);
+		    $skip_service_round->{$what} = 0 if !defined($skip_service_round->{$what});
+		    $skip_service_round->{$what} += $rounds;
 		} else {
 		    $self->sim_hardware_cmd($cmd, 'cmdlist');
 		}
