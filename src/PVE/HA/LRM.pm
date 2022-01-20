@@ -561,7 +561,7 @@ sub run_workers {
 	$worker->{$b}->{start_tries} <=> $worker->{$a}->{start_tries} || $a cmp $b
     };
 
-    while (($haenv->get_time() - $starttime) < 5) {
+    while (($haenv->get_time() - $starttime) <= 8) {
 	my $count = $self->check_active_workers();
 
 	for my $sid (sort $fair_sorter grep { !$worker->{$_}->{pid} } keys %$worker) {
