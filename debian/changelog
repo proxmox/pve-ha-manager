@@ -1,3 +1,12 @@
+pve-ha-manager (3.3-3) bullseye; urgency=medium
+
+  * lrm: avoid possible job starvation on huge workloads
+
+  * lrm: increase run_worker loop-time for doing actually work to 80%
+    duty-cycle
+
+ -- Proxmox Support Team <support@proxmox.com>  Thu, 20 Jan 2022 18:05:33 +0100
+
 pve-ha-manager (3.3-2) bullseye; urgency=medium
 
   * fix #3826: fix restarting LRM/CRM when triggered by package management
