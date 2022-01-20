@@ -568,7 +568,7 @@ sub run_workers {
 		if ($max_workers > 0) {
 		    my $pid = fork();
 		    if (!defined($pid)) {
-			$haenv->log('err', "fork worker failed");
+			$haenv->log('err', "forking worker failed - $!");
 			$count = 0; last; # abort, try later
 		    } elsif ($pid == 0) {
 			$haenv->after_fork(); # cleanup
