@@ -8,6 +8,8 @@ GITVERSION:=$(shell git rev-parse HEAD)
 BUILDDIR ?= ${PACKAGE}-${DEB_VERSION_UPSTREAM}
 
 DEB=${PACKAGE}_${DEB_VERSION_UPSTREAM_REVISION}_${DEB_BUILD_ARCH}.deb
+DBG_DEB=${PACKAGE}-dbgsym_${DEB_VERSION_UPSTREAM_REVISION}_${DEB_BUILD_ARCH}.deb
+
 DSC=${PACKAGE}_${DEB_VERSION_UPSTREAM_REVISION}.dsc
 SIMDEB=${SIMPACKAGE}_${DEB_VERSION_UPSTREAM_REVISION}_all.deb
 SIMDSC=${SIMPACKAGE}_${DEB_VERSION_UPSTREAM_REVISION}.dsc
@@ -25,7 +27,7 @@ dinstall: $(DEB) $(SIMDEB)
 
 .PHONY: deb
 deb: ${DEB} ${SIMDEB}
-${DEB}: ${BUILDDIR}
+${DEB} ${DBG_DEB}: ${BUILDDIR}
 	cd ${BUILDDIR}; dpkg-buildpackage -b -us -uc
 	lintian ${DEB}
 	lintian ${SIMDEB}
@@ -47,5 +49,5 @@ distclean: clean
 
 .PHONY: upload
 upload: ${DEB} ${SIMDEB}
-	tar cf - ${DEB} ${SIMDEB}|ssh repoman@repo.proxmox.com -- upload --product pve --dist bullseye --arch ${ARCH}
+	tar cf - ${DEB} ${DBG_DEB} ${SIMDEB}|ssh repoman@repo.proxmox.com -- upload --product pve --dist bullseye --arch ${DEB_BUILD_ARCH}
 
