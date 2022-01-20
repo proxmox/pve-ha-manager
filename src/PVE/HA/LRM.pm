@@ -556,51 +556,50 @@ sub run_workers {
     my $sc = $haenv->read_service_config();
 
     while (($haenv->get_time() - $starttime) < 5) {
-	my $count =  $self->check_active_workers();
+	my $count = $self->check_active_workers();
 
 	foreach my $sid (sort keys %{$self->{workers}}) {
 	    last if $count >= $max_workers && $max_workers > 0;
 
 	    my $w = $self->{workers}->{$sid};
-	    if (!$w->{pid}) {
-		# only fork if we may else call exec_resource_agent
-		# directly (e.g. for regression tests)
-		if ($max_workers > 0) {
-		    my $pid = fork();
-		    if (!defined($pid)) {
-			$haenv->log('err', "forking worker failed - $!");
-			$count = 0; last; # abort, try later
-		    } elsif ($pid == 0) {
-			$haenv->after_fork(); # cleanup
+	    next if $w->{pid};
 
-			# do work
-			my $res = -1;
-			eval {
-			    $res = $self->exec_resource_agent($sid, $sc->{$sid}, $w->{state}, $w->{params});
-			};
-			if (my $err = $@) {
-			    $haenv->log('err', $err);
-			    POSIX::_exit(-1);
-			}
-			POSIX::_exit($res);
-		    } else {
-			$count++;
-			$w->{pid} = $pid;
-		    }
-		} else {
+	    # only fork if we may, else call exec_resource_agent directly (e.g. for tests)
+	    if ($max_workers > 0) {
+		my $pid = fork();
+		if (!defined($pid)) {
+		    $haenv->log('err', "forking worker failed - $!");
+		    $count = 0; last; # abort, try later
+		} elsif ($pid == 0) {
+		    $haenv->after_fork(); # cleanup
+
+		    # do work
 		    my $res = -1;
 		    eval {
 			$res = $self->exec_resource_agent($sid, $sc->{$sid}, $w->{state}, $w->{params});
-			$res = $res << 8 if $res > 0;
 		    };
 		    if (my $err = $@) {
 			$haenv->log('err', $err);
+			POSIX::_exit(-1);
 		    }
-		    if (defined($w->{uid})) {
-			$self->resource_command_finished($sid, $w->{uid}, $res);
-		    } else {
-			$self->stop_command_finished($sid, $res);
-		    }
+		    POSIX::_exit($res);
+		} else {
+		    $count++;
+		    $w->{pid} = $pid;
+		}
+	    } else {
+		my $res = -1;
+		eval {
+		    $res = $self->exec_resource_agent($sid, $sc->{$sid}, $w->{state}, $w->{params});
+		    $res = $res << 8 if $res > 0;
+		};
+		if (my $err = $@) {
+		    $haenv->log('err', $err);
+		}
+		if (defined($w->{uid})) {
+		    $self->resource_command_finished($sid, $w->{uid}, $res);
+		} else {
+		    $self->stop_command_finished($sid, $res);
 		}
 	    }
 	}
