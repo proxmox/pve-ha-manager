@@ -627,18 +627,17 @@ sub manage_resources {
 
     foreach my $sid (keys %$ss) {
 	my $sd = $ss->{$sid};
-	next if !$sd->{node};
-	next if !$sd->{uid};
+	next if !$sd->{node} || !$sd->{uid};
 	next if $sd->{node} ne $nodename;
-	my $req_state = $sd->{state};
-	next if !defined($req_state);
+	my $request_state = $sd->{state};
+	next if !defined($request_state);
 	# can only happen for restricted groups where the failed node itself needs to be the
 	# reocvery target. Always let the master first do so, it will then marked as 'stopped' and
 	# we can just continue normally. But we must NOT do anything with it while still in recovery
-	next if $req_state eq 'recovery';
-	next if $req_state eq 'freeze';
+	next if $request_state eq 'recovery';
+	next if $request_state eq 'freeze';
 
-	$self->queue_resource_command($sid, $sd->{uid}, $req_state, {
+	$self->queue_resource_command($sid, $sd->{uid}, $request_state, {
 	    'target' => $sd->{target},
 	    'timeout' => $sd->{timeout},
 	});
@@ -650,12 +649,11 @@ sub manage_resources {
 sub queue_resource_command {
     my ($self, $sid, $uid, $state, $params) = @_;
 
-    # do not queue the excatly same command twice as this may lead to
-    # an inconsistent HA state when the first command fails but the CRM
-    # does not process its failure right away and the LRM starts a second
-    # try, without the CRM knowing of it (race condition)
-    # The 'stopped' command is an exception as we do not process its result
-    # in the CRM and we want to execute it always (even with no active CRM)
+    # do not queue the exact same command twice as this may lead to an inconsistent HA state when
+    # the first command fails but the CRM does not process its failure right away and the LRM starts
+    # a second try, without the CRM knowing of it (race condition) The 'stopped' command is an
+    # exception as we do not process its result in the CRM and we want to execute it always (even
+    # with no active CRM)
     return if $state ne 'stopped' && $uid && defined($self->{results}->{$uid});
 
     if (my $w = $self->{workers}->{$sid}) {
@@ -680,18 +678,17 @@ sub check_active_workers {
     my $count = 0;
     foreach my $sid (keys %{$self->{workers}}) {
 	my $w = $self->{workers}->{$sid};
-	if (my $pid = $w->{pid}) {
-	    # check status
-	    my $waitpid = waitpid($pid, WNOHANG);
-	    if (defined($waitpid) && ($waitpid == $pid)) {
-		if (defined($w->{uid})) {
-		    $self->resource_command_finished($sid, $w->{uid}, $?);
-		} else {
-		    $self->stop_command_finished($sid, $?);
-		}
+	my $pid = $w->{pid} || next;
+
+	my $waitpid = waitpid($pid, WNOHANG); # check status
+	if (defined($waitpid) && ($waitpid == $pid)) {
+	    if (defined($w->{uid})) {
+		$self->resource_command_finished($sid, $w->{uid}, $?);
 	    } else {
-		$count++;
+		$self->stop_command_finished($sid, $?);
 	    }
+	} else {
+	    $count++; # still active
 	}
     }
 
