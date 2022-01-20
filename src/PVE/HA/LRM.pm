@@ -552,17 +552,24 @@ sub run_workers {
 
     # number of workers to start, if 0 we exec the command directly witouth forking
     my $max_workers = $haenv->get_max_workers();
-
     my $sc = $haenv->read_service_config();
+
+    my $worker = $self->{workers};
+    # we only got limited time but want to ensure that every queued worker is scheduled
+    # eventually, so sort by the count a worker was seen here in this loop
+    my $fair_sorter = sub {
+	$worker->{$b}->{start_tries} <=> $worker->{$a}->{start_tries} || $a cmp $b
+    };
 
     while (($haenv->get_time() - $starttime) < 5) {
 	my $count = $self->check_active_workers();
 
-	foreach my $sid (sort keys %{$self->{workers}}) {
-	    last if $count >= $max_workers && $max_workers > 0;
-
-	    my $w = $self->{workers}->{$sid};
-	    next if $w->{pid};
+	for my $sid (sort $fair_sorter grep { !$worker->{$_}->{pid} } keys %$worker) {
+	    my $w = $worker->{$sid};
+	    # higher try-count means higher priority especially compared to newly queued jobs, so
+	    # count every try to avoid starvation
+	    $w->{start_tries}++;
+	    next if $count >= $max_workers && $max_workers > 0;
 
 	    # only fork if we may, else call exec_resource_agent directly (e.g. for tests)
 	    if ($max_workers > 0) {
@@ -666,6 +673,7 @@ sub queue_resource_command {
 	sid => $sid,
 	uid => $uid,
 	state => $state,
+	start_tries => 0,
     };
 
     $self->{workers}->{$sid}->{params} = $params if $params;
