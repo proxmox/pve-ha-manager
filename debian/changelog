@@ -7,8 +7,8 @@ pve-ha-manager (3.3-2) bullseye; urgency=medium
     and avoid starting up in that case to ensure that the current manager can
     get our lock and do a clean fence -> unknown -> online FSM transition.
     This avoids a problematic edge case where an admin manually removed all
-    nodes of a to-be-fenced node, and re-added them again before the manager
-    could actually get that nodes LRM lock.
+    services of a to-be-fenced node, and re-added them again before the
+    manager could actually get that nodes LRM lock.
 
   * manage: handle edge case where a node gets seemingly stuck in 'fence'
     state if all its services got manually removed by an admin before the
