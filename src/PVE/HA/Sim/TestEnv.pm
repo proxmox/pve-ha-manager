@@ -104,7 +104,7 @@ sub loop_end_hook {
     my $delay = $self->{loop_delay};
     $self->{loop_delay} = 0;
 
-    die "loop take too long ($delay seconds)\n" if $delay > 30;
+    die "loop took too long ($delay seconds)\n" if $delay > 300;
 
     # $self->{cur_time} += $delay;
 

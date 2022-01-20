@@ -458,13 +458,11 @@ sub manage {
 	# handle fencing
 	my $fenced_nodes = {};
 	foreach my $sid (sort keys %$ss) {
-	    my $sd = $ss->{$sid};
-	    next if $sd->{state} ne 'fence';
-
-	    my $service_node = $sd->{node};
+	    my ($service_state, $service_node) = $ss->{$sid}->@{'state', 'node'};
+	    next if $service_state ne 'fence';
 
 	    if (!defined($fenced_nodes->{$service_node})) {
-		$fenced_nodes->{$service_node} = $ns->fence_node($sd->{node}) || 0;
+		$fenced_nodes->{$service_node} = $ns->fence_node($service_node) || 0;
 	    }
 
 	    next if !$fenced_nodes->{$service_node};
@@ -474,13 +472,13 @@ sub manage {
 	    $repeat = 1; # for faster recovery execution
 	}
 
-	# Avoid that a node without services in 'fence' state gets stuck in 'fence' state.
-	for my $node (sort keys $ns->{status}->%*) {
+	# Avoid that a node without services in 'fence' state (e.g., removed
+	# manually by admin) is stuck with the 'fence' node state.
+	for my $node (sort grep { !defined($fenced_nodes->{$_}) } keys $ns->{status}->%*) {
 	    next if $ns->get_node_state($node) ne 'fence';
-	    next if defined($fenced_nodes->{$node});
 
-	    $haenv->log('info', "fence of node '$node' without any service left");
-	    $fenced_nodes->{$node} = $ns->fence_node($node) || 0;
+	    $haenv->log('notice', "node '$node' in fence state but no services to-fence! admin interference?!");
+	    $repeat = 1 if $ns->fence_node($node);
 	}
 
 	last if !$repeat;
