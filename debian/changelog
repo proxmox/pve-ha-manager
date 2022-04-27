@@ -1,3 +1,10 @@
+pve-ha-manager (3.3-4) bullseye; urgency=medium
+
+  * lrm: fix getting stuck on restart due to finished worker state not
+    being collected
+
+ -- Proxmox Support Team <support@proxmox.com>  Wed, 27 Apr 2022 14:01:55 +0200
+
 pve-ha-manager (3.3-3) bullseye; urgency=medium
 
   * lrm: avoid possible job starvation on huge workloads
