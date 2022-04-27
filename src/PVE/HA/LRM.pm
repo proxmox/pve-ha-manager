@@ -420,18 +420,17 @@ sub work {
 	    if ($self->{shutdown_request}) {
 
 		if ($self->{mode} eq 'restart') {
-
+		    # catch exited workers to update service state
+		    my $workers = $self->run_workers();
 		    my $service_count = $self->active_service_count();
 
-		    if ($service_count == 0) {
-			if ($self->run_workers() == 0) {
-			    # safety: no active services or workers -> OK
-			    give_up_watchdog_protection($self);
-			    $shutdown = 1;
+		    if ($service_count == 0 && $workers == 0) {
+			# safety: no active services or workers -> OK
+			give_up_watchdog_protection($self);
+			$shutdown = 1;
 
-			    # restart with no or freezed services, release the lock
-			    $haenv->release_ha_agent_lock();
-			}
+			# restart with no or freezed services, release the lock
+			$haenv->release_ha_agent_lock();
 		    }
 		} else {
 
