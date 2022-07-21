@@ -35,35 +35,37 @@ info    120    node3/lrm: shutdown LRM, doing maintenance, removing this node fr
 info    120    node1/crm: node 'node3': state changed from 'online' => 'maintenance'
 info    120    node1/crm: migrate service 'vm:103' to node 'node1' (running)
 info    120    node1/crm: service 'vm:103': state changed from 'started' to 'migrate'  (node = node3, target = node1)
-info    120    node1/crm: migrate service 'vm:104' to node 'node1' (running)
-info    120    node1/crm: service 'vm:104': state changed from 'started' to 'migrate'  (node = node3, target = node1)
+info    120    node1/crm: migrate service 'vm:104' to node 'node2' (running)
+info    120    node1/crm: service 'vm:104': state changed from 'started' to 'migrate'  (node = node3, target = node2)
 info    120    node1/crm: migrate service 'vm:105' to node 'node1' (running)
 info    120    node1/crm: service 'vm:105': state changed from 'started' to 'migrate'  (node = node3, target = node1)
-info    120    node1/crm: migrate service 'vm:106' to node 'node1' (running)
-info    120    node1/crm: service 'vm:106': state changed from 'started' to 'migrate'  (node = node3, target = node1)
+info    120    node1/crm: migrate service 'vm:106' to node 'node2' (running)
+info    120    node1/crm: service 'vm:106': state changed from 'started' to 'migrate'  (node = node3, target = node2)
 info    125    node3/lrm: status change active => maintenance
 info    125    node3/lrm: service vm:103 - start migrate to node 'node1'
 info    125    node3/lrm: service vm:103 - end migrate to node 'node1'
-info    125    node3/lrm: service vm:104 - start migrate to node 'node1'
-info    125    node3/lrm: service vm:104 - end migrate to node 'node1'
+info    125    node3/lrm: service vm:104 - start migrate to node 'node2'
+info    125    node3/lrm: service vm:104 - end migrate to node 'node2'
 info    125    node3/lrm: service vm:105 - start migrate to node 'node1'
 info    125    node3/lrm: service vm:105 - end migrate to node 'node1'
-info    125    node3/lrm: service vm:106 - start migrate to node 'node1'
-info    125    node3/lrm: service vm:106 - end migrate to node 'node1'
+info    125    node3/lrm: service vm:106 - start migrate to node 'node2'
+info    125    node3/lrm: service vm:106 - end migrate to node 'node2'
 info    140    node1/crm: service 'vm:103': state changed from 'migrate' to 'started'  (node = node1)
-info    140    node1/crm: service 'vm:104': state changed from 'migrate' to 'started'  (node = node1)
+info    140    node1/crm: service 'vm:104': state changed from 'migrate' to 'started'  (node = node2)
 info    140    node1/crm: service 'vm:105': state changed from 'migrate' to 'started'  (node = node1)
-info    140    node1/crm: service 'vm:106': state changed from 'migrate' to 'started'  (node = node1)
+info    140    node1/crm: service 'vm:106': state changed from 'migrate' to 'started'  (node = node2)
 info    141    node1/lrm: got lock 'ha_agent_node1_lock'
 info    141    node1/lrm: status change wait_for_agent_lock => active
 info    141    node1/lrm: starting service vm:103
 info    141    node1/lrm: service status vm:103 started
-info    141    node1/lrm: starting service vm:104
-info    141    node1/lrm: service status vm:104 started
 info    141    node1/lrm: starting service vm:105
 info    141    node1/lrm: service status vm:105 started
-info    141    node1/lrm: starting service vm:106
-info    141    node1/lrm: service status vm:106 started
+info    143    node2/lrm: got lock 'ha_agent_node2_lock'
+info    143    node2/lrm: status change wait_for_agent_lock => active
+info    143    node2/lrm: starting service vm:104
+info    143    node2/lrm: service status vm:104 started
+info    143    node2/lrm: starting service vm:106
+info    143    node2/lrm: service status vm:106 started
 info    146    node3/lrm: exit (loop end)
 info    146     shutdown: execute crm node3 stop
 info    145    node3/crm: server received shutdown request

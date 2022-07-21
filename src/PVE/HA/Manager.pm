@@ -202,6 +202,13 @@ sub recompute_online_node_usage {
 	    } else {
 		die "should not be reached (sid = '$sid', state = '$state')";
 	    }
+	} elsif (defined(my $target = $sd->{target})) {
+	    if ($state eq 'migrate' || $state eq 'relocate') {
+		# to correctly track maintenance modi and also consider the target as used for the
+		# case a node dies, as we cannot really know if the to-be-aborted incoming migration
+		# has already cleaned up all used resources
+		$online_node_usage->{$target}++;
+	    }
 	}
     }
 
