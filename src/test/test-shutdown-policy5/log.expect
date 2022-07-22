@@ -29,17 +29,17 @@ info    120    node1/lrm: shutdown LRM, doing maintenance, removing this node fr
 info    120    node1/crm: node 'node1': state changed from 'online' => 'maintenance'
 info    120    node1/crm: relocate service 'ct:102' to node 'node2'
 info    120    node1/crm: service 'ct:102': state changed from 'started' to 'relocate'  (node = node1, target = node2)
-info    120    node1/crm: migrate service 'vm:103' to node 'node2' (running)
-info    120    node1/crm: service 'vm:103': state changed from 'started' to 'migrate'  (node = node1, target = node2)
+info    120    node1/crm: migrate service 'vm:103' to node 'node3' (running)
+info    120    node1/crm: service 'vm:103': state changed from 'started' to 'migrate'  (node = node1, target = node3)
 info    121    node1/lrm: status change active => maintenance
 info    121    node1/lrm: service ct:102 - start relocate to node 'node2'
 info    121    node1/lrm: stopping service ct:102 (relocate)
 info    121    node1/lrm: service status ct:102 stopped
 info    121    node1/lrm: service ct:102 - end relocate to node 'node2'
-info    121    node1/lrm: service vm:103 - start migrate to node 'node2'
-info    121    node1/lrm: service vm:103 - end migrate to node 'node2'
+info    121    node1/lrm: service vm:103 - start migrate to node 'node3'
+info    121    node1/lrm: service vm:103 - end migrate to node 'node3'
 info    140    node1/crm: service 'ct:102': state changed from 'relocate' to 'started'  (node = node2)
-info    140    node1/crm: service 'vm:103': state changed from 'migrate' to 'started'  (node = node2)
+info    140    node1/crm: service 'vm:103': state changed from 'migrate' to 'started'  (node = node3)
 info    142    node1/lrm: exit (loop end)
 info    142     shutdown: execute crm node1 stop
 info    141    node1/crm: server received shutdown request
@@ -47,8 +47,10 @@ info    143    node2/lrm: got lock 'ha_agent_node2_lock'
 info    143    node2/lrm: status change wait_for_agent_lock => active
 info    143    node2/lrm: starting service ct:102
 info    143    node2/lrm: service status ct:102 started
-info    143    node2/lrm: starting service vm:103
-info    143    node2/lrm: service status vm:103 started
+info    145    node3/lrm: got lock 'ha_agent_node3_lock'
+info    145    node3/lrm: status change wait_for_agent_lock => active
+info    145    node3/lrm: starting service vm:103
+info    145    node3/lrm: service status vm:103 started
 info    160    node1/crm: voluntary release CRM lock
 info    161    node1/crm: exit (loop end)
 info    161     shutdown: execute power node1 off

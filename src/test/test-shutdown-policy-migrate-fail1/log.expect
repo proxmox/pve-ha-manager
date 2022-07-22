@@ -29,70 +29,70 @@ info    120    node3/lrm: reboot LRM, doing maintenance, removing this node from
 info    120    node1/crm: node 'node3': state changed from 'online' => 'maintenance'
 info    120    node1/crm: relocate service 'fa:109' to node 'node1'
 info    120    node1/crm: service 'fa:109': state changed from 'started' to 'relocate'  (node = node3, target = node1)
-info    120    node1/crm: migrate service 'vm:103' to node 'node1' (running)
-info    120    node1/crm: service 'vm:103': state changed from 'started' to 'migrate'  (node = node3, target = node1)
+info    120    node1/crm: migrate service 'vm:103' to node 'node2' (running)
+info    120    node1/crm: service 'vm:103': state changed from 'started' to 'migrate'  (node = node3, target = node2)
 info    125    node3/lrm: status change active => maintenance
 err     125    node3/lrm: service fa:109 not moved (migration error)
-info    125    node3/lrm: service vm:103 - start migrate to node 'node1'
-info    125    node3/lrm: service vm:103 - end migrate to node 'node1'
+info    125    node3/lrm: service vm:103 - start migrate to node 'node2'
+info    125    node3/lrm: service vm:103 - end migrate to node 'node2'
 err     140    node1/crm: service 'fa:109' - migration failed (exit code 1)
 info    140    node1/crm: service 'fa:109': state changed from 'relocate' to 'started'  (node = node3)
-info    140    node1/crm: service 'vm:103': state changed from 'migrate' to 'started'  (node = node1)
-info    140    node1/crm: relocate service 'fa:109' to node 'node2'
-info    140    node1/crm: service 'fa:109': state changed from 'started' to 'relocate'  (node = node3, target = node2)
-info    141    node1/lrm: got lock 'ha_agent_node1_lock'
-info    141    node1/lrm: status change wait_for_agent_lock => active
-info    141    node1/lrm: starting service vm:103
-info    141    node1/lrm: service status vm:103 started
+info    140    node1/crm: service 'vm:103': state changed from 'migrate' to 'started'  (node = node2)
+info    140    node1/crm: relocate service 'fa:109' to node 'node1'
+info    140    node1/crm: service 'fa:109': state changed from 'started' to 'relocate'  (node = node3, target = node1)
+info    143    node2/lrm: got lock 'ha_agent_node2_lock'
+info    143    node2/lrm: status change wait_for_agent_lock => active
+info    143    node2/lrm: starting service vm:103
+info    143    node2/lrm: service status vm:103 started
 err     145    node3/lrm: service fa:109 not moved (migration error)
 err     160    node1/crm: service 'fa:109' - migration failed (exit code 1)
 info    160    node1/crm: service 'fa:109': state changed from 'relocate' to 'started'  (node = node3)
-info    160    node1/crm: relocate service 'fa:109' to node 'node2'
-info    160    node1/crm: service 'fa:109': state changed from 'started' to 'relocate'  (node = node3, target = node2)
+info    160    node1/crm: relocate service 'fa:109' to node 'node1'
+info    160    node1/crm: service 'fa:109': state changed from 'started' to 'relocate'  (node = node3, target = node1)
 err     165    node3/lrm: service fa:109 not moved (migration error)
 err     180    node1/crm: service 'fa:109' - migration failed (exit code 1)
 info    180    node1/crm: service 'fa:109': state changed from 'relocate' to 'started'  (node = node3)
-info    180    node1/crm: relocate service 'fa:109' to node 'node2'
-info    180    node1/crm: service 'fa:109': state changed from 'started' to 'relocate'  (node = node3, target = node2)
+info    180    node1/crm: relocate service 'fa:109' to node 'node1'
+info    180    node1/crm: service 'fa:109': state changed from 'started' to 'relocate'  (node = node3, target = node1)
 err     185    node3/lrm: service fa:109 not moved (migration error)
 err     200    node1/crm: service 'fa:109' - migration failed (exit code 1)
 info    200    node1/crm: service 'fa:109': state changed from 'relocate' to 'started'  (node = node3)
-info    200    node1/crm: relocate service 'fa:109' to node 'node2'
-info    200    node1/crm: service 'fa:109': state changed from 'started' to 'relocate'  (node = node3, target = node2)
+info    200    node1/crm: relocate service 'fa:109' to node 'node1'
+info    200    node1/crm: service 'fa:109': state changed from 'started' to 'relocate'  (node = node3, target = node1)
 err     205    node3/lrm: service fa:109 not moved (migration error)
 err     220    node1/crm: service 'fa:109' - migration failed (exit code 1)
 info    220    node1/crm: service 'fa:109': state changed from 'relocate' to 'started'  (node = node3)
-info    220    node1/crm: relocate service 'fa:109' to node 'node2'
-info    220    node1/crm: service 'fa:109': state changed from 'started' to 'relocate'  (node = node3, target = node2)
+info    220    node1/crm: relocate service 'fa:109' to node 'node1'
+info    220    node1/crm: service 'fa:109': state changed from 'started' to 'relocate'  (node = node3, target = node1)
 err     225    node3/lrm: service fa:109 not moved (migration error)
 err     240    node1/crm: service 'fa:109' - migration failed (exit code 1)
 info    240    node1/crm: service 'fa:109': state changed from 'relocate' to 'started'  (node = node3)
-info    240    node1/crm: relocate service 'fa:109' to node 'node2'
-info    240    node1/crm: service 'fa:109': state changed from 'started' to 'relocate'  (node = node3, target = node2)
+info    240    node1/crm: relocate service 'fa:109' to node 'node1'
+info    240    node1/crm: service 'fa:109': state changed from 'started' to 'relocate'  (node = node3, target = node1)
 err     245    node3/lrm: service fa:109 not moved (migration error)
 err     260    node1/crm: service 'fa:109' - migration failed (exit code 1)
 info    260    node1/crm: service 'fa:109': state changed from 'relocate' to 'started'  (node = node3)
-info    260    node1/crm: relocate service 'fa:109' to node 'node2'
-info    260    node1/crm: service 'fa:109': state changed from 'started' to 'relocate'  (node = node3, target = node2)
+info    260    node1/crm: relocate service 'fa:109' to node 'node1'
+info    260    node1/crm: service 'fa:109': state changed from 'started' to 'relocate'  (node = node3, target = node1)
 err     265    node3/lrm: service fa:109 not moved (migration error)
 err     280    node1/crm: service 'fa:109' - migration failed (exit code 1)
 info    280    node1/crm: service 'fa:109': state changed from 'relocate' to 'started'  (node = node3)
-info    280    node1/crm: relocate service 'fa:109' to node 'node2'
-info    280    node1/crm: service 'fa:109': state changed from 'started' to 'relocate'  (node = node3, target = node2)
+info    280    node1/crm: relocate service 'fa:109' to node 'node1'
+info    280    node1/crm: service 'fa:109': state changed from 'started' to 'relocate'  (node = node3, target = node1)
 err     285    node3/lrm: service fa:109 not moved (migration error)
 err     300    node1/crm: service 'fa:109' - migration failed (exit code 1)
 info    300    node1/crm: service 'fa:109': state changed from 'relocate' to 'started'  (node = node3)
-info    300    node1/crm: relocate service 'fa:109' to node 'node2'
-info    300    node1/crm: service 'fa:109': state changed from 'started' to 'relocate'  (node = node3, target = node2)
-info    305    node3/lrm: service fa:109 - start relocate to node 'node2'
+info    300    node1/crm: relocate service 'fa:109' to node 'node1'
+info    300    node1/crm: service 'fa:109': state changed from 'started' to 'relocate'  (node = node3, target = node1)
+info    305    node3/lrm: service fa:109 - start relocate to node 'node1'
 info    305    node3/lrm: stopping service fa:109 (relocate)
 info    305    node3/lrm: service status fa:109 stopped
-info    305    node3/lrm: service fa:109 - end relocate to node 'node2'
-info    320    node1/crm: service 'fa:109': state changed from 'relocate' to 'started'  (node = node2)
-info    323    node2/lrm: got lock 'ha_agent_node2_lock'
-info    323    node2/lrm: status change wait_for_agent_lock => active
-info    323    node2/lrm: starting service fa:109
-info    323    node2/lrm: service status fa:109 started
+info    305    node3/lrm: service fa:109 - end relocate to node 'node1'
+info    320    node1/crm: service 'fa:109': state changed from 'relocate' to 'started'  (node = node1)
+info    321    node1/lrm: got lock 'ha_agent_node1_lock'
+info    321    node1/lrm: status change wait_for_agent_lock => active
+info    321    node1/lrm: starting service fa:109
+info    321    node1/lrm: service status fa:109 started
 info    326    node3/lrm: exit (loop end)
 info    326       reboot: execute crm node3 stop
 info    325    node3/crm: server received shutdown request
@@ -104,16 +104,16 @@ info    340    node3/lrm: status change startup => wait_for_agent_lock
 info    360    node1/crm: node 'node3': state changed from 'maintenance' => 'online'
 info    360    node1/crm: moving service 'fa:109' back to 'node3', node came back from maintenance.
 info    360    node1/crm: relocate service 'fa:109' to node 'node3'
-info    360    node1/crm: service 'fa:109': state changed from 'started' to 'relocate'  (node = node2, target = node3)
+info    360    node1/crm: service 'fa:109': state changed from 'started' to 'relocate'  (node = node1, target = node3)
 info    360    node1/crm: moving service 'vm:103' back to 'node3', node came back from maintenance.
 info    360    node1/crm: migrate service 'vm:103' to node 'node3' (running)
-info    360    node1/crm: service 'vm:103': state changed from 'started' to 'migrate'  (node = node1, target = node3)
-info    361    node1/lrm: service vm:103 - start migrate to node 'node3'
-info    361    node1/lrm: service vm:103 - end migrate to node 'node3'
-err     363    node2/lrm: service fa:109 not moved (migration error)
+info    360    node1/crm: service 'vm:103': state changed from 'started' to 'migrate'  (node = node2, target = node3)
+err     361    node1/lrm: service fa:109 not moved (migration error)
+info    363    node2/lrm: service vm:103 - start migrate to node 'node3'
+info    363    node2/lrm: service vm:103 - end migrate to node 'node3'
 info    364    node3/crm: status change wait_for_quorum => slave
 err     380    node1/crm: service 'fa:109' - migration failed (exit code 1)
-info    380    node1/crm: service 'fa:109': state changed from 'relocate' to 'started'  (node = node2)
+info    380    node1/crm: service 'fa:109': state changed from 'relocate' to 'started'  (node = node1)
 info    380    node1/crm: service 'vm:103': state changed from 'migrate' to 'started'  (node = node3)
 info    385    node3/lrm: got lock 'ha_agent_node3_lock'
 info    385    node3/lrm: status change wait_for_agent_lock => active
