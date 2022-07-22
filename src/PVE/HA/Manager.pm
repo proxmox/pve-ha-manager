@@ -8,6 +8,31 @@ use PVE::Tools;
 use PVE::HA::Tools ':exit_codes';
 use PVE::HA::NodeStatus;
 
+## Variable Name & Abbreviations Convention
+#
+# The HA stack has some variables it uses frequently and thus abbreviates it such that it may be
+# confusing for new readers. Here's a short list of the most common used.
+#
+# NOTE: variables should be assumed to be read only if not otherwise stated, only use the specific
+# methods to re-compute/read/alter them.
+#
+# - $haenv -> HA environment, the main interface to the simulator/test/real world
+# - $sid -> Service ID, unique identifier for a service, `type:vmid` is common
+#
+# - $ms -> Master/Manager Status, contains runtime info from the current active manager
+# - $ns -> Node Status, hash holding online/offline status about all nodes
+#
+# - $ss -> Service Status, hash holding the current state (last LRM cmd result, failed starts
+#          or migrates, maintenance fallback node, for *all* services ...
+# - $sd -> Service Data, the service status of a *single* service, iow. $ss->{$sid}
+#
+# - $sc -> Service Configuration, hash for all services including target state, group, ...
+# - $sd -> Configuration Data, the service config of a *single* service, iow. $sc->{$sid}
+#
+# Try to avoid adding new two letter (or similar over abbreviated) names, but also don't send
+# patches for changing above, as that set is mostly sensible and should be easy to remember once
+# spending a bit time in the HA code base.
+
 sub new {
     my ($this, $haenv) = @_;
 
