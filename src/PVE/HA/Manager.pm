@@ -27,7 +27,7 @@ use PVE::HA::NodeStatus;
 # - $sd -> Service Data, the service status of a *single* service, iow. $ss->{$sid}
 #
 # - $sc -> Service Configuration, hash for all services including target state, group, ...
-# - $sd -> Configuration Data, the service config of a *single* service, iow. $sc->{$sid}
+# - $cd -> Configuration Data, the service config of a *single* service, iow. $sc->{$sid}
 #
 # Try to avoid adding new two letter (or similar over abbreviated) names, but also don't send
 # patches for changing above, as that set is mostly sensible and should be easy to remember once
