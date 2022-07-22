@@ -187,6 +187,7 @@ sub recompute_online_node_usage {
     foreach my $sid (keys %{$self->{ss}}) {
 	my $sd = $self->{ss}->{$sid};
 	my $state = $sd->{state};
+	my $target = $sd->{target}; # optional
 	if (defined($online_node_usage->{$sd->{node}})) {
 	    if (
 		$state eq 'started' || $state eq 'request_stop' || $state eq 'fence' ||
@@ -196,13 +197,13 @@ sub recompute_online_node_usage {
 	    } elsif (($state eq 'migrate') || ($state eq 'relocate')) {
 		# count it for both, source and target as load is put on both
 		$online_node_usage->{$sd->{node}}++;
-		$online_node_usage->{$sd->{target}}++;
+		$online_node_usage->{$target}++;
 	    } elsif ($state eq 'stopped') {
 		# do nothing
 	    } else {
 		die "should not be reached (sid = '$sid', state = '$state')";
 	    }
-	} elsif (defined(my $target = $sd->{target})) {
+	} elsif (defined($target) && defined($online_node_usage->{$target})) {
 	    if ($state eq 'migrate' || $state eq 'relocate') {
 		# to correctly track maintenance modi and also consider the target as used for the
 		# case a node dies, as we cannot really know if the to-be-aborted incoming migration
