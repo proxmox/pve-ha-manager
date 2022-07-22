@@ -1,3 +1,13 @@
+pve-ha-manager (3.4.0) bullseye; urgency=medium
+
+  * switch to native version formatting
+
+  * fix accounting of online services when moving services due to their source
+    node going gracefully nonoperational (maintenance mode). This ensures a
+    better balance of services on the cluster after such an operation.
+
+ -- Proxmox Support Team <support@proxmox.com>  Fri, 22 Jul 2022 09:21:20 +0200
+
 pve-ha-manager (3.3-4) bullseye; urgency=medium
 
   * lrm: fix getting stuck on restart due to finished worker state not
