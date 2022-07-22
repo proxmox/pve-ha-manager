@@ -1,2 +1,2 @@
-pve-ha-manager: repeated-trigger-name pve-api-updates (lines 1 2)
-pve-ha-manager: maintainer-script-calls-systemctl postinst
+pve-ha-manager: repeated-trigger-name pve-api-updates (lines 1 2)*
+pve-ha-manager: maintainer-script-calls-systemctl *
