@@ -124,19 +124,19 @@ sub select_service_node {
     } keys %{$pri_groups->{$top_pri}};
 
     my $found;
-    my $found_maintenace_fallback;
+    my $found_maintenance_fallback;
     for (my $i = scalar(@nodes) - 1; $i >= 0; $i--) {
 	my $node = $nodes[$i];
 	if ($node eq $current_node) {
 	    $found = $i;
 	}
 	if (defined($maintenance_fallback) && $node eq $maintenance_fallback) {
-	    $found_maintenace_fallback = $i;
+	    $found_maintenance_fallback = $i;
 	}
     }
 
-    if (defined($found_maintenace_fallback)) {
-	return $nodes[$found_maintenace_fallback];
+    if (defined($found_maintenance_fallback)) {
+	return $nodes[$found_maintenance_fallback];
     }
 
     if ($try_next) {
