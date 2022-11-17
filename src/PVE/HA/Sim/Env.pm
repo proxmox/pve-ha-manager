@@ -433,4 +433,10 @@ sub get_ha_settings {
     return $datacenterconfig->{ha};
 }
 
+sub get_static_node_stats {
+    my ($self) = @_;
+
+    return $self->{hardware}->get_static_node_stats();
+}
+
 1;

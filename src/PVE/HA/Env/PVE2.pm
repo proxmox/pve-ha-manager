@@ -5,6 +5,7 @@ use warnings;
 use POSIX qw(:errno_h :fcntl_h);
 use IO::File;
 use IO::Socket::UNIX;
+use JSON;
 
 use PVE::SafeSyslog;
 use PVE::Tools;
@@ -457,6 +458,18 @@ sub get_ha_settings {
     }
 
     return $datacenterconfig->{ha};
+}
+
+sub get_static_node_stats {
+    my ($self) = @_;
+
+    my $stats = PVE::Cluster::get_node_kv('static-info');
+    for my $node (keys $stats->%*) {
+	$stats->{$node} = eval { decode_json($stats->{$node}) };
+	$self->log('err', "unable to decode static node info for '$node' - $@") if $@;
+    }
+
+    return $stats;
 }
 
 1;

@@ -269,4 +269,10 @@ sub get_ha_settings {
     return $self->{plug}->get_ha_settings();
 }
 
+sub get_static_node_stats {
+    my ($self) = @_;
+
+    return $self->{plug}->get_static_node_stats();
+}
+
 1;

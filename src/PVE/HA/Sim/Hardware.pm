@@ -858,4 +858,17 @@ sub watchdog_update {
     return &$modify_watchog($self, $code);
 }
 
+sub get_static_node_stats {
+    my ($self) = @_;
+
+    my $cstatus = $self->read_hardware_status_nolock();
+
+    my $stats = {};
+    for my $node (keys $cstatus->%*) {
+	$stats->{$node} = { $cstatus->{$node}->%{qw(cpus memory)} };
+    }
+
+    return $stats;
+}
+
 1;
