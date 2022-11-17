@@ -30,7 +30,7 @@ sub test {
     my ($expected_node, $try_next) = @_;
     
     my $node = PVE::HA::Manager::select_service_node
-	($groups, $online_node_usage, $service_conf, $current_node, $try_next);
+	($groups, $online_node_usage, "vm:111", $service_conf, $current_node, $try_next);
 
     my (undef, undef, $line) = caller();
     die "unexpected result: $node != ${expected_node} at line $line\n" 

@@ -119,7 +119,7 @@ sub get_node_priority_groups {
 }
 
 sub select_service_node {
-    my ($groups, $online_node_usage, $service_conf, $current_node, $try_next, $tried_nodes, $maintenance_fallback) = @_;
+    my ($groups, $online_node_usage, $sid, $service_conf, $current_node, $try_next, $tried_nodes, $maintenance_fallback) = @_;
 
     my $group = get_service_group($groups, $online_node_usage, $service_conf);
 
@@ -766,6 +766,7 @@ sub next_state_started {
 	    my $node = select_service_node(
 	        $self->{groups},
 		$self->{online_node_usage},
+		$sid,
 		$cd,
 		$sd->{node},
 		$try_next,
@@ -847,6 +848,7 @@ sub next_state_recovery {
     my $recovery_node = select_service_node(
 	$self->{groups},
 	$self->{online_node_usage},
+	$sid,
 	$cd,
 	$sd->{node},
     );
