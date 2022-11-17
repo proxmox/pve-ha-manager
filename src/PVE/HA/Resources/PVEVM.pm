@@ -3,6 +3,8 @@ package PVE::HA::Resources::PVEVM;
 use strict;
 use warnings;
 
+use PVE::Cluster;
+
 use PVE::HA::Tools;
 
 BEGIN {
