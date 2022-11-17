@@ -59,8 +59,8 @@ sub shutdown_request {
 
     my ($shutdown, $reboot) = $haenv->is_node_shutdown();
 
-    my $dc_ha_cfg = $haenv->get_datacenter_settings();
-    my $shutdown_policy = $dc_ha_cfg->{shutdown_policy} // 'conditional';
+    my $dc_cfg = $haenv->get_datacenter_settings();
+    my $shutdown_policy = $dc_cfg->{ha}->{shutdown_policy} // 'conditional';
 
     if ($shutdown) { # don't log this on service restart, only on node shutdown
 	$haenv->log('info', "got shutdown request with shutdown policy '$shutdown_policy'");

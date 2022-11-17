@@ -430,7 +430,10 @@ sub get_datacenter_settings {
 
     my $datacenterconfig = $self->{hardware}->read_datacenter_conf();
 
-    return $datacenterconfig->{ha};
+    return {
+	ha => $datacenterconfig->{ha} // {},
+	crs => $datacenterconfig->{crs} // {},
+    };
 }
 
 sub get_static_node_stats {

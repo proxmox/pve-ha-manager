@@ -456,12 +456,12 @@ sub get_datacenter_settings {
     my ($self) = @_;
 
     my $datacenterconfig = eval { cfs_read_file('datacenter.cfg') };
-    if (my $err = $@) {
-	$self->log('err', "unable to get HA settings from datacenter.cfg - $err");
-	return {};
-    }
+    $self->log('err', "unable to get HA settings from datacenter.cfg - $@") if $@;
 
-    return $datacenterconfig->{ha};
+    return {
+	ha => $datacenterconfig->{ha} // {},
+	crs => $datacenterconfig->{crs} // {},
+    };
 }
 
 sub get_static_node_stats {
