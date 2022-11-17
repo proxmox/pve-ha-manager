@@ -1,0 +1,5 @@
+Test how recovery works with the 'static' resource scheduling mode.
+
+Expect that, when node1 is shut down, all services are migrated to node 3,
+because the services don't have much memory, node 2 and 3 both already have a
+service with high memory, but node 3 has much left-over CPU.

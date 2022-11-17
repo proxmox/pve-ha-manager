@@ -1,0 +1,12 @@
+{
+    "vm:100": { "maxcpu": 2, "maxmem": 4000000000 },
+    "vm:101": { "maxcpu": 2, "maxmem": 4000000000 },
+    "vm:102": { "maxcpu": 2, "maxmem": 4000000000 },
+    "vm:103": { "maxcpu": 2, "maxmem": 4000000000 },
+    "vm:104": { "maxcpu": 2, "maxmem": 4000000000 },
+    "vm:105": { "maxcpu": 2, "maxmem": 4000000000 },
+    "vm:106": { "maxcpu": 2, "maxmem": 4000000000 },
+    "vm:107": { "maxcpu": 2, "maxmem": 4000000000 },
+    "vm:108": { "maxcpu": 2, "maxmem": 4000000000 },
+    "vm:109": { "maxcpu": 2, "maxmem": 4000000000 }
+}

@@ -1,0 +1,20 @@
+[
+    [ "power node1 on", "power node2 on", "power node3 on", "power node5 on" ],
+    [ "power node1 off" ],
+    [ "delay 300" ],
+    [ "power node1 on" ],
+    [ "delay 300" ],
+    [ "power node4 on" ],
+    [ "power node1 off" ],
+    [ "delay 300" ],
+    [ "power node1 on" ],
+    [ "delay 300" ],
+    [ "power node2 off" ],
+    [ "power node1 off" ],
+    [ "delay 300" ],
+    [ "power node1 on" ],
+    [ "delay 300" ],
+    [ "power node2 on" ],
+    [ "power node3 off" ],
+    [ "power node1 off" ]
+]

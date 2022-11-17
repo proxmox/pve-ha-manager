@@ -1,0 +1,5 @@
+Test how shutdown migrate policy works with the 'static' resource scheduling
+mode.
+
+Expect that when node1 is shut down the services get migrated in the repeating
+sequence node2 node2 node3, because node 2 has twice the resources of node 3.

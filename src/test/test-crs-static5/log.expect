@@ -1,0 +1,117 @@
+info      0     hardware: starting simulation
+info     20      cmdlist: execute power node1 on
+info     20    node1/crm: status change startup => wait_for_quorum
+info     20    node1/lrm: status change startup => wait_for_agent_lock
+info     20      cmdlist: execute power node2 on
+info     20    node2/crm: status change startup => wait_for_quorum
+info     20    node2/lrm: status change startup => wait_for_agent_lock
+info     20      cmdlist: execute power node3 on
+info     20    node3/crm: status change startup => wait_for_quorum
+info     20    node3/lrm: status change startup => wait_for_agent_lock
+info     20    node1/crm: got lock 'ha_manager_lock'
+info     20    node1/crm: status change wait_for_quorum => master
+info     20    node1/crm: using scheduler mode 'static'
+info     20    node1/crm: node 'node1': state changed from 'unknown' => 'online'
+info     20    node1/crm: node 'node2': state changed from 'unknown' => 'online'
+info     20    node1/crm: node 'node3': state changed from 'unknown' => 'online'
+info     20    node1/crm: adding new service 'ct:102' on node 'node2'
+info     20    node1/crm: adding new service 'ct:103' on node 'node3'
+info     20    node1/crm: adding new service 'ct:104' on node 'node1'
+info     20    node1/crm: adding new service 'ct:105' on node 'node1'
+info     20    node1/crm: adding new service 'ct:106' on node 'node1'
+info     20    node1/crm: adding new service 'ct:107' on node 'node1'
+info     20    node1/crm: adding new service 'ct:108' on node 'node1'
+info     20    node1/crm: adding new service 'ct:109' on node 'node1'
+info     21    node1/lrm: got lock 'ha_agent_node1_lock'
+info     21    node1/lrm: status change wait_for_agent_lock => active
+info     21    node1/lrm: starting service ct:104
+info     21    node1/lrm: service status ct:104 started
+info     21    node1/lrm: starting service ct:105
+info     21    node1/lrm: service status ct:105 started
+info     21    node1/lrm: starting service ct:106
+info     21    node1/lrm: service status ct:106 started
+info     21    node1/lrm: starting service ct:107
+info     21    node1/lrm: service status ct:107 started
+info     21    node1/lrm: starting service ct:108
+info     21    node1/lrm: service status ct:108 started
+info     21    node1/lrm: starting service ct:109
+info     21    node1/lrm: service status ct:109 started
+info     22    node2/crm: status change wait_for_quorum => slave
+info     23    node2/lrm: got lock 'ha_agent_node2_lock'
+info     23    node2/lrm: status change wait_for_agent_lock => active
+info     23    node2/lrm: starting service ct:102
+info     23    node2/lrm: service status ct:102 started
+info     24    node3/crm: status change wait_for_quorum => slave
+info     25    node3/lrm: got lock 'ha_agent_node3_lock'
+info     25    node3/lrm: status change wait_for_agent_lock => active
+info     25    node3/lrm: starting service ct:103
+info     25    node3/lrm: service status ct:103 started
+info    120      cmdlist: execute shutdown node1
+info    120    node1/lrm: got shutdown request with shutdown policy 'migrate'
+info    120    node1/lrm: shutdown LRM, doing maintenance, removing this node from active list
+info    120    node1/crm: node 'node1': state changed from 'online' => 'maintenance'
+info    120    node1/crm: relocate service 'ct:104' to node 'node3'
+info    120    node1/crm: service 'ct:104': state changed from 'started' to 'relocate'  (node = node1, target = node3)
+info    120    node1/crm: relocate service 'ct:105' to node 'node3'
+info    120    node1/crm: service 'ct:105': state changed from 'started' to 'relocate'  (node = node1, target = node3)
+info    120    node1/crm: relocate service 'ct:106' to node 'node3'
+info    120    node1/crm: service 'ct:106': state changed from 'started' to 'relocate'  (node = node1, target = node3)
+info    120    node1/crm: relocate service 'ct:107' to node 'node3'
+info    120    node1/crm: service 'ct:107': state changed from 'started' to 'relocate'  (node = node1, target = node3)
+info    120    node1/crm: relocate service 'ct:108' to node 'node3'
+info    120    node1/crm: service 'ct:108': state changed from 'started' to 'relocate'  (node = node1, target = node3)
+info    120    node1/crm: relocate service 'ct:109' to node 'node3'
+info    120    node1/crm: service 'ct:109': state changed from 'started' to 'relocate'  (node = node1, target = node3)
+info    121    node1/lrm: status change active => maintenance
+info    121    node1/lrm: service ct:104 - start relocate to node 'node3'
+info    121    node1/lrm: stopping service ct:104 (relocate)
+info    121    node1/lrm: service status ct:104 stopped
+info    121    node1/lrm: service ct:104 - end relocate to node 'node3'
+info    121    node1/lrm: service ct:105 - start relocate to node 'node3'
+info    121    node1/lrm: stopping service ct:105 (relocate)
+info    121    node1/lrm: service status ct:105 stopped
+info    121    node1/lrm: service ct:105 - end relocate to node 'node3'
+info    121    node1/lrm: service ct:106 - start relocate to node 'node3'
+info    121    node1/lrm: stopping service ct:106 (relocate)
+info    121    node1/lrm: service status ct:106 stopped
+info    121    node1/lrm: service ct:106 - end relocate to node 'node3'
+info    121    node1/lrm: service ct:107 - start relocate to node 'node3'
+info    121    node1/lrm: stopping service ct:107 (relocate)
+info    121    node1/lrm: service status ct:107 stopped
+info    121    node1/lrm: service ct:107 - end relocate to node 'node3'
+info    121    node1/lrm: service ct:108 - start relocate to node 'node3'
+info    121    node1/lrm: stopping service ct:108 (relocate)
+info    121    node1/lrm: service status ct:108 stopped
+info    121    node1/lrm: service ct:108 - end relocate to node 'node3'
+info    121    node1/lrm: service ct:109 - start relocate to node 'node3'
+info    121    node1/lrm: stopping service ct:109 (relocate)
+info    121    node1/lrm: service status ct:109 stopped
+info    121    node1/lrm: service ct:109 - end relocate to node 'node3'
+info    140    node1/crm: service 'ct:104': state changed from 'relocate' to 'started'  (node = node3)
+info    140    node1/crm: service 'ct:105': state changed from 'relocate' to 'started'  (node = node3)
+info    140    node1/crm: service 'ct:106': state changed from 'relocate' to 'started'  (node = node3)
+info    140    node1/crm: service 'ct:107': state changed from 'relocate' to 'started'  (node = node3)
+info    140    node1/crm: service 'ct:108': state changed from 'relocate' to 'started'  (node = node3)
+info    140    node1/crm: service 'ct:109': state changed from 'relocate' to 'started'  (node = node3)
+info    142    node1/lrm: exit (loop end)
+info    142     shutdown: execute crm node1 stop
+info    141    node1/crm: server received shutdown request
+info    145    node3/lrm: starting service ct:104
+info    145    node3/lrm: service status ct:104 started
+info    145    node3/lrm: starting service ct:105
+info    145    node3/lrm: service status ct:105 started
+info    145    node3/lrm: starting service ct:106
+info    145    node3/lrm: service status ct:106 started
+info    145    node3/lrm: starting service ct:107
+info    145    node3/lrm: service status ct:107 started
+info    145    node3/lrm: starting service ct:108
+info    145    node3/lrm: service status ct:108 started
+info    145    node3/lrm: starting service ct:109
+info    145    node3/lrm: service status ct:109 started
+info    160    node1/crm: voluntary release CRM lock
+info    161    node1/crm: exit (loop end)
+info    161     shutdown: execute power node1 off
+info    161    node2/crm: got lock 'ha_manager_lock'
+info    161    node2/crm: status change slave => master
+info    161    node2/crm: using scheduler mode 'static'
+info    720     hardware: exit simulation - done

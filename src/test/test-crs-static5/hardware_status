@@ -1,0 +1,5 @@
+{
+  "node1": { "power": "off", "network": "off", "cpus": 32, "memory": 100000000000 },
+  "node2": { "power": "off", "network": "off", "cpus": 32, "memory": 100000000000 },
+  "node3": { "power": "off", "network": "off", "cpus": 128, "memory": 100000000000 }
+}

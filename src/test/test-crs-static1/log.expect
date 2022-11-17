@@ -1,0 +1,50 @@
+info      0     hardware: starting simulation
+info     20      cmdlist: execute power node1 on
+info     20    node1/crm: status change startup => wait_for_quorum
+info     20    node1/lrm: status change startup => wait_for_agent_lock
+info     20      cmdlist: execute power node2 on
+info     20    node2/crm: status change startup => wait_for_quorum
+info     20    node2/lrm: status change startup => wait_for_agent_lock
+info     20      cmdlist: execute power node3 on
+info     20    node3/crm: status change startup => wait_for_quorum
+info     20    node3/lrm: status change startup => wait_for_agent_lock
+info     20    node1/crm: got lock 'ha_manager_lock'
+info     20    node1/crm: status change wait_for_quorum => master
+info     20    node1/crm: using scheduler mode 'static'
+info     20    node1/crm: node 'node1': state changed from 'unknown' => 'online'
+info     20    node1/crm: node 'node2': state changed from 'unknown' => 'online'
+info     20    node1/crm: node 'node3': state changed from 'unknown' => 'online'
+info     20    node1/crm: adding new service 'vm:102' on node 'node1'
+info     21    node1/lrm: got lock 'ha_agent_node1_lock'
+info     21    node1/lrm: status change wait_for_agent_lock => active
+info     21    node1/lrm: starting service vm:102
+info     21    node1/lrm: service status vm:102 started
+info     22    node2/crm: status change wait_for_quorum => slave
+info     24    node3/crm: status change wait_for_quorum => slave
+info    120      cmdlist: execute network node1 off
+info    120    node1/crm: status change master => lost_manager_lock
+info    120    node1/crm: status change lost_manager_lock => wait_for_quorum
+info    121    node1/lrm: status change active => lost_agent_lock
+info    162     watchdog: execute power node1 off
+info    161    node1/crm: killed by poweroff
+info    162    node1/lrm: killed by poweroff
+info    162     hardware: server 'node1' stopped by poweroff (watchdog)
+info    222    node3/crm: got lock 'ha_manager_lock'
+info    222    node3/crm: status change slave => master
+info    222    node3/crm: using scheduler mode 'static'
+info    222    node3/crm: node 'node1': state changed from 'online' => 'unknown'
+info    282    node3/crm: service 'vm:102': state changed from 'started' to 'fence'
+info    282    node3/crm: node 'node1': state changed from 'unknown' => 'fence'
+emai    282    node3/crm: FENCE: Try to fence node 'node1'
+info    282    node3/crm: got lock 'ha_agent_node1_lock'
+info    282    node3/crm: fencing: acknowledged - got agent lock for node 'node1'
+info    282    node3/crm: node 'node1': state changed from 'fence' => 'unknown'
+emai    282    node3/crm: SUCCEED: fencing: acknowledged - got agent lock for node 'node1'
+info    282    node3/crm: service 'vm:102': state changed from 'fence' to 'recovery'
+info    282    node3/crm: recover service 'vm:102' from fenced node 'node1' to node 'node3'
+info    282    node3/crm: service 'vm:102': state changed from 'recovery' to 'started'  (node = node3)
+info    283    node3/lrm: got lock 'ha_agent_node3_lock'
+info    283    node3/lrm: status change wait_for_agent_lock => active
+info    283    node3/lrm: starting service vm:102
+info    283    node3/lrm: service status vm:102 started
+info    720     hardware: exit simulation - done

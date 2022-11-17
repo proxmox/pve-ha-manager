@@ -1,0 +1,11 @@
+{
+    "ct:101": { "maxcpu": 0,   "maxmem": 40000000000 },
+    "ct:102": { "maxcpu": 0.5, "maxmem": 40000000000 },
+    "ct:103": { "maxcpu": 0.5, "maxmem": 200000000 },
+    "ct:104": { "maxcpu": 0.5, "maxmem": 200000000 },
+    "ct:105": { "maxcpu": 0.5, "maxmem": 200000000 },
+    "ct:106": { "maxcpu": 0.5, "maxmem": 200000000 },
+    "ct:107": { "maxcpu": 0.5, "maxmem": 200000000 },
+    "ct:108": { "maxcpu": 0.5, "maxmem": 200000000 },
+    "ct:109": { "maxcpu": 0.5, "maxmem": 200000000 }
+}

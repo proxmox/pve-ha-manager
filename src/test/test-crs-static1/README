@@ -1,0 +1,4 @@
+Test how service recovery works with the 'static' resource scheduling mode.
+
+Expect that the single service gets recovered to the node with the most
+available resources.

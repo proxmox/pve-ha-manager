@@ -1,0 +1,12 @@
+{
+    "vm:100": { "node": "node1", "state": "stopped" },
+    "vm:101": { "node": "node1", "state": "enabled" },
+    "vm:102": { "node": "node1", "state": "enabled" },
+    "vm:103": { "node": "node1", "state": "enabled" },
+    "vm:104": { "node": "node1", "state": "enabled" },
+    "vm:105": { "node": "node1", "state": "enabled" },
+    "vm:106": { "node": "node1", "state": "enabled" },
+    "vm:107": { "node": "node1", "state": "enabled" },
+    "vm:108": { "node": "node1", "state": "enabled" },
+    "vm:109": { "node": "node1", "state": "enabled" }
+}

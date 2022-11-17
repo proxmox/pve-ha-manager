@@ -1,0 +1,10 @@
+{
+    "ct:102": { "node": "node2", "state": "enabled" },
+    "ct:103": { "node": "node3", "state": "enabled" },
+    "ct:104": { "node": "node1", "state": "enabled" },
+    "ct:105": { "node": "node1", "state": "enabled" },
+    "ct:106": { "node": "node1", "state": "enabled" },
+    "ct:107": { "node": "node1", "state": "enabled" },
+    "ct:108": { "node": "node1", "state": "enabled" },
+    "ct:109": { "node": "node1", "state": "enabled" }
+}
