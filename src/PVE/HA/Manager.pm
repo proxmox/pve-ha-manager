@@ -149,25 +149,20 @@ sub select_service_node {
 	}
     }
 
+    return $maintenance_fallback
+	if defined($maintenance_fallback) && $pri_groups->{$top_pri}->{$maintenance_fallback};
+
     my $scores = $online_node_usage->score_nodes_to_start_service($sid, $current_node);
     my @nodes = sort {
 	$scores->{$a} <=> $scores->{$b} || $a cmp $b
     } keys %{$pri_groups->{$top_pri}};
 
     my $found;
-    my $found_maintenance_fallback;
     for (my $i = scalar(@nodes) - 1; $i >= 0; $i--) {
 	my $node = $nodes[$i];
 	if ($node eq $current_node) {
 	    $found = $i;
 	}
-	if (defined($maintenance_fallback) && $node eq $maintenance_fallback) {
-	    $found_maintenance_fallback = $i;
-	}
-    }
-
-    if (defined($found_maintenance_fallback)) {
-	return $nodes[$found_maintenance_fallback];
     }
 
     if ($try_next) {
