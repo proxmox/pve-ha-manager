@@ -152,6 +152,8 @@ sub select_service_node {
     return $maintenance_fallback
 	if defined($maintenance_fallback) && $pri_groups->{$top_pri}->{$maintenance_fallback};
 
+    return $current_node if !$try_next && $pri_groups->{$top_pri}->{$current_node};
+
     my $scores = $online_node_usage->score_nodes_to_start_service($sid, $current_node);
     my @nodes = sort {
 	$scores->{$a} <=> $scores->{$b} || $a cmp $b
@@ -171,8 +173,6 @@ sub select_service_node {
 	} else {
 	    return $nodes[0];
 	}
-    } elsif (defined($found)) {
-	return $nodes[$found];
     } else {
 	return $nodes[0];
     }
