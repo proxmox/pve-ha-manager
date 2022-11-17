@@ -6,6 +6,7 @@ use warnings;
 use lib '..';
 use PVE::HA::Groups;
 use PVE::HA::Manager;
+use PVE::HA::Usage::Basic;
 
 my $groups = PVE::HA::Groups->parse_config("groups.tmp", <<EOD);
 group: prefer_node1
@@ -13,11 +14,11 @@ group: prefer_node1
 EOD
 
 
-my $online_node_usage = {
-    node1 => 0,
-    node2 => 0,
-    node3 => 0,
-};
+# Relies on the fact that the basic plugin doesn't use the haenv.
+my $online_node_usage = PVE::HA::Usage::Basic->new();
+$online_node_usage->add_node("node1");
+$online_node_usage->add_node("node2");
+$online_node_usage->add_node("node3");
 
 my $service_conf = {
     node => 'node1',
@@ -43,22 +44,22 @@ sub test {
 test('node1');
 test('node1', 1);
 
-delete $online_node_usage->{node1}; # poweroff
+$online_node_usage->remove_node("node1"); # poweroff
 
 test('node2');
 test('node3', 1);
 test('node2', 1);
 
-delete $online_node_usage->{node2}; # poweroff
+$online_node_usage->remove_node("node2"); # poweroff
 
 test('node3');
 test('node3', 1);
 
-$online_node_usage->{node1} = 0; # poweron
+$online_node_usage->add_node("node1"); # poweron
 
 test('node1');
 
-$online_node_usage->{node2} = 0; # poweron
+$online_node_usage->add_node("node2"); # poweron
 
 test('node1');
 test('node1', 1);

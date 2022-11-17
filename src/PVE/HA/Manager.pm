@@ -7,6 +7,7 @@ use Digest::MD5 qw(md5_base64);
 use PVE::Tools;
 use PVE::HA::Tools ':exit_codes';
 use PVE::HA::NodeStatus;
+use PVE::HA::Usage::Basic;
 
 ## Variable Name & Abbreviations Convention
 #
@@ -77,9 +78,7 @@ sub get_service_group {
 
     my $group = {};
     # add all online nodes to default group to allow try_next when no group set
-    foreach my $node (keys %$online_node_usage) {
-	$group->{nodes}->{$node} = 1;
-    }
+    $group->{nodes}->{$_} = 1 for $online_node_usage->list_nodes();
 
     # overwrite default if service is bound to a specific group
     if (my $group_id = $service_conf->{group}) {
@@ -100,7 +99,7 @@ sub get_node_priority_groups {
 	if ($entry =~ m/^(\S+):(\d+)$/) {
 	    ($node, $pri) = ($1, $2);
 	}
-	next if !defined($online_node_usage->{$node}); # offline
+	next if !$online_node_usage->contains_node($node); # offline
 	$pri_groups->{$pri}->{$node} = 1;
 	$group_members->{$node} = $pri;
     }
@@ -108,7 +107,7 @@ sub get_node_priority_groups {
     # add non-group members to unrestricted groups (priority -1)
     if (!$group->{restricted}) {
 	my $pri = -1;
-	foreach my $node (keys %$online_node_usage) {
+	for my $node ($online_node_usage->list_nodes()) {
 	    next if defined($group_members->{$node});
 	    $pri_groups->{$pri}->{$node} = 1;
 	    $group_members->{$node} = -1;
@@ -144,8 +143,9 @@ sub select_service_node {
 	}
     }
 
+    my $scores = $online_node_usage->score_nodes_to_start_service($sid, $current_node);
     my @nodes = sort {
-	$online_node_usage->{$a} <=> $online_node_usage->{$b} || $a cmp $b
+	$scores->{$a} <=> $scores->{$b} || $a cmp $b
     } keys %{$pri_groups->{$top_pri}};
 
     my $found;
@@ -201,39 +201,38 @@ my $valid_service_states = {
 sub recompute_online_node_usage {
     my ($self) = @_;
 
-    my $online_node_usage = {};
+    my $online_node_usage = PVE::HA::Usage::Basic->new($self->{haenv});
 
     my $online_nodes = $self->{ns}->list_online_nodes();
 
-    foreach my $node (@$online_nodes) {
-	$online_node_usage->{$node} = 0;
-    }
+    $online_node_usage->add_node($_) for $online_nodes->@*;
 
     foreach my $sid (keys %{$self->{ss}}) {
 	my $sd = $self->{ss}->{$sid};
 	my $state = $sd->{state};
 	my $target = $sd->{target}; # optional
-	if (defined($online_node_usage->{$sd->{node}})) {
+	if ($online_node_usage->contains_node($sd->{node})) {
 	    if (
 		$state eq 'started' || $state eq 'request_stop' || $state eq 'fence' ||
 		$state eq 'freeze' || $state eq 'error' || $state eq 'recovery'
 	    ) {
-		$online_node_usage->{$sd->{node}}++;
+		$online_node_usage->add_service_usage_to_node($sd->{node}, $sid, $sd->{node});
 	    } elsif (($state eq 'migrate') || ($state eq 'relocate')) {
+		my $source = $sd->{node};
 		# count it for both, source and target as load is put on both
-		$online_node_usage->{$sd->{node}}++;
-		$online_node_usage->{$target}++;
+		$online_node_usage->add_service_usage_to_node($source, $sid, $source, $target);
+		$online_node_usage->add_service_usage_to_node($target, $sid, $source, $target);
 	    } elsif ($state eq 'stopped') {
 		# do nothing
 	    } else {
 		die "should not be reached (sid = '$sid', state = '$state')";
 	    }
-	} elsif (defined($target) && defined($online_node_usage->{$target})) {
+	} elsif (defined($target) && $online_node_usage->contains_node($target)) {
 	    if ($state eq 'migrate' || $state eq 'relocate') {
 		# to correctly track maintenance modi and also consider the target as used for the
 		# case a node dies, as we cannot really know if the to-be-aborted incoming migration
 		# has already cleaned up all used resources
-		$online_node_usage->{$target}++;
+		$online_node_usage->add_service_usage_to_node($target, $sid, $sd->{node}, $target);
 	    }
 	}
     }
@@ -775,7 +774,7 @@ sub next_state_started {
 	    );
 
 	    if ($node && ($sd->{node} ne $node)) {
-		$self->{online_node_usage}->{$node}++;
+		$self->{online_node_usage}->add_service_usage_to_node($node, $sid, $sd->{node});
 
 		if (defined(my $fallback = $sd->{maintenance_node})) {
 		    if ($node eq $fallback) {
@@ -864,7 +863,7 @@ sub next_state_recovery {
 	$fence_recovery_cleanup->($self, $sid, $fenced_node);
 
 	$haenv->steal_service($sid, $sd->{node}, $recovery_node);
-	$self->{online_node_usage}->{$recovery_node}++;
+	$self->{online_node_usage}->add_service_usage_to_node($recovery_node, $sid, $recovery_node);
 
 	# NOTE: $sd *is normally read-only*, fencing is the exception
 	$cd->{node} = $sd->{node} = $recovery_node;
