@@ -263,10 +263,10 @@ sub get_max_workers {
 }
 
 # return cluster wide enforced HA settings
-sub get_ha_settings {
+sub get_datacenter_settings {
     my ($self) = @_;
 
-    return $self->{plug}->get_ha_settings();
+    return $self->{plug}->get_datacenter_settings();
 }
 
 sub get_static_node_stats {

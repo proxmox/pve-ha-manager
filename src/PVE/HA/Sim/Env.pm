@@ -425,7 +425,7 @@ sub get_max_workers {
 }
 
 # return cluster wide enforced HA settings
-sub get_ha_settings {
+sub get_datacenter_settings {
     my ($self) = @_;
 
     my $datacenterconfig = $self->{hardware}->read_datacenter_conf();

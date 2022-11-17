@@ -452,7 +452,7 @@ sub get_max_workers {
 }
 
 # return cluster wide enforced HA settings
-sub get_ha_settings {
+sub get_datacenter_settings {
     my ($self) = @_;
 
     my $datacenterconfig = eval { cfs_read_file('datacenter.cfg') };
