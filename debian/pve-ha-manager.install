@@ -33,5 +33,7 @@
 /usr/share/perl5/PVE/HA/Resources/PVECT.pm
 /usr/share/perl5/PVE/HA/Resources/PVEVM.pm
 /usr/share/perl5/PVE/HA/Tools.pm
+/usr/share/perl5/PVE/HA/Usage.pm
+/usr/share/perl5/PVE/HA/Usage/Basic.pm
 /usr/share/perl5/PVE/Service/pve_ha_crm.pm
 /usr/share/perl5/PVE/Service/pve_ha_lrm.pm
