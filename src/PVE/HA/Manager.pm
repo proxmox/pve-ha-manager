@@ -8,6 +8,7 @@ use PVE::Tools;
 use PVE::HA::Tools ':exit_codes';
 use PVE::HA::NodeStatus;
 use PVE::HA::Usage::Basic;
+use PVE::HA::Usage::Static;
 
 ## Variable Name & Abbreviations Convention
 #
@@ -203,14 +204,35 @@ my $valid_service_states = {
     error => 1,
 };
 
+# FIXME with 'static' mode and thousands of services, the overhead can be noticable and the fact
+# that this function is called for each state change and upon recovery doesn't help.
 sub recompute_online_node_usage {
     my ($self) = @_;
 
-    my $online_node_usage = PVE::HA::Usage::Basic->new($self->{haenv});
+    my $haenv = $self->{haenv};
 
     my $online_nodes = $self->{ns}->list_online_nodes();
 
-    $online_node_usage->add_node($_) for $online_nodes->@*;
+    my $online_node_usage;
+
+    if (my $mode = $self->{'scheduler-mode'}) {
+	if ($mode eq 'static') {
+	    $online_node_usage = eval {
+		my $scheduler = PVE::HA::Usage::Static->new($haenv);
+		$scheduler->add_node($_) for $online_nodes->@*;
+		return $scheduler;
+	    };
+	    $haenv->log('warning', "using 'basic' scheduler mode, init for 'static' failed - $@")
+		if $@;
+	} elsif ($mode ne 'basic') {
+	    $haenv->log('warning', "got unknown scheduler mode '$mode', using 'basic'");
+	}
+    }
+
+    if (!$online_node_usage) {
+	$online_node_usage = PVE::HA::Usage::Basic->new($haenv);
+	$online_node_usage->add_node($_) for $online_nodes->@*;
+    }
 
     foreach my $sid (keys %{$self->{ss}}) {
 	my $sd = $self->{ss}->{$sid};
