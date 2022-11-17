@@ -1,4 +1,4 @@
-SOURCES=Basic.pm
+SOURCES=Basic.pm Static.pm
 
 .PHONY: install
 install:

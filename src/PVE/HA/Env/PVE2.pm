@@ -176,6 +176,10 @@ sub steal_service {
     } else {
 	die "implement me";
     }
+
+    # Necessary for (at least) static usage plugin to always be able to read service config from new
+    # node right away.
+    $self->cluster_state_update();
 }
 
 sub read_group_config {

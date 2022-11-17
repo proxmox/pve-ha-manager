@@ -33,6 +33,7 @@ sub contains_node {
     die "implement in subclass";
 }
 
+# Logs a warning to $haenv upon failure, but does not die.
 sub add_service_usage_to_node {
     my ($self, $nodename, $sid, $service_node, $migration_target) = @_;
 
