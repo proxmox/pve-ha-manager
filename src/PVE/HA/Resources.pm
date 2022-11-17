@@ -161,6 +161,11 @@ sub remove_locks {
     die "implement in subclass";
 }
 
+sub get_static_stats {
+    my ($class, $haenv, $id, $service_node) = @_;
+
+    die "implement in subclass";
+}
 
 # package PVE::HA::Resources::IPAddr;
 

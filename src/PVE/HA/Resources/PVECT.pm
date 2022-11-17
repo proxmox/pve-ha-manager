@@ -150,4 +150,15 @@ sub remove_locks {
     return undef;
 }
 
+sub get_static_stats {
+    my ($class, $haenv, $id, $service_node) = @_;
+
+    my $conf = PVE::LXC::Config->load_config($id, $service_node);
+
+    return {
+	maxcpu => $conf->{cpulimit} || $conf->{cores} || 0,
+	maxmem => ($conf->{memory} || 512) * 1024 * 1024,
+    };
+}
+
 1;

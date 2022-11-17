@@ -29,6 +29,7 @@ my $watchdog_timeout = 60;
 # $testdir/hardware_status            Hardware description (number of nodes, ...)
 # $testdir/manager_status             CRM status (start with {})
 # $testdir/service_config             Service configuration
+# $testdir/static_service_stats       Static service usage information (cpu, memory)
 # $testdir/groups                     HA groups configuration
 # $testdir/service_status_<node>      Service status
 # $testdir/datacenter.cfg             Datacenter wide HA configuration
@@ -38,6 +39,7 @@ my $watchdog_timeout = 60;
 #
 # $testdir/status/cluster_locks        Cluster locks
 # $testdir/status/hardware_status      Hardware status (power/network on/off)
+# $testdir/status/static_service_stats Static service usage information (cpu, memory)
 # $testdir/status/watchdog_status      Watchdog status
 #
 # runtime status
@@ -330,6 +332,15 @@ sub write_service_status {
     return $res;
 }
 
+sub read_static_service_stats {
+    my ($self) = @_;
+
+    my $filename = "$self->{statusdir}/static_service_stats";
+    my $stats = PVE::HA::Tools::read_json_from_file($filename);
+
+    return $stats;
+}
+
 my $default_group_config = <<__EOD;
 group: prefer_node1
     nodes node1
@@ -402,6 +413,10 @@ sub new {
 
     if (-f "$testdir/datacenter.cfg") {
 	copy("$testdir/datacenter.cfg", "$statusdir/datacenter.cfg");
+    }
+
+    if (-f "$testdir/static_service_stats") {
+	copy("$testdir/static_service_stats", "$statusdir/static_service_stats");
     }
 
     my $cstatus = $self->read_hardware_status_nolock();
