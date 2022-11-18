@@ -219,11 +219,14 @@ sub recompute_online_node_usage {
 	    };
 	    $haenv->log('warning', "using 'basic' scheduler mode, init for 'static' failed - $@")
 		if $@;
-	} elsif ($mode ne 'basic') {
+	} elsif ($mode eq 'basic') {
+	    # handled below in the general fall-back case
+	} else {
 	    $haenv->log('warning', "got unknown scheduler mode '$mode', using 'basic'");
 	}
     }
 
+    # fallback to the basic algorithm in any case
     if (!$online_node_usage) {
 	$online_node_usage = PVE::HA::Usage::Basic->new($haenv);
 	$online_node_usage->add_node($_) for $online_nodes->@*;
