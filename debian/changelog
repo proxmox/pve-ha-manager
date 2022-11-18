@@ -1,3 +1,18 @@
+pve-ha-manager (3.5.0) bullseye; urgency=medium
+
+  * env: datacenter config: include crs (cluster-resource-scheduling) setting
+
+  * manager: use static resource scheduler when configured
+
+  * manager: avoid scoring nodes if maintenance fallback node is valid
+
+  * manager: avoid scoring nodes when not trying next and current node is
+    valid
+
+  * usage: static: use service count on nodes as a fallback
+
+ -- Proxmox Support Team <support@proxmox.com>  Fri, 18 Nov 2022 15:02:55 +0100
+
 pve-ha-manager (3.4.0) bullseye; urgency=medium
 
   * switch to native version formatting
