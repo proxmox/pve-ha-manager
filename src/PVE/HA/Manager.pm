@@ -236,7 +236,7 @@ sub recompute_online_node_usage {
 		$scheduler->add_node($_) for $online_nodes->@*;
 		return $scheduler;
 	    };
-	    $haenv->log('warning', "using 'basic' scheduler mode, init for 'static' failed - $@")
+	    $haenv->log('warning', "fallback to 'basic' scheduler mode, init for 'static' failed - $@")
 		if $@;
 	} elsif ($mode eq 'basic') {
 	    # handled below in the general fall-back case
