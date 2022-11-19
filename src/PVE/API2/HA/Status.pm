@@ -3,15 +3,15 @@ package PVE::API2::HA::Status;
 use strict;
 use warnings;
 
-use PVE::SafeSyslog;
-use PVE::INotify;
 use PVE::Cluster;
-use PVE::HA::Config;
+use PVE::INotify;
 use PVE::JSONSchema qw(get_standard_option);
 use PVE::RPCEnvironment;
+use PVE::SafeSyslog;
+
+use PVE::HA::Config;
 
 use PVE::RESTHandler;
-
 use base qw(PVE::RESTHandler);
 
 my $nodename = PVE::INotify::nodename();
@@ -36,7 +36,7 @@ __PACKAGE__->register_method ({
     permissions => { user => 'all' },
     description => "Directory index.",
     parameters => {
-    	additionalProperties => 0,
+	additionalProperties => 0,
 	properties => {},
     },
     returns => {
@@ -53,7 +53,7 @@ __PACKAGE__->register_method ({
 	my $result = [
 	    { name => 'current' },
 	    { name => 'manager_status' },
-	    ];
+	];
 
 	return $result;
     }});
@@ -67,7 +67,7 @@ __PACKAGE__->register_method ({
 	check => ['perm', '/', [ 'Sys.Audit' ]],
     },
     parameters => {
-    	additionalProperties => 0,
+	additionalProperties => 0,
 	properties => {},
     },
     returns => { type => 'array' },
@@ -77,13 +77,12 @@ __PACKAGE__->register_method ({
 	my $res = [];
 
 	my $quorate = PVE::Cluster::check_cfs_quorum(1);
-	if ($quorate) {
-	    push @$res, { id => 'quorum', type => 'quorum',
-			  node => $nodename, status => "OK", quorate => 1 };
-	} else {
-	    push @$res, { id => 'quorum', type => 'quorum', node => $nodename,
-			  status => "No quorum on node '$nodename'!", quorate => 0 };
-	}
+	push @$res, {
+	    id => 'quorum', type => 'quorum',
+	    node => $nodename,
+	    status => $quorate ? 'OK' : "No quorum on node '$nodename'!",
+	    quorate => $quorate ? 1 : 0,
+	};
 
 	my $status = PVE::HA::Config::read_manager_status();
 
@@ -100,8 +99,12 @@ __PACKAGE__->register_method ({
 	    }
 	    my $time_str = localtime($status->{timestamp});
 	    my $status_text = "$master ($status_str, $time_str)";
-	    push @$res, { id => 'master', type => 'master', node => $master,
-			  status => $status_text, timestamp => $status->{timestamp} };
+	    push @$res, {
+		id => 'master', type => 'master',
+		node => $master,
+		status => $status_text,
+		timestamp => $status->{timestamp},
+	    };
 	}
 
 	# compute active services for all nodes
@@ -145,8 +148,12 @@ __PACKAGE__->register_method ({
 
 		my $time_str = localtime($lrm_status->{timestamp});
 		my $status_text = "$node ($status_str, $time_str)";
-		push @$res, { id => $id, type => 'lrm',  node => $node,
-			      status => $status_text, timestamp => $lrm_status->{timestamp} };
+		push @$res, {
+		    id => $id, type => 'lrm',
+		    node => $node,
+		    status => $status_text,
+		    timestamp => $lrm_status->{timestamp},
+		};
 	    }
 	}
 
@@ -202,7 +209,7 @@ __PACKAGE__->register_method ({
 	check => ['perm', '/', [ 'Sys.Audit' ]],
     },
     parameters => {
-    	additionalProperties => 0,
+	additionalProperties => 0,
 	properties => {},
     },
     returns => { type => 'object' },
