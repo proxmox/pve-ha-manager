@@ -3,7 +3,8 @@ package PVE::API2::HA::Status;
 use strict;
 use warnings;
 
-use PVE::Cluster;
+use PVE::Cluster qw(cfs_read_file);
+use PVE::DataCenterConfig;
 use PVE::INotify;
 use PVE::JSONSchema qw(get_standard_option);
 use PVE::RPCEnvironment;
@@ -97,8 +98,15 @@ __PACKAGE__->register_method ({
 	    if ($quorate && $status_str ne 'active' && !keys %{$service_config}) {
 		$status_str = 'idle';
 	    }
+
+	    my $extra_status = '';
+
+	    my $datacenter_config = eval { cfs_read_file('datacenter.cfg') } // {};
+	    if (my $crs = $datacenter_config->{crs}) {
+		$extra_status = " - $crs->{ha} load CRS" if $crs->{ha} && $crs->{ha} ne 'basic';
+	    }
 	    my $time_str = localtime($status->{timestamp});
-	    my $status_text = "$master ($status_str, $time_str)";
+	    my $status_text = "$master ($status_str, $time_str)$extra_status";
 	    push @$res, {
 		id => 'master', type => 'master',
 		node => $master,
