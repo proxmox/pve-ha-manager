@@ -64,6 +64,8 @@ sub update_crs_scheduler_mode {
     my $haenv = $self->{haenv};
     my $dc_cfg = $haenv->get_datacenter_settings();
 
+    $self->{crs}->{rebalance_on_request_start} = !!$dc_cfg->{crs}->{'ha-rebalance-on-start'};
+
     my $old_mode = $self->{crs}->{scheduler};
     my $new_mode = $dc_cfg->{crs}->{ha} || 'basic';
 
@@ -210,6 +212,7 @@ my $valid_service_states = {
     stopped => 1,
     request_stop => 1,
     request_start => 1,
+    request_start_balance => 1,
     started => 1,
     fence => 1,
     recovery => 1,
@@ -262,10 +265,11 @@ sub recompute_online_node_usage {
 		|| $state eq 'freeze' || $state eq 'error' || $state eq 'recovery'
 	    ) {
 		$online_node_usage->add_service_usage_to_node($sd->{node}, $sid, $sd->{node});
-	    } elsif (($state eq 'migrate') || ($state eq 'relocate')) {
+	    } elsif ($state eq 'migrate' || $state eq 'relocate' || $state eq 'request_start_balance') {
 		my $source = $sd->{node};
 		# count it for both, source and target as load is put on both
-		$online_node_usage->add_service_usage_to_node($source, $sid, $source, $target);
+		$online_node_usage->add_service_usage_to_node($source, $sid, $source, $target)
+		    if $state ne 'request_start_balance';
 		$online_node_usage->add_service_usage_to_node($target, $sid, $source, $target);
 	    } elsif ($state eq 'stopped' || $state eq 'request_start') {
 		# do nothing
@@ -495,7 +499,7 @@ sub manage {
 
 		$self->next_state_request_start($sid, $cd, $sd, $lrm_res);
 
-	    } elsif ($last_state eq 'migrate' || $last_state eq 'relocate') {
+	    } elsif ($last_state eq 'migrate' || $last_state eq 'relocate' || $last_state eq 'request_start_balance') {
 
 		$self->next_state_migrate_relocate($sid, $cd, $sd, $lrm_res);
 
@@ -696,7 +700,31 @@ sub next_state_stopped {
 sub next_state_request_start {
     my ($self, $sid, $cd, $sd, $lrm_res) = @_;
 
-    $change_service_state->($self, $sid, 'started', node => $sd->{node});
+    my $haenv = $self->{haenv};
+    my $current_node = $sd->{node};
+
+    if ($self->{crs}->{rebalance_on_request_start}) {
+	my $selected_node = select_service_node(
+	    $self->{groups},
+	    $self->{online_node_usage},
+	    $sid,
+	    $cd,
+	    $sd->{node},
+	    0, # try_next
+	    $sd->{failed_nodes},
+	    $sd->{maintenance_node},
+	    1, # best_score
+	);
+	my $select_text = $selected_node ne $current_node ? 'new' : 'current';
+	$haenv->log('info', "service $sid: re-balance selected $select_text node $selected_node for startup");
+
+	if ($selected_node ne $current_node) {
+	    $change_service_state->($self, $sid, 'request_start_balance', node => $current_node, target => $selected_node);
+	    return;
+	}
+    }
+
+    $change_service_state->($self, $sid, 'started', node => $current_node);
 }
 
 sub record_service_failed_on_node {

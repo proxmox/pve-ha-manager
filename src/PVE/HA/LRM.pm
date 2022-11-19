@@ -906,7 +906,7 @@ sub exec_resource_agent {
 	    return ERROR;
 	}
 
-    } elsif ($cmd eq 'migrate' || $cmd eq 'relocate') {
+    } elsif ($cmd eq 'migrate' || $cmd eq 'relocate' || $cmd eq 'request_start_balance') {
 
 	my $target = $params->{target};
 	if (!defined($target)) {
