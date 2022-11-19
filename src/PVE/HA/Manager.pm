@@ -430,8 +430,9 @@ sub manage {
 	$haenv->log('info', "adding new service '$sid' on node '$cd->{node}'");
 	# assume we are running to avoid relocate running service at add
 	my $state = ($cd->{state} eq 'started') ? 'started' : 'request_stop';
-	$ss->{$sid} = { state => $state, node => $cd->{node},
-			uid => compute_new_uuid('started') };
+	$ss->{$sid} = {
+	    state => $state, node => $cd->{node}, uid => compute_new_uuid('started'),
+	};
     }
 
     # remove stale or ignored services from manager state
@@ -487,10 +488,10 @@ sub manage {
 	    } elsif ($last_state eq 'freeze') {
 
 		my $lrm_mode = $sd->{node} ? $lrm_modes->{$sd->{node}} : undef;
-		# unfreeze
-		my $state = ($cd->{state} eq 'started') ? 'started' : 'request_stop';
-		&$change_service_state($self, $sid, $state)
-		    if $lrm_mode && $lrm_mode eq 'active';
+		if ($lrm_mode && $lrm_mode eq 'active') { # unfreeze if active again
+		    my $state = ($cd->{state} eq 'started') ? 'started' : 'request_stop';
+		    $change_service_state->($self, $sid, $state);
+		}
 
 	    } elsif ($last_state eq 'error') {
 
@@ -503,9 +504,9 @@ sub manage {
 
 	    my $lrm_mode = $sd->{node} ? $lrm_modes->{$sd->{node}} : undef;
 	    if ($lrm_mode && $lrm_mode eq 'restart') {
-		if (($sd->{state} eq 'started' || $sd->{state} eq 'stopped' ||
-		     $sd->{state} eq 'request_stop')) {
-		    &$change_service_state($self, $sid, 'freeze');
+		my $state = $sd->{state};
+		if ($state eq 'started' || $state eq 'stopped'|| $state eq 'request_stop') {
+		    $change_service_state->($self, $sid, 'freeze');
 		}
 	    }
 
@@ -629,8 +630,7 @@ sub next_state_stopped {
 	    } elsif ($sd->{node} eq $target) {
 		$haenv->log('info', "ignore service '$sid' $cmd request - service already on node '$target'");
 	    } else {
-		&$change_service_state($self, $sid, $cmd, node => $sd->{node},
-				       target => $target);
+		$change_service_state->($self, $sid, $cmd, node => $sd->{node}, target => $target);
 		return;
 	    }
 	} elsif ($cmd eq 'stop') {
