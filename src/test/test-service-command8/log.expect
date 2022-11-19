@@ -28,7 +28,8 @@ info    145    node3/lrm: got lock 'ha_agent_node3_lock'
 info    145    node3/lrm: status change wait_for_agent_lock => active
 info    160    node1/crm: service 'vm:103': state changed from 'request_stop' to 'stopped'
 info    220      cmdlist: execute service vm:103 started
-info    220    node1/crm: service 'vm:103': state changed from 'stopped' to 'started'  (node = node3)
+info    220    node1/crm: service 'vm:103': state changed from 'stopped' to 'request_start'  (node = node3)
+info    220    node1/crm: service 'vm:103': state changed from 'request_start' to 'started'  (node = node3)
 info    225    node3/lrm: starting service vm:103
 info    225    node3/lrm: service status vm:103 started
 info    820     hardware: exit simulation - done

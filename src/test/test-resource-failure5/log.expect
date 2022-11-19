@@ -20,7 +20,8 @@ info     23    node2/lrm: status change wait_for_agent_lock => active
 info     24    node3/crm: status change wait_for_quorum => slave
 info     40    node1/crm: service 'fa:130': state changed from 'request_stop' to 'stopped'
 info    120      cmdlist: execute service fa:130 started
-info    120    node1/crm: service 'fa:130': state changed from 'stopped' to 'started'  (node = node2)
+info    120    node1/crm: service 'fa:130': state changed from 'stopped' to 'request_start'  (node = node2)
+info    120    node1/crm: service 'fa:130': state changed from 'request_start' to 'started'  (node = node2)
 info    123    node2/lrm: starting service fa:130
 warn    123    node2/lrm: unable to start service fa:130
 warn    123    node2/lrm: restart policy: retry number 1 for service 'fa:130'

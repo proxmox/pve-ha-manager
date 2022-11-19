@@ -209,6 +209,7 @@ sub compute_new_uuid {
 my $valid_service_states = {
     stopped => 1,
     request_stop => 1,
+    request_start => 1,
     started => 1,
     fence => 1,
     recovery => 1,
@@ -257,8 +258,8 @@ sub recompute_online_node_usage {
 	my $target = $sd->{target}; # optional
 	if ($online_node_usage->contains_node($sd->{node})) {
 	    if (
-		$state eq 'started' || $state eq 'request_stop' || $state eq 'fence' ||
-		$state eq 'freeze' || $state eq 'error' || $state eq 'recovery'
+		$state eq 'started' || $state eq 'request_stop' || $state eq 'fence'
+		|| $state eq 'freeze' || $state eq 'error' || $state eq 'recovery'
 	    ) {
 		$online_node_usage->add_service_usage_to_node($sd->{node}, $sid, $sd->{node});
 	    } elsif (($state eq 'migrate') || ($state eq 'relocate')) {
@@ -266,7 +267,7 @@ sub recompute_online_node_usage {
 		# count it for both, source and target as load is put on both
 		$online_node_usage->add_service_usage_to_node($source, $sid, $source, $target);
 		$online_node_usage->add_service_usage_to_node($target, $sid, $source, $target);
-	    } elsif ($state eq 'stopped') {
+	    } elsif ($state eq 'stopped' || $state eq 'request_start') {
 		# do nothing
 	    } else {
 		die "should not be reached (sid = '$sid', state = '$state')";
@@ -490,6 +491,10 @@ sub manage {
 
 		$self->next_state_started($sid, $cd, $sd, $lrm_res);
 
+	    } elsif ($last_state eq 'request_start') {
+
+		$self->next_state_request_start($sid, $cd, $sd, $lrm_res);
+
 	    } elsif ($last_state eq 'migrate' || $last_state eq 'relocate') {
 
 		$self->next_state_migrate_relocate($sid, $cd, $sd, $lrm_res);
@@ -651,7 +656,7 @@ sub next_state_stopped {
 	    } elsif ($sd->{node} eq $target) {
 		$haenv->log('info', "ignore service '$sid' $cmd request - service already on node '$target'");
 	    } else {
-		$change_service_state->($self, $sid, $cmd, node => $sd->{node}, target => $target);
+		&$change_service_state($self, $sid, $cmd, node => $sd->{node}, target => $target);
 		return;
 	    }
 	} elsif ($cmd eq 'stop') {
@@ -680,13 +685,18 @@ sub next_state_stopped {
     }
 
     if ($cd->{state} eq 'started') {
-	# simply mark it started, if it's on the wrong node
-	# next_state_started will fix that for us
-	&$change_service_state($self, $sid, 'started', node => $sd->{node});
+	# simply mark it started, if it's on the wrong node next_state_started will fix that for us
+	$change_service_state->($self, $sid, 'request_start', node => $sd->{node});
 	return;
     }
 
     $haenv->log('err', "service '$sid' - unknown state '$cd->{state}' in service configuration");
+}
+
+sub next_state_request_start {
+    my ($self, $sid, $cd, $sd, $lrm_res) = @_;
+
+    $change_service_state->($self, $sid, 'started', node => $sd->{node});
 }
 
 sub record_service_failed_on_node {

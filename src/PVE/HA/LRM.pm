@@ -273,6 +273,8 @@ sub active_service_count {
 	next if $req_state eq 'freeze';
 	# erroneous services are not managed by HA, don't count them as active
 	next if $req_state eq 'error';
+	# request_start is for (optional) better node selection for stop -> started transition
+	next if $req_state eq 'request_start';
 
 	$count++;
     }
@@ -568,6 +570,7 @@ sub run_workers {
 	    # higher try-count means higher priority especially compared to newly queued jobs, so
 	    # count every try to avoid starvation
 	    $w->{start_tries}++;
+	    # FIXME: should be last and ensure that check_active_workers is called sooner
 	    next if $count >= $max_workers && $max_workers > 0;
 
 	    # only fork if we may, else call exec_resource_agent directly (e.g. for tests)
@@ -642,6 +645,8 @@ sub manage_resources {
 	# we can just continue normally. But we must NOT do anything with it while still in recovery
 	next if $request_state eq 'recovery';
 	next if $request_state eq 'freeze';
+	# intermediate step for optional better node selection on stop -> start request state change
+	next if $request_state eq 'request_start';
 
 	$self->queue_resource_command($sid, $sd->{uid}, $request_state, {
 	    'target' => $sd->{target},
