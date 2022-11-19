@@ -451,7 +451,7 @@ sub manage {
 
 	$haenv->log('info', "adding new service '$sid' on node '$cd->{node}'");
 	# assume we are running to avoid relocate running service at add
-	my $state = ($cd->{state} eq 'started') ? 'started' : 'request_stop';
+	my $state = ($cd->{state} eq 'started') ? 'request_start' : 'request_stop';
 	$ss->{$sid} = {
 	    state => $state, node => $cd->{node}, uid => compute_new_uuid('started'),
 	};

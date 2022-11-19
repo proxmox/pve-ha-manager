@@ -15,6 +15,8 @@ info     20    node1/crm: node 'node2': state changed from 'unknown' => 'online'
 info     20    node1/crm: node 'node3': state changed from 'unknown' => 'online'
 info     20    node1/crm: adding new service 'ct:102' on node 'node3'
 info     20    node1/crm: adding new service 'vm:103' on node 'node3'
+info     20    node1/crm: service 'ct:102': state changed from 'request_start' to 'started'  (node = node3)
+info     20    node1/crm: service 'vm:103': state changed from 'request_start' to 'started'  (node = node3)
 info     22    node2/crm: status change wait_for_quorum => slave
 info     24    node3/crm: status change wait_for_quorum => slave
 info     25    node3/lrm: got lock 'ha_agent_node3_lock'

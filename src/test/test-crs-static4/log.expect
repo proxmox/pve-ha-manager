@@ -24,6 +24,15 @@ info     20    node1/crm: adding new service 'ct:106' on node 'node1'
 info     20    node1/crm: adding new service 'ct:107' on node 'node1'
 info     20    node1/crm: adding new service 'ct:108' on node 'node1'
 info     20    node1/crm: adding new service 'ct:109' on node 'node1'
+info     20    node1/crm: service 'ct:101': state changed from 'request_start' to 'started'  (node = node1)
+info     20    node1/crm: service 'ct:102': state changed from 'request_start' to 'started'  (node = node1)
+info     20    node1/crm: service 'ct:103': state changed from 'request_start' to 'started'  (node = node1)
+info     20    node1/crm: service 'ct:104': state changed from 'request_start' to 'started'  (node = node1)
+info     20    node1/crm: service 'ct:105': state changed from 'request_start' to 'started'  (node = node1)
+info     20    node1/crm: service 'ct:106': state changed from 'request_start' to 'started'  (node = node1)
+info     20    node1/crm: service 'ct:107': state changed from 'request_start' to 'started'  (node = node1)
+info     20    node1/crm: service 'ct:108': state changed from 'request_start' to 'started'  (node = node1)
+info     20    node1/crm: service 'ct:109': state changed from 'request_start' to 'started'  (node = node1)
 info     21    node1/lrm: got lock 'ha_agent_node1_lock'
 info     21    node1/lrm: status change wait_for_agent_lock => active
 info     21    node1/lrm: starting service ct:101

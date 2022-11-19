@@ -22,6 +22,9 @@ info    120    node1/crm: node 'node3': state changed from 'unknown' => 'online'
 info    120    node1/crm: adding new service 'vm:101' on node 'node1'
 info    120    node1/crm: adding new service 'vm:102' on node 'node2'
 info    120    node1/crm: adding new service 'vm:103' on node 'node3'
+info    120    node1/crm: service 'vm:101': state changed from 'request_start' to 'started'  (node = node1)
+info    120    node1/crm: service 'vm:102': state changed from 'request_start' to 'started'  (node = node2)
+info    120    node1/crm: service 'vm:103': state changed from 'request_start' to 'started'  (node = node3)
 info    121    node1/lrm: got lock 'ha_agent_node1_lock'
 info    121    node1/lrm: status change wait_for_agent_lock => active
 info    121    node1/lrm: starting service vm:101
