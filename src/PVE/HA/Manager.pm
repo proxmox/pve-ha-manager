@@ -40,7 +40,7 @@ sub new {
 
     my $class = ref($this) || $this;
 
-    my $self = bless { haenv => $haenv }, $class;
+    my $self = bless { haenv => $haenv, crs => {} }, $class;
 
     my $old_ms = $haenv->read_manager_status();
 
@@ -64,7 +64,7 @@ sub update_crs_scheduler_mode {
     my $haenv = $self->{haenv};
     my $dc_cfg = $haenv->get_datacenter_settings();
 
-    my $old_mode = $self->{'scheduler-mode'};
+    my $old_mode = $self->{crs}->{scheduler};
     my $new_mode = $dc_cfg->{crs}->{ha} || 'basic';
 
     if (!defined($old_mode)) {
@@ -75,7 +75,7 @@ sub update_crs_scheduler_mode {
 	$haenv->log('info', "switching scheduler mode from '$old_mode' to '$new_mode'");
     }
 
-    $self->{'scheduler-mode'} = $new_mode;
+    $self->{crs}->{scheduler} = $new_mode;
 
     return;
 }
@@ -229,7 +229,7 @@ sub recompute_online_node_usage {
 
     my $online_node_usage;
 
-    if (my $mode = $self->{'scheduler-mode'}) {
+    if (my $mode = $self->{crs}->{scheduler}) {
 	if ($mode eq 'static') {
 	    $online_node_usage = eval {
 		my $scheduler = PVE::HA::Usage::Static->new($haenv);
