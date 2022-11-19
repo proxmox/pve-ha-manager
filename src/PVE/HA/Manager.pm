@@ -53,7 +53,7 @@ sub new {
 
     $self->{ms} = { master_node => $haenv->nodename() };
 
-    $self->update_crs_scheduler_mode(); # initial se
+    $self->update_crs_scheduler_mode(); # initial set, we update it once every loop
 
     return $self;
 }
@@ -69,6 +69,10 @@ sub update_crs_scheduler_mode {
 
     if (!defined($old_mode)) {
 	$haenv->log('info', "using scheduler mode '$new_mode'") if $new_mode ne 'basic';
+    } elsif ($new_mode eq $old_mode) {
+	return; # nothing to do
+    } else {
+	$haenv->log('info', "switching scheduler mode from '$old_mode' to '$new_mode'");
     }
 
     $self->{'scheduler-mode'} = $new_mode;
@@ -429,6 +433,8 @@ sub manage {
 	$haenv->log('info', "master seems offline");
 	return;
     }
+
+    $self->update_crs_scheduler_mode();
 
     my $sc = $haenv->read_service_config();
 
