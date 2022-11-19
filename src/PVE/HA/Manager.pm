@@ -53,12 +53,27 @@ sub new {
 
     $self->{ms} = { master_node => $haenv->nodename() };
 
-    my $dc_cfg = $haenv->get_datacenter_settings();
-    $self->{'scheduler-mode'} = $dc_cfg->{crs}->{ha} ? $dc_cfg->{crs}->{ha} : 'basic';
-    $haenv->log('info', "using scheduler mode '$self->{'scheduler-mode'}'")
-	if $self->{'scheduler-mode'} ne 'basic';
+    $self->update_crs_scheduler_mode(); # initial se
 
     return $self;
+}
+
+sub update_crs_scheduler_mode {
+    my ($self) = @_;
+
+    my $haenv = $self->{haenv};
+    my $dc_cfg = $haenv->get_datacenter_settings();
+
+    my $old_mode = $self->{'scheduler-mode'};
+    my $new_mode = $dc_cfg->{crs}->{ha} || 'basic';
+
+    if (!defined($old_mode)) {
+	$haenv->log('info', "using scheduler mode '$new_mode'") if $new_mode ne 'basic';
+    }
+
+    $self->{'scheduler-mode'} = $new_mode;
+
+    return;
 }
 
 sub cleanup {
