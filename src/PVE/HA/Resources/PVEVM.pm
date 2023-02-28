@@ -179,13 +179,10 @@ sub get_static_stats {
     my ($class, $haenv, $id, $service_node) = @_;
 
     my $conf = PVE::QemuConfig->load_config($id, $service_node);
-    my $defaults = PVE::QemuServer::load_defaults();
-
-    my $cpus = ($conf->{sockets} || $defaults->{sockets}) * ($conf->{cores} || $defaults->{cores});
 
     return {
-	maxcpu => $conf->{vcpus} || $cpus,
-	maxmem => ($conf->{memory} || $defaults->{memory}) * 1024 * 1024,
+	maxcpu => PVE::QemuConfig->get_derived_property($conf, 'max-cpu'),
+	maxmem => PVE::QemuConfig->get_derived_property($conf, 'max-memory'),
     };
 }
 

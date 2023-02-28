@@ -158,8 +158,8 @@ sub get_static_stats {
     my $conf = PVE::LXC::Config->load_config($id, $service_node);
 
     return {
-	maxcpu => $conf->{cpulimit} || $conf->{cores} || 0,
-	maxmem => ($conf->{memory} || 512) * 1024 * 1024,
+	maxcpu => PVE::LXC::Config->get_derived_property($conf, 'max-cpu'),
+	maxmem => PVE::LXC::Config->get_derived_property($conf, 'max-memory'),
     };
 }
 
