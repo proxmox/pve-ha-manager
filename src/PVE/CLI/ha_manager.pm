@@ -110,6 +110,35 @@ __PACKAGE__->register_method ({
 	return undef;
     }});
 
+__PACKAGE__->register_method ({
+    name => 'node-maintenance-set',
+    path => 'node-maintenance-set',
+    method => 'POST',
+    description => "Change the node-maintenance request state.",
+    permissions => {
+	check => ['perm', '/', [ 'Sys.Console' ]],
+    },
+    parameters => {
+	additionalProperties => 0,
+	properties => {
+	    node => get_standard_option('pve-node'),
+	    disable => {
+		description => "Requests disabling or enabling maintenance-mode.",
+		type => 'boolean',
+	    },
+	},
+    },
+    returns => { type => 'null' },
+    code => sub {
+	my ($param) = @_;
+
+	my $cmd = $param->{disable} ? 'disable-node-maintenance' : 'enable-node-maintenance';
+	PVE::HA::Config::queue_crm_commands("$cmd $param->{node}");
+
+	return undef;
+    }
+});
+
 our $cmddef = {
     status => [ __PACKAGE__, 'status'],
     config => [ 'PVE::API2::HA::Resources', 'index', [], {}, sub {
@@ -155,6 +184,10 @@ our $cmddef = {
 	migrate => [ "PVE::API2::HA::Resources", 'migrate', ['sid', 'node'] ],
 	relocate => [ "PVE::API2::HA::Resources", 'relocate', ['sid', 'node'] ],
 	stop => [ __PACKAGE__, 'stop', ['sid', 'timeout'] ],
+	'node-maintenance' => {
+	    enable => [ __PACKAGE__, 'node-maintenance-set', ['node'], { disable => 0 } ],
+	    disable => [ __PACKAGE__, 'node-maintenance-set', ['node'], { disable => 1 } ],
+	},
     }
 
 };
