@@ -392,8 +392,11 @@ sub work {
 	if ($fence_request) {
 	    $haenv->log('err', "node need to be fenced during maintenance mode - releasing agent_lock\n");
 	    $self->set_local_status({ state => 'lost_agent_lock'});
-	} elsif (!$self->get_protected_ha_agent_lock()) {
-	    $self->set_local_status({ state => 'lost_agent_lock'});
+	} elsif ($self->active_service_count() || $self->run_workers()) {
+	    # keep the lock and watchdog as long as not all services cleared the node
+	    if (!$self->get_protected_ha_agent_lock()) {
+		$self->set_local_status({ state => 'lost_agent_lock'});
+	    }
 	}
     }
 
@@ -522,16 +525,16 @@ sub work {
 
 	my $exit_lrm = 0;
 
-	if ($self->{shutdown_request}) {
-	    if ($service_count == 0 && $self->run_workers() == 0) {
-		# safety: going into maintenance and all active services got moved -> OK
-		give_up_watchdog_protection($self);
+	if ($service_count == 0 && $self->run_workers() == 0) {
+	    # safety: going into maintenance and all active services got moved -> OK
+	    give_up_watchdog_protection($self);
 
+	    if ($self->{shutdown_request}) {
 		$exit_lrm = 1;
-
-		# restart with no or freezed services, release the lock
-		$haenv->release_ha_agent_lock();
 	    }
+
+	    # maintenance mode with no or only frozen services anymore, release the lock
+	    $haenv->release_ha_agent_lock();
 	}
 
 	$self->manage_resources() if !$exit_lrm;
