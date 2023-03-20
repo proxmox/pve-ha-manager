@@ -143,7 +143,7 @@ sub get_node_priority_groups {
 }
 
 sub select_service_node {
-    my ($groups, $online_node_usage, $sid, $service_conf, $current_node, $try_next, $tried_nodes, $maintenance_fallback) = @_;
+    my ($groups, $online_node_usage, $sid, $service_conf, $current_node, $try_next, $tried_nodes, $maintenance_fallback, $best_scored) = @_;
 
     my $group = get_service_group($groups, $online_node_usage, $service_conf);
 
@@ -153,7 +153,7 @@ sub select_service_node {
     return undef if !scalar(@pri_list);
 
     # stay on current node if possible (avoids random migrations)
-    if (!$try_next && $group->{nofailback} && defined($group_members->{$current_node})) {
+    if ((!$try_next && !$best_scored) && $group->{nofailback} && defined($group_members->{$current_node})) {
 	return $current_node;
     }
 
@@ -171,7 +171,7 @@ sub select_service_node {
     return $maintenance_fallback
 	if defined($maintenance_fallback) && $pri_groups->{$top_pri}->{$maintenance_fallback};
 
-    return $current_node if !$try_next && $pri_groups->{$top_pri}->{$current_node};
+    return $current_node if (!$try_next && !$best_scored) && $pri_groups->{$top_pri}->{$current_node};
 
     my $scores = $online_node_usage->score_nodes_to_start_service($sid, $current_node);
     my @nodes = sort {
@@ -187,7 +187,7 @@ sub select_service_node {
     }
 
     if ($try_next) {
-	if (defined($found) && ($found < (scalar(@nodes) - 1))) {
+	if (!$best_scored && defined($found) && ($found < (scalar(@nodes) - 1))) {
 	    return $nodes[$found + 1];
 	} else {
 	    return $nodes[0];
