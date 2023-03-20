@@ -773,7 +773,7 @@ sub next_state_started {
 		    # store flag to indicate successful start - only valid while state == 'started'
 		    $sd->{running} = 1;
 
-		} elsif ($ec == ERROR) {
+		} elsif ($ec == ERROR || $ec == EWRONG_NODE) {
 
 		    delete $sd->{running};
 
