@@ -336,7 +336,8 @@ sub read_static_service_stats {
     my ($self) = @_;
 
     my $filename = "$self->{statusdir}/static_service_stats";
-    my $stats = PVE::HA::Tools::read_json_from_file($filename);
+    my $stats = eval { PVE::HA::Tools::read_json_from_file($filename) };
+    $self->log('error', "loading static service stats failed - $@") if $@;
 
     return $stats;
 }
