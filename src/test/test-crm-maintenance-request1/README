@@ -1,0 +1,2 @@
+Test setting the maintenance mode for a node manually, then reboot it and
+ensure that maintenance mode doesn't get cleared automatically that way.

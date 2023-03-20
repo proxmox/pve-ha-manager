@@ -417,6 +417,26 @@ sub update_crm_commands {
 	    } else {
 		$haenv->log('err', "crm command error - no such service: $cmd");
 	    }
+	} elsif ($cmd =~ m/^enable-node-maintenance\s+(\S+)$/) {
+	    my $node = $1;
+
+	    my $state = $ns->get_node_state($node);
+	    if ($state eq 'online') {
+		$ms->{node_request}->{$node}->{maintenance} = 1;
+	    } elsif ($state eq 'maintenance') {
+		$haenv->log('info', "ignoring crm command - node $node is already in maintenance state");
+	    } else {
+		$haenv->log('err', "crm command error - node not online: $cmd");
+	    }
+	} elsif ($cmd =~ m/^disable-node-maintenance\s+(\S+)$/) {
+	    my $node = $1;
+
+	    my $state = $ns->get_node_state($node);
+	    if ($state ne 'maintenance') {
+		$haenv->log(
+		    'warn', "clearing maintenance of node $node requested, but it's in state $state");
+	    }
+	    delete $ms->{node_request}->{$node}->{maintenance}; # gets flushed out at the end of the CRM loop
 	} else {
 	    $haenv->log('err', "unable to parse crm command: $cmd");
 	}

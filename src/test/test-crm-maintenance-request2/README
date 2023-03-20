@@ -1,0 +1,9 @@
+Test that setting the maintenance mode for a offline node (node3) manually fails, then re-power it
+(node3) and enable mainteancne mode for an online node (node2). Now trigger a manual migrate of the
+for maintenance moved service. Disable maitenance mode again (node2) and currently the HA stack will
+migrate the service that got moved twice, once automatically for maintenance and once manually, back
+due to the maitenance fail-back logic.
+
+If that is the right behavior, or if a manual migration should clear any maintenance fallback might
+be up for debate, this test just encodes the actual current behavior to ensure its not changed by
+mistake.

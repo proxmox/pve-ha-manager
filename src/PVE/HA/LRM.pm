@@ -188,6 +188,17 @@ sub update_service_status {
 	$self->{service_status} = $ms->{service_status} || {};
 	my $nodename = $haenv->nodename();
 	$self->{node_status} = $ms->{node_status}->{$nodename} || 'unknown';
+
+	# FIXME: method name is a bit confusing for doing this, either rename or move
+	if (!$self->{shutdown_request}) {
+	    my $request = $ms->{node_request}->{$nodename} // {};
+	    if ($request->{maintenance}) {
+		$self->{mode} = 'maintenance';
+	    } elsif ($self->{mode} eq 'maintenance') {
+		$self->{mode} = 'active';
+	    }
+	}
+
 	return 1;
     }
 }
@@ -395,6 +406,13 @@ sub work {
 	} elsif ($self->active_service_count() || $self->run_workers()) {
 	    # keep the lock and watchdog as long as not all services cleared the node
 	    if (!$self->get_protected_ha_agent_lock()) {
+		$self->set_local_status({ state => 'lost_agent_lock'});
+	    }
+	} elsif (!$self->is_maintenance_requested()) {
+	    # empty && no maintenance mode && not exited -> need to switch active again
+	    if ($self->get_protected_ha_agent_lock()) {
+		$self->set_local_status({ state => 'active' });
+	    } else {
 		$self->set_local_status({ state => 'lost_agent_lock'});
 	    }
 	}

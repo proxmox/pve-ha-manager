@@ -663,6 +663,8 @@ sub sim_hardware_cmd {
 		}
 	    } elsif ($action eq 'start') {
 		$d->{crm} = $self->crm_control('start', $d, $lock_fh) if !defined($d->{crm});
+	    } elsif ($action eq 'enable-node-maintenance' || $action eq 'disable-node-maintenance') {
+		$self->queue_crm_commands_nolock("$action $node");
 	    } else {
 		die "sim_hardware_cmd: unknown action '$action'";
 	    }

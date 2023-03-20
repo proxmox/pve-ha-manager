@@ -1,0 +1,7 @@
+[
+    [ "power node1 on", "power node2 on", "power node3 on"],
+    [ "crm node3 enable-node-maintenance" ],
+    [ "power node3 off" ],
+    [ "power node3 on" ],
+    [ "crm node3 disable-node-maintenance" ]
+]
