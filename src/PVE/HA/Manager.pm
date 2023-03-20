@@ -251,7 +251,7 @@ sub recompute_online_node_usage {
 	$online_node_usage->add_node($_) for $online_nodes->@*;
     }
 
-    foreach my $sid (keys %{$self->{ss}}) {
+    foreach my $sid (sort keys %{$self->{ss}}) {
 	my $sd = $self->{ss}->{$sid};
 	my $state = $sd->{state};
 	my $target = $sd->{target}; # optional
