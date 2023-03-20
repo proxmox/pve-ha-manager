@@ -253,6 +253,13 @@ sub is_fence_requested {
     return $fenced_services || $self->{node_status} eq 'fence';
 }
 
+sub is_maintenance_requested {
+    my ($self) = @_;
+
+    # shutdown maintenance or manual request
+    return $self->{mode} eq 'maintenance';
+}
+
 sub active_service_count {
     my ($self) = @_;
 
@@ -362,7 +369,7 @@ sub work {
 	    $self->set_local_status({ state => 'lost_agent_lock'});
 	} elsif (!$self->get_protected_ha_agent_lock()) {
 	    $self->set_local_status({ state => 'lost_agent_lock'});
-	} elsif ($self->{mode} eq 'maintenance') {
+	} elsif ($self->is_maintenance_requested()) {
 	    $self->set_local_status({ state => 'maintenance'});
 	} else {
 	    if (!$self->has_configured_service_on_local_node() && !$self->run_workers()) {
