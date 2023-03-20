@@ -48,7 +48,7 @@ info    205    node3/lrm: starting service fa:130
 warn    205    node3/lrm: unable to start service fa:130
 err     205    node3/lrm: unable to start service fa:130 on local node after 0 retries
 warn    220    node1/crm: starting service fa:130 on node 'node3' failed, relocating service.
-warn    220    node1/crm: Start Error Recovery: Tried all available  nodes for service 'fa:130', retry start on current node. Tried nodes: node2, node1, node3
+warn    220    node1/crm: Start Error Recovery: Tried all available nodes for service 'fa:130', retry start on current node. Tried nodes: node2, node1, node3
 info    225    node3/lrm: starting service fa:130
 info    225    node3/lrm: service status fa:130 started
 info    240    node1/crm: relocation policy successful for 'fa:130' on node 'node3', failed nodes: node2, node1, node3

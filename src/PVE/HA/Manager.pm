@@ -2,6 +2,7 @@ package PVE::HA::Manager;
 
 use strict;
 use warnings;
+
 use Digest::MD5 qw(md5_base64);
 
 use PVE::Tools;
@@ -325,8 +326,7 @@ my $change_service_state = sub {
     $sd->{uid} = compute_new_uuid($new_state);
 
     $text_state = "  ($text_state)" if $text_state;
-    $haenv->log('info', "service '$sid': state changed from '${old_state}'" .
-		" to '${new_state}'$text_state");
+    $haenv->log('info', "service '$sid': state changed from '${old_state}' to '${new_state}'$text_state");
 };
 
 # clean up a possible bad state from a recovered service to allow its start
@@ -751,8 +751,7 @@ sub next_state_started {
 	if ($ns->get_node_state($sd->{node}) ne 'maintenance') {
 	    return;
 	} else {
-	    # save current node as fallback for when it comes out of
-	    # maintenance
+	    # save current node as fallback for when it comes out of maintenance
 	    $sd->{maintenance_node} = $sd->{node};
 	}
     }
@@ -838,8 +837,7 @@ sub next_state_started {
 		} else {
 		    $self->record_service_failed_on_node($sid, $sd->{node});
 
-		    $haenv->log('err', "service '$sid' got unrecoverable error" .
-				" (exit code $ec))");
+		    $haenv->log('err', "service '$sid' got unrecoverable error (exit code $ec))");
 		    # we have no save way out (yet) for other errors
 		    &$change_service_state($self, $sid, 'error');
 		    return;
@@ -862,7 +860,10 @@ sub next_state_started {
 
 		if (defined(my $fallback = $sd->{maintenance_node})) {
 		    if ($node eq $fallback) {
-			$haenv->log('info', "moving service '$sid' back to '$fallback', node came back from maintenance.");
+			$haenv->log(
+			    'info',
+			    "moving service '$sid' back to '$fallback', node came back from maintenance.",
+			);
 			delete $sd->{maintenance_node};
 		    } elsif ($sd->{node} ne $fallback) {
 			$haenv->log('info', "dropping maintenance fallback node '$fallback' for '$sid'");
@@ -879,9 +880,12 @@ sub next_state_started {
 		}
 	    } else {
 		if ($try_next && !defined($node)) {
-		    $haenv->log('warning', "Start Error Recovery: Tried all available " .
-		                " nodes for service '$sid', retry start on current node. " .
-		                "Tried nodes: " . join(', ', @{$sd->{failed_nodes}}));
+		    $haenv->log(
+			'warning',
+			"Start Error Recovery: Tried all available nodes for service '$sid', retry"
+			    ." start on current node. Tried nodes: " . join(', ', @{$sd->{failed_nodes}},
+			)
+		    );
 		}
 		# ensure service get started again if it went unexpected down
 		# but ensure also no LRM result gets lost
