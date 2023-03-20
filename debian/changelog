@@ -1,3 +1,22 @@
+pve-ha-manager (3.6.0) bullseye; urgency=medium
+
+  * fix #4371: add CRM command to switch an online node manually into
+    maintenance (without reboot), moving away all active services, but
+    automatically migrate them back once the maintenance mode is disabled
+    again.
+
+  * manager: service start: make EWRONG_NODE a non-fatal error, but try to
+    find its the actual node the service is residing on
+
+  * manager: add new intermediate 'request_started' state for stop->start
+    transitions
+
+  * request start: optionally enable automatic selection of the best rated
+    node by the CRS on service start up, bypassing the very high priority of
+    the current node on which a service is located.
+
+ -- Proxmox Support Team <support@proxmox.com>  Mon, 20 Mar 2023 13:38:26 +0100
+
 pve-ha-manager (3.5.1) bullseye; urgency=medium
 
   * manager: update crs scheduling mode once per round to avoid the need for a
