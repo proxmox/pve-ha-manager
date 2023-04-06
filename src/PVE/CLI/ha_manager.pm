@@ -132,6 +132,8 @@ __PACKAGE__->register_method ({
     code => sub {
 	my ($param) = @_;
 
+	PVE::Cluster::check_node_exists($param->{node});
+
 	my $cmd = $param->{disable} ? 'disable-node-maintenance' : 'enable-node-maintenance';
 	PVE::HA::Config::queue_crm_commands("$cmd $param->{node}");
 
