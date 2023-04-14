@@ -19,12 +19,13 @@ use constant {
     EUNKNOWN_COMMAND => 5,
     EINVALID_PARAMETER => 6,
     EUNKNOWN_SERVICE => 7, # service not found
+    IGNORED => 8, # action was ignored for some good reason
 };
 
 # get constants out of package in a somewhat easy way
 use base 'Exporter';
 our @EXPORT_OK = qw(SUCCESS ERROR EWRONG_NODE EUNKNOWN_SERVICE_TYPE
- EUNKNOWN_COMMAND EINVALID_PARAMETER ETRY_AGAIN EUNKNOWN_SERVICE);
+ EUNKNOWN_COMMAND EINVALID_PARAMETER ETRY_AGAIN EUNKNOWN_SERVICE IGNORED);
 our %EXPORT_TAGS = ( 'exit_codes' => [@EXPORT_OK] );
 
 PVE::JSONSchema::register_format('pve-ha-resource-id', \&pve_verify_ha_resource_id);
