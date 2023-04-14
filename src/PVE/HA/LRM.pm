@@ -962,6 +962,11 @@ sub exec_resource_agent {
 	    return SUCCESS;
 	}
 
+	if ($cmd eq 'request_start_balance' && $running) {
+	    $haenv->log("info", "ignoring rebalance-on-start for service $sid - already running");
+	    return IGNORED;
+	}
+
 	my $online = ($cmd eq 'migrate') ? 1 : 0;
 
 	my $res = $plugin->migrate($haenv, $id, $target, $online);

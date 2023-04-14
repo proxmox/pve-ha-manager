@@ -648,6 +648,12 @@ sub next_state_migrate_relocate {
 	    $haenv->log('err', "service '$sid' - migration failed: service" .
 			" registered on wrong node!");
 	    &$change_service_state($self, $sid, 'error');
+	} elsif ($exit_code == IGNORED) {
+	    $haenv->log(
+		"info",
+		"service '$sid' - rebalance-on-start request ignored - service already running",
+	    );
+	    $change_service_state->($self, $sid, $req_state, node => $sd->{node});
 	} else {
 	    $haenv->log('err', "service '$sid' - migration failed (exit code $exit_code)");
 	    &$change_service_state($self, $sid, $req_state, node => $sd->{node});
