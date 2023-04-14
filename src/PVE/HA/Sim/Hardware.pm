@@ -563,7 +563,8 @@ sub get_cfs_state {
 #   service <sid> <migrate|relocate> <target>
 #   service <sid> stop <timeout>
 #   service <sid> lock/unlock [lockname]
-#   service <sid> <add|delete>
+#   service <sid> add <node> [<request-state=started>]
+#   service <sid> delete
 sub sim_hardware_cmd {
     my ($self, $cmdstr, $logid) = @_;
 
