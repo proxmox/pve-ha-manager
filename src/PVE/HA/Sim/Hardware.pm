@@ -171,7 +171,7 @@ sub set_service_state {
 }
 
 sub add_service {
-    my ($self, $sid, $opts) = @_;
+    my ($self, $sid, $opts, $running) = @_;
 
     my $conf = $self->read_service_config();
     die "resource ID '$sid' already defined\n" if $conf->{$sid};
@@ -180,6 +180,10 @@ sub add_service {
     $conf->{$sid}->@{qw(type name)} = split(/:/, $sid);
 
     $self->write_service_config($conf);
+
+    my $ss = $self->read_service_status($opts->{node});
+    $ss->{$sid} = $running;
+    $self->write_service_status($opts->{node}, $ss);
 
     return $conf;
 }
@@ -563,7 +567,7 @@ sub get_cfs_state {
 #   service <sid> <migrate|relocate> <target>
 #   service <sid> stop <timeout>
 #   service <sid> lock/unlock [lockname]
-#   service <sid> add <node> [<request-state=started>]
+#   service <sid> add <node> [<request-state=started>] [<running=0>]
 #   service <sid> delete
 sub sim_hardware_cmd {
     my ($self, $cmdstr, $logid) = @_;
@@ -691,8 +695,11 @@ sub sim_hardware_cmd {
 		$self->queue_crm_commands_nolock("$action $sid $param");
 
 	    } elsif ($action eq 'add') {
-
-		$self->add_service($sid, {state => $params[1] || 'started', node => $param});
+		$self->add_service(
+		    $sid,
+		    {state => $params[1] || 'started', node => $param},
+		    $params[2] || 0,
+		);
 
 	    } elsif ($action eq 'delete') {
 
