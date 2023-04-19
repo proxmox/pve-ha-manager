@@ -1,0 +1,3 @@
+Test setting the maintenance mode for the node that is the current active
+master manually, then reboot it and ensure that maintenance mode doesn't get
+cleared automatically that way.
