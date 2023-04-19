@@ -54,6 +54,10 @@ sub new {
 
     $self->{ms} = { master_node => $haenv->nodename() };
 
+    # take over node request state to ensure a node in (manual) maintenance mode stays that way
+    # on change of active master.
+    $self->{ms}->{node_request} = $old_ms->{node_request} if defined($old_ms->{node_request});
+
     $self->update_crs_scheduler_mode(); # initial set, we update it once every loop
 
     return $self;

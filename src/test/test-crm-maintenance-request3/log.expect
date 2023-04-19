@@ -56,15 +56,4 @@ info    320      cmdlist: execute power node1 on
 info    320    node1/crm: status change startup => wait_for_quorum
 info    320    node1/lrm: status change startup => wait_for_agent_lock
 info    320    node1/crm: status change wait_for_quorum => slave
-info    322    node2/crm: node 'node1': state changed from 'maintenance' => 'online'
-info    322    node2/crm: moving service 'vm:101' back to 'node1', node came back from maintenance.
-info    322    node2/crm: migrate service 'vm:101' to node 'node1' (running)
-info    322    node2/crm: service 'vm:101': state changed from 'started' to 'migrate'  (node = node2, target = node1)
-info    323    node2/lrm: service vm:101 - start migrate to node 'node1'
-info    323    node2/lrm: service vm:101 - end migrate to node 'node1'
-info    342    node2/crm: service 'vm:101': state changed from 'migrate' to 'started'  (node = node1)
-info    361    node1/lrm: got lock 'ha_agent_node1_lock'
-info    361    node1/lrm: status change wait_for_agent_lock => active
-info    361    node1/lrm: starting service vm:101
-info    361    node1/lrm: service status vm:101 started
 info    920     hardware: exit simulation - done
