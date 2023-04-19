@@ -1,0 +1,4 @@
+Test setting the maintenance mode for a node with coniditional maintenance mode
+set, then reboot it and ensure that maintenance mode doesn't get cleared during
+the stop process by enforcing conditional mode even if the node should be
+already in maintenance (i.e., nothing to move) automatically that way.
