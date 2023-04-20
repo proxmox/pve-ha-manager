@@ -1,3 +1,18 @@
+pve-ha-manager (3.6.1) bullseye; urgency=medium
+
+  * cli: assert that node exist when changing CRS request state to avoid
+    creating a phantom node by mistake
+
+  * manager: ensure node-request state gets transferred to new active CRM, so
+    that the request for (manual) maintenance mode is upheld, even if the node
+    that is in maintenace mode is also the current active CRM and gets
+    rebooted.
+
+  * lrm: ignore shutdown policy if (manual) maintenance mode is requested to
+    avoid exiting from maintenance mode to early.
+
+ -- Proxmox Support Team <support@proxmox.com>  Thu, 20 Apr 2023 14:16:14 +0200
+
 pve-ha-manager (3.6.0) bullseye; urgency=medium
 
   * fix #4371: add CRM command to switch an online node manually into
