@@ -2,6 +2,7 @@ package PVE::HA::Config;
 
 use strict;
 use warnings;
+
 use JSON;
 
 use PVE::HA::Tools;
@@ -15,21 +16,24 @@ my $ha_resources_config = "ha/resources.cfg";
 my $crm_commands_filename = "ha/crm_commands";
 my $ha_fence_config = "ha/fence.cfg";
 
-cfs_register_file($crm_commands_filename,
-		  sub { my ($fn, $raw) = @_; return defined($raw) ? $raw : ''; },
-		  sub { my ($fn, $raw) = @_; return $raw; });
-cfs_register_file($ha_groups_config,
-		  sub { PVE::HA::Groups->parse_config(@_); },
-		  sub { PVE::HA::Groups->write_config(@_); });
-cfs_register_file($ha_resources_config,
-		  sub { PVE::HA::Resources->parse_config(@_); },
-		  sub { PVE::HA::Resources->write_config(@_); });
-cfs_register_file($manager_status_filename,
-		  \&json_reader,
-		  \&json_writer);
-cfs_register_file($ha_fence_config,
-		  \&PVE::HA::FenceConfig::parse_config,
-		  \&PVE::HA::FenceConfig::write_config);
+cfs_register_file(
+    $crm_commands_filename,
+    sub { my ($fn, $raw) = @_; return defined($raw) ? $raw : ''; },
+    sub { my ($fn, $raw) = @_; return $raw; },
+);
+cfs_register_file(
+    $ha_groups_config,
+    sub { PVE::HA::Groups->parse_config(@_); },
+    sub { PVE::HA::Groups->write_config(@_); },
+);
+cfs_register_file(
+    $ha_resources_config,
+    sub { PVE::HA::Resources->parse_config(@_); },
+    sub { PVE::HA::Resources->write_config(@_); },
+);
+cfs_register_file($manager_status_filename, \&json_reader, \&json_writer);
+cfs_register_file(
+    $ha_fence_config, \&PVE::HA::FenceConfig::parse_config, \&PVE::HA::FenceConfig::write_config);
 
 sub json_reader {
     my ($filename, $data) = @_;
