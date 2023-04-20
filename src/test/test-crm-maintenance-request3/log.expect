@@ -43,7 +43,7 @@ info    163    node2/lrm: starting service vm:101
 info    163    node2/lrm: service status vm:101 started
 info    220      cmdlist: execute shutdown node1
 info    220    node1/lrm: got shutdown request with shutdown policy 'migrate'
-info    220    node1/lrm: shutdown LRM, doing maintenance, removing this node from active list
+info    220    node1/lrm: shutdown LRM, ignore maintenance policy, already in maintenance mode
 info    222    node1/lrm: exit (loop end)
 info    222     shutdown: execute crm node1 stop
 info    221    node1/crm: server received shutdown request

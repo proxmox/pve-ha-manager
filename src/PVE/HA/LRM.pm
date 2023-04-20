@@ -104,7 +104,19 @@ sub shutdown_request {
 
     if ($shutdown) {
 	my $shutdown_type = $reboot ? 'reboot' : 'shutdown';
-	if ($maintenance) {
+	if ($self->is_maintenance_requested()) {
+	    if ($maintenance) {
+		$haenv->log(
+		    'info',
+		    "$shutdown_type LRM, ignore maintenance policy, already in maintenance mode",
+		);
+	    } else {
+		$haenv->log(
+		    'info',
+		    "$shutdown_type LRM, ignore $shutdown_policy policy as manual maintenance mode is enabled",
+		);
+	    }
+	} elsif ($maintenance) {
 	    $haenv->log('info', "$shutdown_type LRM, doing maintenance, removing this node from active list");
 	    $self->{mode} = 'maintenance';
 	} elsif ($freeze_all) {
@@ -114,6 +126,9 @@ sub shutdown_request {
 	    $haenv->log('info', "shutdown LRM, stop all services");
 	    $self->{mode} = 'shutdown';
 	}
+    } elsif ($self->is_maintenance_requested()) {
+	$haenv->log('
+	    info', "Restarting LRM in maintenance mode may be delayed until all services are moved");
     } else {
 	$haenv->log('info', "restart LRM, freeze all services");
 	$self->{mode} = 'restart';
