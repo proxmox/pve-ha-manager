@@ -37,7 +37,7 @@ sub new {
 	restart_tries => {},
 	shutdown_request => 0,
 	shutdown_errors => 0,
-	# mode can be: active, reboot, shutdown, restart
+	# mode can be: active, reboot, shutdown, restart, maintenance
 	mode => 'active',
 	cluster_state_update => 0,
 	active_idle_rounds => 0,
