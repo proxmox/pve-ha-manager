@@ -2,16 +2,16 @@ PACKAGE=pve-ha-manager
 SIMPACKAGE=pve-ha-simulator
 
 PREFIX=/usr
-BINDIR=${PREFIX}/bin
-SBINDIR=${PREFIX}/sbin
-MANDIR=${PREFIX}/share/man
-DOCDIR=${PREFIX}/share/doc/${PACKAGE}
-SIMDOCDIR=${PREFIX}/share/doc/${SIMPACKAGE}
-MAN1DIR=${MANDIR}/man1/
-MAN8DIR=${MANDIR}/man8/
-BASHCOMPLDIR=${PREFIX}/share/bash-completion/completions/
-ZSHCOMPLDIR=${PREFIX}/share/zsh/vendor-completions/
-export PERLDIR=${PREFIX}/share/perl5
+BINDIR=$(PREFIX)/bin
+SBINDIR=$(PREFIX)/sbin
+MANDIR=$(PREFIX)/share/man
+DOCDIR=$(PREFIX)/share/doc/$(PACKAGE)
+SIMDOCDIR=$(PREFIX)/share/doc/$(SIMPACKAGE)
+MAN1DIR=$(MANDIR)/man1/
+MAN8DIR=$(MANDIR)/man8/
+BASHCOMPLDIR=$(PREFIX)/share/bash-completion/completions/
+ZSHCOMPLDIR=$(PREFIX)/share/zsh/vendor-completions/
+export PERLDIR=$(PREFIX)/share/perl5
 
 # this requires package pve-doc-generator
 export NOVIEW=1
@@ -52,29 +52,29 @@ install: watchdog-mux pve-ha-crm pve-ha-lrm ha-manager.1 pve-ha-crm.8 pve-ha-lrm
 	PVE_GENERATING_DOCS=1 perl -I. -T -e "use PVE::Service::pve_ha_crm; PVE::Service::pve_ha_crm->verify_api();"
 	PVE_GENERATING_DOCS=1 perl -I. -T -e "use PVE::Service::pve_ha_lrm; PVE::Service::pve_ha_lrm->verify_api();"
 	PVE_GENERATING_DOCS=1 perl -I. -T -e "use PVE::CLI::ha_manager; PVE::CLI::ha_manager->verify_api();"
-	install -d ${DESTDIR}${SBINDIR}
-	install -m 0755 pve-ha-crm ${DESTDIR}${SBINDIR}
-	install -m 0755 pve-ha-lrm ${DESTDIR}${SBINDIR}
-	install -m 0755 ha-manager ${DESTDIR}${SBINDIR}
-	install -m 0755 watchdog-mux ${DESTDIR}${SBINDIR}
-	install -d ${DESTDIR}${BINDIR}
-	install -m 0755 pve-ha-simulator ${DESTDIR}${BINDIR}
-	install -m 0644 -D pve-ha-crm.bash-completion ${DESTDIR}${BASHCOMPLDIR}/pve-ha-crm
-	install -m 0644 -D pve-ha-lrm.bash-completion ${DESTDIR}${BASHCOMPLDIR}/pve-ha-lrm
-	install -m 0644 -D ha-manager.bash-completion ${DESTDIR}${BASHCOMPLDIR}/ha-manager
-	install -m 0644 -D pve-ha-crm.zsh-completion ${DESTDIR}${ZSHCOMPLDIR}/_pve-ha-crm
-	install -m 0644 -D pve-ha-lrm.zsh-completion ${DESTDIR}${ZSHCOMPLDIR}/_pve-ha-lrm
-	install -m 0644 -D ha-manager.zsh-completion ${DESTDIR}${ZSHCOMPLDIR}/_ha-manager
+	install -d $(DESTDIR)$(SBINDIR)
+	install -m 0755 pve-ha-crm $(DESTDIR)$(SBINDIR)
+	install -m 0755 pve-ha-lrm $(DESTDIR)$(SBINDIR)
+	install -m 0755 ha-manager $(DESTDIR)$(SBINDIR)
+	install -m 0755 watchdog-mux $(DESTDIR)$(SBINDIR)
+	install -d $(DESTDIR)$(BINDIR)
+	install -m 0755 pve-ha-simulator $(DESTDIR)$(BINDIR)
+	install -m 0644 -D pve-ha-crm.bash-completion $(DESTDIR)$(BASHCOMPLDIR)/pve-ha-crm
+	install -m 0644 -D pve-ha-lrm.bash-completion $(DESTDIR)$(BASHCOMPLDIR)/pve-ha-lrm
+	install -m 0644 -D ha-manager.bash-completion $(DESTDIR)$(BASHCOMPLDIR)/ha-manager
+	install -m 0644 -D pve-ha-crm.zsh-completion $(DESTDIR)$(ZSHCOMPLDIR)/_pve-ha-crm
+	install -m 0644 -D pve-ha-lrm.zsh-completion $(DESTDIR)$(ZSHCOMPLDIR)/_pve-ha-lrm
+	install -m 0644 -D ha-manager.zsh-completion $(DESTDIR)$(ZSHCOMPLDIR)/_ha-manager
 	make -C PVE install
-	make -C PVE PERLDIR=${PREFIX}/share/${SIMPACKAGE} installsim
-	install -d ${DESTDIR}/${MAN8DIR}
-	install -m 0644 pve-ha-crm.8 ${DESTDIR}/${MAN8DIR}
-	gzip -9 ${DESTDIR}/${MAN8DIR}/pve-ha-crm.8
-	install -m 0644 pve-ha-lrm.8 ${DESTDIR}/${MAN8DIR}
-	gzip -9 ${DESTDIR}/${MAN8DIR}/pve-ha-lrm.8
-	install -d ${DESTDIR}/${MAN1DIR}
-	install -m 0644 ha-manager.1 ${DESTDIR}/${MAN1DIR}
-	gzip -9 ${DESTDIR}/${MAN1DIR}/ha-manager.1
+	make -C PVE PERLDIR=$(PREFIX)/share/$(SIMPACKAGE) installsim
+	install -d $(DESTDIR)/$(MAN8DIR)
+	install -m 0644 pve-ha-crm.8 $(DESTDIR)/$(MAN8DIR)
+	gzip -9 $(DESTDIR)/$(MAN8DIR)/pve-ha-crm.8
+	install -m 0644 pve-ha-lrm.8 $(DESTDIR)/$(MAN8DIR)
+	gzip -9 $(DESTDIR)/$(MAN8DIR)/pve-ha-lrm.8
+	install -d $(DESTDIR)/$(MAN1DIR)
+	install -m 0644 ha-manager.1 $(DESTDIR)/$(MAN1DIR)
+	gzip -9 $(DESTDIR)/$(MAN1DIR)/ha-manager.1
 
 .PHONY: test
 test: 
