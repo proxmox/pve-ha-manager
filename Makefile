@@ -55,6 +55,6 @@ clean:
 distclean: clean
 
 .PHONY: upload
+upload: UPLOAD_DIST ?= $(DEB_DISTRIBUTION)
 upload: $(DEB) $(SIMDEB)
-	tar cf - $(DEB) $(DBG_DEB) $(SIMDEB)|ssh repoman@repo.proxmox.com -- upload --product pve --dist bullseye --arch $(DEB_HOST_ARCH)
-
+	tar cf - $(DEB) $(DBG_DEB) $(SIMDEB)|ssh repoman@repo.proxmox.com -- upload --product pve --dist $(UPLOAD_DIST) --arch $(DEB_HOST_ARCH)
