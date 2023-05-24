@@ -17,9 +17,11 @@ SIMDSC=$(SIMPACKAGE)_$(DEB_VERSION).dsc
 all: deb
 
 $(BUILDDIR):
-	rm -rf $(BUILDDIR)
-	rsync -a src/ debian $(BUILDDIR)
-	echo "git clone git://git.proxmox.com/git/pve-ha-manager.git\\ngit checkout $(GITVERSION)" > $(BUILDDIR)/debian/SOURCE
+	rm -rf $@ $@.tmp
+	cp -a src/ $@.tmp
+	cp -a debian $@.tmp/
+	echo "git clone git://git.proxmox.com/git/pve-ha-manager.git\\ngit checkout $(GITVERSION)" > $@.tmp/debian/SOURCE
+	mv $@.tmp $@
 
 .PHONY: dinstall
 dinstall: $(DEB) $(SIMDEB)
