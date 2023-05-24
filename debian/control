@@ -2,7 +2,7 @@ Source: pve-ha-manager
 Section: perl
 Priority: extra
 Maintainer: Proxmox Support Team <support@proxmox.com>
-Build-Depends: debhelper (>= 12~),
+Build-Depends: debhelper-compat (= 13),
                libglib-perl,
                libgtk3-perl,
                libpve-access-control,
