@@ -13,9 +13,7 @@ BASHCOMPLDIR=$(PREFIX)/share/bash-completion/completions/
 ZSHCOMPLDIR=$(PREFIX)/share/zsh/vendor-completions/
 export PERLDIR=$(PREFIX)/share/perl5
 
-# this requires package pve-doc-generator
-export NOVIEW=1
-include /usr/share/pve-doc-generator/pve-doc-generator.mk
+-include /usr/share/pve-doc-generator/pve-doc-generator.mk
 
 all: watchdog-mux
 
@@ -82,10 +80,9 @@ test:
 
 .PHONY: clean
 clean:
-	make cleanup-docgen
+	rm -f *.xml.tmp *.1 *.5 *.8 *{synopsis,opts}.adoc docinfo.xml
 	make -C test clean
 	rm -rf watchdog-mux *.1.pod *.1.gz *.bash-completion *.zsh-completion *.tmp
-	find . -name '*~' -exec rm {} ';'
 
 .PHONY: distclean
 distclean: clean
