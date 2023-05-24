@@ -1,3 +1,9 @@
+pve-ha-manager (4.0.0) bookworm; urgency=medium
+
+  * re-build for Proxmox VE 8 / Debian 12 Bookworm
+
+ -- Proxmox Support Team <support@proxmox.com>  Wed, 24 May 2023 19:26:51 +0200
+
 pve-ha-manager (3.6.1) bullseye; urgency=medium
 
   * cli: assert that node exist when changing CRS request state to avoid
