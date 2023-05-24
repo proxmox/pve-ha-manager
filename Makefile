@@ -5,14 +5,14 @@ PACKAGE=pve-ha-manager
 SIMPACKAGE=pve-ha-simulator
 
 GITVERSION:=$(shell git rev-parse HEAD)
-BUILDDIR ?= $(PACKAGE)-$(DEB_VERSION_UPSTREAM)
+BUILDDIR ?= $(PACKAGE)-$(DEB_VERSION)
 
-DEB=$(PACKAGE)_$(DEB_VERSION_UPSTREAM_REVISION)_$(DEB_BUILD_ARCH).deb
-DBG_DEB=$(PACKAGE)-dbgsym_$(DEB_VERSION_UPSTREAM_REVISION)_$(DEB_BUILD_ARCH).deb
+DEB=$(PACKAGE)_$(DEB_VERSION)_$(DEB_HOST_ARCH).deb
+DBG_DEB=$(PACKAGE)-dbgsym_$(DEB_VERSION)_$(DEB_HOST_ARCH).deb
 
-DSC=$(PACKAGE)_$(DEB_VERSION_UPSTREAM_REVISION).dsc
-SIMDEB=$(SIMPACKAGE)_$(DEB_VERSION_UPSTREAM_REVISION)_all.deb
-SIMDSC=$(SIMPACKAGE)_$(DEB_VERSION_UPSTREAM_REVISION).dsc
+DSC=$(PACKAGE)_$(DEB_VERSION).dsc
+SIMDEB=$(SIMPACKAGE)_$(DEB_VERSION)_all.deb
+SIMDSC=$(SIMPACKAGE)_$(DEB_VERSION).dsc
 
 all: deb
 
@@ -48,5 +48,5 @@ distclean: clean
 
 .PHONY: upload
 upload: $(DEB) $(SIMDEB)
-	tar cf - $(DEB) $(DBG_DEB) $(SIMDEB)|ssh repoman@repo.proxmox.com -- upload --product pve --dist bullseye --arch $(DEB_BUILD_ARCH)
+	tar cf - $(DEB) $(DBG_DEB) $(SIMDEB)|ssh repoman@repo.proxmox.com -- upload --product pve --dist bullseye --arch $(DEB_HOST_ARCH)
 
