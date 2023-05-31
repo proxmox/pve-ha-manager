@@ -71,7 +71,70 @@ __PACKAGE__->register_method ({
 	additionalProperties => 0,
 	properties => {},
     },
-    returns => { type => 'array' },
+    returns => {
+	type => 'array',
+	items => {
+	    type => 'object',
+	    properties => {
+		id => {
+		    description => "Status entry ID (quorum, master, lrm:<node>, service:<sid>).",
+		    type => "string",
+		},
+		node => {
+		    description => "Node associated to status entry.",
+		    type => "string",
+		},
+		status => {
+		    description => "Status of the entry (value depends on type).",
+		    type => "string",
+		},
+		type => {
+		    description => "Type of status entry.",
+		    enum => ["quorum", "master", "lrm", "service"],
+		},
+		quorate => {
+		    description => "For type 'quorum'. Whether the cluster is quorate or not.",
+		    type => "boolean",
+		    optional => 1,
+		},
+		timestamp => {
+		    description => "For type 'lrm','master'. Timestamp of the status information.",
+		    type => "integer",
+		    optional => 1,
+		},
+		crm_state => {
+		    description => "For type 'service'. Service state as seen by the CRM.",
+		    type => "string",
+		    optional => 1,
+		},
+		max_relocate => {
+		    description => "For type 'service'.",
+		    type => "integer",
+		    optional => 1,
+		},
+		max_restart => {
+		    description => "For type 'service'.",
+		    type => "integer",
+		    optional => 1,
+		},
+		request_state => {
+		    description => "For type 'service'. Requested service state.",
+		    type => "string",
+		    optional => 1,
+		},
+		sid => {
+		    description => "For type 'service'. Service ID.",
+		    type => "string",
+		    optional => 1,
+		},
+		state => {
+		    description => "For type 'service'. Verbose service state.",
+		    type => "string",
+		    optional => 1,
+		},
+	    },
+	},
+    },
     code => sub {
 	my ($param) = @_;
 
