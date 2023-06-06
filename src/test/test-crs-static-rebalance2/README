@@ -1,0 +1,3 @@
+Test how adding new services behaves with ha-rebalance-on-start.
+
+Expect that already running services are not affected, but others are.

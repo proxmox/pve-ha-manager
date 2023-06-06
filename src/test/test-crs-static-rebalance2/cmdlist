@@ -1,0 +1,9 @@
+[
+    [ "power node1 on", "power node2 on", "power node3 on"],
+    [ "service vm:100 add node2 started 1" ],
+    [ "service vm:101 add node2 started 0" ],
+    [ "service vm:102 add node2 started 1" ],
+    [ "service vm:103 add node2 started 0" ],
+    [ "service vm:104 add node2 stopped 0" ],
+    [ "service vm:105 add node2 stopped 0" ]
+]
