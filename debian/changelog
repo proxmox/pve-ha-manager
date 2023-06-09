@@ -1,3 +1,17 @@
+pve-ha-manager (4.0.1) bookworm; urgency=medium
+
+  * test, simulator: make it possible to add already running service
+
+  * lrm: do not migrate via rebalance-on-start if service already running upon
+    rebalance on start
+
+  * api: fix/add return description for status endpoint
+
+  * resources: pve: avoid relying on internal configuration details, use new
+    helpers in pve-container and qemu-server
+
+ -- Proxmox Support Team <support@proxmox.com>  Fri, 09 Jun 2023 10:41:06 +0200
+
 pve-ha-manager (4.0.0) bookworm; urgency=medium
 
   * re-build for Proxmox VE 8 / Debian 12 Bookworm
