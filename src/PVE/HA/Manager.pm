@@ -917,6 +917,24 @@ sub next_state_started {
 			)
 		    );
 		}
+
+		if ($sd->{maintenance_node} && $sd->{node} eq $sd->{maintenance_node}) {
+		    my $node_state = $ns->get_node_state($sd->{node});
+		    if ($node_state eq 'online') {
+			# Having the maintenance node set here means that the service was never
+			# started on a different node since it was set. This can happen in the edge
+			# case that the whole cluster is shut down at the same time while the
+			# 'migrate' policy was configured. Node is not in maintenance mode anymore
+			# and service is started on this node, so it's fine to clear the setting.
+			$haenv->log(
+			    'info',
+			    "service '$sid': clearing stale maintenance node "
+				."'$sd->{maintenance_node}' setting (is current node)",
+			);
+			delete $sd->{maintenance_node};
+		    }
+		}
+
 		# ensure service get started again if it went unexpected down
 		# but ensure also no LRM result gets lost
 		$sd->{uid} = compute_new_uuid($sd->{state}) if defined($lrm_res);
