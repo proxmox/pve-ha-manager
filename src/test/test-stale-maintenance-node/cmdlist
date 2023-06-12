@@ -1,0 +1,6 @@
+[
+    [ "power node1 on", "power node2 on", "power node3 on"],
+    [ "shutdown node1", "shutdown node2", "shutdown node3"],
+    [ "power node1 on", "power node2 on", "power node3 on"],
+    [ "service vm:103 migrate node3" ]
+]
