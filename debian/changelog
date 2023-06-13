@@ -1,3 +1,10 @@
+pve-ha-manager (4.0.2) bookworm; urgency=medium
+
+  * cluster resource manager: clear stale maintenance node, which can be
+    caused by simultaneous cluster shutdown
+
+ -- Proxmox Support Team <support@proxmox.com>  Tue, 13 Jun 2023 08:35:52 +0200
+
 pve-ha-manager (4.0.1) bookworm; urgency=medium
 
   * test, simulator: make it possible to add already running service
