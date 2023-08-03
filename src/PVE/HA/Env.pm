@@ -144,10 +144,10 @@ sub log {
     return $self->{plug}->log($level, @args);
 }
 
-sub sendmail {
-    my ($self, $subject, $text) = @_;
+sub send_notification {
+    my ($self, $subject, $text, $properties) = @_;
 
-    return $self->{plug}->sendmail($subject, $text);
+    return $self->{plug}->send_notification($subject, $text, $properties);
 }
 
 # acquire a cluster wide manager lock

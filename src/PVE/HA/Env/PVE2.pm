@@ -13,6 +13,7 @@ use PVE::Cluster qw(cfs_register_file cfs_read_file cfs_write_file cfs_lock_file
 use PVE::DataCenterConfig;
 use PVE::INotify;
 use PVE::RPCEnvironment;
+use PVE::Notify;
 
 use PVE::HA::Tools ':exit_codes';
 use PVE::HA::Env;
@@ -219,16 +220,20 @@ sub log {
     syslog($level, $msg);
 }
 
-sub sendmail {
-    my ($self, $subject, $text) = @_;
+sub send_notification {
+    my ($self, $subject, $text, $properties) = @_;
 
-    # Leave it to postfix to append the correct hostname
-    my $mailfrom = 'root';
-    # /root/.forward makes pvemailforward redirect the
-    # mail to the address configured in the datacenter
-    my $mailto = 'root';
+    eval {
+	my $dc_config = PVE::Cluster::cfs_read_file('datacenter.cfg');
+	my $target = $dc_config->{notify}->{'target-fencing'} // PVE::Notify::default_target();
+	my $notify = $dc_config->{notify}->{fencing} // 'always';
 
-    PVE::Tools::sendmail($mailto, $subject, $text, undef, $mailfrom);
+	if ($notify eq 'always') {
+	    PVE::Notify::error($target, $subject, $text, $properties);
+	}
+    };
+
+    $self->log("warning", "could not notify: $@") if $@;
 }
 
 my $last_lock_status_hash = {};

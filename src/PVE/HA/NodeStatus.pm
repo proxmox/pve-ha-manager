@@ -188,35 +188,45 @@ sub update {
    }
 }
 
+my $body_template = <<EOT;
+{{#verbatim}}
+The node '{{node}}' failed and needs manual intervention.
+
+The PVE HA manager tries  to fence it and recover the configured HA resources to
+a healthy node if possible.
+
+Current fence status: {{subject-prefix}}
+{{subject}}
+{{/verbatim}}
+
+{{heading-2 "Overall Cluster status:"}}
+{{object status-data}}
+EOT
+
+my $subject_template = "{{subject-prefix}}: {{subject}}";
+
 # assembles a commont text for fence emails
 my $send_fence_state_email = sub {
     my ($self, $subject_prefix, $subject, $node) = @_;
 
     my $haenv = $self->{haenv};
-
-    my $mail_text = <<EOF
-The node '$node' failed and needs manual intervention.
-
-The PVE HA manager tries  to fence it and recover the
-configured HA resources to a healthy node if possible.
-
-Current fence status:  $subject_prefix
-$subject
-
-
-Overall Cluster status:
------------------------
-
-EOF
-;
-    my $mail_subject = $subject_prefix . ': ' . $subject;
-
     my $status = $haenv->read_manager_status();
-    my $data = { manager_status => $status, node_status => $self->{status} };
 
-    $mail_text .= to_json($data, { pretty => 1, canonical => 1});
+    my $notification_properties = {
+	"status-data"    => {
+	    manager_status => $status,
+	    node_status    => $self->{status}
+	},
+	"node"           => $node,
+	"subject-prefix" => $subject_prefix,
+	"subject"        => $subject,
+    };
 
-    $haenv->sendmail($mail_subject, $mail_text);
+    $haenv->send_notification(
+	$subject_template,
+	$body_template,
+	$notification_properties
+    );
 };
 
 

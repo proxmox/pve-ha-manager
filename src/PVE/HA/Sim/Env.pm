@@ -288,8 +288,14 @@ sub log {
     printf("%-5s %5d %12s: $msg\n", $level, $time, "$self->{nodename}/$self->{log_id}");
 }
 
-sub sendmail {
-    my ($self, $subject, $text) = @_;
+sub send_notification {
+    my ($self, $subject, $text, $properties) = @_;
+
+    # The template for the subject is "{{subject-prefix}}: {{subject}}"
+    # We have to perform poor-man's template rendering to pass the test cases.
+
+    $subject = $subject =~ s/\{\{subject-prefix}}/$properties->{"subject-prefix"}/r;
+    $subject = $subject =~ s/\{\{subject}}/$properties->{"subject"}/r;
 
     # only log subject, do not spam the logs
     $self->log('email', $subject);
