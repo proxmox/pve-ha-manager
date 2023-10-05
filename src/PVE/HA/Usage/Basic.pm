@@ -10,6 +10,7 @@ sub new {
 
     return bless {
 	nodes => {},
+	haenv => $haenv,
     }, $class;
 }
 
@@ -40,7 +41,14 @@ sub contains_node {
 sub add_service_usage_to_node {
     my ($self, $nodename, $sid, $service_node, $migration_target) = @_;
 
-    $self->{nodes}->{$nodename}++;
+    if ($self->contains_node($nodename)) {
+	$self->{nodes}->{$nodename}++;
+    } else {
+	$self->{haenv}->log(
+	    'warning',
+	    "unable to add service '$sid' usage to node '$nodename' - node not in usage hash",
+	);
+    }
 }
 
 sub score_nodes_to_start_service {
