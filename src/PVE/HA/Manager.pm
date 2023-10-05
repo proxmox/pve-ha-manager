@@ -275,7 +275,8 @@ sub recompute_online_node_usage {
 		# count it for both, source and target as load is put on both
 		$online_node_usage->add_service_usage_to_node($source, $sid, $source, $target)
 		    if $state ne 'request_start_balance';
-		$online_node_usage->add_service_usage_to_node($target, $sid, $source, $target);
+		$online_node_usage->add_service_usage_to_node($target, $sid, $source, $target)
+		    if $online_node_usage->contains_node($target);
 	    } elsif ($state eq 'stopped' || $state eq 'request_start') {
 		# do nothing
 	    } else {
