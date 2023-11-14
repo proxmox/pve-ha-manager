@@ -221,16 +221,10 @@ sub log {
 }
 
 sub send_notification {
-    my ($self, $subject, $text, $properties) = @_;
+    my ($self, $subject, $text, $template_data, $metadata_fields) = @_;
 
     eval {
-	my $dc_config = PVE::Cluster::cfs_read_file('datacenter.cfg');
-	my $target = $dc_config->{notify}->{'target-fencing'} // PVE::Notify::default_target();
-	my $notify = $dc_config->{notify}->{fencing} // 'always';
-
-	if ($notify eq 'always') {
-	    PVE::Notify::error($target, $subject, $text, $properties);
-	}
+	PVE::Notify::error($subject, $text, $template_data, $metadata_fields);
     };
 
     $self->log("warning", "could not notify: $@") if $@;

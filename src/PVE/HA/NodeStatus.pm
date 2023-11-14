@@ -212,7 +212,7 @@ my $send_fence_state_email = sub {
     my $haenv = $self->{haenv};
     my $status = $haenv->read_manager_status();
 
-    my $notification_properties = {
+    my $template_data = {
 	"status-data"    => {
 	    manager_status => $status,
 	    node_status    => $self->{status}
@@ -222,11 +222,18 @@ my $send_fence_state_email = sub {
 	"subject"        => $subject,
     };
 
+    my $metadata_fields = {
+	type => 'fencing',
+	hostname => $node,
+    };
+
     $haenv->send_notification(
 	$subject_template,
 	$body_template,
-	$notification_properties
+	$template_data,
+	$metadata_fields,
     );
+
 };
 
 
