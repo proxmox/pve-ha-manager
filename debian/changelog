@@ -1,3 +1,13 @@
+pve-ha-manager (4.0.3) bookworm; urgency=medium
+
+  * manager: send notifications via new notification module
+
+  * fix #4984: manager: add service to migration-target usage only if online
+
+  * crs: avoid auto-vivification when adding node to service usage
+
+ -- Proxmox Support Team <support@proxmox.com>  Fri, 17 Nov 2023 14:49:03 +0100
+
 pve-ha-manager (4.0.2) bookworm; urgency=medium
 
   * cluster resource manager: clear stale maintenance node, which can be
