@@ -110,8 +110,8 @@ sync_journal_unsafe(void)
     // do not care about fork error or collecting the childs exit status,
     // we are resetting soon anyway and just want to sync out the journal
     if (child == 0) {
-	execl(JOURNALCTL_BIN, JOURNALCTL_BIN, "--sync", NULL);
-	exit(-1);
+        execl(JOURNALCTL_BIN, JOURNALCTL_BIN, "--sync", NULL);
+        exit(-1);
     }
 }
 
@@ -150,8 +150,8 @@ main(void)
     }
 
     if ((watchdog_fd = open(WATCHDOG_DEV, O_WRONLY)) == -1) {
-         perror("watchdog open");
-         exit(EXIT_FAILURE);
+        perror("watchdog open");
+        exit(EXIT_FAILURE);
     }
 
     if (ioctl(watchdog_fd, WDIOC_SETTIMEOUT, &watchdog_timeout) == -1) {
@@ -169,30 +169,28 @@ main(void)
     }
 
     wdinfo.identity[sizeof(wdinfo.identity) - 1] = 0; // just to be sure
-    fprintf(stderr, "Watchdog driver '%s', version %x\n",
-            wdinfo.identity, wdinfo.firmware_version);
+    fprintf(stderr, "Watchdog driver '%s', version %x\n", wdinfo.identity, wdinfo.firmware_version);
 
     /* always unlink socket path then create socket */
     unlink(WD_SOCK_PATH);
 
     listen_sock = socket(AF_UNIX, SOCK_STREAM, 0);
     if (listen_sock == -1) {
-      perror("socket create");
-      exit(EXIT_FAILURE);
+        perror("socket create");
+        exit(EXIT_FAILURE);
     }
     memset(&my_addr, 0, sizeof(struct sockaddr_un));
     my_addr.sun_family = AF_UNIX;
     strncpy(my_addr.sun_path, WD_SOCK_PATH, sizeof(my_addr.sun_path) - 1);
 
-    if (bind(listen_sock, (struct sockaddr *) &my_addr,
-             sizeof(struct sockaddr_un)) == -1) {
-      perror("socket bind");
-      exit(EXIT_FAILURE);
+    if (bind(listen_sock, (struct sockaddr *) &my_addr, sizeof(struct sockaddr_un)) == -1) {
+        perror("socket bind");
+        exit(EXIT_FAILURE);
     }
 
     if (listen(listen_sock, LISTEN_BACKLOG) == -1) {
-      perror("socket listen");
-      goto err;
+        perror("socket listen");
+        goto err;
     }
 
     epollfd = epoll_create(10);
@@ -245,8 +243,11 @@ main(void)
                 int i;
                 time_t ctime = time(NULL);
                 for (i = 0; i < MAX_CLIENTS; i++) {
-                    if (client_list[i].fd != 0 && client_list[i].time != 0 &&
-                        ((ctime - client_list[i].time) > client_watchdog_timeout)) {
+                    if (
+                        client_list[i].fd != 0
+                        && client_list[i].time != 0
+                        && ((ctime - client_list[i].time) > client_watchdog_timeout)
+                    ) {
                         update_watchdog = 0;
                         fprintf(stderr, "client watchdog expired - disable watchdog updates\n");
                     }
