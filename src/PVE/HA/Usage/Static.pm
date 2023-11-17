@@ -68,7 +68,7 @@ my sub get_service_usage {
     my (undef, $type, $id) = $self->{haenv}->parse_sid($sid);
     my $plugin = PVE::HA::Resources->lookup($type);
 
-    my $stats = eval { $plugin->get_static_stats($self->{haenv}, $id, $service_node); };
+    my $stats = eval { $plugin->get_static_stats($self->{haenv}, $id, $service_node) };
     if (my $err = $@) {
 	# config might've already moved during a migration
 	$stats = eval { $plugin->get_static_stats($self->{haenv}, $id, $migration_target); } if $migration_target;
