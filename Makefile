@@ -1,5 +1,4 @@
-include /usr/share/dpkg/pkg-info.mk
-include /usr/share/dpkg/architecture.mk
+include /usr/share/dpkg/default.mk
 
 PACKAGE=pve-ha-manager
 SIMPACKAGE=pve-ha-simulator
