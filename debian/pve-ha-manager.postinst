@@ -5,11 +5,13 @@ set -e
 #DEBHELPER#
 
 if [ "$1" = "triggered" ]; then
-    systemctl --quiet is-active pve-ha-lrm.service &&
-      deb-systemd-invoke reload-or-try-restart pve-ha-lrm.service
+    if systemctl --quiet is-active pve-ha-lrm.service; then
+      deb-systemd-invoke reload-or-try-restart pve-ha-lrm.service || true
+    fi
 
-    systemctl --quiet is-active pve-ha-crm.service &&
-      deb-systemd-invoke reload-or-try-restart pve-ha-crm.service
+    if systemctl --quiet is-active pve-ha-crm.service; then
+      deb-systemd-invoke reload-or-try-restart pve-ha-crm.service || true
+    fi
 fi
 
 exit 0
