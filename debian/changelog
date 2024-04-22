@@ -1,3 +1,9 @@
+pve-ha-manager (4.0.4) bookworm; urgency=medium
+
+  * d/postinst: make deb-systemd-invoke non-fatal
+
+ -- Proxmox Support Team <support@proxmox.com>  Mon, 22 Apr 2024 13:47:18 +0200
+
 pve-ha-manager (4.0.3) bookworm; urgency=medium
 
   * manager: send notifications via new notification module
