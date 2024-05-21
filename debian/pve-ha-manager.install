@@ -38,3 +38,6 @@
 /usr/share/perl5/PVE/HA/Usage/Static.pm
 /usr/share/perl5/PVE/Service/pve_ha_crm.pm
 /usr/share/perl5/PVE/Service/pve_ha_lrm.pm
+/usr/share/pve-manager/templates/default/fencing-body.html.hbs
+/usr/share/pve-manager/templates/default/fencing-body.txt.hbs
+/usr/share/pve-manager/templates/default/fencing-subject.txt.hbs

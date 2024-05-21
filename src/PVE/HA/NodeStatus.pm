@@ -188,23 +188,6 @@ sub update {
    }
 }
 
-my $body_template = <<EOT;
-{{#verbatim}}
-The node '{{node}}' failed and needs manual intervention.
-
-The PVE HA manager tries  to fence it and recover the configured HA resources to
-a healthy node if possible.
-
-Current fence status: {{subject-prefix}}
-{{subject}}
-{{/verbatim}}
-
-{{heading-2 "Overall Cluster status:"}}
-{{object status-data}}
-EOT
-
-my $subject_template = "{{subject-prefix}}: {{subject}}";
-
 # assembles a commont text for fence emails
 my $send_fence_state_email = sub {
     my ($self, $subject_prefix, $subject, $node) = @_;
@@ -228,8 +211,7 @@ my $send_fence_state_email = sub {
     };
 
     $haenv->send_notification(
-	$subject_template,
-	$body_template,
+	"fencing",
 	$template_data,
 	$metadata_fields,
     );

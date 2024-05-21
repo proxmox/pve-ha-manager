@@ -221,10 +221,10 @@ sub log {
 }
 
 sub send_notification {
-    my ($self, $subject, $text, $template_data, $metadata_fields) = @_;
+    my ($self, $template_name, $template_data, $metadata_fields) = @_;
 
     eval {
-	PVE::Notify::error($subject, $text, $template_data, $metadata_fields);
+	PVE::Notify::error($template_name, $template_data, $metadata_fields);
     };
 
     $self->log("warning", "could not notify: $@") if $@;

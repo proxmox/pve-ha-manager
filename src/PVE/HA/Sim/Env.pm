@@ -289,11 +289,12 @@ sub log {
 }
 
 sub send_notification {
-    my ($self, $subject, $text, $properties) = @_;
+    my ($self, $template_name, $properties) = @_;
 
     # The template for the subject is "{{subject-prefix}}: {{subject}}"
     # We have to perform poor-man's template rendering to pass the test cases.
 
+    my $subject = "{{subject-prefix}}: {{subject}}";
     $subject = $subject =~ s/\{\{subject-prefix}}/$properties->{"subject-prefix"}/r;
     $subject = $subject =~ s/\{\{subject}}/$properties->{"subject"}/r;
 

@@ -73,6 +73,7 @@ install: watchdog-mux pve-ha-crm pve-ha-lrm ha-manager.1 pve-ha-crm.8 pve-ha-lrm
 	install -d $(DESTDIR)/$(MAN1DIR)
 	install -m 0644 ha-manager.1 $(DESTDIR)/$(MAN1DIR)
 	gzip -9 $(DESTDIR)/$(MAN1DIR)/ha-manager.1
+	$(MAKE) -C templates $@
 
 .PHONY: test
 test: 

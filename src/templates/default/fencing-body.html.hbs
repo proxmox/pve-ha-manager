@@ -1,0 +1,14 @@
+<html>
+    <body>
+    The node '{{node}}' failed and needs manual intervention.<br/><br/>
+
+    The PVE HA manager tries to fence it and recover the configured HA resources to
+    a healthy node if possible.<br/><br/>
+
+    Current fence status: {{subject-prefix}}<br/>
+    {{subject}}<br/>
+
+    <h2 style="font-size: 1em">Overall Cluster status:</h2>
+    {{object status-data}}
+    </body>
+</html>
