@@ -1,3 +1,9 @@
+pve-ha-manager (4.0.5) bookworm; urgency=medium
+
+  * env: notify: use named templates instead of passing template strings
+
+ -- Proxmox Support Team <support@proxmox.com>  Tue, 04 Jun 2024 11:10:05 +0200
+
 pve-ha-manager (4.0.4) bookworm; urgency=medium
 
   * d/postinst: make deb-systemd-invoke non-fatal
