@@ -40,4 +40,6 @@ info   1320      cmdlist: execute delay 0
 info   1325    node3/lrm: node had no service configured for 60 rounds, going idle.
 info   1325    node3/lrm: status change active => wait_for_agent_lock
 info   1420      cmdlist: execute delay 0
+info   1920    node1/crm: cluster had no service configured for 90 rounds, going idle.
+info   1920    node1/crm: status change master => wait_for_quorum
 info   2020     hardware: exit simulation - done

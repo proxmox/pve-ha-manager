@@ -33,22 +33,27 @@ info     25    node3/lrm: service status vm:103 started
 info     40    node1/crm: service 'vm:102': state changed from 'request_stop' to 'stopped'
 info    120      cmdlist: execute cfs node1 rw fail
 info    120      cmdlist: execute service vm:101 stopped
+err     120    node1/crm: could not read manager status: cfs connection refused - not mounted?
 err     120    node1/crm: got unexpected error - cfs connection refused - not mounted?
 err     121    node1/lrm: updating service status from manager failed: cfs connection refused - not mounted?
 err     121    node1/lrm: updating service status from manager failed: cfs connection refused - not mounted?
 err     121    node1/lrm: unable to write lrm status file - cfs connection refused - not mounted?
+err     140    node1/crm: could not read manager status: cfs connection refused - not mounted?
 err     140    node1/crm: got unexpected error - cfs connection refused - not mounted?
 err     141    node1/lrm: updating service status from manager failed: cfs connection refused - not mounted?
 err     141    node1/lrm: updating service status from manager failed: cfs connection refused - not mounted?
 err     141    node1/lrm: unable to write lrm status file - cfs connection refused - not mounted?
+err     160    node1/crm: could not read manager status: cfs connection refused - not mounted?
 err     160    node1/crm: got unexpected error - cfs connection refused - not mounted?
 err     161    node1/lrm: updating service status from manager failed: cfs connection refused - not mounted?
 err     161    node1/lrm: updating service status from manager failed: cfs connection refused - not mounted?
 err     161    node1/lrm: unable to write lrm status file - cfs connection refused - not mounted?
+err     180    node1/crm: could not read manager status: cfs connection refused - not mounted?
 err     180    node1/crm: got unexpected error - cfs connection refused - not mounted?
 err     181    node1/lrm: updating service status from manager failed: cfs connection refused - not mounted?
 err     181    node1/lrm: updating service status from manager failed: cfs connection refused - not mounted?
 err     181    node1/lrm: unable to write lrm status file - cfs connection refused - not mounted?
+err     200    node1/crm: could not read manager status: cfs connection refused - not mounted?
 err     200    node1/crm: got unexpected error - cfs connection refused - not mounted?
 err     201    node1/lrm: updating service status from manager failed: cfs connection refused - not mounted?
 err     201    node1/lrm: updating service status from manager failed: cfs connection refused - not mounted?

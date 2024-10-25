@@ -19,6 +19,13 @@ my $valid_states = {
     slave => "quorate, but we do not own the ha_manager lock",
 };
 
+# The CRM takes ~10s per 'active' round, so if no services is available for >= 15 min we'd go in
+# wait state giving up the watchdog and the CRM lock voluntary, ensuring the WD can do no harm and
+# another CRM can be come active faster, if HA services get configured again.
+# This is explictily 30 rounds (5 min) longer than LRM waits to avoid that LRM gets stuck due to no
+# CRM being active.
+my $max_active_idle_rounds = 90;
+
 sub new {
     my ($this, $haenv) = @_;
 
@@ -29,6 +36,7 @@ sub new {
 	manager => undef,
 	status => { state => 'startup' },
 	cluster_state_update => 0,
+	active_idle_rounds => 0,
     }, $class;
 
     $self->set_local_status({ state => 'wait_for_quorum' });
@@ -180,6 +188,32 @@ sub can_get_active {
     return 1;
 }
 
+# checks if there are safe conditions to get idle, like being quorate and having no active
+# services. This method should be debounced over a few minutes to avoid flapping between active and
+# idle.
+#
+# This is similar to 'can_get_active' but inverts the service count and check.
+sub allowed_to_get_idle {
+    my ($self) = @_;
+
+    my $haenv = $self->{haenv};
+
+    my $manager_status = get_manager_status_guarded($haenv);
+    return 0 if !$self->is_cluster_and_ha_healthy($manager_status);
+
+    my $conf = eval { $haenv->read_service_config() };
+    if (my $err = $@) {
+	$haenv->log('err', "could not read service config: $err");
+	return undef;
+    }
+    return 1 if !scalar(%{$conf});
+
+    # TODO: an exception might be if all services are requested to be ignored? Would need LRM
+    # adaption too though.
+
+    return 0;
+}
+
 sub do_one_iteration {
     my ($self) = @_;
 
@@ -238,6 +272,18 @@ sub work {
 
 	if (!$self->get_protected_ha_manager_lock()) {
 	    $self->set_local_status({ state => 'lost_manager_lock'});
+	} elsif ($self->allowed_to_get_idle()) {
+	    $self->{active_idle_rounds}++;
+	    if ($self->{active_idle_rounds} > $max_active_idle_rounds) {
+		$self->{active_idle_rounds} = 0;
+		$haenv->log('info', "cluster had no service configured for $max_active_idle_rounds rounds, going idle.\n");
+		$haenv->release_ha_manager_lock();
+		# safety: transition into wait_for_quorum and thus do not touch manager state anymore
+		give_up_watchdog_protection($self);
+		$self->set_local_status({ state => 'wait_for_quorum' });
+	    }
+	} elsif ($self->{active_idle_rounds}) {
+	    $self->{active_idle_rounds} = 0;
 	}
     }
 
