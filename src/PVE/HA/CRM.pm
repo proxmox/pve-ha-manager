@@ -112,6 +112,26 @@ sub get_protected_ha_manager_lock {
     return 0;
 }
 
+# NOTE: This is disabling the self-fence mechanism for the CRM, which has almost *no* safety or
+# intergrity implications for the HA stack. The reason for this is that fencing is protecting
+# against running the same services multiple times in a cluster, e.g. due to split brain, which then
+# can cause corruption, especially of shared resources. But as the CRM itself does not run any
+# resources, but only handles delegation and orchestration of them, disabling fencing in the CRM is
+# fine as long as we do not touch the manager HA state anymore, which normaly means transition out
+# of the "master" (= active manager) state in our FSM.
+#
+# If we would actually always fence we might reset a node that currently has no active HA service
+# and thus an idle LRM that does not need fencing. This then could make a partial outage even worse,
+# as one nodes less is available in such a situation.
+my sub give_up_watchdog_protection {
+    my ($self) = @_;
+
+    if ($self->{ha_manager_wd}) {
+	$self->{haenv}->watchdog_close($self->{ha_manager_wd});
+	delete $self->{ha_manager_wd}; # only delete after close!
+    }
+}
+
 # checks quorum, for no active pending fence jobs and if services are configured
 sub can_get_active {
     my ($self, $allow_no_service) = @_;
@@ -233,10 +253,8 @@ sub work {
 
 	    if ($self->{shutdown_request}) {
 
-		if ($self->{ha_manager_wd}) {
-		    $haenv->watchdog_close($self->{ha_manager_wd});
-		    delete $self->{ha_manager_wd};
-		}
+		# safety: service gets shutdown and thus won't change manager state again.
+		give_up_watchdog_protection($self);
 
 		# release the manager lock, so another CRM slave can get it
 		# and continue to work without waiting for the lock timeout
@@ -268,10 +286,8 @@ sub work {
 
     } elsif ($state eq 'lost_manager_lock') {
 
-	if ($self->{ha_manager_wd}) {
-	    $haenv->watchdog_close($self->{ha_manager_wd});
-	    delete $self->{ha_manager_wd};
-	}
+	# safety: not touching manager state in this or next FSM state
+	give_up_watchdog_protection($self);
 
 	return 0 if $self->{shutdown_request};
 
