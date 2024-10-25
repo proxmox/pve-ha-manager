@@ -242,8 +242,7 @@ sub work {
 		# and continue to work without waiting for the lock timeout
 		$haenv->log('info', "voluntary release CRM lock");
 		if (!$haenv->release_ha_manager_lock()) {
-		    $haenv->log('notice', "CRM lock release failed, let the" .
-				" lock timeout");
+		    $haenv->log('notice', "CRM lock release failed, let the lock timeout");
 		}
 
 		$shutdown = 1;
@@ -252,8 +251,7 @@ sub work {
 		if (!$self->{cluster_state_update}) {
 		    # update failed but we could still renew our lock (cfs restart?),
 		    # safely skip manage and expect to update just fine next round
-		    $haenv->log('notice', "temporary inconsistent cluster state " .
-		                "(cfs restart?), skip round");
+		    $haenv->log('notice', "temporary inconsistent cluster state (cfs restart?), skip round");
 		    return;
 		}
 
