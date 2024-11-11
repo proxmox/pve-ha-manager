@@ -40,7 +40,8 @@ sub pve_verify_ha_resource_id {
 }
 
 PVE::JSONSchema::register_standard_option('pve-ha-resource-id', {
-    description => "HA resource ID. This consists of a resource type followed by a resource specific name, separated with colon (example: vm:100 / ct:100).",
+    description => "HA resource ID. This consists of a resource type followed by a resource"
+	." specific name, separated with colon (example: vm:100 / ct:100).",
     typetext => "<type>:<name>",
     type => 'string', format => 'pve-ha-resource-id',
 });
@@ -57,7 +58,9 @@ sub pve_verify_ha_resource_or_vm_id {
 }
 
 PVE::JSONSchema::register_standard_option('pve-ha-resource-or-vm-id', {
-    description => "HA resource ID. This consists of a resource type followed by a resource specific name, separated with colon (example: vm:100 / ct:100). For virtual machines and containers, you can simply use the VM or CT id as a shortcut (example: 100).",
+    description => "HA resource ID. This consists of a resource type followed by a resource"
+	." specific name, separated with colon (example: vm:100 / ct:100). For virtual machines and"
+	." containers, you can simply use the VM or CT id as a shortcut (example: 100).",
     typetext => "<type>:<name>",
     type => 'string', format => 'pve-ha-resource-or-vm-id',
 });
@@ -75,7 +78,11 @@ sub pve_verify_ha_group_node {
 
 PVE::JSONSchema::register_standard_option('pve-ha-group-node-list', {
     description => "List of cluster node names with optional priority.",
-    verbose_description => "List of cluster node members, where a priority can be given to each node. A resource bound to a group will run on the available nodes with the highest priority. If there are more nodes in the highest priority class, the services will get distributed to those nodes. The priorities have a relative meaning only. The higher the number, the higher the priority.",
+    verbose_description => "List of cluster node members, where a priority can be given to each"
+	." node. A resource bound to a group will run on the available nodes with the highest"
+	." priority. If there are more nodes in the highest priority class, the services will get"
+	." distributed to those nodes. The priorities have a relative meaning only. The higher the"
+	." number, the higher the priority.",
     type => 'string', format => 'pve-ha-group-node-list',
     typetext => '<node>[:<pri>]{,<node>[:<pri>]}*',
 });
