@@ -1,0 +1,9 @@
+{
+  "node_status": {
+    "node1": "online",
+    "node2": "maintenance",
+    "node3": "online"
+  },
+  "master_node": "node1",
+  "service_status": {}
+}

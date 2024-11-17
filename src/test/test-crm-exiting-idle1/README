@@ -1,0 +1,4 @@
+Test how an idle HA stack reacts when a CRM command is queued without any
+service being active.
+
+A CRM should become active and process the request.

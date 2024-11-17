@@ -1,0 +1,8 @@
+Test an user triggered service removal from a previously active HA stack, which
+should make the LRM and the CRM go idle and dropping the lock once enough
+cycles passed without any new service.
+
+BUT, unlike in the going-idle1 test we trigger some CRM commands to see if that
+delays going idle. Add quite some extra delays after the CRM command to also
+track long-term behavior so that we can, e.g., ensure that the state is not
+flapping between idle and active.

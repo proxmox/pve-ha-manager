@@ -1,0 +1,5 @@
+Test how an idle HA stack reacts when it starts up with a node still being in
+maintenance mode.
+
+A CRM should become active and remove the maintenance mode from the node as the
+node_request property is empty, thus no maintenance mode is requested anymore.
