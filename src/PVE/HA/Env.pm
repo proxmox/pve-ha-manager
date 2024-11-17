@@ -75,6 +75,13 @@ sub queue_crm_commands {
     return $self->{plug}->queue_crm_commands($cmd);
 }
 
+# returns true if any command is queued without altering/clearing the command queue
+sub any_pending_crm_command {
+    my ($self) = @_;
+
+    return $self->{plug}->any_pending_crm_command();
+}
+
 sub read_crm_commands {
     my ($self) = @_;
 

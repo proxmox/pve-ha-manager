@@ -270,6 +270,14 @@ sub queue_crm_commands {
     return $self->{hardware}->queue_crm_commands($cmd);
 }
 
+sub any_pending_crm_command {
+    my ($self) = @_;
+
+    $assert_cfs_can_rw->($self);
+
+    return $self->{hardware}->any_pending_crm_command();
+}
+
 sub read_crm_commands {
     my ($self) = @_;
 

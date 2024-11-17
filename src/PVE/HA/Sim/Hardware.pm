@@ -290,6 +290,17 @@ sub queue_crm_commands {
     return undef;
 }
 
+sub any_pending_crm_command {
+    my ($self) = @_;
+
+    my $filename = "$self->{statusdir}/crm_commands";
+    my $data;
+    if (-f $filename) {
+	$data = PVE::Tools::file_get_contents($filename);
+    }
+    return defined($data) && length $data;
+}
+
 sub read_crm_commands {
     my ($self) = @_;
 

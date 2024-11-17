@@ -111,6 +111,11 @@ sub queue_crm_commands {
     return PVE::HA::Config::queue_crm_commands($cmd);
 }
 
+sub any_pending_crm_command {
+    my ($self) = @_;
+
+    return PVE::HA::Config::any_pending_crm_command();
+}
 sub read_crm_commands {
     my ($self) = @_;
 

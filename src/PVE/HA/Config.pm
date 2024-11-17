@@ -259,6 +259,11 @@ sub queue_crm_commands {
     return lock_ha_domain($code);
 }
 
+sub any_pending_crm_command {
+    my $data = cfs_read_file($crm_commands_filename);
+    return defined($data) && length $data;
+}
+
 sub read_crm_commands {
 
     my $code = sub {
