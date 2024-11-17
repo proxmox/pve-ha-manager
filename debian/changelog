@@ -1,3 +1,25 @@
+pve-ha-manager (4.0.6) bookworm; urgency=medium
+
+  * tools: group verbose description: explicitly state that higher number
+    means a higher priority
+
+  * fix #5243: make CRM go idle after ~15 min of no service being configured.
+    This is mostly cosmetic as the CRM never needed to trigger self-fencing on
+    quorum-loss anyway, as all state under the CRM's control is managed by the
+    pmxcfs, which is already protected by quorum and cluster synchronisation.
+
+  * crm: get active if there are pending CRM commands and it seems that no CRM
+    is already active. This ensures any CRM command, like disabling the
+    node-maintenance mode is properly processed. Currently this is mostly
+    cosmetic though, but not unimportant as we show the maintenance state in
+    the UI since not that long ago.
+
+  * crm: get active if there are nodes that probably need to leave maintenance
+    mode. This is very similar to the point above but is less likely to
+    trigger if just CLI/API is used.
+
+ -- Proxmox Support Team <support@proxmox.com>  Sun, 17 Nov 2024 20:36:17 +0100
+
 pve-ha-manager (4.0.5) bookworm; urgency=medium
 
   * env: notify: use named templates instead of passing template strings
