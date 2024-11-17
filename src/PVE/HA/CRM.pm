@@ -5,6 +5,8 @@ package PVE::HA::CRM;
 use strict;
 use warnings;
 
+use List::Util qw(any);
+
 use PVE::Tools;
 use PVE::HA::Tools;
 
@@ -189,6 +191,17 @@ sub can_get_active {
 		|| $manager_status->{node_status}->{$active_master_node} ne 'online'
 		|| $active_master_node eq $haenv->nodename()
 	    ) {
+		my $ns = $manager_status->{node_status};
+		for my $node (keys $ns->%*) {
+		    next if $ns->{$node} ne 'maintenance';
+		    if (
+			!$manager_status->{node_request}
+			|| !$manager_status->{node_request}->{$node}
+			|| !$manager_status->{node_request}->{$node}->{maintenance}
+		    ) {
+			return 1;
+		    }
+		}
 		if ($haenv->any_pending_crm_command()) {
 		    return 1; # process pending CRM commands
 		}

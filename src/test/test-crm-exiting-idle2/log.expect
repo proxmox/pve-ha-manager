@@ -8,5 +8,8 @@ info     20    node2/lrm: status change startup => wait_for_agent_lock
 info     20      cmdlist: execute power node3 on
 info     20    node3/crm: status change startup => wait_for_quorum
 info     20    node3/lrm: status change startup => wait_for_agent_lock
+info     20    node1/crm: got lock 'ha_manager_lock'
+info     20    node1/crm: status change wait_for_quorum => master
+info     20    node1/crm: node 'node2': state changed from 'maintenance' => 'online'
 info    120      cmdlist: execute delay 0
 info    720     hardware: exit simulation - done
