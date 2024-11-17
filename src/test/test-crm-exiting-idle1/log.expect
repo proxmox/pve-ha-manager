@@ -11,4 +11,10 @@ info     20    node3/lrm: status change startup => wait_for_agent_lock
 info    120      cmdlist: execute delay 0
 info    220      cmdlist: execute delay 0
 info    320      cmdlist: execute crm node2 enable-node-maintenance
+info    320    node1/crm: got lock 'ha_manager_lock'
+info    320    node1/crm: status change wait_for_quorum => master
+info    320    node1/crm: node 'node1': state changed from 'unknown' => 'online'
+info    320    node1/crm: node 'node2': state changed from 'unknown' => 'online'
+info    320    node1/crm: node 'node3': state changed from 'unknown' => 'online'
+info    340    node1/crm: node 'node2': state changed from 'online' => 'maintenance'
 info    920     hardware: exit simulation - done

@@ -182,7 +182,19 @@ sub can_get_active {
 	    $haenv->log('err', "could not read service config: $err");
 	    return undef;
 	}
-	return 0 if !scalar(%{$conf});
+	if (!scalar(%{$conf})) {
+	    my $active_master_node = $manager_status->{master_node};
+	    if (
+		!$active_master_node
+		|| $manager_status->{node_status}->{$active_master_node} ne 'online'
+		|| $active_master_node eq $haenv->nodename()
+	    ) {
+		if ($haenv->any_pending_crm_command()) {
+		    return 1; # process pending CRM commands
+		}
+	    }
+	    return 0; # no services, no node in maintenance mode, and no crm cmds -> can stay idle
+	}
     }
 
     return 1;
