@@ -195,8 +195,12 @@ __PACKAGE__->register_method ({
 	    my $lrm_status = PVE::HA::Config::read_lrm_status($node);
 	    my $id = "lrm:$node";
 	    if (!$lrm_status->{timestamp}) {
-		push @$res, { id => $id, type => 'lrm',  node => $node,
-			      status => "$node (unable to read lrm status)"};
+		push @$res, {
+		    id => $id,
+		    type => 'lrm',
+		    node => $node,
+		    status => "$node (unable to read lrm status)",
+		};
 	    } else {
 		my $status_str = &$timestamp_to_status($ctime, $lrm_status->{timestamp});
 		my $lrm_mode = $lrm_status->{mode};
