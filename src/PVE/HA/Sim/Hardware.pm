@@ -560,6 +560,9 @@ sub get_cfs_state {
 #   delay <seconds>
 #   skip-round <crm|lrm> [<rounds=1>]
 #   cfs <node> <rw|update> <work|fail>
+#   crm <stop|start>
+#   crm enable-node-maintenance <node>
+#   crm disable-node-maintenance <node>
 #   reboot <node>
 #   shutdown <node>
 #   restart-lrm <node>
