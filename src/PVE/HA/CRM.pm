@@ -132,9 +132,17 @@ my sub give_up_watchdog_protection {
     }
 }
 
-# checks quorum, for no active pending fence jobs and if services are configured
-sub can_get_active {
-    my ($self, $allow_no_service) = @_;
+my sub get_manager_status_guarded {
+    my ($haenv) = @_;
+
+    my $manager_status = eval { $haenv->read_manager_status() };
+    $haenv->log('err', "could not read manager status: $@") if $@;
+
+    return $manager_status;
+}
+
+sub is_cluster_and_ha_healthy {
+    my ($self, $manager_status) = @_;
 
     my $haenv = $self->{haenv};
 
@@ -143,13 +151,22 @@ sub can_get_active {
     # we may not do any active work with an incosistent cluster state
     return 0 if !$self->{cluster_state_update};
 
-    my $manager_status = eval { $haenv->read_manager_status() };
-    if (my $err = $@) {
-	$haenv->log('err', "could not read manager status: $err");
-	return 0;
-    }
-    my $ss = $manager_status->{service_status};
-    return 0 if PVE::HA::Tools::count_fenced_services($ss, $haenv->nodename());
+    return 0 if !defined($manager_status);
+
+    # there might be services to fence even if service config is completely empty
+    return 0 if PVE::HA::Tools::count_fenced_services($manager_status->{service_status}, $haenv->nodename());
+
+    return 1;
+}
+
+# checks quorum, for no active pending fence jobs and if services are configured
+sub can_get_active {
+    my ($self, $allow_no_service) = @_;
+
+    my $haenv = $self->{haenv};
+
+    my $manager_status = get_manager_status_guarded($haenv);
+    return 0 if !$self->is_cluster_and_ha_healthy($manager_status);
 
     if (!$allow_no_service) {
 	my $conf = eval { $haenv->read_service_config() };
