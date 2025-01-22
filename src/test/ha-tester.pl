@@ -47,7 +47,7 @@ sub do_run_test {
     my $logexpect = "$dir/log.expect";
 
     if (-f $logexpect) {
-	my $cmd = ['diff', '-u', $logexpect, $logfile]; 
+	my $cmd = ['diff', '-u', $logexpect, $logfile];
 	$res = system(@$cmd);
 	return "test '$dir' failed\n" if $res != 0;
     } else {
