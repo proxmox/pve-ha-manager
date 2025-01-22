@@ -4,8 +4,6 @@ use strict;
 use warnings;
 use Getopt::Long;
 
-use File::Path qw(make_path remove_tree);
-
 use lib '..';
 
 use PVE::Tools;
