@@ -4,7 +4,7 @@ set -e
 
 #DEBHELPER#
 
-if [ "$1" = "triggered" ]; then
+if [ "$1" = "triggered" ] && [ -d "/run/systemd/system" ]; then
     if systemctl --quiet is-active pve-ha-lrm.service; then
       deb-systemd-invoke reload-or-try-restart pve-ha-lrm.service || true
     fi
