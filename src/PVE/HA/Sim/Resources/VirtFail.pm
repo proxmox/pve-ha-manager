@@ -5,17 +5,18 @@ use warnings;
 
 use base qw(PVE::HA::Sim::Resources);
 
-# This class lets us simulate failing resources for the regression tests
-# To make it more intresting we can encode some bahviour in the VMID
+# This module lets us simulate failing resources for the regression tests.
+#
+# To make it more interesting we can encode some behavior in the VMID
 # with the following format, where fa: is the type and a, b, c, ...
-# are ciffers in base 10
-# fa:abcde
-# meaning:
-# a - no meaning but can be used for differentiating similar resources
-# b - how many tries are needed to start correctly (0 is normal behaviour) (should be set)
-# c - how many tries are needed to migrate correctly (0 is normal behaviour) (should be set)
-# d - should shutdown be successful (0 = yes, anything else no) (optional)
-# e - return value of $plugin->exists() defaults to 1 if not set (optional)
+# are digits in base 10, i.e. the full service ID would be:
+#   fa:abcde
+# And the digits after the fa: type prefix would mean:
+#   - a: no meaning but can be used for differentiating similar resources
+#   - b: how many tries are needed to start correctly (0 is normal behavior) (should be set)
+#   - c: how many tries are needed to migrate correctly (0 is normal behavior) (should be set)
+#   - d: should shutdown be successful (0 = yes, anything else no) (optional)
+#   - e: return value of $plugin->exists() defaults to 1 if not set (optional)
 
 my $decode_id = sub {
     my $id = shift;
