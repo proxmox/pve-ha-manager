@@ -4,3 +4,5 @@
 *.buildinfo
 *.tar.gz
 /src/test/test-*/status/*
+/src/test/fence_cfgs/*.cfg.commands
+/src/test/fence_cfgs/*.cfg.write
