@@ -1,14 +1,43 @@
 <html>
     <body>
-    The node '{{node}}' failed and needs manual intervention.<br/><br/>
+        The node '{{failed-node}}' in cluster '{{cluster-name}}' failed and
+        needs manual intervention.<br/><br/>
 
-    The PVE HA manager tries to fence it and recover the configured HA resources to
-    a healthy node if possible.<br/><br/>
+        {{#if is-success~}}
+        The PVE HA manager successfully fenced '{{failed-node}}'.<br/><br/>
+        {{else}}
+        The PVE HA manager will now fence '{{failed-node}}'.<br/><br/>
+        {{/if}}
 
-    Current fence status: {{subject-prefix}}<br/>
-    {{subject}}<br/>
+        <b>Status:</b> {{fence-status}}<br/>
+        <b>Timestamp:</b> {{timestamp fence-timestamp}}<br/>
 
-    <h2 style="font-size: 1em">Overall Cluster status:</h2>
-    {{object status-data}}
+        <h2 style="font-size: 1em">Cluster Node Status:</h2>
+        <ul>
+        {{#each nodes}}
+            <li>
+                {{this.node}}: {{this.status}} {{#if (eq this.node ../master-node)}}[master]{{/if}}
+            </li>
+        {{/each}}
+        </ul>
+
+        <h2 style="font-size: 1em">HA Resources:</h2>
+        The following HA resources were running on the failed node and will be
+        recovered to a healthy node if possible:
+        <ul>
+        {{#each resources}}
+            {{#if (eq this.node ../failed-node)}}
+            <li>{{this.resource}} [{{this.node}}]: {{this.state}}</li>
+            {{/if}}
+        {{/each}}
+        </ul>
+        The other HA resources in this cluster are:
+        <ul>
+        {{#each resources}}
+            {{#if (ne this.node ../failed-node)}}
+            <li>{{this.resource}} [{{this.node}}]: {{this.state}}</li>
+            {{/if}}
+        {{/each}}
+        </ul>
     </body>
 </html>

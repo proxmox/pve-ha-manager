@@ -299,12 +299,12 @@ sub log {
 sub send_notification {
     my ($self, $template_name, $properties) = @_;
 
-    # The template for the subject is "{{subject-prefix}}: {{subject}}"
+    # The template for the subject is "{{fence-status}}: {{fence-message}}"
     # We have to perform poor-man's template rendering to pass the test cases.
 
-    my $subject = "{{subject-prefix}}: {{subject}}";
-    $subject = $subject =~ s/\{\{subject-prefix}}/$properties->{"subject-prefix"}/r;
-    $subject = $subject =~ s/\{\{subject}}/$properties->{"subject"}/r;
+    my $subject = "{{fence-prefix}}: {{fence-status}}";
+    $subject = $subject =~ s/\{\{fence-prefix}}/$properties->{"fence-prefix"}/r;
+    $subject = $subject =~ s/\{\{fence-status}}/$properties->{"fence-status"}/r;
 
     # only log subject, do not spam the logs
     $self->log('email', $subject);

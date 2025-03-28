@@ -1,1 +1,5 @@
-{{subject-prefix}}: {{subject}}
+{{#if is-success~}}
+Successfully fenced node '{{failed-node}}'
+{{else}}
+Trying to fence node '{{failed-node}}'
+{{/if}}

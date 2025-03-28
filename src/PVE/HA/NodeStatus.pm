@@ -3,6 +3,8 @@ package PVE::HA::NodeStatus;
 use strict;
 use warnings;
 
+use PVE::Notify;
+
 use JSON;
 
 my $fence_delay = 60;
@@ -195,15 +197,38 @@ my $send_fence_state_email = sub {
     my $haenv = $self->{haenv};
     my $status = $haenv->read_manager_status();
 
-    my $template_data = {
-	"status-data"    => {
-	    manager_status => $status,
-	    node_status    => $self->{status}
-	},
-	"node"           => $node,
-	"subject-prefix" => $subject_prefix,
-	"subject"        => $subject,
-    };
+    my $template_data = PVE::Notify::common_template_data();
+    # Those two are needed for the expected output for test cases,
+    # see src/PVE/HA/Sim/Env.pm
+    $template_data->{"fence-status"} = $subject;
+    $template_data->{"fence-prefix"} = $subject_prefix;
+
+    $template_data->{"is-success"} = 1 ? $subject_prefix eq "SUCCEED" : 0;
+
+    $template_data->{"failed-node"} = $node;
+    $template_data->{"master-node"} = $status->{master_node};
+    # There is a handlebars helper 'timestamp', we should not
+    # name a variable the same way.
+    $template_data->{"fence-timestamp"} = $status->{timestamp};
+
+    $template_data->{"nodes"} = [];
+    for my $key (sort keys $status->{node_status}->%*) {
+	push $template_data->{"nodes"}->@*, {
+	    node => $key,
+	    status => $status->{node_status}->{$key}
+	};
+    }
+
+    $template_data->{"resources"} = [];
+    for my $key (sort keys $status->{service_status}->%*) {
+	my $resource_status = $status->{service_status}->{$key};
+	push $template_data->{"resources"}->@*, {
+	    resource => $key,
+	    state => $resource_status->{state},
+	    node => $resource_status->{node},
+	    running => $resource_status->{running},
+	};
+    }
 
     my $metadata_fields = {
 	type => 'fencing',

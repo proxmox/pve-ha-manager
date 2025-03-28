@@ -1,11 +1,35 @@
-The node '{{node}}' failed and needs manual intervention.
+The node '{{failed-node}}' in cluster '{{cluster-name}}' failed
+and needs manual intervention.
 
-The PVE HA manager tries to fence it and recover the configured HA resources to
-a healthy node if possible.
+{{#if is-success~}}
+The PVE HA manager successfully fenced '{{failed-node}}'.
+{{else~}}
+The PVE HA manager will now fence '{{failed-node}}'.
+{{/if}}
+Status:    {{fence-status}}
+Timestamp: {{timestamp fence-timestamp}}
 
-Current fence status: {{subject-prefix}}
-{{subject}}
+Cluster Node Status:
+--------------------
+{{#each nodes~}}
+  - {{this.node}}: {{this.status}} {{#if (eq this.node ../master-node)}}[master]{{/if}}
+{{/each}}
 
-Overall Cluster status:
------------------------
-{{object status-data}}
+HA Resources:
+-------------
+The following HA resources were running on the failed node and will be
+recovered to a healthy node if possible:
+
+{{#each resources~}}
+{{#if (eq this.node ../failed-node)~}}
+  - {{this.resource}} [{{this.node}}]: {{this.state}}
+{{/if~}}
+{{/each}}
+The other HA resources in this cluster are:
+
+{{#each resources~}}
+{{#if (ne this.node ../failed-node)~}}
+  - {{this.resource}} [{{this.node}}]: {{this.state}}
+{{/if~}}
+{{/each~}}
+
