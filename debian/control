@@ -22,7 +22,7 @@ Architecture: any
 Depends: libjson-perl,
          libpve-cluster-perl,
          libpve-common-perl,
-         libpve-notify-perl,
+         libpve-notify-perl (>= 8.1.0),
          libpve-rs-perl (>= 0.7.3),
          pve-cluster (>= 3.0-17),
          pve-container (>= 5.0.1),
