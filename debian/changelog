@@ -1,3 +1,9 @@
+pve-ha-manager (4.0.7) bookworm; urgency=medium
+
+  * notifications: overhaul fence notification templates.
+
+ -- Proxmox Support Team <support@proxmox.com>  Mon, 07 Apr 2025 23:24:19 +0200
+
 pve-ha-manager (4.0.6) bookworm; urgency=medium
 
   * tools: group verbose description: explicitly state that higher number
