@@ -15,6 +15,10 @@ SIMDSC=$(SIMPACKAGE)_$(DEB_VERSION).dsc
 
 all: deb
 
+.PHONY: tidy
+tidy:
+	git ls-files ':*.p[ml]'| xargs -n4 -P0 proxmox-perltidy
+
 $(BUILDDIR):
 	rm -rf $@ $@.tmp
 	cp -a src/ $@.tmp
