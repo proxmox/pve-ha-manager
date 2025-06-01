@@ -33,7 +33,10 @@ cfs_register_file(
 );
 cfs_register_file($manager_status_filename, \&json_reader, \&json_writer);
 cfs_register_file(
-    $ha_fence_config, \&PVE::HA::FenceConfig::parse_config, \&PVE::HA::FenceConfig::write_config);
+    $ha_fence_config,
+    \&PVE::HA::FenceConfig::parse_config,
+    \&PVE::HA::FenceConfig::write_config,
+);
 
 sub json_reader {
     my ($filename, $data) = @_;
@@ -56,11 +59,11 @@ sub read_lrm_status {
 
     my $raw = PVE::Cluster::get_config($cfs_path);
     if (!defined($raw)) {
-	# ENOENT -> possible deleted node, don't die here as it breaks our node
-	# 'gone' logic
-	warn "unable to read file '/etc/pve/$cfs_path'\n";
-	# unkown mode set explicitly as 'active' is assumed as default..
-	return { mode => 'unknown' } if ! -e "/etc/pve/$cfs_path";
+        # ENOENT -> possible deleted node, don't die here as it breaks our node
+        # 'gone' logic
+        warn "unable to read file '/etc/pve/$cfs_path'\n";
+        # unkown mode set explicitly as 'active' is assumed as default..
+        return { mode => 'unknown' } if !-e "/etc/pve/$cfs_path";
     }
 
     return json_reader(undef, $raw);
@@ -101,23 +104,23 @@ sub read_and_check_resources_config {
     my $vmlist = PVE::Cluster::get_vmlist();
     my $conf = {};
 
-    foreach my $sid (keys %{$res->{ids}}) {
-	my $d = $res->{ids}->{$sid};
-	my (undef, undef, $name) = parse_sid($sid);
-	$d->{state} = 'started' if !defined($d->{state});
-	$d->{state} = 'started' if $d->{state} eq 'enabled'; # backward compatibility
-	$d->{max_restart} = 1 if !defined($d->{max_restart});
-	$d->{max_relocate} = 1 if !defined($d->{max_relocate});
-	if (PVE::HA::Resources->lookup($d->{type})) {
-	    if (my $vmd = $vmlist->{ids}->{$name}) {
-		$d->{node} = $vmd->{node};
-		$conf->{$sid} = $d;
-	    } else {
-		# undef $d->{node} is handled in get_verbose_service_state and
-		# status API, don't spam logs or ignore it; allow to delete it!
-		$conf->{$sid} = $d;
-	    }
-	}
+    foreach my $sid (keys %{ $res->{ids} }) {
+        my $d = $res->{ids}->{$sid};
+        my (undef, undef, $name) = parse_sid($sid);
+        $d->{state} = 'started' if !defined($d->{state});
+        $d->{state} = 'started' if $d->{state} eq 'enabled'; # backward compatibility
+        $d->{max_restart} = 1 if !defined($d->{max_restart});
+        $d->{max_relocate} = 1 if !defined($d->{max_relocate});
+        if (PVE::HA::Resources->lookup($d->{type})) {
+            if (my $vmd = $vmlist->{ids}->{$name}) {
+                $d->{node} = $vmd->{node};
+                $conf->{$sid} = $d;
+            } else {
+                # undef $d->{node} is handled in get_verbose_service_state and
+                # status API, don't spam logs or ignore it; allow to delete it!
+                $conf->{$sid} = $d;
+            }
+        }
     }
 
     return $conf;
@@ -127,37 +130,39 @@ sub update_resources_config {
     my ($sid, $param, $delete, $digest) = @_;
 
     lock_ha_domain(
-	sub {
-	    my $cfg = read_resources_config();
-	    ($sid, my $type, my $name) = parse_sid($sid);
+        sub {
+            my $cfg = read_resources_config();
+            ($sid, my $type, my $name) = parse_sid($sid);
 
-	    PVE::SectionConfig::assert_if_modified($cfg, $digest);
+            PVE::SectionConfig::assert_if_modified($cfg, $digest);
 
-	    my $scfg = $cfg->{ids}->{$sid} ||
-		die "no such resource '$sid'\n";
+            my $scfg = $cfg->{ids}->{$sid}
+                || die "no such resource '$sid'\n";
 
-	    my $plugin = PVE::HA::Resources->lookup($scfg->{type});
-	    my $opts = $plugin->check_config($sid, $param, 0, 1);
+            my $plugin = PVE::HA::Resources->lookup($scfg->{type});
+            my $opts = $plugin->check_config($sid, $param, 0, 1);
 
-	    foreach my $k (%$opts) {
-		$scfg->{$k} = $opts->{$k};
-	    }
+            foreach my $k (%$opts) {
+                $scfg->{$k} = $opts->{$k};
+            }
 
-	    if ($delete) {
-		my $options = $plugin->private()->{options}->{$type};
-		foreach my $k (PVE::Tools::split_list($delete)) {
-		    my $d = $options->{$k} ||
-			die "no such option '$k'\n";
-		    die "unable to delete required option '$k'\n"
-			if !$d->{optional};
-		    die "unable to delete fixed option '$k'\n"
-			if $d->{fixed};
-		    delete $scfg->{$k};
-		}
-	    }
+            if ($delete) {
+                my $options = $plugin->private()->{options}->{$type};
+                foreach my $k (PVE::Tools::split_list($delete)) {
+                    my $d = $options->{$k}
+                        || die "no such option '$k'\n";
+                    die "unable to delete required option '$k'\n"
+                        if !$d->{optional};
+                    die "unable to delete fixed option '$k'\n"
+                        if $d->{fixed};
+                    delete $scfg->{$k};
+                }
+            }
 
-	    write_resources_config($cfg);
-	}, "update resources config failed");
+            write_resources_config($cfg);
+        },
+        "update resources config failed",
+    );
 }
 
 sub parse_sid {
@@ -166,28 +171,27 @@ sub parse_sid {
     my ($type, $name);
 
     if ($sid =~ m/^(\d+)$/) {
-	$name = $1;
+        $name = $1;
 
-	my $vmlist = PVE::Cluster::get_vmlist();
-	if (defined($vmlist->{ids}->{$name})) {
-	    my $vm_type = $vmlist->{ids}->{$name}->{type};
-	    if ($vm_type eq 'lxc') {
-		$type = 'ct';
-	    } elsif ($vm_type eq 'qemu') {
-		$type = 'vm';
-	    } else {
-		die "internal error";
-	    }
-	    $sid = "$type:$name";
-	}
-	else {
-	    die "unable do detect SID from VMID - VM/CT $1 does not exist\n";
-	}
-    } elsif ($sid =~m/^(\S+):(\S+)$/) {
-	$name = $2;
-	$type = $1;
+        my $vmlist = PVE::Cluster::get_vmlist();
+        if (defined($vmlist->{ids}->{$name})) {
+            my $vm_type = $vmlist->{ids}->{$name}->{type};
+            if ($vm_type eq 'lxc') {
+                $type = 'ct';
+            } elsif ($vm_type eq 'qemu') {
+                $type = 'vm';
+            } else {
+                die "internal error";
+            }
+            $sid = "$type:$name";
+        } else {
+            die "unable do detect SID from VMID - VM/CT $1 does not exist\n";
+        }
+    } elsif ($sid =~ m/^(\S+):(\S+)$/) {
+        $name = $2;
+        $type = $1;
     } else {
-	die "unable to parse service id '$sid'\n";
+        die "unable to parse service id '$sid'\n";
     }
 
     return wantarray ? ($sid, $type, $name) : $sid;
@@ -240,7 +244,7 @@ sub lock_ha_domain {
     my $res = PVE::Cluster::cfs_lock_domain("ha", undef, $code);
     my $err = $@;
     if ($err) {
-	$errmsg ? die "$errmsg: $err" : die $err;
+        $errmsg ? die "$errmsg: $err" : die $err;
     }
     return $res;
 }
@@ -251,9 +255,9 @@ sub queue_crm_commands {
     chomp $cmd;
 
     my $code = sub {
-	my $data = cfs_read_file($crm_commands_filename);
-	$data .= "$cmd\n";
-	cfs_write_file($crm_commands_filename, $data);
+        my $data = cfs_read_file($crm_commands_filename);
+        $data .= "$cmd\n";
+        cfs_write_file($crm_commands_filename, $data);
     };
 
     return lock_ha_domain($code);
@@ -267,9 +271,9 @@ sub any_pending_crm_command {
 sub read_crm_commands {
 
     my $code = sub {
-	my $data = cfs_read_file($crm_commands_filename);
-	cfs_write_file($crm_commands_filename, '');
-	return $data;
+        my $data = cfs_read_file($crm_commands_filename);
+        cfs_write_file($crm_commands_filename, '');
+        return $data;
     };
 
     return lock_ha_domain($code);
@@ -279,19 +283,20 @@ my $service_check_ha_state = sub {
     my ($conf, $sid, $has_state) = @_;
 
     if (my $d = $conf->{ids}->{$sid}) {
-	if (!defined($has_state)) {
-	    # ignored service behave as if they were not managed by HA
-	    return 0 if defined($d->{state}) && $d->{state} eq 'ignored';
-	    return 1;
-	}
+        if (!defined($has_state)) {
+            # ignored service behave as if they were not managed by HA
+            return 0 if defined($d->{state}) && $d->{state} eq 'ignored';
+            return 1;
+        }
 
-	# backward compatibility
-	$has_state = 'started' if $has_state eq 'enabled';
+        # backward compatibility
+        $has_state = 'started' if $has_state eq 'enabled';
 
-	$d->{state} = 'started' if !defined($d->{state}) ||
-	    ($d->{state} eq 'enabled');
+        $d->{state} = 'started'
+            if !defined($d->{state})
+            || ($d->{state} eq 'enabled');
 
-	return 1 if $d->{state} eq $has_state;
+        return 1 if $d->{state} eq $has_state;
     }
 
     return undef;
@@ -303,7 +308,7 @@ sub service_is_configured {
 
     my $conf = read_resources_config();
     if (defined($conf->{ids}) && defined($conf->{ids}->{$sid})) {
-	return 1;
+        return 1;
     }
     return 0;
 }
@@ -315,12 +320,15 @@ sub delete_service_from_config {
     return 1 if !service_is_configured($sid);
 
     my $res;
-    PVE::HA::Config::lock_ha_domain(sub {
-	my $conf = read_resources_config();
-	$res = delete $conf->{ids}->{$sid};
-	write_resources_config($conf);
+    PVE::HA::Config::lock_ha_domain(
+        sub {
+            my $conf = read_resources_config();
+            $res = delete $conf->{ids}->{$sid};
+            write_resources_config($conf);
 
-    }, "delete resource failed");
+        },
+        "delete resource failed",
+    );
 
     return !!$res;
 }
@@ -332,7 +340,7 @@ sub vm_is_ha_managed {
 
     my $types = PVE::HA::Resources->lookup_types();
     foreach my $type ('vm', 'ct') {
-	return 1 if &$service_check_ha_state($conf, "$type:$vmid", $has_state);
+        return 1 if &$service_check_ha_state($conf, "$type:$vmid", $has_state);
     }
 
     return undef;
@@ -358,11 +366,11 @@ sub get_service_status {
     my $conf = cfs_read_file($ha_resources_config);
 
     if (&$service_check_ha_state($conf, $sid)) {
-	my $manager_status = cfs_read_file($manager_status_filename);
+        my $manager_status = cfs_read_file($manager_status_filename);
 
-	$status->{managed} = 1;
-	$status->{group} = $conf->{ids}->{$sid}->{group};
-	$status->{state} = $manager_status->{service_status}->{$sid}->{state};
+        $status->{managed} = 1;
+        $status->{group} = $conf->{ids}->{$sid}->{group};
+        $status->{state} = $manager_status->{service_status}->{$sid}->{state};
     }
 
     return $status;

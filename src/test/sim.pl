@@ -12,7 +12,7 @@ use PVE::HA::Sim::RTHardware;
 sub show_usage {
     print "usage: $0 [testdir]\n";
     exit(-1);
-};
+}
 
 my $testdir = shift;
 

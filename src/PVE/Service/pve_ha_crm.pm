@@ -25,7 +25,7 @@ sub run {
     $self->{crm} = PVE::HA::CRM->new($self->{haenv});
 
     for (;;) {
-	last if !$self->{crm}->do_one_iteration();
+        last if !$self->{crm}->do_one_iteration();
     }
 }
 
@@ -40,9 +40,9 @@ $daemon->register_stop_command();
 $daemon->register_status_command();
 
 our $cmddef = {
-    start => [ __PACKAGE__, 'start', []],
-    stop => [ __PACKAGE__, 'stop', []],
-    status => [ __PACKAGE__, 'status', [], undef, sub { print shift . "\n";} ],
+    start => [__PACKAGE__, 'start', []],
+    stop => [__PACKAGE__, 'stop', []],
+    status => [__PACKAGE__, 'status', [], undef, sub { print shift . "\n"; }],
 };
 
 1;

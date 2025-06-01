@@ -15,9 +15,9 @@ sub new {
     my $class = ref($this) || $this;
 
     my $self = bless {
-	haenv => $haenv,
-	status => $status,
-	last_online => {},
+        haenv => $haenv,
+        status => $status,
+        last_online => {},
     }, $class;
 
     return $self;
@@ -29,14 +29,14 @@ my $valid_node_states = {
     maintenance => "node is a member of quorate partition but currently not able to do work",
     unknown => "not member of quorate partition, but possibly still running",
     fence => "node needs to be fenced",
-    gone => "node vanished from cluster members list, possibly deleted"
+    gone => "node vanished from cluster members list, possibly deleted",
 };
 
 sub get_node_state {
     my ($self, $node) = @_;
 
     $self->{status}->{$node} = 'unknown'
-	if !$self->{status}->{$node};
+        if !$self->{status}->{$node};
 
     return $self->{status}->{$node};
 }
@@ -66,8 +66,8 @@ sub node_is_offline_delayed {
     my $ctime = $haenv->get_time();
 
     if (!defined($last_online)) {
-	$self->{last_online}->{$node} = $ctime;
-	return undef;
+        $self->{last_online}->{$node} = $ctime;
+        return undef;
     }
 
     return ($ctime - $last_online) >= $delay;
@@ -76,7 +76,7 @@ sub node_is_offline_delayed {
 sub list_nodes {
     my ($self) = @_;
 
-    return [sort keys %{$self->{status}}];
+    return [sort keys %{ $self->{status} }];
 }
 
 sub list_online_nodes {
@@ -84,9 +84,9 @@ sub list_online_nodes {
 
     my $res = [];
 
-    foreach my $node (sort keys %{$self->{status}}) {
-	next if $self->{status}->{$node} ne 'online';
-	push @$res, $node;
+    foreach my $node (sort keys %{ $self->{status} }) {
+        next if $self->{status}->{$node} ne 'online';
+        push @$res, $node;
     }
 
     return $res;
@@ -102,8 +102,7 @@ my $delete_node = sub {
     delete $self->{last_online}->{$node};
     delete $self->{status}->{$node};
 
-    $haenv->log('notice', "deleting gone node '$node', not a cluster member".
-		" anymore.");
+    $haenv->log('notice', "deleting gone node '$node', not a cluster member" . " anymore.");
 };
 
 my $set_node_state = sub {
@@ -112,7 +111,7 @@ my $set_node_state = sub {
     my $haenv = $self->{haenv};
 
     die "unknown node state '$state'\n"
-	if !defined($valid_node_states->{$state});
+        if !defined($valid_node_states->{$state});
 
     my $last_state = $self->get_node_state($node);
 
@@ -120,8 +119,7 @@ my $set_node_state = sub {
 
     $self->{status}->{$node} = $state;
 
-    $haenv->log('info', "node '$node': state changed from " .
-		"'$last_state' => '$state'\n");
+    $haenv->log('info', "node '$node': state changed from " . "'$last_state' => '$state'\n");
 };
 
 sub update {
@@ -130,64 +128,64 @@ sub update {
     my $haenv = $self->{haenv};
 
     foreach my $node (sort keys %$node_info) {
-	my $d = $node_info->{$node};
-	my $lrm_mode = $lrm_modes->{$node} // 'unkown';
-	next if !$d->{online};
+        my $d = $node_info->{$node};
+        my $lrm_mode = $lrm_modes->{$node} // 'unkown';
+        next if !$d->{online};
 
-	# record last time the node was online (required to implement fence delay)
-	$self->{last_online}->{$node} = $haenv->get_time();
+        # record last time the node was online (required to implement fence delay)
+        $self->{last_online}->{$node} = $haenv->get_time();
 
-	my $state = $self->get_node_state($node);
+        my $state = $self->get_node_state($node);
 
-	if ($state eq 'online') {
-	    if ($lrm_mode eq 'maintenance') {
-		$set_node_state->($self, $node, 'maintenance');
-	    }
-	    # $set_node_state->($self, $node, 'online');
-	} elsif ($state eq 'unknown' || $state eq 'gone') {
-	    $set_node_state->($self, $node, 'online');
-	} elsif ($state eq 'fence') {
-	    # do nothing, wait until fenced
-	} elsif ($state eq 'maintenance') {
-	    if ($lrm_mode ne 'maintenance') {
-		$set_node_state->($self, $node, 'online');
-	    }
-	} else {
-	    die "detected unknown node state '$state";
-	}
+        if ($state eq 'online') {
+            if ($lrm_mode eq 'maintenance') {
+                $set_node_state->($self, $node, 'maintenance');
+            }
+            # $set_node_state->($self, $node, 'online');
+        } elsif ($state eq 'unknown' || $state eq 'gone') {
+            $set_node_state->($self, $node, 'online');
+        } elsif ($state eq 'fence') {
+            # do nothing, wait until fenced
+        } elsif ($state eq 'maintenance') {
+            if ($lrm_mode ne 'maintenance') {
+                $set_node_state->($self, $node, 'online');
+            }
+        } else {
+            die "detected unknown node state '$state";
+        }
     }
 
-    foreach my $node (sort keys %{$self->{status}}) {
-	my $d = $node_info->{$node};
-	next if $d && $d->{online};
+    foreach my $node (sort keys %{ $self->{status} }) {
+        my $d = $node_info->{$node};
+        next if $d && $d->{online};
 
-	my $state = $self->get_node_state($node);
+        my $state = $self->get_node_state($node);
 
-	# node is not inside quorate partition, possibly not active
+        # node is not inside quorate partition, possibly not active
 
-	if ($state eq 'online') {
-	    $set_node_state->($self, $node, 'unknown');
-	} elsif ($state eq 'maintenance') {
-	    my $lrm_mode = $lrm_modes->{$node} // 'unkown';
-	    if ($lrm_mode ne 'maintenance') {
-		$set_node_state->($self, $node, 'unknown');
-	    }
-	} elsif ($state eq 'unknown') {
+        if ($state eq 'online') {
+            $set_node_state->($self, $node, 'unknown');
+        } elsif ($state eq 'maintenance') {
+            my $lrm_mode = $lrm_modes->{$node} // 'unkown';
+            if ($lrm_mode ne 'maintenance') {
+                $set_node_state->($self, $node, 'unknown');
+            }
+        } elsif ($state eq 'unknown') {
 
-	    # node isn't in the member list anymore, deleted from the cluster?
-	    $set_node_state->($self, $node, 'gone') if !defined($d) ;
+            # node isn't in the member list anymore, deleted from the cluster?
+            $set_node_state->($self, $node, 'gone') if !defined($d);
 
-	} elsif ($state eq 'fence') {
-	    # do nothing, wait until fenced
-	} elsif($state eq 'gone') {
-	    if ($self->node_is_offline_delayed($node, 3600)) {
-		$delete_node->($self, $node);
-	    }
-	} else {
-	    die "detected unknown node state '$state";
-	}
+        } elsif ($state eq 'fence') {
+            # do nothing, wait until fenced
+        } elsif ($state eq 'gone') {
+            if ($self->node_is_offline_delayed($node, 3600)) {
+                $delete_node->($self, $node);
+            }
+        } else {
+            die "detected unknown node state '$state";
+        }
 
-   }
+    }
 }
 
 # assembles a commont text for fence emails
@@ -213,36 +211,35 @@ my $send_fence_state_email = sub {
 
     $template_data->{"nodes"} = [];
     for my $key (sort keys $status->{node_status}->%*) {
-	push $template_data->{"nodes"}->@*, {
-	    node => $key,
-	    status => $status->{node_status}->{$key}
-	};
+        push $template_data->{"nodes"}->@*,
+            {
+                node => $key,
+                status => $status->{node_status}->{$key},
+            };
     }
 
     $template_data->{"resources"} = [];
     for my $key (sort keys $status->{service_status}->%*) {
-	my $resource_status = $status->{service_status}->{$key};
-	push $template_data->{"resources"}->@*, {
-	    resource => $key,
-	    state => $resource_status->{state},
-	    node => $resource_status->{node},
-	    running => $resource_status->{running},
-	};
+        my $resource_status = $status->{service_status}->{$key};
+        push $template_data->{"resources"}->@*,
+            {
+                resource => $key,
+                state => $resource_status->{state},
+                node => $resource_status->{node},
+                running => $resource_status->{running},
+            };
     }
 
     my $metadata_fields = {
-	type => 'fencing',
-	hostname => $node,
+        type => 'fencing',
+        hostname => $node,
     };
 
     $haenv->send_notification(
-	"fencing",
-	$template_data,
-	$metadata_fields,
+        "fencing", $template_data, $metadata_fields,
     );
 
 };
-
 
 # start fencing
 sub fence_node {
@@ -253,18 +250,18 @@ sub fence_node {
     my $state = $self->get_node_state($node);
 
     if ($state ne 'fence') {
-	$set_node_state->($self, $node, 'fence');
-	my $msg = "Try to fence node '$node'";
-	$send_fence_state_email->($self, 'FENCE', $msg, $node);
+        $set_node_state->($self, $node, 'fence');
+        my $msg = "Try to fence node '$node'";
+        $send_fence_state_email->($self, 'FENCE', $msg, $node);
     }
 
     my $success = $haenv->get_ha_agent_lock($node);
 
     if ($success) {
-	my $msg = "fencing: acknowledged - got agent lock for node '$node'";
-	$haenv->log("info", $msg);
-	$set_node_state->($self, $node, 'unknown');
-	$send_fence_state_email->($self, 'SUCCEED', $msg, $node);
+        my $msg = "fencing: acknowledged - got agent lock for node '$node'";
+        $haenv->log("info", $msg);
+        $set_node_state->($self, $node, 'unknown');
+        $send_fence_state_email->($self, 'SUCCEED', $msg, $node);
     }
 
     return $success;

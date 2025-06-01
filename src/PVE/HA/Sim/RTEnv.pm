@@ -34,8 +34,12 @@ sub log {
 
     my $time = $self->get_time();
 
-    printf("%-5s %10s %12s: $msg\n", $level, strftime("%H:%M:%S", localtime($time)),
-	   "$self->{nodename}/$self->{log_id}");
+    printf(
+        "%-5s %10s %12s: $msg\n",
+        $level,
+        strftime("%H:%M:%S", localtime($time)),
+        "$self->{nodename}/$self->{log_id}",
+    );
 }
 
 sub sleep {
@@ -45,15 +49,15 @@ sub sleep {
 }
 
 sub sleep_until {
-   my ($self, $end_time) = @_;
+    my ($self, $end_time) = @_;
 
-   for (;;) {
-       my $cur_time = time();
+    for (;;) {
+        my $cur_time = time();
 
-       last if $cur_time >= $end_time;
+        last if $cur_time >= $end_time;
 
-       $self->sleep(1);
-   }
+        $self->sleep(1);
+    }
 }
 
 sub loop_start_hook {

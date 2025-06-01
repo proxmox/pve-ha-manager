@@ -9,14 +9,14 @@ use PVE::HA::Tools;
 
 BEGIN {
     if (!$ENV{PVE_GENERATING_DOCS}) {
-	require PVE::QemuConfig;
-	import  PVE::QemuConfig;
-	require PVE::QemuServer;
-	import  PVE::QemuServer;
-	require PVE::QemuServer::Monitor;
-	import  PVE::QemuServer::Monitor;
-	require PVE::API2::Qemu;
-	import  PVE::API2::Qemu;
+        require PVE::QemuConfig;
+        import PVE::QemuConfig;
+        require PVE::QemuServer;
+        import PVE::QemuServer;
+        require PVE::QemuServer::Monitor;
+        import PVE::QemuServer::Monitor;
+        require PVE::API2::Qemu;
+        import PVE::API2::Qemu;
     }
 }
 
@@ -34,11 +34,11 @@ sub verify_name {
 
 sub options {
     return {
-	state => { optional => 1 },
-	group => { optional => 1 },
-	comment => { optional => 1 },
-	max_restart => { optional => 1 },
-	max_relocate => { optional => 1 },
+        state => { optional => 1 },
+        group => { optional => 1 },
+        comment => { optional => 1 },
+        max_restart => { optional => 1 },
+        max_relocate => { optional => 1 },
     };
 }
 
@@ -53,11 +53,11 @@ sub exists {
 
     my $vmlist = PVE::Cluster::get_vmlist();
 
-    if(!defined($vmlist->{ids}->{$vmid})) {
-	die "resource 'vm:$vmid' does not exist in cluster\n" if !$noerr;
-	return undef;
+    if (!defined($vmlist->{ids}->{$vmid})) {
+        die "resource 'vm:$vmid' does not exist in cluster\n" if !$noerr;
+        return undef;
     } else {
-	return 1;
+        return 1;
     }
 }
 
@@ -67,8 +67,8 @@ sub start {
     my $nodename = $haenv->nodename();
 
     my $params = {
-	node => $nodename,
-	vmid => $id
+        node => $nodename,
+        vmid => $id,
     };
 
     my $upid = PVE::API2::Qemu->vm_start($params);
@@ -83,16 +83,16 @@ sub shutdown {
 
     my $upid;
     my $params = {
-	node => $nodename,
-	vmid => $id,
+        node => $nodename,
+        vmid => $id,
     };
 
     if ($shutdown_timeout) {
-	$params->{timeout} = $shutdown_timeout;
-	$params->{forceStop} = 1;
-	$upid = PVE::API2::Qemu->vm_shutdown($params);
+        $params->{timeout} = $shutdown_timeout;
+        $params->{forceStop} = 1;
+        $upid = PVE::API2::Qemu->vm_shutdown($params);
     } else {
-	$upid = PVE::API2::Qemu->vm_stop($params);
+        $upid = PVE::API2::Qemu->vm_stop($params);
     }
 
     PVE::HA::Tools::upid_wait($upid, $haenv);
@@ -104,20 +104,20 @@ sub migrate {
     my $nodename = $haenv->nodename();
 
     my $params = {
-	node => $nodename,
-	vmid => $id,
-	# bug #2241 forces is for local resource only, people can ensure that
-	# different host have the same hardware, so this can be fine, and qemu
-	# knows when not, so can only win here
-	force => 1,
-	'with-local-disks' => 1,
-	target => $target,
-	online => $online,
+        node => $nodename,
+        vmid => $id,
+        # bug #2241 forces is for local resource only, people can ensure that
+        # different host have the same hardware, so this can be fine, and qemu
+        # knows when not, so can only win here
+        force => 1,
+        'with-local-disks' => 1,
+        target => $target,
+        online => $online,
     };
 
     # explicitly shutdown if $online isn't true (relocate)
     if (!$online && $class->check_running($haenv, $id)) {
-	$class->shutdown($haenv, $id);
+        $class->shutdown($haenv, $id);
     }
 
     my $oldconfig = $class->config_file($id, $nodename);
@@ -135,20 +135,18 @@ sub check_running {
     my $nodename = $haenv->nodename();
 
     if (PVE::QemuServer::check_running($vmid, 1, $nodename)) {
-	# do not count VMs which are suspended for a backup job as running
-	my $conf = PVE::QemuConfig->load_config($vmid, $nodename);
-	if (defined($conf->{lock}) && $conf->{lock} eq 'backup') {
-	    my $qmpstatus = eval {
-		PVE::QemuServer::Monitor::mon_cmd($vmid, 'query-status')
-	    };
-	    warn "$@\n" if $@;
+        # do not count VMs which are suspended for a backup job as running
+        my $conf = PVE::QemuConfig->load_config($vmid, $nodename);
+        if (defined($conf->{lock}) && $conf->{lock} eq 'backup') {
+            my $qmpstatus = eval { PVE::QemuServer::Monitor::mon_cmd($vmid, 'query-status') };
+            warn "$@\n" if $@;
 
-	    return 0 if defined($qmpstatus) && $qmpstatus->{status} eq 'prelaunch';
-	}
+            return 0 if defined($qmpstatus) && $qmpstatus->{status} eq 'prelaunch';
+        }
 
-	return 1;
+        return 1;
     } else {
-	return 0;
+        return 0;
     }
 }
 
@@ -162,14 +160,14 @@ sub remove_locks {
     return undef if !defined($conf->{lock});
 
     foreach my $lock (@$locks) {
-	if ($conf->{lock} eq $lock) {
-	    delete $conf->{lock};
+        if ($conf->{lock} eq $lock) {
+            delete $conf->{lock};
 
-	    my $cfspath = PVE::QemuConfig->cfs_config_path($id, $service_node);
-	    PVE::Cluster::cfs_write_file($cfspath, $conf);
+            my $cfspath = PVE::QemuConfig->cfs_config_path($id, $service_node);
+            PVE::Cluster::cfs_write_file($cfspath, $conf);
 
-	    return $lock;
-	}
+            return $lock;
+        }
     }
 
     return undef;
@@ -181,8 +179,8 @@ sub get_static_stats {
     my $conf = PVE::QemuConfig->load_config($id, $service_node);
 
     return {
-	maxcpu => PVE::QemuConfig->get_derived_property($conf, 'max-cpu'),
-	maxmem => PVE::QemuConfig->get_derived_property($conf, 'max-memory'),
+        maxcpu => PVE::QemuConfig->get_derived_property($conf, 'max-cpu'),
+        maxmem => PVE::QemuConfig->get_derived_property($conf, 'max-memory'),
     };
 }
 

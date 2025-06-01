@@ -9,14 +9,14 @@ use PVE::HA::Tools;
 
 BEGIN {
     if (!$ENV{PVE_GENERATING_DOCS}) {
-	require PVE::LXC;
-	import  PVE::LXC;
-	require PVE::LXC::Config;
-	import  PVE::LXC::Config;
-	require PVE::API2::LXC;
-	import  PVE::API2::LXC;
-	require PVE::API2::LXC::Status;
-	import  PVE::API2::LXC::Status;
+        require PVE::LXC;
+        import PVE::LXC;
+        require PVE::LXC::Config;
+        import PVE::LXC::Config;
+        require PVE::API2::LXC;
+        import PVE::API2::LXC;
+        require PVE::API2::LXC::Status;
+        import PVE::API2::LXC::Status;
     }
 }
 
@@ -34,11 +34,11 @@ sub verify_name {
 
 sub options {
     return {
-	state => { optional => 1 },
-	group => { optional => 1 },
-	comment => { optional => 1 },
-	max_restart => { optional => 1 },
-	max_relocate => { optional => 1 },
+        state => { optional => 1 },
+        group => { optional => 1 },
+        comment => { optional => 1 },
+        max_restart => { optional => 1 },
+        max_relocate => { optional => 1 },
     };
 }
 
@@ -53,11 +53,11 @@ sub exists {
 
     my $vmlist = PVE::Cluster::get_vmlist();
 
-    if(!defined($vmlist->{ids}->{$vmid})) {
-	die "resource 'ct:$vmid' does not exist in cluster\n" if !$noerr;
-	return undef;
+    if (!defined($vmlist->{ids}->{$vmid})) {
+        die "resource 'ct:$vmid' does not exist in cluster\n" if !$noerr;
+        return undef;
     } else {
-	return 1;
+        return 1;
     }
 }
 
@@ -67,8 +67,8 @@ sub start {
     my $nodename = $haenv->nodename();
 
     my $params = {
-	node => $nodename,
-	vmid => $id
+        node => $nodename,
+        vmid => $id,
     };
 
     my $upid = PVE::API2::LXC::Status->vm_start($params);
@@ -83,15 +83,15 @@ sub shutdown {
 
     my $upid;
     my $params = {
-	node => $nodename,
-	vmid => $id,
+        node => $nodename,
+        vmid => $id,
     };
 
     if ($shutdown_timeout) {
-	$params->{timeout} = $shutdown_timeout;
-	$upid = PVE::API2::LXC::Status->vm_shutdown($params);
+        $params->{timeout} = $shutdown_timeout;
+        $upid = PVE::API2::LXC::Status->vm_shutdown($params);
     } else {
-	$upid = PVE::API2::LXC::Status->vm_stop($params);
+        $upid = PVE::API2::LXC::Status->vm_stop($params);
     }
 
     PVE::HA::Tools::upid_wait($upid, $haenv);
@@ -103,15 +103,15 @@ sub migrate {
     my $nodename = $haenv->nodename();
 
     my $params = {
-	node => $nodename,
-	vmid => $id,
-	target => $target,
-	online => 0, # we cannot migrate CT (yet) online, only relocate
+        node => $nodename,
+        vmid => $id,
+        target => $target,
+        online => 0, # we cannot migrate CT (yet) online, only relocate
     };
 
     # always relocate container for now
     if ($class->check_running($haenv, $id)) {
-	$class->shutdown($haenv, $id);
+        $class->shutdown($haenv, $id);
     }
 
     my $oldconfig = $class->config_file($id, $nodename);
@@ -139,14 +139,14 @@ sub remove_locks {
     return undef if !defined($conf->{lock});
 
     foreach my $lock (@$locks) {
-	if ($conf->{lock} eq $lock) {
-	    delete $conf->{lock};
+        if ($conf->{lock} eq $lock) {
+            delete $conf->{lock};
 
-	    my $cfspath = PVE::LXC::Config->cfs_config_path($id, $service_node);
-	    PVE::Cluster::cfs_write_file($cfspath, $conf);
+            my $cfspath = PVE::LXC::Config->cfs_config_path($id, $service_node);
+            PVE::Cluster::cfs_write_file($cfspath, $conf);
 
-	    return $lock;
-	}
+            return $lock;
+        }
     }
 
     return undef;
@@ -158,8 +158,8 @@ sub get_static_stats {
     my $conf = PVE::LXC::Config->load_config($id, $service_node);
 
     return {
-	maxcpu => PVE::LXC::Config->get_derived_property($conf, 'max-cpu'),
-	maxmem => PVE::LXC::Config->get_derived_property($conf, 'max-memory'),
+        maxcpu => PVE::LXC::Config->get_derived_property($conf, 'max-cpu'),
+        maxmem => PVE::LXC::Config->get_derived_property($conf, 'max-memory'),
     };
 }
 

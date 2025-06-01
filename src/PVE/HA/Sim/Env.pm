@@ -59,7 +59,7 @@ my $assert_cfs_can_rw = sub {
     $emsg //= 'cfs connection refused - not mounted?';
 
     die "$emsg\n"
-	if !$self->{hardware}->get_cfs_state($self->{nodename}, 'rw');
+        if !$self->{hardware}->get_cfs_state($self->{nodename}, 'rw');
 };
 
 sub sim_get_lock {
@@ -71,61 +71,61 @@ sub sim_get_lock {
 
     my $code = sub {
 
-	my $data = PVE::HA::Tools::read_json_from_file($filename, {});
+        my $data = PVE::HA::Tools::read_json_from_file($filename, {});
 
-	my $res;
+        my $res;
 
-	my $nodename = $self->nodename();
-	my $ctime = $self->get_time();
+        my $nodename = $self->nodename();
+        my $ctime = $self->get_time();
 
-	if ($unlock) {
+        if ($unlock) {
 
-	    if (my $d = $data->{$lock_name}) {
-		my $tdiff = $ctime - $d->{time};
+            if (my $d = $data->{$lock_name}) {
+                my $tdiff = $ctime - $d->{time};
 
-		if ($tdiff > $self->{lock_timeout}) {
-		    $res = 1;
-		} elsif (($tdiff <= $self->{lock_timeout}) && ($d->{node} eq $nodename)) {
-		    delete $data->{$lock_name};
-		    $res = 1;
-		} else {
-		    $res = 0;
-		}
-	    }
+                if ($tdiff > $self->{lock_timeout}) {
+                    $res = 1;
+                } elsif (($tdiff <= $self->{lock_timeout}) && ($d->{node} eq $nodename)) {
+                    delete $data->{$lock_name};
+                    $res = 1;
+                } else {
+                    $res = 0;
+                }
+            }
 
-	} else {
+        } else {
 
-	    if (my $d = $data->{$lock_name}) {
+            if (my $d = $data->{$lock_name}) {
 
-		my $tdiff = $ctime - $d->{time};
+                my $tdiff = $ctime - $d->{time};
 
-		if ($tdiff <= $self->{lock_timeout}) {
-		    if ($d->{node} eq $nodename) {
-			$d->{time} = $ctime;
-			$res = 1;
-		    } else {
-			$res = 0;
-		    }
-		} else {
-		    $self->log('info', "got lock '$lock_name'");
-		    $d->{node} = $nodename;
-		    $d->{time} = $ctime;
-		    $res = 1;
-		}
+                if ($tdiff <= $self->{lock_timeout}) {
+                    if ($d->{node} eq $nodename) {
+                        $d->{time} = $ctime;
+                        $res = 1;
+                    } else {
+                        $res = 0;
+                    }
+                } else {
+                    $self->log('info', "got lock '$lock_name'");
+                    $d->{node} = $nodename;
+                    $d->{time} = $ctime;
+                    $res = 1;
+                }
 
-	    } else {
-		$data->{$lock_name} = {
-		    time => $ctime,
-		    node => $nodename,
-		};
-		$self->log('info', "got lock '$lock_name'");
-		$res = 1;
-	    }
-	}
+            } else {
+                $data->{$lock_name} = {
+                    time => $ctime,
+                    node => $nodename,
+                };
+                $self->log('info', "got lock '$lock_name'");
+                $res = 1;
+            }
+        }
 
-	PVE::HA::Tools::write_json_to_file($filename, $data);
+        PVE::HA::Tools::write_json_to_file($filename, $data);
 
-	return $res;
+        return $res;
     };
 
     return $self->{hardware}->global_lock($code);
@@ -182,14 +182,14 @@ sub is_node_shutdown {
     my ($shutdown, $reboot) = (0, 0);
 
     if (my $target = $cstatus->{$node}->{shutdown}) {
-	if ($target eq 'shutdown') {
-	    $shutdown = 1;
-	} elsif ($target eq 'reboot') {
-	    $shutdown = 1;
-	    $reboot = 1;
-	} else {
-	    die "unknown shutdown target '$target'";
-	}
+        if ($target eq 'shutdown') {
+            $shutdown = 1;
+        } elsif ($target eq 'reboot') {
+            $shutdown = 1;
+            $reboot = 1;
+        } else {
+            die "unknown shutdown target '$target'";
+        }
     }
 
     return ($shutdown, $reboot);
@@ -213,7 +213,7 @@ sub parse_sid {
     my ($self, $sid) = @_;
 
     die "unable to parse service id '$sid'\n"
-	if !($sid =~ m/^(\S+):(\S+)$/);
+        if !($sid =~ m/^(\S+):(\S+)$/);
 
     my $name = $2;
     my $type = $1;
@@ -317,15 +317,15 @@ sub get_time {
 }
 
 sub sleep {
-   my ($self, $delay) = @_;
+    my ($self, $delay) = @_;
 
-   die "implement in subclass";
+    die "implement in subclass";
 }
 
 sub sleep_until {
-   my ($self, $end_time) = @_;
+    my ($self, $end_time) = @_;
 
-   die "implement in subclass";
+    die "implement in subclass";
 }
 
 sub get_ha_manager_lock {
@@ -357,7 +357,6 @@ sub get_ha_agent_lock {
     my $lck = $self->get_ha_agent_lock_name($node);
     return $self->sim_get_lock($lck);
 }
-
 
 # release the respective node agent lock.
 # this should only get called if the nodes LRM gracefully shuts down with
@@ -399,7 +398,6 @@ sub loop_end_hook {
     # do nothing, overwrite in subclass
 }
 
-
 sub cluster_state_update {
     my ($self) = @_;
 
@@ -432,7 +430,6 @@ sub after_fork {
     # nothing to clean up in the simulation environment
 }
 
-
 sub get_max_workers {
     my ($self) = @_;
 
@@ -446,8 +443,8 @@ sub get_datacenter_settings {
     my $datacenterconfig = $self->{hardware}->read_datacenter_conf();
 
     return {
-	ha => $datacenterconfig->{ha} // {},
-	crs => $datacenterconfig->{crs} // {},
+        ha => $datacenterconfig->{ha} // {},
+        crs => $datacenterconfig->{crs} // {},
     };
 }
 

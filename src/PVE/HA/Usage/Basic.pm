@@ -9,8 +9,8 @@ sub new {
     my ($class, $haenv) = @_;
 
     return bless {
-	nodes => {},
-	haenv => $haenv,
+        nodes => {},
+        haenv => $haenv,
     }, $class;
 }
 
@@ -42,12 +42,12 @@ sub add_service_usage_to_node {
     my ($self, $nodename, $sid, $service_node, $migration_target) = @_;
 
     if ($self->contains_node($nodename)) {
-	$self->{nodes}->{$nodename}++;
+        $self->{nodes}->{$nodename}++;
     } else {
-	$self->{haenv}->log(
-	    'warning',
-	    "unable to add service '$sid' usage to node '$nodename' - node not in usage hash",
-	);
+        $self->{haenv}->log(
+            'warning',
+            "unable to add service '$sid' usage to node '$nodename' - node not in usage hash",
+        );
     }
 }
 

@@ -19,7 +19,6 @@ if (!GetOptions(
 
 my ($run, $failed) = (0, []);
 
-
 my $STDOLD;
 
 sub do_run_test {
@@ -31,13 +30,13 @@ sub do_run_test {
     print "run: $dir\n";
 
     if ($opt_notestout) {
-	open($STDOLD, '>&', STDOUT); # if request redirect stdout into nirvana but save old one
-	open(STDOUT, '>>', '/dev/null');
+        open($STDOLD, '>&', STDOUT); # if request redirect stdout into nirvana but save old one
+        open(STDOUT, '>>', '/dev/null');
     }
 
     my $res = system('perl', '-I../', '../pve-ha-tester', "$dir"); # actually running the test
 
-    open (STDOUT, '>&', $STDOLD) if $opt_notestout; # restore back again
+    open(STDOUT, '>&', $STDOLD) if $opt_notestout; # restore back again
 
     return "Test '$dir' failed\n" if $res != 0;
 
@@ -47,12 +46,12 @@ sub do_run_test {
     my $logexpect = "$dir/log.expect";
 
     if (-f $logexpect) {
-	my $cmd = ['diff', '-u', $logexpect, $logfile];
-	$res = system(@$cmd);
-	return "test '$dir' failed\n" if $res != 0;
+        my $cmd = ['diff', '-u', $logexpect, $logfile];
+        $res = system(@$cmd);
+        return "test '$dir' failed\n" if $res != 0;
     } else {
-	$res = system('cp', $logfile, $logexpect);
-	return "test '$dir' failed\n" if $res != 0;
+        $res = system('cp', $logfile, $logexpect);
+        return "test '$dir' failed\n" if $res != 0;
     }
     print "end: $dir (success)\n";
 
@@ -82,7 +81,7 @@ if (my $testdir = shift) {
     run_test($testdir);
 } else {
     foreach my $dir (<test-*>) {
-	run_test($dir);
+        run_test($dir);
     }
 }
 

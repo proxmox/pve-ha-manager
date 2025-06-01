@@ -30,20 +30,20 @@ sub new {
     my $class = ref($this) || $this;
 
     my $self = bless {
-	haenv => $haenv,
-	status => { state => 'startup' },
-	workers => {},
-	results => {},
-	restart_tries => {},
-	shutdown_request => 0,
-	shutdown_errors => 0,
-	# mode can be: active, reboot, shutdown, restart, maintenance
-	mode => 'active',
-	cluster_state_update => 0,
-	active_idle_rounds => 0,
+        haenv => $haenv,
+        status => { state => 'startup' },
+        workers => {},
+        results => {},
+        restart_tries => {},
+        shutdown_request => 0,
+        shutdown_errors => 0,
+        # mode can be: active, reboot, shutdown, restart, maintenance
+        mode => 'active',
+        cluster_state_update => 0,
+        active_idle_rounds => 0,
     }, $class;
 
-    $self->set_local_status({ state => 	'wait_for_agent_lock' });
+    $self->set_local_status({ state => 'wait_for_agent_lock' });
 
     return $self;
 }
@@ -63,82 +63,85 @@ sub shutdown_request {
     my $shutdown_policy = $dc_cfg->{ha}->{shutdown_policy} // 'conditional';
 
     if ($shutdown) { # don't log this on service restart, only on node shutdown
-	$haenv->log('info', "got shutdown request with shutdown policy '$shutdown_policy'");
+        $haenv->log('info', "got shutdown request with shutdown policy '$shutdown_policy'");
     }
 
     my $freeze_all;
     my $maintenance;
     if ($shutdown_policy eq 'conditional') {
-	$freeze_all = $reboot;
+        $freeze_all = $reboot;
     } elsif ($shutdown_policy eq 'freeze') {
-	$freeze_all = 1;
+        $freeze_all = 1;
     } elsif ($shutdown_policy eq 'failover') {
-	$freeze_all = 0;
+        $freeze_all = 0;
     } elsif ($shutdown_policy eq 'migrate') {
-	$maintenance = 1;
+        $maintenance = 1;
     } else {
-	$haenv->log('err', "unknown shutdown policy '$shutdown_policy', fall back to conditional");
-	$freeze_all = $reboot;
+        $haenv->log('err', "unknown shutdown policy '$shutdown_policy', fall back to conditional");
+        $freeze_all = $reboot;
     }
 
     if ($maintenance) {
-	# we get marked as unaivalable by the manager, then all services will
-	# be migrated away, we'll still have the same "can we exit" clause than
-	# a normal shutdown -> no running service on this node
-	# FIXME: after X minutes, add shutdown command for remaining services,
-	# e.g., if they have no alternative node???
+        # we get marked as unaivalable by the manager, then all services will
+        # be migrated away, we'll still have the same "can we exit" clause than
+        # a normal shutdown -> no running service on this node
+        # FIXME: after X minutes, add shutdown command for remaining services,
+        # e.g., if they have no alternative node???
     } elsif ($shutdown) {
-	# *always* queue stop jobs for all services if the node shuts down,
-	# independent if it's a reboot or a poweroff, else we may corrupt
-	# services or hinder node shutdown
-	my $ss = $self->{service_status};
+        # *always* queue stop jobs for all services if the node shuts down,
+        # independent if it's a reboot or a poweroff, else we may corrupt
+        # services or hinder node shutdown
+        my $ss = $self->{service_status};
 
-	foreach my $sid (keys %$ss) {
-	    my $sd = $ss->{$sid};
-	    next if !$sd->{node};
-	    next if $sd->{node} ne $nodename;
-	    # Note: use undef uid to mark shutdown/stop jobs
-	    $self->queue_resource_command($sid, undef, 'request_stop');
-	}
+        foreach my $sid (keys %$ss) {
+            my $sd = $ss->{$sid};
+            next if !$sd->{node};
+            next if $sd->{node} ne $nodename;
+            # Note: use undef uid to mark shutdown/stop jobs
+            $self->queue_resource_command($sid, undef, 'request_stop');
+        }
     }
 
     if ($shutdown) {
-	my $shutdown_type = $reboot ? 'reboot' : 'shutdown';
-	if ($self->is_maintenance_requested()) {
-	    if ($maintenance) {
-		$haenv->log(
-		    'info',
-		    "$shutdown_type LRM, ignore maintenance policy, already in maintenance mode",
-		);
-	    } else {
-		$haenv->log(
-		    'info',
-		    "$shutdown_type LRM, ignore $shutdown_policy policy as manual maintenance mode is enabled",
-		);
-	    }
-	} elsif ($maintenance) {
-	    $haenv->log('info', "$shutdown_type LRM, doing maintenance, removing this node from active list");
-	    $self->{mode} = 'maintenance';
-	} elsif ($freeze_all) {
-	    $haenv->log('info', "$shutdown_type LRM, stop and freeze all services");
-	    $self->{mode} = 'restart';
-	} else {
-	    $haenv->log('info', "shutdown LRM, stop all services");
-	    $self->{mode} = 'shutdown';
-	}
+        my $shutdown_type = $reboot ? 'reboot' : 'shutdown';
+        if ($self->is_maintenance_requested()) {
+            if ($maintenance) {
+                $haenv->log(
+                    'info',
+                    "$shutdown_type LRM, ignore maintenance policy, already in maintenance mode",
+                );
+            } else {
+                $haenv->log(
+                    'info',
+                    "$shutdown_type LRM, ignore $shutdown_policy policy as manual maintenance mode is enabled",
+                );
+            }
+        } elsif ($maintenance) {
+            $haenv->log(
+                'info',
+                "$shutdown_type LRM, doing maintenance, removing this node from active list",
+            );
+            $self->{mode} = 'maintenance';
+        } elsif ($freeze_all) {
+            $haenv->log('info', "$shutdown_type LRM, stop and freeze all services");
+            $self->{mode} = 'restart';
+        } else {
+            $haenv->log('info', "shutdown LRM, stop all services");
+            $self->{mode} = 'shutdown';
+        }
     } elsif ($self->is_maintenance_requested()) {
-	$haenv->log('
+        $haenv->log('
 	    info', "Restarting LRM in maintenance mode may be delayed until all services are moved");
     } else {
-	$haenv->log('info', "restart LRM, freeze all services");
-	$self->{mode} = 'restart';
+        $haenv->log('info', "restart LRM, freeze all services");
+        $self->{mode} = 'restart';
     }
 
     $self->{shutdown_request} = $haenv->get_time();
 
     eval { $self->update_lrm_status() or die "not quorate?\n"; };
     if (my $err = $@) {
-	$haenv->log('err', "unable to update lrm status file - $err");
+        $haenv->log('err', "unable to update lrm status file - $err");
     }
 }
 
@@ -151,7 +154,7 @@ sub get_local_status {
 sub set_local_status {
     my ($self, $new) = @_;
 
-    die "invalid state '$new->{state}'" if !$valid_states->{$new->{state}};
+    die "invalid state '$new->{state}'" if !$valid_states->{ $new->{state} };
 
     my $haenv = $self->{haenv};
 
@@ -175,16 +178,16 @@ sub update_lrm_status {
     return 0 if !$haenv->quorate();
 
     my $lrm_status = {
-	state => $self->{status}->{state},
-	mode => $self->{mode},
-	results => $self->{results},
-	timestamp => $haenv->get_time(),
+        state => $self->{status}->{state},
+        mode => $self->{mode},
+        results => $self->{results},
+        timestamp => $haenv->get_time(),
     };
 
     eval { $haenv->write_lrm_status($lrm_status); };
     if (my $err = $@) {
-	$haenv->log('err', "unable to write lrm status file - $err");
-	return 0;
+        $haenv->log('err', "unable to write lrm status file - $err");
+        return 0;
     }
 
     return 1;
@@ -197,24 +200,24 @@ sub update_service_status {
 
     my $ms = eval { $haenv->read_manager_status(); };
     if (my $err = $@) {
-	$haenv->log('err', "updating service status from manager failed: $err");
-	return undef;
+        $haenv->log('err', "updating service status from manager failed: $err");
+        return undef;
     } else {
-	$self->{service_status} = $ms->{service_status} || {};
-	my $nodename = $haenv->nodename();
-	$self->{node_status} = $ms->{node_status}->{$nodename} || 'unknown';
+        $self->{service_status} = $ms->{service_status} || {};
+        my $nodename = $haenv->nodename();
+        $self->{node_status} = $ms->{node_status}->{$nodename} || 'unknown';
 
-	# FIXME: method name is a bit confusing for doing this, either rename or move
-	if (!$self->{shutdown_request}) {
-	    my $request = $ms->{node_request}->{$nodename} // {};
-	    if ($request->{maintenance}) {
-		$self->{mode} = 'maintenance';
-	    } elsif ($self->{mode} eq 'maintenance') {
-		$self->{mode} = 'active';
-	    }
-	}
+        # FIXME: method name is a bit confusing for doing this, either rename or move
+        if (!$self->{shutdown_request}) {
+            my $request = $ms->{node_request}->{$nodename} // {};
+            if ($request->{maintenance}) {
+                $self->{mode} = 'maintenance';
+            } elsif ($self->{mode} eq 'maintenance') {
+                $self->{mode} = 'active';
+            }
+        }
 
-	return 1;
+        return 1;
     }
 }
 
@@ -228,22 +231,22 @@ sub get_protected_ha_agent_lock {
 
     for (;;) {
 
-	if ($haenv->get_ha_agent_lock()) {
-	    if ($self->{ha_agent_wd}) {
-		$haenv->watchdog_update($self->{ha_agent_wd});
-	    } else {
-		my $wfh = $haenv->watchdog_open();
-		$self->{ha_agent_wd} = $wfh;
-	    }
-	    return 1;
-	}
+        if ($haenv->get_ha_agent_lock()) {
+            if ($self->{ha_agent_wd}) {
+                $haenv->watchdog_update($self->{ha_agent_wd});
+            } else {
+                my $wfh = $haenv->watchdog_open();
+                $self->{ha_agent_wd} = $wfh;
+            }
+            return 1;
+        }
 
-	last if ++$count > 5; # try max 5 time
+        last if ++$count > 5; # try max 5 time
 
-	my $delay = $haenv->get_time() - $starttime;
-	last if $delay > 5; # for max 5 seconds
+        my $delay = $haenv->get_time() - $starttime;
+        last if $delay > 5; # for max 5 seconds
 
-	$haenv->sleep(1);
+        $haenv->sleep(1);
     }
 
     return 0;
@@ -258,10 +261,10 @@ sub has_configured_service_on_local_node {
 
     my $ss = $self->{service_status};
     foreach my $sid (keys %$ss) {
-	my $sd = $ss->{$sid};
-	next if !$sd->{node} || $sd->{node} ne $nodename;
+        my $sd = $ss->{$sid};
+        next if !$sd->{node} || $sd->{node} ne $nodename;
 
-	return 1;
+        return 1;
     }
     return 0;
 }
@@ -296,20 +299,20 @@ sub active_service_count {
 
     my $count = 0;
     foreach my $sid (keys %$ss) {
-	my $sd = $ss->{$sid};
-	next if !$sd->{node};
-	next if $sd->{node} ne $nodename;
-	my $req_state = $sd->{state};
-	next if !defined($req_state);
-	next if $req_state eq 'stopped';
-	# NOTE: 'ignored' ones are already dropped by the manager from service_status
-	next if $req_state eq 'freeze';
-	# erroneous services are not managed by HA, don't count them as active
-	next if $req_state eq 'error';
-	# request_start is for (optional) better node selection for stop -> started transition
-	next if $req_state eq 'request_start';
+        my $sd = $ss->{$sid};
+        next if !$sd->{node};
+        next if $sd->{node} ne $nodename;
+        my $req_state = $sd->{state};
+        next if !defined($req_state);
+        next if $req_state eq 'stopped';
+        # NOTE: 'ignored' ones are already dropped by the manager from service_status
+        next if $req_state eq 'freeze';
+        # erroneous services are not managed by HA, don't count them as active
+        next if $req_state eq 'error';
+        # request_start is for (optional) better node selection for stop -> started transition
+        next if $req_state eq 'request_start';
 
-	$count++;
+        $count++;
     }
 
     return $count;
@@ -339,8 +342,8 @@ my sub give_up_watchdog_protection {
     my ($self) = @_;
 
     if ($self->{ha_agent_wd}) {
-	$self->{haenv}->watchdog_close($self->{ha_agent_wd});
-	delete $self->{ha_agent_wd}; # only delete after close!
+        $self->{haenv}->watchdog_close($self->{ha_agent_wd});
+        delete $self->{ha_agent_wd}; # only delete after close!
     }
 }
 
@@ -350,13 +353,13 @@ sub work {
     my $haenv = $self->{haenv};
 
     if (!$wrote_lrm_status_at_startup) {
-	if ($self->update_lrm_status()) {
-	    $wrote_lrm_status_at_startup = 1;
-	} else {
-	    # do nothing
-	    $haenv->sleep(5);
-	    return $self->{shutdown_request} ? 0 : 1;
-	}
+        if ($self->update_lrm_status()) {
+            $wrote_lrm_status_at_startup = 1;
+        } else {
+            # do nothing
+            $haenv->sleep(5);
+            return $self->{shutdown_request} ? 0 : 1;
+        }
     }
 
     my $status = $self->get_local_status();
@@ -372,65 +375,71 @@ sub work {
 
     if ($state eq 'wait_for_agent_lock') {
 
-	my $service_count = $self->active_service_count();
+        my $service_count = $self->active_service_count();
 
-	if (!$fence_request && $service_count && $haenv->quorate()) {
-	    if ($self->get_protected_ha_agent_lock()) {
-		$self->set_local_status({ state => 'active' });
-	    }
-	}
+        if (!$fence_request && $service_count && $haenv->quorate()) {
+            if ($self->get_protected_ha_agent_lock()) {
+                $self->set_local_status({ state => 'active' });
+            }
+        }
 
     } elsif ($state eq 'lost_agent_lock') {
 
-	if (!$fence_request && $haenv->quorate()) {
-	    if ($self->get_protected_ha_agent_lock()) {
-		$self->set_local_status({ state => 'active' });
-	    }
-	}
+        if (!$fence_request && $haenv->quorate()) {
+            if ($self->get_protected_ha_agent_lock()) {
+                $self->set_local_status({ state => 'active' });
+            }
+        }
 
     } elsif ($state eq 'active') {
 
-	if ($fence_request) {
-	    $haenv->log('err', "node need to be fenced - releasing agent_lock\n");
-	    $self->set_local_status({ state => 'lost_agent_lock'});
-	} elsif (!$self->get_protected_ha_agent_lock()) {
-	    $self->set_local_status({ state => 'lost_agent_lock'});
-	} elsif ($self->is_maintenance_requested()) {
-	    $self->set_local_status({ state => 'maintenance'});
-	} else {
-	    if (!$self->has_configured_service_on_local_node() && !$self->run_workers()) {
-		# no active service configured for this node and all (old) workers are done
-		$self->{active_idle_rounds}++;
-		if ($self->{active_idle_rounds} > $max_active_idle_rounds) {
-		    $haenv->log('info', "node had no service configured for $max_active_idle_rounds rounds, going idle.\n");
-		    # safety: no active service & no running worker for quite some time -> OK
-		    $haenv->release_ha_agent_lock();
-		    give_up_watchdog_protection($self);
-		    $self->set_local_status({ state => 'wait_for_agent_lock'});
-		    $self->{active_idle_rounds} = 0;
-		}
-	    } elsif ($self->{active_idle_rounds}) {
-		$self->{active_idle_rounds} = 0;
-	    }
-	}
+        if ($fence_request) {
+            $haenv->log('err', "node need to be fenced - releasing agent_lock\n");
+            $self->set_local_status({ state => 'lost_agent_lock' });
+        } elsif (!$self->get_protected_ha_agent_lock()) {
+            $self->set_local_status({ state => 'lost_agent_lock' });
+        } elsif ($self->is_maintenance_requested()) {
+            $self->set_local_status({ state => 'maintenance' });
+        } else {
+            if (!$self->has_configured_service_on_local_node() && !$self->run_workers()) {
+                # no active service configured for this node and all (old) workers are done
+                $self->{active_idle_rounds}++;
+                if ($self->{active_idle_rounds} > $max_active_idle_rounds) {
+                    $haenv->log(
+                        'info',
+                        "node had no service configured for $max_active_idle_rounds rounds, going idle.\n",
+                    );
+                    # safety: no active service & no running worker for quite some time -> OK
+                    $haenv->release_ha_agent_lock();
+                    give_up_watchdog_protection($self);
+                    $self->set_local_status({ state => 'wait_for_agent_lock' });
+                    $self->{active_idle_rounds} = 0;
+                }
+            } elsif ($self->{active_idle_rounds}) {
+                $self->{active_idle_rounds} = 0;
+            }
+        }
     } elsif ($state eq 'maintenance') {
 
-	if ($fence_request) {
-	    $haenv->log('err', "node need to be fenced during maintenance mode - releasing agent_lock\n");
-	    $self->set_local_status({ state => 'lost_agent_lock'});
-	} elsif ($self->active_service_count() || $self->run_workers()) {
-	    # keep the lock and watchdog as long as not all services cleared the node
-	    if (!$self->get_protected_ha_agent_lock()) {
-		$self->set_local_status({ state => 'lost_agent_lock'});
-	    }
-	} elsif (!$self->is_maintenance_requested()) {
-	    # empty && no maintenance mode && not exited -> need to switch active again
-	    if ($self->get_protected_ha_agent_lock()) {
-		$self->set_local_status({ state => 'active' });
-	    } else {
-		$self->set_local_status({ state => 'lost_agent_lock'});
-	    }
-	}
+        if ($fence_request) {
+            $haenv->log(
+                'err',
+                "node need to be fenced during maintenance mode - releasing agent_lock\n",
+            );
+            $self->set_local_status({ state => 'lost_agent_lock' });
+        } elsif ($self->active_service_count() || $self->run_workers()) {
+            # keep the lock and watchdog as long as not all services cleared the node
+            if (!$self->get_protected_ha_agent_lock()) {
+                $self->set_local_status({ state => 'lost_agent_lock' });
+            }
+        } elsif (!$self->is_maintenance_requested()) {
+            # empty && no maintenance mode && not exited -> need to switch active again
+            if ($self->get_protected_ha_agent_lock()) {
+                $self->set_local_status({ state => 'active' });
+            } else {
+                $self->set_local_status({ state => 'lost_agent_lock' });
+            }
+        }
     }
 
     $status = $self->get_local_status();
@@ -440,147 +449,155 @@ sub work {
 
     if ($state eq 'wait_for_agent_lock') {
 
-	return 0 if $self->{shutdown_request};
+        return 0 if $self->{shutdown_request};
 
-	$self->update_lrm_status();
+        $self->update_lrm_status();
 
-	$haenv->sleep(5);
+        $haenv->sleep(5);
 
     } elsif ($state eq 'active') {
 
-	my $startime = $haenv->get_time();
+        my $startime = $haenv->get_time();
 
-	my $max_time = 10;
+        my $max_time = 10;
 
-	my $shutdown = 0;
+        my $shutdown = 0;
 
-	# do work (max_time seconds)
-	eval {
-	    # fixme: set alert timer
+        # do work (max_time seconds)
+        eval {
+            # fixme: set alert timer
 
-	    # if we could not get the current service status there's no point
-	    # in doing anything, try again next round.
-	    return if !$self->update_service_status();
+            # if we could not get the current service status there's no point
+            # in doing anything, try again next round.
+            return if !$self->update_service_status();
 
-	    if ($self->{shutdown_request}) {
+            if ($self->{shutdown_request}) {
 
-		if ($self->{mode} eq 'restart') {
-		    # catch exited workers to update service state
-		    my $workers = $self->run_workers();
-		    my $service_count = $self->active_service_count();
+                if ($self->{mode} eq 'restart') {
+                    # catch exited workers to update service state
+                    my $workers = $self->run_workers();
+                    my $service_count = $self->active_service_count();
 
-		    if ($service_count == 0 && $workers == 0) {
-			# safety: no active services or workers -> OK
-			give_up_watchdog_protection($self);
-			$shutdown = 1;
+                    if ($service_count == 0 && $workers == 0) {
+                        # safety: no active services or workers -> OK
+                        give_up_watchdog_protection($self);
+                        $shutdown = 1;
 
-			# restart with no or freezed services, release the lock
-			$haenv->release_ha_agent_lock();
-		    }
-		} else {
+                        # restart with no or freezed services, release the lock
+                        $haenv->release_ha_agent_lock();
+                    }
+                } else {
 
-		    if ($self->run_workers() == 0) {
-			if ($self->{shutdown_errors} == 0) {
-			    # safety: no active services and LRM shutdown -> OK
-			    give_up_watchdog_protection($self);
+                    if ($self->run_workers() == 0) {
+                        if ($self->{shutdown_errors} == 0) {
+                            # safety: no active services and LRM shutdown -> OK
+                            give_up_watchdog_protection($self);
 
-			    # shutdown with all services stopped thus release the lock
-			    $haenv->release_ha_agent_lock();
-			}
+                            # shutdown with all services stopped thus release the lock
+                            $haenv->release_ha_agent_lock();
+                        }
 
-			$shutdown = 1;
-		    }
-		}
-	    } else {
-		if (!$self->{cluster_state_update}) {
-		    # update failed but we could still renew our lock (cfs restart?),
-		    # safely skip manage and expect to update just fine next round
-		    $haenv->log('notice', "temporary inconsistent cluster state " .
-		                "(cfs restart?), skip round");
-		    return;
-		}
+                        $shutdown = 1;
+                    }
+                }
+            } else {
+                if (!$self->{cluster_state_update}) {
+                    # update failed but we could still renew our lock (cfs restart?),
+                    # safely skip manage and expect to update just fine next round
+                    $haenv->log(
+                        'notice',
+                        "temporary inconsistent cluster state " . "(cfs restart?), skip round",
+                    );
+                    return;
+                }
 
-		$self->manage_resources();
+                $self->manage_resources();
 
-	    }
-	};
-	if (my $err = $@) {
-	    $haenv->log('err', "got unexpected error - $err");
-	}
+            }
+        };
+        if (my $err = $@) {
+            $haenv->log('err', "got unexpected error - $err");
+        }
 
-	$self->update_lrm_status();
+        $self->update_lrm_status();
 
-	return 0 if $shutdown;
+        return 0 if $shutdown;
 
-	$haenv->sleep_until($startime + $max_time);
+        $haenv->sleep_until($startime + $max_time);
 
     } elsif ($state eq 'lost_agent_lock') {
 
-	# NOTE: watchdog is active an will trigger soon!
-	# so we hope to get the lock back soon!
-	if ($self->{shutdown_request}) {
+        # NOTE: watchdog is active an will trigger soon!
+        # so we hope to get the lock back soon!
+        if ($self->{shutdown_request}) {
 
-	    my $service_count = $self->active_service_count();
+            my $service_count = $self->active_service_count();
 
-	    if ($service_count > 0) {
-		$haenv->log('err', "get shutdown request in state 'lost_agent_lock' - " .
-			    "detected $service_count running services");
+            if ($service_count > 0) {
+                $haenv->log(
+                    'err',
+                    "get shutdown request in state 'lost_agent_lock' - "
+                        . "detected $service_count running services",
+                );
 
-		if ($self->{mode} eq 'restart') {
-		    my $state_mt = $self->{status}->{state_change_time};
+                if ($self->{mode} eq 'restart') {
+                    my $state_mt = $self->{status}->{state_change_time};
 
-		    # watchdog should have already triggered, so either it's set
-		    # set to noboot or it failed. As we are in restart mode, and
-		    # have infinity stoptimeout -> exit now - we don't touch  services
-		    # or change state, so this is save, relatively speaking
-		    if (($haenv->get_time() - $state_mt) > 90) {
-			$haenv->log('err', "lost agent lock and restart request for over 90 seconds - giving up!");
-			return 0;
-		    }
-		}
-	    } else {
-		# safety: all services are stopped, so we can close the watchdog
-		give_up_watchdog_protection($self);
+                    # watchdog should have already triggered, so either it's set
+                    # set to noboot or it failed. As we are in restart mode, and
+                    # have infinity stoptimeout -> exit now - we don't touch  services
+                    # or change state, so this is save, relatively speaking
+                    if (($haenv->get_time() - $state_mt) > 90) {
+                        $haenv->log(
+                            'err',
+                            "lost agent lock and restart request for over 90 seconds - giving up!",
+                        );
+                        return 0;
+                    }
+                }
+            } else {
+                # safety: all services are stopped, so we can close the watchdog
+                give_up_watchdog_protection($self);
 
-		return 0;
-	    }
-	}
+                return 0;
+            }
+        }
 
-	$haenv->sleep(5);
+        $haenv->sleep(5);
 
     } elsif ($state eq 'maintenance') {
 
-	my $startime = $haenv->get_time();
-	return if !$self->update_service_status();
+        my $startime = $haenv->get_time();
+        return if !$self->update_service_status();
 
-	# wait until all active services moved away
-	my $service_count = $self->active_service_count();
+        # wait until all active services moved away
+        my $service_count = $self->active_service_count();
 
-	my $exit_lrm = 0;
+        my $exit_lrm = 0;
 
-	if ($service_count == 0 && $self->run_workers() == 0) {
-	    # safety: going into maintenance and all active services got moved -> OK
-	    give_up_watchdog_protection($self);
+        if ($service_count == 0 && $self->run_workers() == 0) {
+            # safety: going into maintenance and all active services got moved -> OK
+            give_up_watchdog_protection($self);
 
-	    if ($self->{shutdown_request}) {
-		$exit_lrm = 1;
-	    }
+            if ($self->{shutdown_request}) {
+                $exit_lrm = 1;
+            }
 
-	    # maintenance mode with no or only frozen services anymore, release the lock
-	    $haenv->release_ha_agent_lock();
-	}
+            # maintenance mode with no or only frozen services anymore, release the lock
+            $haenv->release_ha_agent_lock();
+        }
 
-	$self->manage_resources() if !$exit_lrm;
+        $self->manage_resources() if !$exit_lrm;
 
-	$self->update_lrm_status();
+        $self->update_lrm_status();
 
-	return 0 if $exit_lrm;
+        return 0 if $exit_lrm;
 
-	$haenv->sleep_until($startime + 5);
+        $haenv->sleep_until($startime + 5);
 
     } else {
 
-	die "got unexpected status '$state'\n";
+        die "got unexpected status '$state'\n";
 
     }
 
@@ -602,66 +619,69 @@ sub run_workers {
     # we only got limited time but want to ensure that every queued worker is scheduled
     # eventually, so sort by the count a worker was seen here in this loop
     my $fair_sorter = sub {
-	$worker->{$b}->{start_tries} <=> $worker->{$a}->{start_tries} || $a cmp $b
+        $worker->{$b}->{start_tries} <=> $worker->{$a}->{start_tries} || $a cmp $b;
     };
 
     while (($haenv->get_time() - $starttime) <= 8) {
-	my $count = $self->check_active_workers();
+        my $count = $self->check_active_workers();
 
-	for my $sid (sort $fair_sorter grep { !$worker->{$_}->{pid} } keys %$worker) {
-	    my $w = $worker->{$sid};
-	    # higher try-count means higher priority especially compared to newly queued jobs, so
-	    # count every try to avoid starvation
-	    $w->{start_tries}++;
-	    # FIXME: should be last and ensure that check_active_workers is called sooner
-	    next if $count >= $max_workers && $max_workers > 0;
+        for my $sid (sort $fair_sorter grep { !$worker->{$_}->{pid} } keys %$worker) {
+            my $w = $worker->{$sid};
+            # higher try-count means higher priority especially compared to newly queued jobs, so
+            # count every try to avoid starvation
+            $w->{start_tries}++;
+            # FIXME: should be last and ensure that check_active_workers is called sooner
+            next if $count >= $max_workers && $max_workers > 0;
 
-	    # only fork if we may, else call exec_resource_agent directly (e.g. for tests)
-	    if ($max_workers > 0) {
-		my $pid = fork();
-		if (!defined($pid)) {
-		    $haenv->log('err', "forking worker failed - $!");
-		    $count = 0; last; # abort, try later
-		} elsif ($pid == 0) {
-		    $haenv->after_fork(); # cleanup
+            # only fork if we may, else call exec_resource_agent directly (e.g. for tests)
+            if ($max_workers > 0) {
+                my $pid = fork();
+                if (!defined($pid)) {
+                    $haenv->log('err', "forking worker failed - $!");
+                    $count = 0;
+                    last; # abort, try later
+                } elsif ($pid == 0) {
+                    $haenv->after_fork(); # cleanup
 
-		    # do work
-		    my $res = -1;
-		    eval {
-			$res = $self->exec_resource_agent($sid, $sc->{$sid}, $w->{state}, $w->{params});
-		    };
-		    if (my $err = $@) {
-			$haenv->log('err', $err);
-			POSIX::_exit(-1);
-		    }
-		    POSIX::_exit($res);
-		} else {
-		    $count++;
-		    $w->{pid} = $pid;
-		}
-	    } else {
-		my $res = -1;
-		eval {
-		    $res = $self->exec_resource_agent($sid, $sc->{$sid}, $w->{state}, $w->{params});
-		    $res = $res << 8 if $res > 0;
-		};
-		if (my $err = $@) {
-		    $haenv->log('err', $err);
-		}
-		if (defined($w->{uid})) {
-		    $self->resource_command_finished($sid, $w->{uid}, $res);
-		} else {
-		    $self->stop_command_finished($sid, $res);
-		}
-	    }
-	}
+                    # do work
+                    my $res = -1;
+                    eval {
+                        $res = $self->exec_resource_agent($sid, $sc->{$sid}, $w->{state},
+                            $w->{params});
+                    };
+                    if (my $err = $@) {
+                        $haenv->log('err', $err);
+                        POSIX::_exit(-1);
+                    }
+                    POSIX::_exit($res);
+                } else {
+                    $count++;
+                    $w->{pid} = $pid;
+                }
+            } else {
+                my $res = -1;
+                eval {
+                    $res =
+                        $self->exec_resource_agent($sid, $sc->{$sid}, $w->{state}, $w->{params});
+                    $res = $res << 8 if $res > 0;
+                };
+                if (my $err = $@) {
+                    $haenv->log('err', $err);
+                }
+                if (defined($w->{uid})) {
+                    $self->resource_command_finished($sid, $w->{uid}, $res);
+                } else {
+                    $self->stop_command_finished($sid, $res);
+                }
+            }
+        }
 
-	last if !$count;
+        last if !$count;
 
-	$haenv->sleep(1);
+        $haenv->sleep(1);
     }
 
-    return scalar(keys %{$self->{workers}});
+    return scalar(keys %{ $self->{workers} });
 }
 
 sub manage_resources {
@@ -673,28 +693,33 @@ sub manage_resources {
 
     my $ss = $self->{service_status};
 
-    foreach my $sid (keys %{$self->{restart_tries}}) {
-	delete $self->{restart_tries}->{$sid} if !$ss->{$sid};
+    foreach my $sid (keys %{ $self->{restart_tries} }) {
+        delete $self->{restart_tries}->{$sid} if !$ss->{$sid};
     }
 
     foreach my $sid (keys %$ss) {
-	my $sd = $ss->{$sid};
-	next if !$sd->{node} || !$sd->{uid};
-	next if $sd->{node} ne $nodename;
-	my $request_state = $sd->{state};
-	next if !defined($request_state);
-	# can only happen for restricted groups where the failed node itself needs to be the
-	# reocvery target. Always let the master first do so, it will then marked as 'stopped' and
-	# we can just continue normally. But we must NOT do anything with it while still in recovery
-	next if $request_state eq 'recovery';
-	next if $request_state eq 'freeze';
-	# intermediate step for optional better node selection on stop -> start request state change
-	next if $request_state eq 'request_start';
+        my $sd = $ss->{$sid};
+        next if !$sd->{node} || !$sd->{uid};
+        next if $sd->{node} ne $nodename;
+        my $request_state = $sd->{state};
+        next if !defined($request_state);
+        # can only happen for restricted groups where the failed node itself needs to be the
+        # reocvery target. Always let the master first do so, it will then marked as 'stopped' and
+        # we can just continue normally. But we must NOT do anything with it while still in recovery
+        next if $request_state eq 'recovery';
+        next if $request_state eq 'freeze';
+        # intermediate step for optional better node selection on stop -> start request state change
+        next if $request_state eq 'request_start';
 
-	$self->queue_resource_command($sid, $sd->{uid}, $request_state, {
-	    'target' => $sd->{target},
-	    'timeout' => $sd->{timeout},
-	});
+        $self->queue_resource_command(
+            $sid,
+            $sd->{uid},
+            $request_state,
+            {
+                'target' => $sd->{target},
+                'timeout' => $sd->{timeout},
+            },
+        );
     }
 
     return $self->run_workers();
@@ -711,16 +736,16 @@ sub queue_resource_command {
     return if $state ne 'stopped' && $uid && defined($self->{results}->{$uid});
 
     if (my $w = $self->{workers}->{$sid}) {
-	return if $w->{pid}; # already started
-	# else, delete and overwrite queue entry with new command
-	delete $self->{workers}->{$sid};
+        return if $w->{pid}; # already started
+        # else, delete and overwrite queue entry with new command
+        delete $self->{workers}->{$sid};
     }
 
     $self->{workers}->{$sid} = {
-	sid => $sid,
-	uid => $uid,
-	state => $state,
-	start_tries => 0,
+        sid => $sid,
+        uid => $uid,
+        state => $state,
+        start_tries => 0,
     };
 
     $self->{workers}->{$sid}->{params} = $params if $params;
@@ -731,20 +756,20 @@ sub check_active_workers {
 
     # finish/count workers
     my $count = 0;
-    foreach my $sid (keys %{$self->{workers}}) {
-	my $w = $self->{workers}->{$sid};
-	my $pid = $w->{pid} || next;
+    foreach my $sid (keys %{ $self->{workers} }) {
+        my $w = $self->{workers}->{$sid};
+        my $pid = $w->{pid} || next;
 
-	my $waitpid = waitpid($pid, WNOHANG); # check status
-	if (defined($waitpid) && ($waitpid == $pid)) {
-	    if (defined($w->{uid})) {
-		$self->resource_command_finished($sid, $w->{uid}, $?);
-	    } else {
-		$self->stop_command_finished($sid, $?);
-	    }
-	} else {
-	    $count++; # still active
-	}
+        my $waitpid = waitpid($pid, WNOHANG); # check status
+        if (defined($waitpid) && ($waitpid == $pid)) {
+            if (defined($w->{uid})) {
+                $self->resource_command_finished($sid, $w->{uid}, $?);
+            } else {
+                $self->stop_command_finished($sid, $?);
+            }
+        } else {
+            $count++; # still active
+        }
     }
 
     return $count;
@@ -761,15 +786,15 @@ sub stop_command_finished {
     my $exit_code = -1;
 
     if ($status == -1) {
-	$haenv->log('err', "resource agent $sid finished - failed to execute");
-    }  elsif (my $sig = ($status & 127)) {
-	$haenv->log('err', "resource agent $sid finished - got signal $sig");
+        $haenv->log('err', "resource agent $sid finished - failed to execute");
+    } elsif (my $sig = ($status & 127)) {
+        $haenv->log('err', "resource agent $sid finished - got signal $sig");
     } else {
-	$exit_code = ($status >> 8);
+        $exit_code = ($status >> 8);
     }
 
     if ($exit_code != 0) {
-	$self->{shutdown_errors}++;
+        $self->{shutdown_errors}++;
     }
 }
 
@@ -784,11 +809,11 @@ sub resource_command_finished {
     my $exit_code = -1;
 
     if ($status == -1) {
-	$haenv->log('err', "resource agent $sid finished - failed to execute");
-    }  elsif (my $sig = ($status & 127)) {
-	$haenv->log('err', "resource agent $sid finished - got signal $sig");
+        $haenv->log('err', "resource agent $sid finished - failed to execute");
+    } elsif (my $sig = ($status & 127)) {
+        $haenv->log('err', "resource agent $sid finished - got signal $sig");
     } else {
-	$exit_code = ($status >> 8);
+        $exit_code = ($status >> 8);
     }
 
     $exit_code = $self->handle_service_exitcode($sid, $w->{state}, $exit_code);
@@ -796,9 +821,9 @@ sub resource_command_finished {
     return if $exit_code == ETRY_AGAIN; # tell nobody, simply retry
 
     $self->{results}->{$uid} = {
-	sid => $w->{sid},
-	state => $w->{state},
-	exit_code => $exit_code,
+        sid => $w->{sid},
+        state => $w->{state},
+        exit_code => $exit_code,
     };
 
     my $ss = $self->{service_status};
@@ -806,15 +831,15 @@ sub resource_command_finished {
     # compute hash of valid/existing uids
     my $valid_uids = {};
     foreach my $sid (keys %$ss) {
-	my $sd = $ss->{$sid};
-	next if !$sd->{uid};
-	$valid_uids->{$sd->{uid}} = 1;
+        my $sd = $ss->{$sid};
+        next if !$sd->{uid};
+        $valid_uids->{ $sd->{uid} } = 1;
     }
 
     my $results = {};
-    foreach my $id (keys %{$self->{results}}) {
-	next if !$valid_uids->{$id};
-	$results->{$id} = $self->{results}->{$id};
+    foreach my $id (keys %{ $self->{results} }) {
+        next if !$valid_uids->{$id};
+        $results->{$id} = $self->{results}->{$id};
     }
     $self->{results} = $results;
 }
@@ -833,35 +858,40 @@ sub handle_service_exitcode {
     my $max_restart = 0;
 
     if (my $cd = $sc->{$sid}) {
-	$max_restart = $cd->{max_restart};
+        $max_restart = $cd->{max_restart};
     }
 
     if ($cmd eq 'started') {
 
-	if ($exit_code == SUCCESS) {
+        if ($exit_code == SUCCESS) {
 
-	    $tries->{$sid} = 0;
+            $tries->{$sid} = 0;
 
-	    return $exit_code;
+            return $exit_code;
 
-	} elsif ($exit_code == ERROR) {
+        } elsif ($exit_code == ERROR) {
 
-	    $tries->{$sid} = 0 if !defined($tries->{$sid});
+            $tries->{$sid} = 0 if !defined($tries->{$sid});
 
-	    if ($tries->{$sid} >= $max_restart) {
-		$haenv->log('err', "unable to start service $sid on local node".
-			   " after $tries->{$sid} retries");
-		$tries->{$sid} = 0;
-		return ERROR;
-	    }
+            if ($tries->{$sid} >= $max_restart) {
+                $haenv->log(
+                    'err',
+                    "unable to start service $sid on local node"
+                        . " after $tries->{$sid} retries",
+                );
+                $tries->{$sid} = 0;
+                return ERROR;
+            }
 
-	    $tries->{$sid}++;
+            $tries->{$sid}++;
 
-	    $haenv->log('warning', "restart policy: retry number $tries->{$sid}" .
-			" for service '$sid'");
-	    # tell CRM that we retry the start
-	    return ETRY_AGAIN;
-	}
+            $haenv->log(
+                'warning',
+                "restart policy: retry number $tries->{$sid}" . " for service '$sid'",
+            );
+            # tell CRM that we retry the start
+            return ETRY_AGAIN;
+        }
     }
 
     return $exit_code;
@@ -883,26 +913,29 @@ sub exec_resource_agent {
 
     my $plugin = PVE::HA::Resources->lookup($service_type);
     if (!$plugin) {
-	$haenv->log('err', "service type '$service_type' not implemented");
-	return EUNKNOWN_SERVICE_TYPE;
+        $haenv->log('err', "service type '$service_type' not implemented");
+        return EUNKNOWN_SERVICE_TYPE;
     }
 
     if (!$service_config) {
-	$haenv->log('err', "missing resource configuration for '$sid'");
-	return EUNKNOWN_SERVICE;
+        $haenv->log('err', "missing resource configuration for '$sid'");
+        return EUNKNOWN_SERVICE;
     }
 
     # process error state early
     if ($cmd eq 'error') {
-	$haenv->log('err', "service $sid is in an error state and needs manual " .
-		    "intervention. Look up 'ERROR RECOVERY' in the documentation.");
+        $haenv->log(
+            'err',
+            "service $sid is in an error state and needs manual "
+                . "intervention. Look up 'ERROR RECOVERY' in the documentation.",
+        );
 
-	return SUCCESS; # error always succeeds
+        return SUCCESS; # error always succeeds
     }
 
     if ($service_config->{node} ne $nodename) {
-	$haenv->log('err', "service '$sid' not on this node");
-	return EWRONG_NODE;
+        $haenv->log('err', "service '$sid' not on this node");
+        return EWRONG_NODE;
     }
 
     my $id = $service_name;
@@ -911,79 +944,78 @@ sub exec_resource_agent {
 
     if ($cmd eq 'started') {
 
-	return SUCCESS if $running;
+        return SUCCESS if $running;
 
-	$haenv->log("info", "starting service $sid");
+        $haenv->log("info", "starting service $sid");
 
-	$plugin->start($haenv, $id);
+        $plugin->start($haenv, $id);
 
-	$running = $plugin->check_running($haenv, $id);
+        $running = $plugin->check_running($haenv, $id);
 
-	if ($running) {
-	    $haenv->log("info", "service status $sid started");
-	    return SUCCESS;
-	} else {
-	    $haenv->log("warning", "unable to start service $sid");
-	    return ERROR;
-	}
+        if ($running) {
+            $haenv->log("info", "service status $sid started");
+            return SUCCESS;
+        } else {
+            $haenv->log("warning", "unable to start service $sid");
+            return ERROR;
+        }
 
     } elsif ($cmd eq 'request_stop' || $cmd eq 'stopped') {
 
-	return SUCCESS if !$running;
+        return SUCCESS if !$running;
 
-	if (defined($params->{timeout})) {
-	    $haenv->log("info", "stopping service $sid (timeout=$params->{timeout})");
-	} else {
-	    $haenv->log("info", "stopping service $sid");
-	}
+        if (defined($params->{timeout})) {
+            $haenv->log("info", "stopping service $sid (timeout=$params->{timeout})");
+        } else {
+            $haenv->log("info", "stopping service $sid");
+        }
 
-	$plugin->shutdown($haenv, $id, $params->{timeout});
+        $plugin->shutdown($haenv, $id, $params->{timeout});
 
-	$running = $plugin->check_running($haenv, $id);
+        $running = $plugin->check_running($haenv, $id);
 
-	if (!$running) {
-	    $haenv->log("info", "service status $sid stopped");
-	    return SUCCESS;
-	} else {
-	    $haenv->log("info", "unable to stop stop service $sid (still running)");
-	    return ERROR;
-	}
+        if (!$running) {
+            $haenv->log("info", "service status $sid stopped");
+            return SUCCESS;
+        } else {
+            $haenv->log("info", "unable to stop stop service $sid (still running)");
+            return ERROR;
+        }
 
     } elsif ($cmd eq 'migrate' || $cmd eq 'relocate' || $cmd eq 'request_start_balance') {
 
-	my $target = $params->{target};
-	if (!defined($target)) {
-	    die "$cmd '$sid' failed - missing target\n" if !defined($target);
-	    return EINVALID_PARAMETER;
-	}
+        my $target = $params->{target};
+        if (!defined($target)) {
+            die "$cmd '$sid' failed - missing target\n" if !defined($target);
+            return EINVALID_PARAMETER;
+        }
 
-	if ($service_config->{node} eq $target) {
-	    # already there
-	    return SUCCESS;
-	}
+        if ($service_config->{node} eq $target) {
+            # already there
+            return SUCCESS;
+        }
 
-	if ($cmd eq 'request_start_balance' && $running) {
-	    $haenv->log("info", "ignoring rebalance-on-start for service $sid - already running");
-	    return IGNORED;
-	}
+        if ($cmd eq 'request_start_balance' && $running) {
+            $haenv->log("info", "ignoring rebalance-on-start for service $sid - already running");
+            return IGNORED;
+        }
 
-	my $online = ($cmd eq 'migrate') ? 1 : 0;
+        my $online = ($cmd eq 'migrate') ? 1 : 0;
 
-	my $res = $plugin->migrate($haenv, $id, $target, $online);
+        my $res = $plugin->migrate($haenv, $id, $target, $online);
 
-	# something went wrong if service is still on this node
-	if (!$res) {
-	    $haenv->log("err", "service $sid not moved (migration error)");
-	    return ERROR;
-	}
+        # something went wrong if service is still on this node
+        if (!$res) {
+            $haenv->log("err", "service $sid not moved (migration error)");
+            return ERROR;
+        }
 
-	return SUCCESS;
+        return SUCCESS;
 
     }
 
     $haenv->log("err", "implement me (cmd '$cmd')");
     return EUNKNOWN_COMMAND;
 }
-
 
 1;

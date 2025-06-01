@@ -84,7 +84,7 @@ sub write_hardware_status_nolock {
     my $filename = "$self->{statusdir}/hardware_status";
 
     PVE::Tools::file_set_contents($filename, encode_json($cstatus));
-};
+}
 
 sub read_service_config {
     my ($self) = @_;
@@ -93,20 +93,20 @@ sub read_service_config {
     my $conf = PVE::HA::Tools::read_json_from_file($filename);
 
     foreach my $sid (keys %$conf) {
-	my $d = $conf->{$sid};
+        my $d = $conf->{$sid};
 
-	die "service '$sid' without assigned node!" if !$d->{node};
+        die "service '$sid' without assigned node!" if !$d->{node};
 
-	if ($sid =~ m/^(vm|ct|fa):(\d+)$/) {
-	    $d->{type} = $1;
-	    $d->{name} = $2;
-	} else {
-	    die "implement me";
-	}
-	$d->{state} = 'disabled' if !$d->{state};
-	$d->{state} = 'started' if $d->{state} eq 'enabled'; # backward compatibility
-	$d->{max_restart} = 1 if !defined($d->{max_restart});
-	$d->{max_relocate} = 1 if !defined($d->{max_relocate});
+        if ($sid =~ m/^(vm|ct|fa):(\d+)$/) {
+            $d->{type} = $1;
+            $d->{name} = $2;
+        } else {
+            die "implement me";
+        }
+        $d->{state} = 'disabled' if !$d->{state};
+        $d->{state} = 'started' if $d->{state} eq 'enabled'; # backward compatibility
+        $d->{max_restart} = 1 if !defined($d->{max_restart});
+        $d->{max_relocate} = 1 if !defined($d->{max_relocate});
     }
 
     return $conf;
@@ -120,7 +120,7 @@ sub update_service_config {
     my $sconf = $conf->{$sid} || die "no such resource '$sid'\n";
 
     foreach my $k (%$param) {
-	$sconf->{$k} = $param->{$k};
+        $sconf->{$k} = $param->{$k};
     }
 
     $self->write_service_config($conf);
@@ -142,7 +142,7 @@ sub read_fence_config {
 
     my $filename = "$self->{statusdir}/fence.cfg";
     if (-e $filename) {
-	$raw = PVE::Tools::file_get_contents($filename);
+        $raw = PVE::Tools::file_get_contents($filename);
     }
 
     return PVE::HA::FenceConfig::parse_config($filename, $raw);
@@ -210,7 +210,7 @@ sub change_service_location {
     die "no such service '$sid'\n" if !$conf->{$sid};
 
     die "current_node for '$sid' does not match ($current_node != $conf->{$sid}->{node})\n"
-	if $current_node ne $conf->{$sid}->{node};
+        if $current_node ne $conf->{$sid}->{node};
 
     $conf->{$sid}->{node} = $new_node;
 
@@ -249,12 +249,12 @@ sub unlock_service {
     die "no such service '$sid'\n" if !$conf->{$sid};
 
     if (!defined($conf->{$sid}->{lock})) {
-	return undef;
+        return undef;
     }
 
     if (defined($lock) && $conf->{$sid}->{lock} ne $lock) {
-	warn "found lock '$conf->{$sid}->{lock}' trying to remove '$lock' lock\n";
-	return undef;
+        warn "found lock '$conf->{$sid}->{lock}' trying to remove '$lock' lock\n";
+        return undef;
     }
 
     my $removed_lock = delete $conf->{$sid}->{lock};
@@ -272,7 +272,7 @@ sub queue_crm_commands_nolock {
     my $data = '';
     my $filename = "$self->{statusdir}/crm_commands";
     if (-f $filename) {
-	$data = PVE::Tools::file_get_contents($filename);
+        $data = PVE::Tools::file_get_contents($filename);
     }
     $data .= "$cmd\n";
     PVE::Tools::file_set_contents($filename, $data);
@@ -296,7 +296,7 @@ sub any_pending_crm_command {
     my $filename = "$self->{statusdir}/crm_commands";
     my $data;
     if (-f $filename) {
-	$data = PVE::Tools::file_get_contents($filename);
+        $data = PVE::Tools::file_get_contents($filename);
     }
     return defined($data) && length $data;
 }
@@ -305,15 +305,15 @@ sub read_crm_commands {
     my ($self) = @_;
 
     my $code = sub {
-	my $data = '';
+        my $data = '';
 
- 	my $filename = "$self->{statusdir}/crm_commands";
-	if (-f $filename) {
-	    $data = PVE::Tools::file_get_contents($filename);
-	}
-	PVE::Tools::file_set_contents($filename, '');
+        my $filename = "$self->{statusdir}/crm_commands";
+        if (-f $filename) {
+            $data = PVE::Tools::file_get_contents($filename);
+        }
+        PVE::Tools::file_set_contents($filename, '');
 
-	return $data;
+        return $data;
     };
 
     return $self->global_lock($code);
@@ -392,59 +392,59 @@ sub new {
     copy("$testdir/manager_status", "$statusdir/manager_status"); # optional
 
     if (-f "$testdir/groups") {
-	copy("$testdir/groups", "$statusdir/groups");
+        copy("$testdir/groups", "$statusdir/groups");
     } else {
-	PVE::Tools::file_set_contents("$statusdir/groups", $default_group_config);
+        PVE::Tools::file_set_contents("$statusdir/groups", $default_group_config);
     }
 
     if (-f "$testdir/service_config") {
-	copy("$testdir/service_config", "$statusdir/service_config");
+        copy("$testdir/service_config", "$statusdir/service_config");
     } else {
-	my $conf = {
-	    'vm:101' => { node => 'node1', group => 'prefer_node1' },
-	    'vm:102' => { node => 'node2', group => 'prefer_node2' },
-	    'vm:103' => { node => 'node3', group => 'prefer_node3' },
-	    'vm:104' => { node => 'node1', group => 'prefer_node1' },
-	    'vm:105' => { node => 'node2', group => 'prefer_node2' },
-	    'vm:106' => { node => 'node3', group => 'prefer_node3' },
-	};
-	$self->write_service_config($conf);
+        my $conf = {
+            'vm:101' => { node => 'node1', group => 'prefer_node1' },
+            'vm:102' => { node => 'node2', group => 'prefer_node2' },
+            'vm:103' => { node => 'node3', group => 'prefer_node3' },
+            'vm:104' => { node => 'node1', group => 'prefer_node1' },
+            'vm:105' => { node => 'node2', group => 'prefer_node2' },
+            'vm:106' => { node => 'node3', group => 'prefer_node3' },
+        };
+        $self->write_service_config($conf);
     }
 
     if (-f "$testdir/hardware_status") {
-	copy("$testdir/hardware_status", "$statusdir/hardware_status") ||
-	    die "Copy failed: $!\n";
+        copy("$testdir/hardware_status", "$statusdir/hardware_status")
+            || die "Copy failed: $!\n";
     } else {
-	my $cstatus = {
-	    node1 => { power => 'off', network => 'off' },
-	    node2 => { power => 'off', network => 'off' },
-	    node3 => { power => 'off', network => 'off' },
-	};
-	$self->write_hardware_status_nolock($cstatus);
+        my $cstatus = {
+            node1 => { power => 'off', network => 'off' },
+            node2 => { power => 'off', network => 'off' },
+            node3 => { power => 'off', network => 'off' },
+        };
+        $self->write_hardware_status_nolock($cstatus);
     }
 
     if (-f "$testdir/fence.cfg") {
-	copy("$testdir/fence.cfg", "$statusdir/fence.cfg");
+        copy("$testdir/fence.cfg", "$statusdir/fence.cfg");
     }
 
     if (-f "$testdir/datacenter.cfg") {
-	copy("$testdir/datacenter.cfg", "$statusdir/datacenter.cfg");
+        copy("$testdir/datacenter.cfg", "$statusdir/datacenter.cfg");
     }
 
     if (-f "$testdir/static_service_stats") {
-	copy("$testdir/static_service_stats", "$statusdir/static_service_stats");
+        copy("$testdir/static_service_stats", "$statusdir/static_service_stats");
     }
 
     my $cstatus = $self->read_hardware_status_nolock();
 
     foreach my $node (sort keys %$cstatus) {
-	$self->{nodes}->{$node} = {};
+        $self->{nodes}->{$node} = {};
 
-	if (-f "$testdir/service_status_$node") {
-	    copy("$testdir/service_status_$node", "$statusdir/service_status_$node");
-	} else {
-	    $self->write_service_status($node, {});
-	}
+        if (-f "$testdir/service_status_$node") {
+            copy("$testdir/service_status_$node", "$statusdir/service_status_$node");
+        } else {
+            $self->write_service_status($node, {});
+        }
     }
 
     $self->{service_config} = $self->read_service_config();
@@ -487,19 +487,19 @@ sub global_lock {
     my ($self, $code, @param) = @_;
 
     my $lockfile = "$self->{statusdir}/hardware.lck";
-    my $fh = IO::File->new(">>$lockfile") ||
-	die "unable to open '$lockfile'\n";
+    my $fh = IO::File->new(">>$lockfile")
+        || die "unable to open '$lockfile'\n";
 
     my $success;
     for (;;) {
-	$success = flock($fh, LOCK_EX);
-	if ($success || ($! != EINTR)) {
-	    last;
-	}
-	if (!$success) {
-	    close($fh);
-	    die "can't acquire lock '$lockfile' - $!\n";
-	}
+        $success = flock($fh, LOCK_EX);
+        if ($success || ($! != EINTR)) {
+            last;
+        }
+        if (!$success) {
+            close($fh);
+            die "can't acquire lock '$lockfile' - $!\n";
+        }
     }
 
     my $res;
@@ -523,22 +523,22 @@ my $compute_node_info = sub {
     my $online_count = 0;
 
     foreach my $node (keys %$cstatus) {
-	my $d = $cstatus->{$node};
+        my $d = $cstatus->{$node};
 
-	my $online = ($d->{power} eq 'on' && $d->{network} eq 'on') ? 1 : 0;
-	$node_info->{$node}->{online} = $online;
+        my $online = ($d->{power} eq 'on' && $d->{network} eq 'on') ? 1 : 0;
+        $node_info->{$node}->{online} = $online;
 
-	$node_count++;
-	$online_count++ if $online;
+        $node_count++;
+        $online_count++ if $online;
     }
 
-    my $quorate = ($online_count > int($node_count/2)) ? 1 : 0;
+    my $quorate = ($online_count > int($node_count / 2)) ? 1 : 0;
 
     if (!$quorate) {
-	foreach my $node (keys %$cstatus) {
-	    my $d = $cstatus->{$node};
-	    $node_info->{$node}->{online} = 0;
-	}
+        foreach my $node (keys %$cstatus) {
+            my $d = $cstatus->{$node};
+            $node_info->{$node}->{online} = 0;
+        }
     }
 
     return ($node_info, $quorate);
@@ -587,155 +587,164 @@ sub sim_hardware_cmd {
     my ($self, $cmdstr, $logid) = @_;
 
     my $code = sub {
-	my ($lock_fh) = @_;
+        my ($lock_fh) = @_;
 
-	my $cstatus = $self->read_hardware_status_nolock();
+        my $cstatus = $self->read_hardware_status_nolock();
 
-	my ($cmd, $objid, $action, @params) = split(/\s+/, $cmdstr);
-	my $param = $params[0]; # for convenience/legacy
+        my ($cmd, $objid, $action, @params) = split(/\s+/, $cmdstr);
+        my $param = $params[0]; # for convenience/legacy
 
-	die "sim_hardware_cmd: no node or service for command specified"
-	    if !$objid;
+        die "sim_hardware_cmd: no node or service for command specified"
+            if !$objid;
 
-	my ($node, $sid, $d);
+        my ($node, $sid, $d);
 
-	if ($cmd eq 'service') {
-	    $sid = PVE::HA::Tools::pve_verify_ha_resource_id($objid);
-	} else {
-	    $node = $objid;
-	    $d = $self->{nodes}->{$node} ||
-		die "sim_hardware_cmd: no such node '$node'\n";
-	}
+        if ($cmd eq 'service') {
+            $sid = PVE::HA::Tools::pve_verify_ha_resource_id($objid);
+        } else {
+            $node = $objid;
+            $d = $self->{nodes}->{$node}
+                || die "sim_hardware_cmd: no such node '$node'\n";
+        }
 
-	$self->log('info', "execute $cmdstr", $logid);
+        $self->log('info', "execute $cmdstr", $logid);
 
-	if ($cmd eq 'power') {
-	    die "sim_hardware_cmd: unknown action '$action'\n"
-		if $action !~ m/^(on|off)$/;
+        if ($cmd eq 'power') {
+            die "sim_hardware_cmd: unknown action '$action'\n"
+                if $action !~ m/^(on|off)$/;
 
-	    if ($cstatus->{$node}->{power} ne $action) {
-		if ($action eq 'on') {
+            if ($cstatus->{$node}->{power} ne $action) {
+                if ($action eq 'on') {
 
-		    $d->{crm} = $self->crm_control('start', $d, $lock_fh) if !defined($d->{crm});
-		    $d->{lrm} = $self->lrm_control('start', $d, $lock_fh) if !defined($d->{lrm});
-		    $d->{lrm_restart} = undef;
-		    $cstatus->{$node}->{cfs} = {};
+                    $d->{crm} = $self->crm_control('start', $d, $lock_fh)
+                        if !defined($d->{crm});
+                    $d->{lrm} = $self->lrm_control('start', $d, $lock_fh)
+                        if !defined($d->{lrm});
+                    $d->{lrm_restart} = undef;
+                    $cstatus->{$node}->{cfs} = {};
 
-		} else {
+                } else {
 
-		    if ($d->{crm}) {
-			$d->{crm_env}->log('info', "killed by poweroff");
-			$self->crm_control('stop', $d, $lock_fh);
-			$d->{crm} = undef;
-		    }
-		    if ($d->{lrm}) {
-			$d->{lrm_env}->log('info', "killed by poweroff");
-			$self->lrm_control('stop', $d, $lock_fh);
-			$d->{lrm} = undef;
-			$d->{lrm_restart} = undef;
-		    }
+                    if ($d->{crm}) {
+                        $d->{crm_env}->log('info', "killed by poweroff");
+                        $self->crm_control('stop', $d, $lock_fh);
+                        $d->{crm} = undef;
+                    }
+                    if ($d->{lrm}) {
+                        $d->{lrm_env}->log('info', "killed by poweroff");
+                        $self->lrm_control('stop', $d, $lock_fh);
+                        $d->{lrm} = undef;
+                        $d->{lrm_restart} = undef;
+                    }
 
-		    $self->watchdog_reset_nolock($node);
-		    $self->write_service_status($node, {});
-		}
-	    }
+                    $self->watchdog_reset_nolock($node);
+                    $self->write_service_status($node, {});
+                }
+            }
 
-	    $cstatus->{$node}->{power} = $action;
-	    $cstatus->{$node}->{network} = $action;
-	    $cstatus->{$node}->{shutdown} = undef;
+            $cstatus->{$node}->{power} = $action;
+            $cstatus->{$node}->{network} = $action;
+            $cstatus->{$node}->{shutdown} = undef;
 
-	    $self->write_hardware_status_nolock($cstatus);
+            $self->write_hardware_status_nolock($cstatus);
 
-	} elsif ($cmd eq 'network') {
-	    die "sim_hardware_cmd: unknown network action '$action'"
-		if $action !~ m/^(on|off)$/;
-	    $cstatus->{$node}->{network} = $action;
+        } elsif ($cmd eq 'network') {
+            die "sim_hardware_cmd: unknown network action '$action'"
+                if $action !~ m/^(on|off)$/;
+            $cstatus->{$node}->{network} = $action;
 
-	    $self->write_hardware_status_nolock($cstatus);
+            $self->write_hardware_status_nolock($cstatus);
 
-	} elsif ($cmd eq 'cfs') {
-	    die "sim_hardware_cmd: unknown cfs action '$action' for node '$node'"
-		if $action !~ m/^(rw|update)$/;
-	    die "sim_hardware_cmd: unknown cfs command '$param' for '$action' on node '$node'"
-		if $param !~ m/^(work|fail)$/;
+        } elsif ($cmd eq 'cfs') {
+            die "sim_hardware_cmd: unknown cfs action '$action' for node '$node'"
+                if $action !~ m/^(rw|update)$/;
+            die "sim_hardware_cmd: unknown cfs command '$param' for '$action' on node '$node'"
+                if $param !~ m/^(work|fail)$/;
 
-	    $cstatus->{$node}->{cfs}->{$action} = $param eq 'work';
-	    $self->write_hardware_status_nolock($cstatus);
+            $cstatus->{$node}->{cfs}->{$action} = $param eq 'work';
+            $self->write_hardware_status_nolock($cstatus);
 
-	} elsif ($cmd eq 'reboot' || $cmd eq 'shutdown') {
-	    $cstatus->{$node}->{shutdown} = $cmd;
+        } elsif ($cmd eq 'reboot' || $cmd eq 'shutdown') {
+            $cstatus->{$node}->{shutdown} = $cmd;
 
-	    $self->write_hardware_status_nolock($cstatus);
+            $self->write_hardware_status_nolock($cstatus);
 
-	    $self->lrm_control('shutdown', $d, $lock_fh) if defined($d->{lrm});
-	} elsif ($cmd eq 'restart-lrm') {
-	    if ($d->{lrm}) {
-		$d->{lrm_restart} = 1;
-		$self->lrm_control('shutdown', $d, $lock_fh);
-	    }
-	} elsif ($cmd eq 'crm') {
+            $self->lrm_control('shutdown', $d, $lock_fh) if defined($d->{lrm});
+        } elsif ($cmd eq 'restart-lrm') {
+            if ($d->{lrm}) {
+                $d->{lrm_restart} = 1;
+                $self->lrm_control('shutdown', $d, $lock_fh);
+            }
+        } elsif ($cmd eq 'crm') {
 
-	    if ($action eq 'stop') {
-		if ($d->{crm}) {
-		    $d->{crm_stop} = 1;
-		    $self->crm_control('shutdown', $d, $lock_fh);
-		}
-	    } elsif ($action eq 'start') {
-		$d->{crm} = $self->crm_control('start', $d, $lock_fh) if !defined($d->{crm});
-	    } elsif ($action eq 'enable-node-maintenance' || $action eq 'disable-node-maintenance') {
-		$self->queue_crm_commands_nolock("$action $node");
-	    } else {
-		die "sim_hardware_cmd: unknown action '$action'";
-	    }
+            if ($action eq 'stop') {
+                if ($d->{crm}) {
+                    $d->{crm_stop} = 1;
+                    $self->crm_control('shutdown', $d, $lock_fh);
+                }
+            } elsif ($action eq 'start') {
+                $d->{crm} = $self->crm_control('start', $d, $lock_fh) if !defined($d->{crm});
+            } elsif (
+                $action eq 'enable-node-maintenance'
+                || $action eq 'disable-node-maintenance'
+            ) {
+                $self->queue_crm_commands_nolock("$action $node");
+            } else {
+                die "sim_hardware_cmd: unknown action '$action'";
+            }
 
-	} elsif ($cmd eq 'service') {
-	    if ($action eq 'started' || $action eq 'disabled' ||
-		$action eq 'stopped' || $action eq 'ignored') {
+        } elsif ($cmd eq 'service') {
+            if (
+                $action eq 'started'
+                || $action eq 'disabled'
+                || $action eq 'stopped'
+                || $action eq 'ignored'
+            ) {
 
-		$self->set_service_state($sid, $action);
+                $self->set_service_state($sid, $action);
 
-	    } elsif ($action eq 'migrate' || $action eq 'relocate') {
+            } elsif ($action eq 'migrate' || $action eq 'relocate') {
 
-		die "sim_hardware_cmd: missing target node for '$action' command"
-		    if !$param;
+                die "sim_hardware_cmd: missing target node for '$action' command"
+                    if !$param;
 
-		$self->queue_crm_commands_nolock("$action $sid $param");
+                $self->queue_crm_commands_nolock("$action $sid $param");
 
-	    } elsif ($action eq 'stop') {
+            } elsif ($action eq 'stop') {
 
-		die "sim_hardware_cmd: missing timeout for '$action' command"
-		    if !defined($param);
+                die "sim_hardware_cmd: missing timeout for '$action' command"
+                    if !defined($param);
 
-		$self->queue_crm_commands_nolock("$action $sid $param");
+                $self->queue_crm_commands_nolock("$action $sid $param");
 
-	    } elsif ($action eq 'add') {
-		$self->add_service(
-		    $sid,
-		    {state => $params[1] || 'started', node => $param},
-		    $params[2] || 0,
-		);
+            } elsif ($action eq 'add') {
+                $self->add_service(
+                    $sid,
+                    { state => $params[1] || 'started', node => $param },
+                    $params[2] || 0,
+                );
 
-	    } elsif ($action eq 'delete') {
+            } elsif ($action eq 'delete') {
 
-		$self->delete_service($sid);
+                $self->delete_service($sid);
 
-	    } elsif ($action eq 'lock') {
+            } elsif ($action eq 'lock') {
 
-		$self->lock_service($sid, $param);
+                $self->lock_service($sid, $param);
 
-	    } elsif ($action eq 'unlock') {
+            } elsif ($action eq 'unlock') {
 
-		$self->unlock_service($sid, $param);
+                $self->unlock_service($sid, $param);
 
-	    } else {
-		die "sim_hardware_cmd: unknown service action '$action' " .
-		    "- not implemented\n"
-	    }
-	} else {
-	    die "sim_hardware_cmd: unknown command '$cmdstr'\n";
-	}
+            } else {
+                die "sim_hardware_cmd: unknown service action '$action' "
+                    . "- not implemented\n";
+            }
+        } else {
+            die "sim_hardware_cmd: unknown command '$cmdstr'\n";
+        }
 
-	return $cstatus;
+        return $cstatus;
     };
 
     return $self->global_lock($code);
@@ -765,22 +774,22 @@ my $modify_watchog = sub {
 
     my $update_cmd = sub {
 
-	my $filename = "$self->{statusdir}/watchdog_status";
+        my $filename = "$self->{statusdir}/watchdog_status";
 
-	my ($res, $wdstatus);
+        my ($res, $wdstatus);
 
-	if (-f $filename) {
-	    my $raw = PVE::Tools::file_get_contents($filename);
-	    $wdstatus = decode_json($raw);
-	} else {
-	    $wdstatus = {};
-	}
+        if (-f $filename) {
+            my $raw = PVE::Tools::file_get_contents($filename);
+            $wdstatus = decode_json($raw);
+        } else {
+            $wdstatus = {};
+        }
 
-	($wdstatus, $res) = &$code($wdstatus);
+        ($wdstatus, $res) = &$code($wdstatus);
 
-	PVE::Tools::file_set_contents($filename, encode_json($wdstatus));
+        PVE::Tools::file_set_contents($filename, encode_json($wdstatus));
 
-	return $res;
+        return $res;
     };
 
     return $self->global_lock($update_cmd);
@@ -792,14 +801,14 @@ sub watchdog_reset_nolock {
     my $filename = "$self->{statusdir}/watchdog_status";
 
     if (-f $filename) {
- 	my $raw = PVE::Tools::file_get_contents($filename);
-	my $wdstatus = decode_json($raw);
+        my $raw = PVE::Tools::file_get_contents($filename);
+        my $wdstatus = decode_json($raw);
 
-	foreach my $id (keys %$wdstatus) {
-	    delete $wdstatus->{$id} if $wdstatus->{$id}->{node} eq $node;
-	}
+        foreach my $id (keys %$wdstatus) {
+            delete $wdstatus->{$id} if $wdstatus->{$id}->{node} eq $node;
+        }
 
-	PVE::Tools::file_set_contents($filename, encode_json($wdstatus));
+        PVE::Tools::file_set_contents($filename, encode_json($wdstatus));
     }
 }
 
@@ -807,24 +816,24 @@ sub watchdog_check {
     my ($self, $node) = @_;
 
     my $code = sub {
-	my ($wdstatus) = @_;
+        my ($wdstatus) = @_;
 
-	my $res = 1;
+        my $res = 1;
 
-	foreach my $wfh (keys %$wdstatus) {
-	    my $wd = $wdstatus->{$wfh};
-	    next if $wd->{node} ne $node;
+        foreach my $wfh (keys %$wdstatus) {
+            my $wd = $wdstatus->{$wfh};
+            next if $wd->{node} ne $node;
 
-	    my $ctime = $self->get_time();
-	    my $tdiff = $ctime - $wd->{update_time};
+            my $ctime = $self->get_time();
+            my $tdiff = $ctime - $wd->{update_time};
 
-	    if ($tdiff > $watchdog_timeout) { # expired
-		$res = 0;
-		delete $wdstatus->{$wfh};
-	    }
-	}
+            if ($tdiff > $watchdog_timeout) { # expired
+                $res = 0;
+                delete $wdstatus->{$wfh};
+            }
+        }
 
-	return ($wdstatus, $res);
+        return ($wdstatus, $res);
     };
 
     return &$modify_watchog($self, $code);
@@ -836,20 +845,20 @@ sub watchdog_open {
     my ($self, $node) = @_;
 
     my $code = sub {
-	my ($wdstatus) = @_;
+        my ($wdstatus) = @_;
 
-	++$wdcounter;
+        ++$wdcounter;
 
-	my $id = "WD:$node:$$:$wdcounter";
+        my $id = "WD:$node:$$:$wdcounter";
 
-	die "internal error" if defined($wdstatus->{$id});
+        die "internal error" if defined($wdstatus->{$id});
 
-	$wdstatus->{$id} = {
-	    node => $node,
-	    update_time => $self->get_time(),
-	};
+        $wdstatus->{$id} = {
+            node => $node,
+            update_time => $self->get_time(),
+        };
 
-	return ($wdstatus, $id);
+        return ($wdstatus, $id);
     };
 
     return &$modify_watchog($self, $code);
@@ -859,17 +868,17 @@ sub watchdog_close {
     my ($self, $wfh) = @_;
 
     my $code = sub {
-	my ($wdstatus) = @_;
+        my ($wdstatus) = @_;
 
-	my $wd = $wdstatus->{$wfh};
-	die "no such watchdog handle '$wfh'\n" if !defined($wd);
+        my $wd = $wdstatus->{$wfh};
+        die "no such watchdog handle '$wfh'\n" if !defined($wd);
 
-	my $tdiff = $self->get_time() - $wd->{update_time};
-	die "watchdog expired" if $tdiff > $watchdog_timeout;
+        my $tdiff = $self->get_time() - $wd->{update_time};
+        die "watchdog expired" if $tdiff > $watchdog_timeout;
 
-	delete $wdstatus->{$wfh};
+        delete $wdstatus->{$wfh};
 
-	return ($wdstatus);
+        return ($wdstatus);
     };
 
     return &$modify_watchog($self, $code);
@@ -879,20 +888,20 @@ sub watchdog_update {
     my ($self, $wfh) = @_;
 
     my $code = sub {
-	my ($wdstatus) = @_;
+        my ($wdstatus) = @_;
 
-	my $wd = $wdstatus->{$wfh};
+        my $wd = $wdstatus->{$wfh};
 
-	die "no such watchdog handle '$wfh'\n" if !defined($wd);
+        die "no such watchdog handle '$wfh'\n" if !defined($wd);
 
-	my $ctime = $self->get_time();
-	my $tdiff = $ctime - $wd->{update_time};
+        my $ctime = $self->get_time();
+        my $tdiff = $ctime - $wd->{update_time};
 
-	die "watchdog expired" if $tdiff > $watchdog_timeout;
+        die "watchdog expired" if $tdiff > $watchdog_timeout;
 
-	$wd->{update_time} = $ctime;
+        $wd->{update_time} = $ctime;
 
-	return ($wdstatus);
+        return ($wdstatus);
     };
 
     return &$modify_watchog($self, $code);
@@ -905,7 +914,7 @@ sub get_static_node_stats {
 
     my $stats = {};
     for my $node (keys $cstatus->%*) {
-	$stats->{$node} = { $cstatus->{$node}->%{qw(cpus memory)} };
+        $stats->{$node} = { $cstatus->{$node}->%{qw(cpus memory)} };
     }
 
     return $stats;

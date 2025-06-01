@@ -34,11 +34,11 @@ sub new {
     my $class = ref($this) || $this;
 
     my $self = bless {
-	haenv => $haenv,
-	manager => undef,
-	status => { state => 'startup' },
-	cluster_state_update => 0,
-	active_idle_rounds => 0,
+        haenv => $haenv,
+        manager => undef,
+        status => { state => 'startup' },
+        cluster_state_update => 0,
+        active_idle_rounds => 0,
     }, $class;
 
     $self->set_local_status({ state => 'wait_for_quorum' });
@@ -49,8 +49,8 @@ sub new {
 sub shutdown_request {
     my ($self) = @_;
 
-    $self->{haenv}->log('info' , "server received shutdown request")
-	if !$self->{shutdown_request};
+    $self->{haenv}->log('info', "server received shutdown request")
+        if !$self->{shutdown_request};
 
     $self->{shutdown_request} = 1;
 }
@@ -64,7 +64,7 @@ sub get_local_status {
 sub set_local_status {
     my ($self, $new) = @_;
 
-    die "invalid state '$new->{state}'" if !$valid_states->{$new->{state}};
+    die "invalid state '$new->{state}'" if !$valid_states->{ $new->{state} };
 
     my $haenv = $self->{haenv};
 
@@ -81,13 +81,13 @@ sub set_local_status {
 
     # fixme: do not use extra class
     if ($new->{state} eq 'master') {
-	$self->{manager} = PVE::HA::Manager->new($haenv);
+        $self->{manager} = PVE::HA::Manager->new($haenv);
     } else {
-	if ($self->{manager}) {
-	    # fixme: what should we do here?
-	    $self->{manager}->cleanup();
-	    $self->{manager} = undef;
-	}
+        if ($self->{manager}) {
+            # fixme: what should we do here?
+            $self->{manager}->cleanup();
+            $self->{manager} = undef;
+        }
     }
 }
 
@@ -101,22 +101,22 @@ sub get_protected_ha_manager_lock {
 
     for (;;) {
 
-	if ($haenv->get_ha_manager_lock()) {
-	    if ($self->{ha_manager_wd}) {
-		$haenv->watchdog_update($self->{ha_manager_wd});
-	    } else {
-		my $wfh = $haenv->watchdog_open();
-		$self->{ha_manager_wd} = $wfh;
-	    }
-	    return 1;
-	}
+        if ($haenv->get_ha_manager_lock()) {
+            if ($self->{ha_manager_wd}) {
+                $haenv->watchdog_update($self->{ha_manager_wd});
+            } else {
+                my $wfh = $haenv->watchdog_open();
+                $self->{ha_manager_wd} = $wfh;
+            }
+            return 1;
+        }
 
-	last if ++$count > 5; # try max 5 time
+        last if ++$count > 5; # try max 5 time
 
-	my $delay = $haenv->get_time() - $starttime;
-	last if $delay > 5; # for max 5 seconds
+        my $delay = $haenv->get_time() - $starttime;
+        last if $delay > 5; # for max 5 seconds
 
-	$haenv->sleep(1);
+        $haenv->sleep(1);
     }
 
     return 0;
@@ -137,8 +137,8 @@ my sub give_up_watchdog_protection {
     my ($self) = @_;
 
     if ($self->{ha_manager_wd}) {
-	$self->{haenv}->watchdog_close($self->{ha_manager_wd});
-	delete $self->{ha_manager_wd}; # only delete after close!
+        $self->{haenv}->watchdog_close($self->{ha_manager_wd});
+        delete $self->{ha_manager_wd}; # only delete after close!
     }
 }
 
@@ -164,7 +164,9 @@ sub is_cluster_and_ha_healthy {
     return 0 if !defined($manager_status);
 
     # there might be services to fence even if service config is completely empty
-    return 0 if PVE::HA::Tools::count_fenced_services($manager_status->{service_status}, $haenv->nodename());
+    return 0
+        if PVE::HA::Tools::count_fenced_services($manager_status->{service_status},
+            $haenv->nodename());
 
     return 1;
 }
@@ -179,35 +181,35 @@ sub can_get_active {
     return 0 if !$self->is_cluster_and_ha_healthy($manager_status);
 
     if (!$allow_no_service) {
-	my $conf = eval { $haenv->read_service_config() };
-	if (my $err = $@) {
-	    $haenv->log('err', "could not read service config: $err");
-	    return undef;
-	}
-	if (!scalar(%{$conf})) {
-	    my $active_master_node = $manager_status->{master_node};
-	    if (
-		!$active_master_node
-		|| $manager_status->{node_status}->{$active_master_node} ne 'online'
-		|| $active_master_node eq $haenv->nodename()
-	    ) {
-		my $ns = $manager_status->{node_status};
-		for my $node (keys $ns->%*) {
-		    next if $ns->{$node} ne 'maintenance';
-		    if (
-			!$manager_status->{node_request}
-			|| !$manager_status->{node_request}->{$node}
-			|| !$manager_status->{node_request}->{$node}->{maintenance}
-		    ) {
-			return 1;
-		    }
-		}
-		if ($haenv->any_pending_crm_command()) {
-		    return 1; # process pending CRM commands
-		}
-	    }
-	    return 0; # no services, no node in maintenance mode, and no crm cmds -> can stay idle
-	}
+        my $conf = eval { $haenv->read_service_config() };
+        if (my $err = $@) {
+            $haenv->log('err', "could not read service config: $err");
+            return undef;
+        }
+        if (!scalar(%{$conf})) {
+            my $active_master_node = $manager_status->{master_node};
+            if (
+                !$active_master_node
+                || $manager_status->{node_status}->{$active_master_node} ne 'online'
+                || $active_master_node eq $haenv->nodename()
+            ) {
+                my $ns = $manager_status->{node_status};
+                for my $node (keys $ns->%*) {
+                    next if $ns->{$node} ne 'maintenance';
+                    if (
+                        !$manager_status->{node_request}
+                        || !$manager_status->{node_request}->{$node}
+                        || !$manager_status->{node_request}->{$node}->{maintenance}
+                    ) {
+                        return 1;
+                    }
+                }
+                if ($haenv->any_pending_crm_command()) {
+                    return 1; # process pending CRM commands
+                }
+            }
+            return 0; # no services, no node in maintenance mode, and no crm cmds -> can stay idle
+        }
     }
 
     return 1;
@@ -228,8 +230,8 @@ sub allowed_to_get_idle {
 
     my $conf = eval { $haenv->read_service_config() };
     if (my $err = $@) {
-	$haenv->log('err', "could not read service config: $err");
-	return undef;
+        $haenv->log('err', "could not read service config: $err");
+        return undef;
     }
     return 1 if !scalar(%{$conf});
 
@@ -267,49 +269,52 @@ sub work {
 
     if ($state eq 'wait_for_quorum') {
 
-	if ($self->can_get_active()) {
-	    if ($self->get_protected_ha_manager_lock()) {
-		$self->set_local_status({ state => 'master' });
-	    } else {
-		$self->set_local_status({ state => 'slave' });
-	    }
-	}
+        if ($self->can_get_active()) {
+            if ($self->get_protected_ha_manager_lock()) {
+                $self->set_local_status({ state => 'master' });
+            } else {
+                $self->set_local_status({ state => 'slave' });
+            }
+        }
 
     } elsif ($state eq 'slave') {
 
-	if ($self->can_get_active()) {
-	    if ($self->get_protected_ha_manager_lock()) {
-		$self->set_local_status({ state => 'master' });
-	    }
-	} else {
-	    $self->set_local_status({ state => 'wait_for_quorum' });
-	}
+        if ($self->can_get_active()) {
+            if ($self->get_protected_ha_manager_lock()) {
+                $self->set_local_status({ state => 'master' });
+            }
+        } else {
+            $self->set_local_status({ state => 'wait_for_quorum' });
+        }
 
     } elsif ($state eq 'lost_manager_lock') {
 
-	if ($self->can_get_active(1)) {
-	    if ($self->get_protected_ha_manager_lock()) {
-		$self->set_local_status({ state => 'master' });
-	    }
-	}
+        if ($self->can_get_active(1)) {
+            if ($self->get_protected_ha_manager_lock()) {
+                $self->set_local_status({ state => 'master' });
+            }
+        }
 
     } elsif ($state eq 'master') {
 
-	if (!$self->get_protected_ha_manager_lock()) {
-	    $self->set_local_status({ state => 'lost_manager_lock'});
-	} elsif ($self->allowed_to_get_idle()) {
-	    $self->{active_idle_rounds}++;
-	    if ($self->{active_idle_rounds} > $max_active_idle_rounds) {
-		$self->{active_idle_rounds} = 0;
-		$haenv->log('info', "cluster had no service configured for $max_active_idle_rounds rounds, going idle.\n");
-		$haenv->release_ha_manager_lock();
-		# safety: transition into wait_for_quorum and thus do not touch manager state anymore
-		give_up_watchdog_protection($self);
-		$self->set_local_status({ state => 'wait_for_quorum' });
-	    }
-	} elsif ($self->{active_idle_rounds}) {
-	    $self->{active_idle_rounds} = 0;
-	}
+        if (!$self->get_protected_ha_manager_lock()) {
+            $self->set_local_status({ state => 'lost_manager_lock' });
+        } elsif ($self->allowed_to_get_idle()) {
+            $self->{active_idle_rounds}++;
+            if ($self->{active_idle_rounds} > $max_active_idle_rounds) {
+                $self->{active_idle_rounds} = 0;
+                $haenv->log(
+                    'info',
+                    "cluster had no service configured for $max_active_idle_rounds rounds, going idle.\n",
+                );
+                $haenv->release_ha_manager_lock();
+                # safety: transition into wait_for_quorum and thus do not touch manager state anymore
+                give_up_watchdog_protection($self);
+                $self->set_local_status({ state => 'wait_for_quorum' });
+            }
+        } elsif ($self->{active_idle_rounds}) {
+            $self->{active_idle_rounds} = 0;
+        }
     }
 
     $status = $self->get_local_status();
@@ -319,77 +324,80 @@ sub work {
 
     if ($state eq 'wait_for_quorum') {
 
-	return 0 if $self->{shutdown_request};
+        return 0 if $self->{shutdown_request};
 
-	$haenv->sleep(5);
+        $haenv->sleep(5);
 
     } elsif ($state eq 'master') {
 
-	my $manager = $self->{manager};
+        my $manager = $self->{manager};
 
-	die "no manager" if !defined($manager);
+        die "no manager" if !defined($manager);
 
-	my $startime = $haenv->get_time();
+        my $startime = $haenv->get_time();
 
-	my $max_time = 10;
+        my $max_time = 10;
 
-	my $shutdown = 0;
+        my $shutdown = 0;
 
-	# do work (max_time seconds)
-	eval {
-	    # fixme: set alert timer
+        # do work (max_time seconds)
+        eval {
+            # fixme: set alert timer
 
-	    if ($self->{shutdown_request}) {
+            if ($self->{shutdown_request}) {
 
-		# safety: service gets shutdown and thus won't change manager state again.
-		give_up_watchdog_protection($self);
+                # safety: service gets shutdown and thus won't change manager state again.
+                give_up_watchdog_protection($self);
 
-		# release the manager lock, so another CRM slave can get it
-		# and continue to work without waiting for the lock timeout
-		$haenv->log('info', "voluntary release CRM lock");
-		if (!$haenv->release_ha_manager_lock()) {
-		    $haenv->log('notice', "CRM lock release failed, let the lock timeout");
-		}
+                # release the manager lock, so another CRM slave can get it
+                # and continue to work without waiting for the lock timeout
+                $haenv->log('info', "voluntary release CRM lock");
+                if (!$haenv->release_ha_manager_lock()) {
+                    $haenv->log('notice', "CRM lock release failed, let the lock timeout");
+                }
 
-		$shutdown = 1;
+                $shutdown = 1;
 
-	    } else {
-		if (!$self->{cluster_state_update}) {
-		    # update failed but we could still renew our lock (cfs restart?),
-		    # safely skip manage and expect to update just fine next round
-		    $haenv->log('notice', "temporary inconsistent cluster state (cfs restart?), skip round");
-		    return;
-		}
+            } else {
+                if (!$self->{cluster_state_update}) {
+                    # update failed but we could still renew our lock (cfs restart?),
+                    # safely skip manage and expect to update just fine next round
+                    $haenv->log(
+                        'notice',
+                        "temporary inconsistent cluster state (cfs restart?), skip round",
+                    );
+                    return;
+                }
 
-		$manager->manage();
-	    }
-	};
-	if (my $err = $@) {
-	    $haenv->log('err', "got unexpected error - $err");
-	}
+                $manager->manage();
+            }
+        };
+        if (my $err = $@) {
+            $haenv->log('err', "got unexpected error - $err");
+        }
 
-	return 0 if $shutdown;
+        return 0 if $shutdown;
 
-	$haenv->sleep_until($startime + $max_time);
+        $haenv->sleep_until($startime + $max_time);
 
     } elsif ($state eq 'lost_manager_lock') {
 
-	# safety: not touching manager state in this or next FSM state
-	give_up_watchdog_protection($self);
+        # safety: not touching manager state in this or next FSM state
+        give_up_watchdog_protection($self);
 
-	return 0 if $self->{shutdown_request};
+        return 0 if $self->{shutdown_request};
 
-	$self->set_local_status({ state => 'wait_for_quorum' });
+        $self->set_local_status({ state => 'wait_for_quorum' });
 
     } elsif ($state eq 'slave') {
 
-	return 0 if $self->{shutdown_request};
+        return 0 if $self->{shutdown_request};
 
-	# wait until we get master
+        # wait until we get master
 
     } else {
 
-	die "got unexpected status '$state'\n";
+        die "got unexpected status '$state'\n";
     }
 
     return 1;

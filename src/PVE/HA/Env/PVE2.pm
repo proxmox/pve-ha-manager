@@ -91,12 +91,12 @@ sub is_node_shutdown {
     my $reboot = 0;
 
     my $code = sub {
-	my $line = shift;
+        my $line = shift;
 
-	# ensure we match the full unit name by matching /^JOB_ID UNIT /
-	# see: man systemd.special
-	$shutdown = 1 if ($line =~ m/^\d+\s+shutdown\.target\s+/);
-	$reboot = 1 if ($line =~ m/^\d+\s+reboot\.target\s+/);
+        # ensure we match the full unit name by matching /^JOB_ID UNIT /
+        # see: man systemd.special
+        $shutdown = 1 if ($line =~ m/^\d+\s+shutdown\.target\s+/);
+        $reboot = 1 if ($line =~ m/^\d+\s+reboot\.target\s+/);
     };
 
     my $cmd = ['/bin/systemctl', '--full', 'list-jobs'];
@@ -116,6 +116,7 @@ sub any_pending_crm_command {
 
     return PVE::HA::Config::any_pending_crm_command();
 }
+
 sub read_crm_commands {
     my ($self) = @_;
 
@@ -174,13 +175,13 @@ sub steal_service {
 
     my (undef, $type, $name) = PVE::HA::Config::parse_sid($sid);
 
-    if(my $plugin = PVE::HA::Resources->lookup($type)) {
-	my $old = $plugin->config_file($name, $current_node);
-	my $new = $plugin->config_file($name, $new_node);
-	rename($old, $new) ||
-	    die "rename '$old' to '$new' failed - $!\n";
+    if (my $plugin = PVE::HA::Resources->lookup($type)) {
+        my $old = $plugin->config_file($name, $current_node);
+        my $new = $plugin->config_file($name, $new_node);
+        rename($old, $new)
+            || die "rename '$old' to '$new' failed - $!\n";
     } else {
-	die "implement me";
+        die "implement me";
     }
 
     # Necessary for (at least) static usage plugin to always be able to read service config from new
@@ -208,8 +209,8 @@ sub get_node_info {
     my $members = PVE::Cluster::get_members();
 
     foreach my $node (keys %$members) {
-	my $d = $members->{$node};
-	$node_info->{$node}->{online} = $d->{online};
+        my $d = $members->{$node};
+        $node_info->{$node}->{online} = $d->{online};
     }
 
     $node_info->{$nodename}->{online} = 1; # local node is always up
@@ -228,9 +229,7 @@ sub log {
 sub send_notification {
     my ($self, $template_name, $template_data, $metadata_fields) = @_;
 
-    eval {
-	PVE::Notify::error($template_name, $template_data, $metadata_fields);
-    };
+    eval { PVE::Notify::error($template_name, $template_data, $metadata_fields); };
 
     $self->log("warning", "could not notify: $@") if $@;
 }
@@ -244,7 +243,7 @@ sub get_pve_lock {
 
     my $filename = "$lockdir/$lockid";
 
-    $last_lock_status_hash->{$lockid} //= { lock_time => 0, got_lock => 0};
+    $last_lock_status_hash->{$lockid} //= { lock_time => 0, got_lock => 0 };
     my $last = $last_lock_status_hash->{$lockid};
 
     my $ctime = time();
@@ -255,27 +254,27 @@ sub get_pve_lock {
 
     eval {
 
-	mkdir $lockdir;
+        mkdir $lockdir;
 
-	# pve cluster filesystem not online
-	die "can't create '$lockdir' (pmxcfs not mounted?)\n" if ! -d $lockdir;
+        # pve cluster filesystem not online
+        die "can't create '$lockdir' (pmxcfs not mounted?)\n" if !-d $lockdir;
 
-	if (($ctime - $last_lock_time) < $retry_timeout) {
-	    # try cfs lock update request (utime)
-	    if (utime(0, $ctime, $filename))  {
-		$got_lock = 1;
-		return;
-	    }
-	    die "cfs lock update failed - $!\n";
-	}
+        if (($ctime - $last_lock_time) < $retry_timeout) {
+            # try cfs lock update request (utime)
+            if (utime(0, $ctime, $filename)) {
+                $got_lock = 1;
+                return;
+            }
+            die "cfs lock update failed - $!\n";
+        }
 
-	if (mkdir $filename) {
-	    $got_lock = 1;
-	    return;
-	}
+        if (mkdir $filename) {
+            $got_lock = 1;
+            return;
+        }
 
-	utime 0, 0, $filename; # cfs unlock request
-	die "can't get cfs lock\n";
+        utime 0, 0, $filename; # cfs unlock request
+        die "can't get cfs lock\n";
     };
 
     my $err = $@;
@@ -286,13 +285,13 @@ sub get_pve_lock {
     $last->{lock_time} = $ctime if $got_lock;
 
     if (!!$got_lock != !!$last_got_lock) {
-	if ($got_lock) {
-	    $self->log('info', "successfully acquired lock '$lockid'");
-	} else {
-	    my $msg = "lost lock '$lockid";
-	    $msg .= " - $err" if $err;
-	    $self->log('err', $msg);
-	}
+        if ($got_lock) {
+            $self->log('info', "successfully acquired lock '$lockid'");
+        } else {
+            my $msg = "lost lock '$lockid";
+            $msg .= " - $err" if $err;
+            $self->log('err', $msg);
+        }
     }
 
     return $got_lock;
@@ -336,9 +335,7 @@ sub quorate {
     my ($self) = @_;
 
     my $quorate = 0;
-    eval {
-	$quorate = PVE::Cluster::check_cfs_quorum();
-    };
+    eval { $quorate = PVE::Cluster::check_cfs_quorum(); };
 
     return $quorate;
 }
@@ -356,15 +353,15 @@ sub sleep {
 }
 
 sub sleep_until {
-   my ($self, $end_time) = @_;
+    my ($self, $end_time) = @_;
 
-   for (;;) {
-       my $cur_time = time();
+    for (;;) {
+        my $cur_time = time();
 
-       last if $cur_time >= $end_time;
+        last if $cur_time >= $end_time;
 
-       $self->sleep(1);
-   }
+        $self->sleep(1);
+    }
 }
 
 sub loop_start_hook {
@@ -387,8 +384,8 @@ sub cluster_state_update {
 
     eval { PVE::Cluster::cfs_update(1) };
     if (my $err = $@) {
-	$self->log('warn', "cluster file system update failed - $err");
-	return 0;
+        $self->log('warn', "cluster file system update failed - $err");
+        return 0;
     }
 
     return 1;
@@ -402,9 +399,9 @@ sub watchdog_open {
     die "watchdog already open\n" if defined($watchdog_fh);
 
     $watchdog_fh = IO::Socket::UNIX->new(
-	Type => SOCK_STREAM(),
-	Peer => "/run/watchdog-mux.sock") ||
-	die "unable to open watchdog socket - $!\n";
+        Type => SOCK_STREAM(),
+        Peer => "/run/watchdog-mux.sock",
+    ) || die "unable to open watchdog socket - $!\n";
 
     $self->log('info', "watchdog active");
 }
@@ -414,12 +411,12 @@ sub watchdog_update {
 
     my $res = $watchdog_fh->syswrite("\0", 1);
     if (!defined($res)) {
-	$self->log('err', "watchdog update failed - $!\n");
-	return 0;
+        $self->log('err', "watchdog update failed - $!\n");
+        return 0;
     }
     if ($res != 1) {
-	$self->log('err', "watchdog update failed - write $res bytes\n");
-	return 0;
+        $self->log('err', "watchdog update failed - write $res bytes\n");
+        return 0;
     }
 
     return 1;
@@ -430,10 +427,10 @@ sub watchdog_close {
 
     $watchdog_fh->syswrite("V", 1); # magic watchdog close
     if (!$watchdog_fh->close()) {
-	$self->log('err', "watchdog close failed - $!");
+        $self->log('err', "watchdog close failed - $!");
     } else {
-	$watchdog_fh = undef;
-	$self->log('info', "watchdog closed (disabled)");
+        $watchdog_fh = undef;
+        $self->log('info', "watchdog closed (disabled)");
     }
 }
 
@@ -463,8 +460,8 @@ sub get_datacenter_settings {
     $self->log('err', "unable to get HA settings from datacenter.cfg - $@") if $@;
 
     return {
-	ha => $datacenterconfig->{ha} // {},
-	crs => $datacenterconfig->{crs} // {},
+        ha => $datacenterconfig->{ha} // {},
+        crs => $datacenterconfig->{crs} // {},
     };
 }
 
@@ -473,8 +470,8 @@ sub get_static_node_stats {
 
     my $stats = PVE::Cluster::get_node_kv('static-info');
     for my $node (keys $stats->%*) {
-	$stats->{$node} = eval { decode_json($stats->{$node}) };
-	$self->log('err', "unable to decode static node info for '$node' - $@") if $@;
+        $stats->{$node} = eval { decode_json($stats->{$node}) };
+        $self->log('err', "unable to decode static node info for '$node' - $@") if $@;
     }
 
     return $stats;

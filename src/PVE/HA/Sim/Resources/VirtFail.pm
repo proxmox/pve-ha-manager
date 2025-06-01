@@ -28,14 +28,13 @@ my $decode_id = sub {
     $stop = 0 if !defined($stop);
     $exists = 1 if !defined($exists);
 
-    return ($start, $migrate, $stop, $exists)
+    return ($start, $migrate, $stop, $exists);
 };
 
 my $tries = {
     start => {},
     migrate => {},
 };
-
 
 sub type {
     return 'fa';
@@ -45,7 +44,7 @@ sub exists {
     my ($class, $id, $noerr) = @_;
 
     my (undef, undef, undef, $exists) = &$decode_id($id);
-    print $exists ."\n";
+    print $exists . "\n";
 
     return $exists;
 }

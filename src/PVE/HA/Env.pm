@@ -205,15 +205,15 @@ sub get_time {
 }
 
 sub sleep {
-   my ($self, $delay) = @_;
+    my ($self, $delay) = @_;
 
-   return $self->{plug}->sleep($delay);
+    return $self->{plug}->sleep($delay);
 }
 
 sub sleep_until {
-   my ($self, $end_time) = @_;
+    my ($self, $end_time) = @_;
 
-   return $self->{plug}->sleep_until($end_time);
+    return $self->{plug}->sleep_until($end_time);
 }
 
 sub loop_start_hook {

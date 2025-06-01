@@ -23,8 +23,8 @@ sub new {
 
     my $statusdir = $self->{hardware}->statusdir();
     my $logfile = "$statusdir/log";
-    $self->{logfh} = IO::File->new(">>$logfile") ||
-	die "unable to open '$logfile' - $!";
+    $self->{logfh} = IO::File->new(">>$logfile")
+        || die "unable to open '$logfile' - $!";
 
     return $self;
 }
@@ -43,7 +43,7 @@ sub log {
     chomp $msg;
 
     my $time = $self->get_time();
-    $level = substr( $level, 0, 4 );
+    $level = substr($level, 0, 4);
 
     my $line = sprintf("%-5s %5d %12s: $msg\n", $level, $time, "$self->{nodename}/$self->{log_id}");
     print $line;
@@ -53,19 +53,19 @@ sub log {
 }
 
 sub sleep {
-   my ($self, $delay) = @_;
+    my ($self, $delay) = @_;
 
-   $self->{loop_delay} += $delay;
+    $self->{loop_delay} += $delay;
 }
 
 sub sleep_until {
-   my ($self, $end_time) = @_;
+    my ($self, $end_time) = @_;
 
-   my $cur_time = $self->{cur_time} + $self->{loop_delay};
+    my $cur_time = $self->{cur_time} + $self->{loop_delay};
 
-   return if $cur_time >= $end_time;
+    return if $cur_time >= $end_time;
 
-   $self->{loop_delay} += $end_time - $cur_time;
+    $self->{loop_delay} += $end_time - $cur_time;
 }
 
 sub get_ha_manager_lock {

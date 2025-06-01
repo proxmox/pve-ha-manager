@@ -13,7 +13,6 @@ group: prefer_node1
 	nodes node1
 EOD
 
-
 # Relies on the fact that the basic plugin doesn't use the haenv.
 my $online_node_usage = PVE::HA::Usage::Basic->new();
 $online_node_usage->add_node("node1");
@@ -29,17 +28,17 @@ my $current_node = $service_conf->{node};
 
 sub test {
     my ($expected_node, $try_next) = @_;
-    
-    my $node = PVE::HA::Manager::select_service_node
-	($groups, $online_node_usage, "vm:111", $service_conf, $current_node, $try_next);
+
+    my $node = PVE::HA::Manager::select_service_node(
+        $groups, $online_node_usage, "vm:111", $service_conf, $current_node, $try_next,
+    );
 
     my (undef, undef, $line) = caller();
-    die "unexpected result: $node != ${expected_node} at line $line\n" 
-	if $node ne $expected_node;
+    die "unexpected result: $node != ${expected_node} at line $line\n"
+        if $node ne $expected_node;
 
     $current_node = $node;
 }
-
 
 test('node1');
 test('node1', 1);

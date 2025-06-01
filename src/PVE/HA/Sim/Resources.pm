@@ -17,11 +17,11 @@ sub verify_name {
 
 sub options {
     return {
-	state => { optional => 1 },
-	group => { optional => 1 },
-	comment => { optional => 1 },
-	max_restart => { optional => 1 },
-	max_relocate => { optional => 1 },
+        state => { optional => 1 },
+        group => { optional => 1 },
+        comment => { optional => 1 },
+        max_restart => { optional => 1 },
+        max_relocate => { optional => 1 },
     };
 }
 
@@ -43,8 +43,8 @@ sub start {
     my $ss = $hardware->read_service_status($nodename);
 
     if (my $lock = $hardware->service_has_lock($sid)) {
-	$haenv->log('err', "service '$sid' locked ($lock), unable to start!");
-	return;
+        $haenv->log('err', "service '$sid' locked ($lock), unable to start!");
+        return;
     }
 
     $haenv->sleep(2);
@@ -64,8 +64,8 @@ sub shutdown {
     my $ss = $hardware->read_service_status($nodename);
 
     if (my $lock = $hardware->service_has_lock($sid)) {
-	$haenv->log('err', "service '$sid' locked ($lock), unable to shutdown!");
-	return;
+        $haenv->log('err', "service '$sid' locked ($lock), unable to shutdown!");
+        return;
     }
 
     $haenv->sleep(2);
@@ -87,7 +87,6 @@ sub check_running {
     return ($ss->{"$service_type:$id"}) ? 1 : 0;
 }
 
-
 sub migrate {
     my ($class, $haenv, $id, $target, $online) = @_;
 
@@ -100,17 +99,17 @@ sub migrate {
     $haenv->log("info", "service $sid - start $cmd to node '$target'");
 
     if (my $lock = $hardware->service_has_lock($sid)) {
-	$haenv->log('err', "service '$sid' locked ($lock), unable to $cmd!");
-	return;
+        $haenv->log('err', "service '$sid' locked ($lock), unable to $cmd!");
+        return;
     }
 
     # explicitly shutdown if $online isn't true (relocate)
     if (!$online && $class->check_running($haenv, $id)) {
-	$haenv->log("info", "stopping service $sid (relocate)");
-	$class->shutdown($haenv, $id);
-	$haenv->log("info", "service status $sid stopped");
+        $haenv->log("info", "stopping service $sid (relocate)");
+        $class->shutdown($haenv, $id);
+        $haenv->log("info", "service status $sid stopped");
     } else {
-	$haenv->sleep(2); # (live) migration time
+        $haenv->sleep(2); # (live) migration time
     }
 
     $hardware->change_service_location($sid, $nodename, $target);
@@ -123,7 +122,6 @@ sub migrate {
     return defined($ss->{$sid}) ? 0 : 1;
 }
 
-
 sub remove_locks {
     my ($self, $haenv, $id, $locks, $service_node) = @_;
 
@@ -131,9 +129,9 @@ sub remove_locks {
     my $hardware = $haenv->hardware();
 
     foreach my $lock (@$locks) {
-	if (my $removed_lock = $hardware->unlock_service($sid, $lock)) {
-	    return $removed_lock;
-	}
+        if (my $removed_lock = $hardware->unlock_service($sid, $lock)) {
+            return $removed_lock;
+        }
     }
 
     return undef;
@@ -147,13 +145,13 @@ sub get_static_stats {
 
     my $stats = $hardware->read_static_service_stats();
     if (my $service_stats = $stats->{$sid}) {
-	return $service_stats;
+        return $service_stats;
     } elsif ($id =~ /^(\d)(\d\d)/) {
-	# auto assign usage calculated from ID for convenience
-	my ($maxcpu, $maxmeory) = (int($1) + 1, (int($2) + 1) * 1<<29);
-	return { maxcpu => $maxcpu, maxmem => $maxmeory };
+        # auto assign usage calculated from ID for convenience
+        my ($maxcpu, $maxmeory) = (int($1) + 1, (int($2) + 1) * 1 << 29);
+        return { maxcpu => $maxcpu, maxmem => $maxmeory };
     } else {
-	return {};
+        return {};
     }
 }
 

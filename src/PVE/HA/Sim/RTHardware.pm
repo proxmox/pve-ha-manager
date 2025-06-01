@@ -32,17 +32,17 @@ sub new {
     my $self = $class->SUPER::new($testdir);
 
     my $logfile = "$testdir/log";
-    $self->{logfh} = IO::File->new(">$logfile") ||
-	die "unable to open '$logfile' - $!";
+    $self->{logfh} = IO::File->new(">$logfile")
+        || die "unable to open '$logfile' - $!";
 
-    foreach my $node (sort keys %{$self->{nodes}}) {
-	my $d = $self->{nodes}->{$node};
+    foreach my $node (sort keys %{ $self->{nodes} }) {
+        my $d = $self->{nodes}->{$node};
 
-	$d->{crm} = undef; # create on power on
-	$d->{crm_env} = PVE::HA::Env->new('PVE::HA::Sim::RTEnv', $node, $self, 'crm');
+        $d->{crm} = undef; # create on power on
+        $d->{crm_env} = PVE::HA::Env->new('PVE::HA::Sim::RTEnv', $node, $self, 'crm');
 
-	$d->{lrm} = undef; # create on power on
-	$d->{lrm_env} = PVE::HA::Env->new('PVE::HA::Sim::RTEnv', $node, $self, 'lrm');
+        $d->{lrm} = undef; # create on power on
+        $d->{lrm_env} = PVE::HA::Env->new('PVE::HA::Sim::RTEnv', $node, $self, 'lrm');
     }
 
     $self->create_main_window();
@@ -65,8 +65,8 @@ sub log {
 
     $id = 'hardware' if !$id;
 
-    my $text = sprintf("%-5s %10s %12s: $msg\n", $level,
-		       strftime("%H:%M:%S", localtime($time)), $id);
+    my $text =
+        sprintf("%-5s %10s %12s: $msg\n", $level, strftime("%H:%M:%S", localtime($time)), $id);
 
     $self->append_text($text);
 }
@@ -86,86 +86,90 @@ sub fork_daemon {
     my @psync = POSIX::pipe();
 
     my $pid = fork();
-    die "fork failed" if ! defined($pid);
+    die "fork failed" if !defined($pid);
 
     if ($pid == 0) {
 
-	close($lockfh) if defined($lockfh); # unlock global lock
+        close($lockfh) if defined($lockfh); # unlock global lock
 
-	POSIX::close($psync[0]);
+        POSIX::close($psync[0]);
 
-	my $outfh = $psync[1];
+        my $outfh = $psync[1];
 
-	my $fd = fileno (STDIN);
-	close STDIN;
-	POSIX::close(0) if $fd != 0;
+        my $fd = fileno(STDIN);
+        close STDIN;
+        POSIX::close(0) if $fd != 0;
 
-	die "unable to redirect STDIN - $!"
-	    if !open(STDIN, "</dev/null");
+        die "unable to redirect STDIN - $!"
+            if !open(STDIN, "</dev/null");
 
-	# redirect STDOUT
-	$fd = fileno(STDOUT);
-	close STDOUT;
-	POSIX::close (1) if $fd != 1;
+        # redirect STDOUT
+        $fd = fileno(STDOUT);
+        close STDOUT;
+        POSIX::close(1) if $fd != 1;
 
-	die "unable to redirect STDOUT - $!"
-	    if !open(STDOUT, ">&", $outfh);
+        die "unable to redirect STDOUT - $!"
+            if !open(STDOUT, ">&", $outfh);
 
-	STDOUT->autoflush (1);
+        STDOUT->autoflush(1);
 
-	#  redirect STDERR to STDOUT
-	$fd = fileno(STDERR);
-	close STDERR;
-	POSIX::close(2) if $fd != 2;
+        #  redirect STDERR to STDOUT
+        $fd = fileno(STDERR);
+        close STDERR;
+        POSIX::close(2) if $fd != 2;
 
-	die "unable to redirect STDERR - $!"
-	    if !open(STDERR, ">&1");
+        die "unable to redirect STDERR - $!"
+            if !open(STDERR, ">&1");
 
-	STDERR->autoflush(1);
+        STDERR->autoflush(1);
 
-	if ($type eq 'crm') {
+        if ($type eq 'crm') {
 
-	    my $crm = PVE::HA::CRM->new($haenv);
+            my $crm = PVE::HA::CRM->new($haenv);
 
-	    for (;;) {
-		if (!$crm->do_one_iteration()) {
-		    $haenv->log("info", "daemon stopped");
-		    exit (0);
-		}
-	    }
+            for (;;) {
+                if (!$crm->do_one_iteration()) {
+                    $haenv->log("info", "daemon stopped");
+                    exit(0);
+                }
+            }
 
-	} else {
+        } else {
 
-	    my $lrm = PVE::HA::LRM->new($haenv);
+            my $lrm = PVE::HA::LRM->new($haenv);
 
-	    for (;;) {
-		if (!$lrm->do_one_iteration()) {
-		    $haenv->log("info", "daemon stopped");
-		    exit (0);
-		}
-	    }
-	}
+            for (;;) {
+                if (!$lrm->do_one_iteration()) {
+                    $haenv->log("info", "daemon stopped");
+                    exit(0);
+                }
+            }
+        }
 
-	POSIX::_exit(-1);
+        POSIX::_exit(-1);
     }
 
     # parent
 
-    POSIX::close ($psync[1]);
+    POSIX::close($psync[1]);
 
-    Glib::IO->add_watch($psync[0], ['in', 'hup'], sub {
-	my ($fd, $cond) = @_;
-	if ($cond eq 'in') {
-	    my $readbuf;
-	    if (my $count = POSIX::read($fd, $readbuf, 8192)) {
-		$self->append_text($readbuf);
-	    }
-	    return 1;
-	} else {
-	    POSIX::close($fd);
-	    return 0;
-	}
-    });
+    Glib::IO->add_watch(
+        $psync[0],
+        ['in', 'hup'],
+        sub {
+            my ($fd, $cond) = @_;
+            if ($cond eq 'in') {
+                my $readbuf;
+                if (my $count = POSIX::read($fd, $readbuf, 8192)) {
+                    $self->append_text($readbuf);
+                }
+                return 1;
+            } else {
+                POSIX::close($fd);
+                return 0;
+            }
+        },
+    );
 
     return $pid;
 }
@@ -176,15 +180,15 @@ sub crm_control {
 
     if ($action eq 'start') {
 
-	return  $self->fork_daemon($lock_fh, 'crm', $data->{crm_env});
+        return $self->fork_daemon($lock_fh, 'crm', $data->{crm_env});
 
     } elsif ($action eq 'stop') {
 
-	kill(9, $data->{crm});
-	while (waitpid($data->{crm}, 0) != $data->{crm}) {}
+        kill(9, $data->{crm});
+        while (waitpid($data->{crm}, 0) != $data->{crm}) { }
 
     } else {
-	die "unknown CRM control action: '$action'\n";
+        die "unknown CRM control action: '$action'\n";
     }
 }
 
@@ -193,15 +197,15 @@ sub lrm_control {
 
     if ($action eq 'start') {
 
-	return  $self->fork_daemon($lock_fh, 'lrm',  $data->{lrm_env});
+        return $self->fork_daemon($lock_fh, 'lrm', $data->{lrm_env});
 
     } elsif ($action eq 'stop') {
 
-	kill(9, $data->{lrm});
-	while (waitpid($data->{lrm}, 0) != $data->{lrm}) {}
+        kill(9, $data->{lrm});
+        while (waitpid($data->{lrm}, 0) != $data->{lrm}) { }
 
     } else {
-	die "unknown LRM control action: '$action'\n";
+        die "unknown LRM control action: '$action'\n";
     }
 
 }
@@ -214,9 +218,9 @@ sub sim_hardware_cmd {
 
     # update GUI outside lock
     foreach my $node (keys %$cstatus) {
-	my $d = $self->{nodes}->{$node};
-	$d->{network_btn}->set_active($cstatus->{$node}->{network} eq 'on');
-	$d->{power_btn}->set_active($cstatus->{$node}->{power} eq 'on');
+        my $d = $self->{nodes}->{$node};
+        $d->{network_btn}->set_active($cstatus->{$node}->{network} eq 'on');
+        $d->{power_btn}->set_active($cstatus->{$node}->{power} eq 'on');
     }
 
     return $cstatus;
@@ -225,18 +229,18 @@ sub sim_hardware_cmd {
 sub cleanup {
     my ($self) = @_;
 
-    my @nodes = sort keys %{$self->{nodes}};
+    my @nodes = sort keys %{ $self->{nodes} };
     foreach my $node (@nodes) {
-	my $d = $self->{nodes}->{$node};
+        my $d = $self->{nodes}->{$node};
 
-	if ($d->{crm}) {
-	    kill 9, $d->{crm};
-	    delete $d->{crm};
-	}
-	if ($d->{lrm}) {
-	    kill 9, $d->{lrm};
-	    delete $d->{lrm};
-	}
+        if ($d->{crm}) {
+            kill 9, $d->{crm};
+            delete $d->{crm};
+        }
+        if ($d->{lrm}) {
+            kill 9, $d->{lrm};
+            delete $d->{lrm};
+        }
     }
 }
 
@@ -257,9 +261,9 @@ sub append_text {
     my $history = 102;
 
     if ($lines > $history) {
-	my $start = $textbuf->get_iter_at_line(0);
-	my $end =  $textbuf->get_iter_at_line($lines - $history);
-	$textbuf->delete($start, $end);
+        my $start = $textbuf->get_iter_at_line(0);
+        my $end = $textbuf->get_iter_at_line($lines - $history);
+        $textbuf->delete($start, $end);
     }
 }
 
@@ -299,38 +303,42 @@ sub create_node_control {
     $ngrid->attach($w, 2, 0, 1, 1);
     $w = Gtk3::Label->new('Status');
     $w->set_size_request(150, -1);
-    $w->set_alignment (0, 0.5);
+    $w->set_alignment(0, 0.5);
     $ngrid->attach($w, 3, 0, 1, 1);
 
     my $row = 1;
 
-    my @nodes = sort keys %{$self->{nodes}};
+    my @nodes = sort keys %{ $self->{nodes} };
 
     foreach my $node (@nodes) {
-	my $d = $self->{nodes}->{$node};
+        my $d = $self->{nodes}->{$node};
 
-	$w = Gtk3::Label->new($node);
-	$ngrid->attach($w, 0, $row, 1, 1);
-	$w = Gtk3::Switch->new();
-	$ngrid->attach($w, 1, $row, 1, 1);
-	$d->{power_btn} = $w;
-	$w->signal_connect('notify::active' => sub {
-	    $self->set_power_state($node);
-	}),
+        $w = Gtk3::Label->new($node);
+        $ngrid->attach($w, 0, $row, 1, 1);
+        $w = Gtk3::Switch->new();
+        $ngrid->attach($w, 1, $row, 1, 1);
+        $d->{power_btn} = $w;
+        $w->signal_connect(
+            'notify::active' => sub {
+                $self->set_power_state($node);
+            },
+            ),
 
-	$w = Gtk3::Switch->new();
-	$ngrid->attach($w, 2, $row, 1, 1);
-	$d->{network_btn} = $w;
-	$w->signal_connect('notify::active' => sub {
-	    $self->set_network_state($node);
-	}),
+            $w = Gtk3::Switch->new();
+        $ngrid->attach($w, 2, $row, 1, 1);
+        $d->{network_btn} = $w;
+        $w->signal_connect(
+            'notify::active' => sub {
+                $self->set_network_state($node);
+            },
+            ),
 
-	$w = Gtk3::Label->new('-');
-	$w->set_alignment (0, 0.5);
-	$ngrid->attach($w, 3, $row, 1, 1);
-	$d->{node_status_label} = $w;
+            $w = Gtk3::Label->new('-');
+        $w->set_alignment(0, 0.5);
+        $ngrid->attach($w, 3, $row, 1, 1);
+        $d->{node_status_label} = $w;
 
-	$row++;
+        $row++;
     }
 
     return $ngrid;
@@ -366,58 +374,63 @@ sub show_service_add_dialog {
     $w = Gtk3::Label->new('Node');
     $grid->attach($w, 2, 0, 1, 1);
 
-
     # service type combo box
     my $type_cb = Gtk3::ComboBoxText->new();
     my $service_types = ['vm', 'ct']; # TODO: PVE::HA::Resources->lookup_types();
     foreach my $type (@$service_types) {
-	$type_cb->append_text($type);
+        $type_cb->append_text($type);
     }
 
-    $type_cb->signal_connect('notify::active' => sub {
-	my $w = shift;
+    $type_cb->signal_connect(
+        'notify::active' => sub {
+            my $w = shift;
 
-	my $sel = $w->get_active();
-	return if $sel < 0;
+            my $sel = $w->get_active();
+            return if $sel < 0;
 
-	$service_type = $service_types->[$sel];
-    });
+            $service_type = $service_types->[$sel];
+        },
+    );
 
     $type_cb->set_active(0);
     $grid->attach($type_cb, 0, 1, 1, 1);
 
     my $id_entry = Gtk3::Entry->new();
     $id_entry->set_max_length(7);
-    $id_entry->signal_connect('changed' => sub {
-	my $w = shift;
+    $id_entry->signal_connect(
+        'changed' => sub {
+            my $w = shift;
 
-	$service_id = $w->get_text();
-	chomp $service_id;
+            $service_id = $w->get_text();
+            chomp $service_id;
 
-	if ($service_id =~ m/^\d+$/) {
-	    my $sid = "$service_type:$service_id";
-	    if (!defined($self->{service_gui}->{$sid})) {
-		$ok_btn->set_sensitive(1);
-	    } else {
-		$ok_btn->set_sensitive(0);
-	    }
-	} else {
-	    $ok_btn->set_sensitive(0);
-	}
-    });
+            if ($service_id =~ m/^\d+$/) {
+                my $sid = "$service_type:$service_id";
+                if (!defined($self->{service_gui}->{$sid})) {
+                    $ok_btn->set_sensitive(1);
+                } else {
+                    $ok_btn->set_sensitive(0);
+                }
+            } else {
+                $ok_btn->set_sensitive(0);
+            }
+        },
+    );
 
     $grid->attach($id_entry, 1, 1, 1, 1);
 
-    my @nodes = sort keys %{$self->{nodes}};
+    my @nodes = sort keys %{ $self->{nodes} };
     my $node_cb = Gtk3::ComboBoxText->new();
     foreach my $node (@nodes) {
-	$node_cb->append_text($node);
+        $node_cb->append_text($node);
     }
-    $node_cb->signal_connect('notify::active' => sub {
-	my $w = shift;
+    $node_cb->signal_connect(
+        'notify::active' => sub {
+            my $w = shift;
 
-	$service_node = $node_cb->get_active_text();
-    });
+            $service_node = $node_cb->get_active_text();
+        },
+    );
     $node_cb->set_active(0);
     $grid->attach($node_cb, 2, 1, 1, 1);
 
@@ -428,9 +441,9 @@ sub show_service_add_dialog {
     my $res = $dialog->run();
 
     if (defined($res) && $res eq 'ok') {
-	my $sid = "$service_type:$service_id";
-	$self->sim_hardware_cmd("service $sid add $service_node", 'command');
-	$self->add_service_to_gui($sid);
+        my $sid = "$service_type:$service_id";
+        $self->sim_hardware_cmd("service $sid add $service_node", 'command');
+        $self->add_service_to_gui($sid);
     }
 
     $dialog->destroy();
@@ -442,7 +455,8 @@ sub show_service_delete_dialog {
     my $win = $self->{main_window};
     my $flags = [qw( modal destroy-with-parent )];
 
-    my $dialog = Gtk3::MessageDialog->new($win, $flags, 'warning', 'yes_no', "Delete Service '$sid'?");
+    my $dialog =
+        Gtk3::MessageDialog->new($win, $flags, 'warning', 'yes_no', "Delete Service '$sid'?");
 
     $dialog->set_title("Delete $sid");
 
@@ -451,8 +465,8 @@ sub show_service_delete_dialog {
     $dialog->destroy();
 
     if (defined($res) && $res eq 'yes') {
-	$self->sim_hardware_cmd("service $sid delete", 'command');
-	$self->delete_service_from_gui($sid);
+        $self->sim_hardware_cmd("service $sid delete", 'command');
+        $self->delete_service_from_gui($sid);
     }
 }
 
@@ -473,21 +487,23 @@ sub show_migrate_dialog {
     my $w = Gtk3::Label->new('Target Node');
     $grid->attach($w, 0, 0, 1, 1);
 
-    my @nodes = sort keys %{$self->{nodes}};
+    my @nodes = sort keys %{ $self->{nodes} };
     $w = Gtk3::ComboBoxText->new();
     foreach my $node (@nodes) {
-	$w->append_text($node);
+        $w->append_text($node);
     }
 
     my $target = '';
-    $w->signal_connect('notify::active' => sub {
-	my $w = shift;
+    $w->signal_connect(
+        'notify::active' => sub {
+            my $w = shift;
 
-	my $sel = $w->get_active();
-	return if $sel < 0;
+            my $sel = $w->get_active();
+            return if $sel < 0;
 
-	$target = $nodes[$sel];
-    });
+            $target = $nodes[$sel];
+        },
+    );
     $grid->attach($w, 1, 0, 1, 1);
 
     my $relocate_btn = Gtk3::CheckButton->new_with_label("stop service (relocate)");
@@ -506,11 +522,11 @@ sub show_migrate_dialog {
     $dialog->destroy();
 
     if (defined($res) && $res eq 'ok' && $target) {
-	if ($relocate_btn->get_active()) {
-	    $self->queue_crm_commands("relocate $sid $target");
-	} else {
-	    $self->queue_crm_commands("migrate $sid $target");
-	}
+        if ($relocate_btn->get_active()) {
+            $self->queue_crm_commands("relocate $sid $target");
+        } else {
+            $self->queue_crm_commands("migrate $sid $target");
+        }
     }
 }
 
@@ -522,11 +538,11 @@ sub add_service_to_gui {
     die "service grid not initialised yet\n" if !defined($sgrid);
 
     die "service '$sid' has already an entry in service_gui table!\n"
-	if defined($self->{service_gui}->{$sid});
+        if defined($self->{service_gui}->{$sid});
 
     my $row = 0;
     while (my $label = $sgrid->get_child_at(0, $row)) {
-	$row++;
+        $row++;
     }
 
     $self->new_service_gui_entry($sid, $row);
@@ -540,19 +556,19 @@ sub delete_service_from_gui {
     die "service grid not initialised yet" if !defined($sgrid);
 
     die "service '$sid' has no entry in service_gui table"
-	if !defined($self->{service_gui}->{$sid});
+        if !defined($self->{service_gui}->{$sid});
 
     delete $self->{service_gui}->{$sid};
 
     my $row = 1;
 
     while (my $label = $sgrid->get_child_at(0, $row)) {
-	if ($sid eq $label->get_text()) {
-	    $sgrid->remove_row($row);
-	    last;
-	}
+        if ($sid eq $label->get_text()) {
+            $sgrid->remove_row($row);
+            last;
+        }
 
-	$row++;
+        $row++;
     }
 }
 
@@ -573,36 +589,42 @@ sub new_service_gui_entry {
 
     my $count = 0;
     foreach my $state (qw(started stopped disabled ignored)) {
-	$w->append_text($state);
-	$w->set_active($count) if $d->{state} eq $state;
-	$count++;
+        $w->append_text($state);
+        $w->set_active($count) if $d->{state} eq $state;
+        $count++;
     }
-    $w->signal_connect(changed => sub {
-	my $w = shift;
-	my $state = $w->get_active_text();
-	$self->set_service_state($sid, $state);
-    });
+    $w->signal_connect(
+        changed => sub {
+            my $w = shift;
+            my $state = $w->get_active_text();
+            $self->set_service_state($sid, $state);
+        },
+    );
 
     $w = Gtk3::Button->new('Migrate');
     $sgrid->attach($w, 2, $row, 1, 1);
-    $w->signal_connect(clicked => sub {
-	$self->show_migrate_dialog($sid);
-    });
+    $w->signal_connect(
+        clicked => sub {
+            $self->show_migrate_dialog($sid);
+        },
+    );
 
     $w = Gtk3::Label->new($d->{node});
     $sgrid->attach($w, 3, $row, 1, 1);
     $self->{service_gui}->{$sid}->{node_label} = $w;
 
     $w = Gtk3::Label->new('-');
-    $w->set_alignment (0, 0.5);
+    $w->set_alignment(0, 0.5);
     $sgrid->attach($w, 4, $row, 1, 1);
     $self->{service_gui}->{$sid}->{status_label} = $w;
 
     $w = Gtk3::Button->new_from_icon_name('edit-delete', 1);
     $sgrid->attach($w, 5, $row, 1, 1);
-    $w->signal_connect(clicked => sub {
-	$self->show_service_delete_dialog($sid);
-    });
+    $w->signal_connect(
+        clicked => sub {
+            $self->show_service_delete_dialog($sid);
+        },
+    );
     $sgrid->show_all();
 }
 
@@ -623,23 +645,25 @@ sub create_service_control {
     $w = Gtk3::Label->new('Node');
     $sgrid->attach($w, 3, 0, 1, 1);
     $w = Gtk3::Label->new('Status');
-    $w->set_alignment (0, 0.5);
+    $w->set_alignment(0, 0.5);
     $w->set_size_request(150, -1);
     $sgrid->attach($w, 4, 0, 1, 1);
 
     my $row = 1;
-    my @nodes = keys %{$self->{nodes}};
+    my @nodes = keys %{ $self->{nodes} };
 
-    foreach my $sid (sort keys %{$self->{service_config}}) {
-	$self->new_service_gui_entry($sid, $row);
-	$row++;
+    foreach my $sid (sort keys %{ $self->{service_config} }) {
+        $self->new_service_gui_entry($sid, $row);
+        $row++;
     }
 
     $w = Gtk3::Button->new_from_icon_name('list-add', 1);
     $sgrid->attach($w, 5, $row, 1, 1);
-    $w->signal_connect(clicked => sub {
-	$self->show_service_add_dialog();
-    });
+    $w->signal_connect(
+        clicked => sub {
+            $self->show_service_add_dialog();
+        },
+    );
 
     return $sgrid;
 }
@@ -663,14 +687,16 @@ sub create_log_view {
 
     $self->{gui}->{text_view_swindow} = $swindow;
 
-    $logview->signal_connect('size-allocate' => sub {
-	my $swindow = $self->{gui}->{text_view_swindow};
+    $logview->signal_connect(
+        'size-allocate' => sub {
+            my $swindow = $self->{gui}->{text_view_swindow};
 
-	# swindows V-adjustment controls the child vertical scrollbar, set it to
-	# its upper bound to scroll to the end every time child's size changes
-	my $adjustment = $swindow->get_vadjustment();
-	$adjustment->set_value($adjustment->get_upper());
-    });
+            # swindows V-adjustment controls the child vertical scrollbar, set it to
+            # its upper bound to scroll to the end every time child's size changes
+            my $adjustment = $swindow->get_vadjustment();
+            $adjustment->set_value($adjustment->get_upper());
+        },
+    );
 
     $nb->insert_page($swindow, $l1, 0);
 
@@ -696,7 +722,7 @@ sub create_main_window {
     my $window = Gtk3::Window->new();
     $window->set_title("Proxmox HA Simulator");
 
-    $window->signal_connect( destroy => sub { Gtk3::main_quit(); });
+    $window->signal_connect(destroy => sub { Gtk3::main_quit(); });
 
     $self->{main_window} = $window;
 
@@ -714,7 +740,7 @@ sub create_main_window {
 
     my $sep = Gtk3::HSeparator->new;
     $sep->set('margin-top', 10);
-    $vbox->pack_start ($sep, 0, 0, 0);
+    $vbox->pack_start($sep, 0, 0, 0);
 
     my $sgrid = $self->create_service_control();
     $vbox->pack_start($sgrid, 0, 0, 0);
@@ -722,67 +748,71 @@ sub create_main_window {
     $window->add($grid);
 
     $window->show_all;
-    $window->realize ();
+    $window->realize();
 }
 
 sub run {
     my ($self) = @_;
 
-    Glib::Timeout->add(1000, sub {
+    Glib::Timeout->add(
+        1000,
+        sub {
 
-	$self->{service_config} = $self->read_service_config();
+            $self->{service_config} = $self->read_service_config();
 
-	# check all watchdogs
-	my @nodes = sort keys %{$self->{nodes}};
-	foreach my $node (@nodes) {
-	    if (!$self->watchdog_check($node)) {
-		$self->sim_hardware_cmd("power $node off", 'watchdog');
-		$self->log('info', "server '$node' stopped by poweroff (watchdog)");
-	    }
-	}
+            # check all watchdogs
+            my @nodes = sort keys %{ $self->{nodes} };
+            foreach my $node (@nodes) {
+                if (!$self->watchdog_check($node)) {
+                    $self->sim_hardware_cmd("power $node off", 'watchdog');
+                    $self->log('info', "server '$node' stopped by poweroff (watchdog)");
+                }
+            }
 
-	my $mstatus = $self->read_manager_status();
-	my $node_status = $mstatus->{node_status} || {};
+            my $mstatus = $self->read_manager_status();
+            my $node_status = $mstatus->{node_status} || {};
 
-	foreach my $node (@nodes) {
-	    my $ns = $node_status->{$node} || '-';
-	    my $d = $self->{nodes}->{$node};
-	    next if !$d;
-	    my $sl = $d->{node_status_label};
-	    next if !$sl;
+            foreach my $node (@nodes) {
+                my $ns = $node_status->{$node} || '-';
+                my $d = $self->{nodes}->{$node};
+                next if !$d;
+                my $sl = $d->{node_status_label};
+                next if !$sl;
 
-	    $ns .= " (master)" if ($mstatus->{master_node} && ($mstatus->{master_node} eq $node));
+                $ns .= " (master)"
+                    if ($mstatus->{master_node} && ($mstatus->{master_node} eq $node));
 
-	    $sl->set_text($ns);
-	}
+                $sl->set_text($ns);
+            }
 
-	my $service_status = $mstatus->{service_status} || {};
-	my @services = sort keys %{$self->{service_config}};
+            my $service_status = $mstatus->{service_status} || {};
+            my @services = sort keys %{ $self->{service_config} };
 
-	foreach my $sid (@services) {
-	    my $sc = $self->{service_config}->{$sid};
-	    my $ss = $service_status->{$sid};
+            foreach my $sid (@services) {
+                my $sc = $self->{service_config}->{$sid};
+                my $ss = $service_status->{$sid};
 
-	    my $sgui = $self->{service_gui}->{$sid};
-	    next if !$sgui;
-	    my $nl = $sgui->{node_label};
-	    $nl->set_text($sc->{node});
+                my $sgui = $self->{service_gui}->{$sid};
+                next if !$sgui;
+                my $nl = $sgui->{node_label};
+                $nl->set_text($sc->{node});
 
-	    my $sl = $sgui->{status_label};
-	    next if !$sl;
+                my $sl = $sgui->{status_label};
+                next if !$sl;
 
-	    my $service_state = PVE::HA::Tools::get_verbose_service_state($ss, $sc);
-	    $sl->set_text($service_state);
-	}
+                my $service_state = PVE::HA::Tools::get_verbose_service_state($ss, $sc);
+                $sl->set_text($service_state);
+            }
 
-	if (my $sv = $self->{gui}->{stat_view}) {
-	    my $text = to_json($mstatus, { pretty => 1, canonical => 1});
-	    my $textbuf = $sv->get_buffer();
-	    $textbuf->set_text($text, -1);
-	}
+            if (my $sv = $self->{gui}->{stat_view}) {
+                my $text = to_json($mstatus, { pretty => 1, canonical => 1 });
+                my $textbuf = $sv->get_buffer();
+                $textbuf->set_text($text, -1);
+            }
 
-	return 1; # repeat
-    });
+            return 1; # repeat
+        },
+    );
 
     Gtk3->main;
 

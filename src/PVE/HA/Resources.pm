@@ -11,16 +11,18 @@ use base qw(PVE::SectionConfig);
 
 my $defaultData = {
     propertyList => {
-	type => { description => "Resource type.", optional => 1 },
-	sid => get_standard_option('pve-ha-resource-or-vm-id',
-				   { completion => \&PVE::HA::Tools::complete_sid }),
-	state => {
-	    type => 'string',
-	    enum => ['started', 'stopped', 'enabled', 'disabled', 'ignored'],
-	    optional => 1,
-	    default => 'started',
-	    description => "Requested resource state.",
-	    verbose_description => <<EODESC,
+        type => { description => "Resource type.", optional => 1 },
+        sid => get_standard_option(
+            'pve-ha-resource-or-vm-id',
+            { completion => \&PVE::HA::Tools::complete_sid },
+        ),
+        state => {
+            type => 'string',
+            enum => ['started', 'stopped', 'enabled', 'disabled', 'ignored'],
+            optional => 1,
+            default => 'started',
+            description => "Requested resource state.",
+            verbose_description => <<EODESC,
 Requested resource state. The CRM reads this state and acts accordingly.
 Please note that `enabled` is just an alias for `started`.
 
@@ -52,32 +54,36 @@ away while there source is in this state. The resource will not get relocated
 on node failures.
 
 EODESC
-	},
-	group => get_standard_option('pve-ha-group-id',
-				    { optional => 1,
-				      completion => \&PVE::HA::Tools::complete_group }),
-	max_restart => {
-	    description => "Maximal number of tries to restart the service on".
-		          " a node after its start failed.",
-	    type => 'integer',
-	    optional => 1,
-	    default => 1,
-	    minimum => 0,
-	},
-	max_relocate => {
-	    description => "Maximal number of service relocate tries when a".
-		          " service failes to start.",
-	    type => 'integer',
-	    optional => 1,
-	    default => 1,
-	    minimum => 0,
-	},
-	comment => {
-	    description => "Description.",
-	    type => 'string',
-	    optional => 1,
-	    maxLength => 4096,
-	},
+        },
+        group => get_standard_option(
+            'pve-ha-group-id',
+            {
+                optional => 1,
+                completion => \&PVE::HA::Tools::complete_group,
+            },
+        ),
+        max_restart => {
+            description => "Maximal number of tries to restart the service on"
+                . " a node after its start failed.",
+            type => 'integer',
+            optional => 1,
+            default => 1,
+            minimum => 0,
+        },
+        max_relocate => {
+            description => "Maximal number of service relocate tries when a"
+                . " service failes to start.",
+            type => 'integer',
+            optional => 1,
+            default => 1,
+            minimum => 0,
+        },
+        comment => {
+            description => "Description.",
+            type => 'string',
+            optional => 1,
+            maxLength => 4096,
+        },
     },
 };
 
@@ -103,18 +109,18 @@ sub parse_section_header {
     my ($class, $line) = @_;
 
     if ($line =~ m/^(\S+):\s*(\S+)\s*$/) {
-	my ($type, $name) = (lc($1), $2);
-	my $errmsg = undef; # set if you want to skip whole section
-	eval {
-	    if (my $plugin = $defaultData->{plugins}->{$type}) {
-		$plugin->verify_name($name);
-	    } else {
-		die "no such resource type '$type'\n";
-	    }
-	};
-	$errmsg = $@ if $@;
-	my $config = {}; # to return additional attributes
-	return ($type, "$type:$name", $errmsg, $config);
+        my ($type, $name) = (lc($1), $2);
+        my $errmsg = undef; # set if you want to skip whole section
+        eval {
+            if (my $plugin = $defaultData->{plugins}->{$type}) {
+                $plugin->verify_name($name);
+            } else {
+                die "no such resource type '$type'\n";
+            }
+        };
+        $errmsg = $@ if $@;
+        my $config = {}; # to return additional attributes
+        return ($type, "$type:$name", $errmsg, $config);
     }
     return undef;
 }
@@ -140,13 +146,13 @@ sub migrate {
 sub config_file {
     my ($class, $id, $nodename) = @_;
 
-    die "implement in subclass"
+    die "implement in subclass";
 }
 
 sub exists {
     my ($class, $id, $noerr) = @_;
 
-    die "implement in subclass"
+    die "implement in subclass";
 }
 
 sub check_running {
