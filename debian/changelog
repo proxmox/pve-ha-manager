@@ -1,3 +1,9 @@
+pve-ha-manager (5.0.0) trixie; urgency=medium
+
+  * re-build for Debian 13 Trixie based Proxmox VE 9 releases.
+
+ -- Proxmox Support Team <support@proxmox.com>  Tue, 17 Jun 2025 15:50:27 +0200
+
 pve-ha-manager (4.0.7) bookworm; urgency=medium
 
   * notifications: overhaul fence notification templates.
