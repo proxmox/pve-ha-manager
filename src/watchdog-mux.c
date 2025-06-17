@@ -1,19 +1,19 @@
 #define _GNU_SOURCE
+#include <errno.h>
+#include <fcntl.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
-#include <fcntl.h>
 #include <string.h>
-#include <errno.h>
-#include <time.h>
-#include <sys/ioctl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/socket.h>
-#include <sys/un.h>
 #include <sys/epoll.h>
-#include <signal.h>
+#include <sys/ioctl.h>
 #include <sys/signalfd.h>
+#include <sys/socket.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/un.h>
+#include <time.h>
+#include <unistd.h>
 
 #include <linux/types.h>
 #include <linux/watchdog.h>
@@ -44,9 +44,7 @@ typedef struct {
 
 static wd_client_t client_list[MAX_CLIENTS];
 
-static wd_client_t *
-alloc_client(int fd, time_t time)
-{
+static wd_client_t *alloc_client(int fd, time_t time) {
     int i;
 
     for (i = 0; i < MAX_CLIENTS; i++) {
@@ -61,20 +59,17 @@ alloc_client(int fd, time_t time)
     return NULL;
 }
 
-static void
-free_client(wd_client_t *wd_client)
-{
-    if (!wd_client)
+static void free_client(wd_client_t *wd_client) {
+    if (!wd_client) {
         return;
+    }
 
     wd_client->time = 0;
     wd_client->fd = 0;
     wd_client->magic_close = 0;
 }
 
-static int
-active_client_count(void)
-{
+static int active_client_count(void) {
     int i, count = 0;
 
     for (i = 0; i < MAX_CLIENTS; i++) {
@@ -86,9 +81,7 @@ active_client_count(void)
     return count;
 }
 
-static void
-watchdog_close(void)
-{
+static void watchdog_close(void) {
     if (watchdog_fd != -1) {
         if (write(watchdog_fd, "V", 1) == -1) {
             perror("write magic watchdog close");
@@ -101,9 +94,7 @@ watchdog_close(void)
     watchdog_fd = -1;
 }
 
-static void
-sync_journal_unsafe(void)
-{
+static void sync_journal_unsafe(void) {
 
     pid_t child = fork();
 
@@ -115,9 +106,7 @@ sync_journal_unsafe(void)
     }
 }
 
-int
-main(void)
-{
+int main(void) {
     struct sockaddr_un my_addr, peer_addr;
     socklen_t peer_addr_size;
     struct epoll_event ev, events[MAX_EVENTS];
@@ -183,7 +172,7 @@ main(void)
     my_addr.sun_family = AF_UNIX;
     strncpy(my_addr.sun_path, WD_SOCK_PATH, sizeof(my_addr.sun_path) - 1);
 
-    if (bind(listen_sock, (struct sockaddr *) &my_addr, sizeof(struct sockaddr_un)) == -1) {
+    if (bind(listen_sock, (struct sockaddr *)&my_addr, sizeof(struct sockaddr_un)) == -1) {
         perror("socket bind");
         exit(EXIT_FAILURE);
     }
@@ -229,8 +218,9 @@ main(void)
     for (;;) {
         nfds = epoll_wait(epollfd, events, MAX_EVENTS, 1000);
         if (nfds == -1) {
-            if (errno == EINTR)
+            if (errno == EINTR) {
                 continue;
+            }
 
             perror("epoll_pwait");
             goto err;
@@ -243,11 +233,8 @@ main(void)
                 int i;
                 time_t ctime = time(NULL);
                 for (i = 0; i < MAX_CLIENTS; i++) {
-                    if (
-                        client_list[i].fd != 0
-                        && client_list[i].time != 0
-                        && ((ctime - client_list[i].time) > client_watchdog_timeout)
-                    ) {
+                    if (client_list[i].fd != 0 && client_list[i].time != 0 &&
+                        ((ctime - client_list[i].time) > client_watchdog_timeout)) {
                         update_watchdog = 0;
                         fprintf(stderr, "client watchdog expired - disable watchdog updates\n");
                     }
@@ -263,8 +250,9 @@ main(void)
             continue;
         }
 
-        if (!update_watchdog)
+        if (!update_watchdog) {
             break;
+        }
 
         int terminate = 0;
 
@@ -272,7 +260,7 @@ main(void)
         for (n = 0; n < nfds; ++n) {
             wd_client_t *wd_client = events[n].data.ptr;
             if (wd_client->fd == listen_sock) {
-                int conn_sock = accept(listen_sock, (struct sockaddr *) &peer_addr, &peer_addr_size);
+                int conn_sock = accept(listen_sock, (struct sockaddr *)&peer_addr, &peer_addr_size);
                 if (conn_sock == -1) {
                     perror("accept");
                     goto err; // fixme
@@ -332,7 +320,7 @@ main(void)
                     wd_client->time = time(NULL);
                 } else {
                     if (events[n].events & EPOLLHUP || events[n].events & EPOLLERR) {
-                        //printf("GOT %016x event\n", events[n].events);
+                        // printf("GOT %016x event\n", events[n].events);
                         if (epoll_ctl(epollfd, EPOLL_CTL_DEL, cfd, NULL) == -1) {
                             perror("epoll_ctl: del conn_sock");
                             goto err; // fixme
@@ -343,7 +331,9 @@ main(void)
                         }
 
                         if (!wd_client->magic_close) {
-                            fprintf(stderr, "client did not stop watchdog - disable watchdog updates\n");
+                            fprintf(
+                                stderr, "client did not stop watchdog - disable watchdog updates\n"
+                            );
                             sync_journal_unsafe();
                             update_watchdog = 0;
                         } else {
@@ -357,8 +347,9 @@ main(void)
                 }
             }
         }
-        if (terminate)
+        if (terminate) {
             break;
+        }
     }
 
     int active_count = active_client_count();
