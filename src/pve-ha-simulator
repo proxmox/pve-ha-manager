@@ -15,15 +15,15 @@ my $opt_batch;
 sub show_usage {
     print "usage: $0 <testdir> [--batch]\n";
     exit(-1);
-};
+}
 
-if (!GetOptions ("batch"   => \$opt_batch)) {
+if (!GetOptions("batch" => \$opt_batch)) {
     show_usage();
 }
 
 my $testdir = shift || show_usage();
 
-my $hardware; 
+my $hardware;
 
 if ($opt_batch) {
     $hardware = PVE::HA::Sim::TestHardware->new($testdir);
@@ -41,6 +41,4 @@ if (my $err = $@) {
 }
 
 exit(0);
-
-
 

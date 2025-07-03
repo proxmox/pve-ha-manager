@@ -18,6 +18,7 @@ all: deb
 .PHONY: tidy
 tidy:
 	git ls-files ':*.p[ml]'| xargs -n4 -P0 proxmox-perltidy
+	cd src; proxmox-perltidy ha-manager pve-ha-crm pve-ha-lrm pve-ha-simulator pve-ha-tester
 
 $(BUILDDIR):
 	rm -rf $@ $@.tmp
