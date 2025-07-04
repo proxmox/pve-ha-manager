@@ -30,15 +30,23 @@
 #define JOURNALCTL_BIN "/bin/journalctl"
 
 #define CLIENT_WATCHDOG_TIMEOUT 60
+#define CLIENT_WATCHDOG_TIMEOUT_WARNING (CLIENT_WATCHDOG_TIMEOUT - 10)
 
 int watchdog_fd = -1;
 int watchdog_timeout = 10;
 int update_watchdog = 1;
 
+enum warning_state_t {
+    NONE,
+    WARNING_ISSUED,
+    FENCE_AVERTED,
+};
+
 typedef struct {
     int fd;
     time_t time;
     int magic_close;
+    enum warning_state_t warning_state;
 } wd_client_t;
 
 #define MAX_CLIENTS 100
@@ -53,6 +61,7 @@ static wd_client_t *alloc_client(int fd, time_t time) {
             client_list[i].fd = fd;
             client_list[i].time = time;
             client_list[i].magic_close = 0;
+            client_list[i].warning_state = NONE;
             return &client_list[i];
         }
     }
@@ -235,6 +244,18 @@ int main(void) {
                 time_t ctime = time(NULL);
                 for (i = 0; i < MAX_CLIENTS; i++) {
                     if (client_list[i].fd != 0 && client_list[i].time != 0) {
+                        if (client_list[i].warning_state == WARNING_ISSUED &&
+                            (ctime - client_list[i].time) <= CLIENT_WATCHDOG_TIMEOUT_WARNING) {
+                            client_list[i].warning_state = FENCE_AVERTED;
+                            fprintf(stderr, "client watchdog was updated before expiring\n");
+                        }
+
+                        if (client_list[i].warning_state != WARNING_ISSUED &&
+                            (ctime - client_list[i].time) > CLIENT_WATCHDOG_TIMEOUT_WARNING) {
+                            client_list[i].warning_state = WARNING_ISSUED;
+                            fprintf(stderr, "client watchdog is about to expire\n");
+                        }
+
                         if ((ctime - client_list[i].time) > CLIENT_WATCHDOG_TIMEOUT) {
                             update_watchdog = 0;
                             fprintf(stderr, "client watchdog expired - disable watchdog updates\n");
