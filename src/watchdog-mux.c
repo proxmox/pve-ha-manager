@@ -29,9 +29,10 @@
 
 #define JOURNALCTL_BIN "/bin/journalctl"
 
+#define CLIENT_WATCHDOG_TIMEOUT 60
+
 int watchdog_fd = -1;
 int watchdog_timeout = 10;
-int client_watchdog_timeout = 60;
 int update_watchdog = 1;
 
 typedef struct {
@@ -234,7 +235,7 @@ int main(void) {
                 time_t ctime = time(NULL);
                 for (i = 0; i < MAX_CLIENTS; i++) {
                     if (client_list[i].fd != 0 && client_list[i].time != 0 &&
-                        ((ctime - client_list[i].time) > client_watchdog_timeout)) {
+                        ((ctime - client_list[i].time) > CLIENT_WATCHDOG_TIMEOUT)) {
                         update_watchdog = 0;
                         fprintf(stderr, "client watchdog expired - disable watchdog updates\n");
                     }
