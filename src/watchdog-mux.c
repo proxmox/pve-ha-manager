@@ -234,10 +234,11 @@ int main(void) {
                 int i;
                 time_t ctime = time(NULL);
                 for (i = 0; i < MAX_CLIENTS; i++) {
-                    if (client_list[i].fd != 0 && client_list[i].time != 0 &&
-                        ((ctime - client_list[i].time) > CLIENT_WATCHDOG_TIMEOUT)) {
-                        update_watchdog = 0;
-                        fprintf(stderr, "client watchdog expired - disable watchdog updates\n");
+                    if (client_list[i].fd != 0 && client_list[i].time != 0) {
+                        if ((ctime - client_list[i].time) > CLIENT_WATCHDOG_TIMEOUT) {
+                            update_watchdog = 0;
+                            fprintf(stderr, "client watchdog expired - disable watchdog updates\n");
+                        }
                     }
                 }
             }
