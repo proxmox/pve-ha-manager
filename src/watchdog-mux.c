@@ -12,6 +12,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/un.h>
+#include <sys/wait.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -113,6 +114,22 @@ static void sync_journal_unsafe(void) {
     if (child == 0) {
         execl(JOURNALCTL_BIN, JOURNALCTL_BIN, "--sync", NULL);
         exit(-1);
+    }
+}
+
+// Like sync_journal_unsafe but we double fork so we don't leave trailing zombie
+// processes.
+static void sync_journal_in_fork(void) {
+    pid_t child = fork();
+    if (child == 0) {
+        child = fork();
+        if (child == 0) {
+            execl(JOURNALCTL_BIN, JOURNALCTL_BIN, "--sync", NULL);
+            exit(-1);
+        }
+        exit(0);
+    } else if (child > 0) {
+        wait(NULL);
     }
 }
 
@@ -254,6 +271,7 @@ int main(void) {
                             (ctime - client_list[i].time) > CLIENT_WATCHDOG_TIMEOUT_WARNING) {
                             client_list[i].warning_state = WARNING_ISSUED;
                             fprintf(stderr, "client watchdog is about to expire\n");
+                            sync_journal_in_fork ();
                         }
 
                         if ((ctime - client_list[i].time) > CLIENT_WATCHDOG_TIMEOUT) {
