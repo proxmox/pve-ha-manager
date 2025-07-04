@@ -256,36 +256,32 @@ int main(void) {
         if (nfds == 0 && update_watchdog) { // timeout
 
             // check for timeouts
-            if (update_watchdog) {
-                int i;
-                time_t ctime = time(NULL);
-                for (i = 0; i < MAX_CLIENTS; i++) {
-                    if (client_list[i].fd != 0 && client_list[i].time != 0) {
-                        if (client_list[i].warning_state == WARNING_ISSUED &&
-                            (ctime - client_list[i].time) <= CLIENT_WATCHDOG_TIMEOUT_WARNING) {
-                            client_list[i].warning_state = FENCE_AVERTED;
-                            fprintf(stderr, "client watchdog was updated before expiring\n");
-                        }
+            int i;
+            time_t ctime = time(NULL);
+            for (i = 0; i < MAX_CLIENTS; i++) {
+                if (client_list[i].fd != 0 && client_list[i].time != 0) {
+                    if (client_list[i].warning_state == WARNING_ISSUED &&
+                        (ctime - client_list[i].time) <= CLIENT_WATCHDOG_TIMEOUT_WARNING) {
+                        client_list[i].warning_state = FENCE_AVERTED;
+                        fprintf(stderr, "client watchdog was updated before expiring\n");
+                    }
 
-                        if (client_list[i].warning_state != WARNING_ISSUED &&
-                            (ctime - client_list[i].time) > CLIENT_WATCHDOG_TIMEOUT_WARNING) {
-                            client_list[i].warning_state = WARNING_ISSUED;
-                            fprintf(stderr, "client watchdog is about to expire\n");
-                            sync_journal_in_fork ();
-                        }
+                    if (client_list[i].warning_state != WARNING_ISSUED &&
+                        (ctime - client_list[i].time) > CLIENT_WATCHDOG_TIMEOUT_WARNING) {
+                        client_list[i].warning_state = WARNING_ISSUED;
+                        fprintf(stderr, "client watchdog is about to expire\n");
+                        sync_journal_in_fork ();
+                    }
 
-                        if ((ctime - client_list[i].time) > CLIENT_WATCHDOG_TIMEOUT) {
-                            update_watchdog = 0;
-                            fprintf(stderr, "client watchdog expired - disable watchdog updates\n");
-                        }
+                    if ((ctime - client_list[i].time) > CLIENT_WATCHDOG_TIMEOUT) {
+                        update_watchdog = 0;
+                        fprintf(stderr, "client watchdog expired - disable watchdog updates\n");
                     }
                 }
             }
 
-            if (update_watchdog) {
-                if (ioctl(watchdog_fd, WDIOC_KEEPALIVE, 0) == -1) {
-                    perror("watchdog update failed");
-                }
+            if (ioctl(watchdog_fd, WDIOC_KEEPALIVE, 0) == -1) {
+                perror("watchdog update failed");
             }
 
             continue;
