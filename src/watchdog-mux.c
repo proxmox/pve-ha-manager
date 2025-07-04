@@ -253,7 +253,7 @@ int main(void) {
             goto err;
         }
 
-        if (nfds == 0) { // timeout
+        if (nfds == 0 && update_watchdog) { // timeout
 
             // check for timeouts
             if (update_watchdog) {
