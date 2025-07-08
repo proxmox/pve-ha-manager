@@ -65,9 +65,9 @@ info    440    node1/crm: migrate service 'vm:103' to node 'node3' (running)
 info    440    node1/crm: service 'vm:103': state changed from 'started' to 'migrate'  (node = node2, target = node3)
 info    443    node2/lrm: service vm:103 - start migrate to node 'node3'
 info    443    node2/lrm: service vm:103 - end migrate to node 'node3'
+info    445    node3/lrm: got lock 'ha_agent_node3_lock'
+info    445    node3/lrm: status change wait_for_agent_lock => active
 info    460    node1/crm: service 'vm:103': state changed from 'migrate' to 'started'  (node = node3)
-info    465    node3/lrm: got lock 'ha_agent_node3_lock'
-info    465    node3/lrm: status change wait_for_agent_lock => active
 info    465    node3/lrm: starting service vm:103
 info    465    node3/lrm: service status vm:103 started
 info    520      cmdlist: execute service vm:103 migrate node1

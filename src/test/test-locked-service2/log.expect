@@ -56,6 +56,8 @@ info    380    node1/crm: service 'vm:103': state changed from 'started' to 'mig
 info    381    node1/lrm: service vm:103 - start migrate to node 'node2'
 err     381    node1/lrm: service 'vm:103' locked (create), unable to migrate!
 err     381    node1/lrm: service vm:103 not moved (migration error)
+info    383    node2/lrm: got lock 'ha_agent_node2_lock'
+info    383    node2/lrm: status change wait_for_agent_lock => active
 err     400    node1/crm: service 'vm:103' - migration failed (exit code 1)
 info    400    node1/crm: service 'vm:103': state changed from 'migrate' to 'started'  (node = node1)
 info    401    node1/lrm: starting service vm:103

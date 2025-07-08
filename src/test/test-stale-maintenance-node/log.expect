@@ -79,9 +79,9 @@ info    320    node1/crm: migrate service 'vm:103' to node 'node3'
 info    320    node1/crm: service 'vm:103': state changed from 'started' to 'migrate'  (node = node1, target = node3)
 info    321    node1/lrm: service vm:103 - start migrate to node 'node3'
 info    321    node1/lrm: service vm:103 - end migrate to node 'node3'
+info    325    node3/lrm: got lock 'ha_agent_node3_lock'
+info    325    node3/lrm: status change wait_for_agent_lock => active
 info    340    node1/crm: service 'vm:103': state changed from 'migrate' to 'started'  (node = node3)
-info    345    node3/lrm: got lock 'ha_agent_node3_lock'
-info    345    node3/lrm: status change wait_for_agent_lock => active
 info    345    node3/lrm: starting service vm:103
 info    345    node3/lrm: service status vm:103 started
 info    920     hardware: exit simulation - done

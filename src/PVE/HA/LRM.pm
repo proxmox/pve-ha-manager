@@ -300,8 +300,8 @@ sub active_service_count {
     my $count = 0;
     foreach my $sid (keys %$ss) {
         my $sd = $ss->{$sid};
-        next if !$sd->{node};
-        next if $sd->{node} ne $nodename;
+        my $target = $sd->{target}; # count as active if we are the target.
+        next if (!$sd->{node} || $sd->{node} ne $nodename) && (!$target || $target ne $nodename);
         my $req_state = $sd->{state};
         next if !defined($req_state);
         next if $req_state eq 'stopped';

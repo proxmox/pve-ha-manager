@@ -25,11 +25,11 @@ info    120      cmdlist: execute service vm:103 migrate node1
 info    120    node1/crm: got crm command: migrate vm:103 node1
 info    120    node1/crm: migrate service 'vm:103' to node 'node1'
 info    120    node1/crm: service 'vm:103': state changed from 'started' to 'migrate'  (node = node3, target = node1)
+info    121    node1/lrm: got lock 'ha_agent_node1_lock'
+info    121    node1/lrm: status change wait_for_agent_lock => active
 info    125    node3/lrm: service vm:103 - start migrate to node 'node1'
 info    125    node3/lrm: service vm:103 - end migrate to node 'node1'
 info    140    node1/crm: service 'vm:103': state changed from 'migrate' to 'started'  (node = node1)
-info    141    node1/lrm: got lock 'ha_agent_node1_lock'
-info    141    node1/lrm: status change wait_for_agent_lock => active
 info    141    node1/lrm: starting service vm:103
 info    141    node1/lrm: service status vm:103 started
 info    720     hardware: exit simulation - done

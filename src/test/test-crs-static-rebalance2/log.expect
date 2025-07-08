@@ -18,6 +18,8 @@ info    120    node1/crm: node 'node3': state changed from 'unknown' => 'online'
 info    120    node1/crm: adding new service 'vm:100' on node 'node2'
 info    120    node1/crm: service vm:100: re-balance selected new node node1 for startup
 info    120    node1/crm: service 'vm:100': state changed from 'request_start' to 'request_start_balance'  (node = node2, target = node1)
+info    121    node1/lrm: got lock 'ha_agent_node1_lock'
+info    121    node1/lrm: status change wait_for_agent_lock => active
 info    122    node2/crm: status change wait_for_quorum => slave
 info    123    node2/lrm: got lock 'ha_agent_node2_lock'
 info    123    node2/lrm: status change wait_for_agent_lock => active
@@ -32,8 +34,6 @@ info    220    node1/crm: service 'vm:101': state changed from 'request_start' t
 info    223    node2/lrm: service vm:101 - start relocate to node 'node1'
 info    223    node2/lrm: service vm:101 - end relocate to node 'node1'
 info    240    node1/crm: service 'vm:101': state changed from 'request_start_balance' to 'started'  (node = node1)
-info    241    node1/lrm: got lock 'ha_agent_node1_lock'
-info    241    node1/lrm: status change wait_for_agent_lock => active
 info    241    node1/lrm: starting service vm:101
 info    241    node1/lrm: service status vm:101 started
 info    320      cmdlist: execute service vm:102 add node2 started 1
@@ -41,6 +41,8 @@ info    320    node1/crm: adding new service 'vm:102' on node 'node2'
 info    320    node1/crm: service vm:102: re-balance selected new node node3 for startup
 info    320    node1/crm: service 'vm:102': state changed from 'request_start' to 'request_start_balance'  (node = node2, target = node3)
 info    323    node2/lrm: ignoring rebalance-on-start for service vm:102 - already running
+info    325    node3/lrm: got lock 'ha_agent_node3_lock'
+info    325    node3/lrm: status change wait_for_agent_lock => active
 info    340    node1/crm: service 'vm:102' - rebalance-on-start request ignored - service already running
 info    340    node1/crm: service 'vm:102': state changed from 'request_start_balance' to 'started'  (node = node2)
 info    420      cmdlist: execute service vm:103 add node2 started 0
@@ -50,8 +52,6 @@ info    420    node1/crm: service 'vm:103': state changed from 'request_start' t
 info    423    node2/lrm: service vm:103 - start relocate to node 'node3'
 info    423    node2/lrm: service vm:103 - end relocate to node 'node3'
 info    440    node1/crm: service 'vm:103': state changed from 'request_start_balance' to 'started'  (node = node3)
-info    445    node3/lrm: got lock 'ha_agent_node3_lock'
-info    445    node3/lrm: status change wait_for_agent_lock => active
 info    445    node3/lrm: starting service vm:103
 info    445    node3/lrm: service status vm:103 started
 info    520      cmdlist: execute service vm:104 add node2 stopped 0

@@ -58,9 +58,9 @@ info    501    node1/lrm: stopping service ct:103 (relocate)
 info    501    node1/lrm: service status ct:103 stopped
 info    501    node1/lrm: service ct:103 - end relocate to node 'node3'
 info    504    node3/crm: status change wait_for_quorum => slave
+info    505    node3/lrm: got lock 'ha_agent_node3_lock'
+info    505    node3/lrm: status change wait_for_agent_lock => active
 info    520    node1/crm: service 'ct:103': state changed from 'relocate' to 'started'  (node = node3)
-info    525    node3/lrm: got lock 'ha_agent_node3_lock'
-info    525    node3/lrm: status change wait_for_agent_lock => active
 info    525    node3/lrm: starting service ct:103
 info    525    node3/lrm: service status ct:103 started
 info   1100     hardware: exit simulation - done

@@ -26,6 +26,8 @@ info    120    node1/crm: got crm command: migrate fa:101 node3
 info    120    node1/crm: migrate service 'fa:101' to node 'node3'
 info    120    node1/crm: service 'fa:101': state changed from 'started' to 'migrate'  (node = node2, target = node3)
 err     123    node2/lrm: service fa:101 not moved (migration error)
+info    125    node3/lrm: got lock 'ha_agent_node3_lock'
+info    125    node3/lrm: status change wait_for_agent_lock => active
 err     140    node1/crm: service 'fa:101' - migration failed (exit code 1)
 info    140    node1/crm: service 'fa:101': state changed from 'migrate' to 'started'  (node = node2)
 info    720     hardware: exit simulation - done

@@ -34,11 +34,11 @@ err     163    node2/lrm: unable to start service fa:130 on local node after 2 r
 warn    180    node1/crm: starting service fa:130 on node 'node2' failed, relocating service.
 info    180    node1/crm: relocate service 'fa:130' to node 'node1'
 info    180    node1/crm: service 'fa:130': state changed from 'started' to 'relocate'  (node = node2, target = node1)
+info    181    node1/lrm: got lock 'ha_agent_node1_lock'
+info    181    node1/lrm: status change wait_for_agent_lock => active
 info    183    node2/lrm: service fa:130 - start relocate to node 'node1'
 info    183    node2/lrm: service fa:130 - end relocate to node 'node1'
 info    200    node1/crm: service 'fa:130': state changed from 'relocate' to 'started'  (node = node1)
-info    201    node1/lrm: got lock 'ha_agent_node1_lock'
-info    201    node1/lrm: status change wait_for_agent_lock => active
 info    201    node1/lrm: starting service fa:130
 info    201    node1/lrm: service status fa:130 started
 info    220    node1/crm: relocation policy successful for 'fa:130' on node 'node1', failed nodes: node2

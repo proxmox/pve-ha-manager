@@ -28,11 +28,11 @@ err     123    node2/lrm: unable to start service fa:130 on local node after 0 r
 warn    140    node1/crm: starting service fa:130 on node 'node2' failed, relocating service.
 info    140    node1/crm: relocate service 'fa:130' to node 'node1'
 info    140    node1/crm: service 'fa:130': state changed from 'started' to 'relocate'  (node = node2, target = node1)
+info    141    node1/lrm: got lock 'ha_agent_node1_lock'
+info    141    node1/lrm: status change wait_for_agent_lock => active
 info    143    node2/lrm: service fa:130 - start relocate to node 'node1'
 info    143    node2/lrm: service fa:130 - end relocate to node 'node1'
 info    160    node1/crm: service 'fa:130': state changed from 'relocate' to 'started'  (node = node1)
-info    161    node1/lrm: got lock 'ha_agent_node1_lock'
-info    161    node1/lrm: status change wait_for_agent_lock => active
 info    161    node1/lrm: starting service fa:130
 warn    161    node1/lrm: unable to start service fa:130
 err     161    node1/lrm: unable to start service fa:130 on local node after 0 retries
@@ -41,9 +41,9 @@ info    180    node1/crm: relocate service 'fa:130' to node 'node3'
 info    180    node1/crm: service 'fa:130': state changed from 'started' to 'relocate'  (node = node1, target = node3)
 info    181    node1/lrm: service fa:130 - start relocate to node 'node3'
 info    181    node1/lrm: service fa:130 - end relocate to node 'node3'
+info    185    node3/lrm: got lock 'ha_agent_node3_lock'
+info    185    node3/lrm: status change wait_for_agent_lock => active
 info    200    node1/crm: service 'fa:130': state changed from 'relocate' to 'started'  (node = node3)
-info    205    node3/lrm: got lock 'ha_agent_node3_lock'
-info    205    node3/lrm: status change wait_for_agent_lock => active
 info    205    node3/lrm: starting service fa:130
 warn    205    node3/lrm: unable to start service fa:130
 err     205    node3/lrm: unable to start service fa:130 on local node after 0 retries

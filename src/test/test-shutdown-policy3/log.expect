@@ -33,6 +33,10 @@ info    120    node1/crm: relocate service 'ct:102' to node 'node1'
 info    120    node1/crm: service 'ct:102': state changed from 'started' to 'relocate'  (node = node3, target = node1)
 info    120    node1/crm: migrate service 'vm:103' to node 'node2' (running)
 info    120    node1/crm: service 'vm:103': state changed from 'started' to 'migrate'  (node = node3, target = node2)
+info    121    node1/lrm: got lock 'ha_agent_node1_lock'
+info    121    node1/lrm: status change wait_for_agent_lock => active
+info    123    node2/lrm: got lock 'ha_agent_node2_lock'
+info    123    node2/lrm: status change wait_for_agent_lock => active
 info    125    node3/lrm: status change active => maintenance
 info    125    node3/lrm: service ct:102 - start relocate to node 'node1'
 info    125    node3/lrm: stopping service ct:102 (relocate)
@@ -42,12 +46,8 @@ info    125    node3/lrm: service vm:103 - start migrate to node 'node2'
 info    125    node3/lrm: service vm:103 - end migrate to node 'node2'
 info    140    node1/crm: service 'ct:102': state changed from 'relocate' to 'started'  (node = node1)
 info    140    node1/crm: service 'vm:103': state changed from 'migrate' to 'started'  (node = node2)
-info    141    node1/lrm: got lock 'ha_agent_node1_lock'
-info    141    node1/lrm: status change wait_for_agent_lock => active
 info    141    node1/lrm: starting service ct:102
 info    141    node1/lrm: service status ct:102 started
-info    143    node2/lrm: got lock 'ha_agent_node2_lock'
-info    143    node2/lrm: status change wait_for_agent_lock => active
 info    143    node2/lrm: starting service vm:103
 info    143    node2/lrm: service status vm:103 started
 info    146    node3/lrm: exit (loop end)
@@ -72,10 +72,10 @@ info    181    node1/lrm: service ct:102 - end relocate to node 'node3'
 info    183    node2/lrm: service vm:103 - start migrate to node 'node3'
 info    183    node2/lrm: service vm:103 - end migrate to node 'node3'
 info    184    node3/crm: status change wait_for_quorum => slave
+info    185    node3/lrm: got lock 'ha_agent_node3_lock'
+info    185    node3/lrm: status change wait_for_agent_lock => active
 info    200    node1/crm: service 'ct:102': state changed from 'relocate' to 'started'  (node = node3)
 info    200    node1/crm: service 'vm:103': state changed from 'migrate' to 'started'  (node = node3)
-info    205    node3/lrm: got lock 'ha_agent_node3_lock'
-info    205    node3/lrm: status change wait_for_agent_lock => active
 info    205    node3/lrm: starting service ct:102
 info    205    node3/lrm: service status ct:102 started
 info    205    node3/lrm: starting service vm:103

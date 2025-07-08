@@ -115,6 +115,10 @@ info    121    node1/lrm: service ct:109 - start relocate to node 'node3'
 info    121    node1/lrm: stopping service ct:109 (relocate)
 info    121    node1/lrm: service status ct:109 stopped
 info    121    node1/lrm: service ct:109 - end relocate to node 'node3'
+info    123    node2/lrm: got lock 'ha_agent_node2_lock'
+info    123    node2/lrm: status change wait_for_agent_lock => active
+info    125    node3/lrm: got lock 'ha_agent_node3_lock'
+info    125    node3/lrm: status change wait_for_agent_lock => active
 info    140    node1/crm: service 'ct:101': state changed from 'relocate' to 'started'  (node = node2)
 info    140    node1/crm: service 'ct:102': state changed from 'relocate' to 'started'  (node = node3)
 info    140    node1/crm: service 'ct:103': state changed from 'relocate' to 'started'  (node = node3)
@@ -127,12 +131,8 @@ info    140    node1/crm: service 'ct:109': state changed from 'relocate' to 'st
 info    142    node1/lrm: exit (loop end)
 info    142     shutdown: execute crm node1 stop
 info    141    node1/crm: server received shutdown request
-info    143    node2/lrm: got lock 'ha_agent_node2_lock'
-info    143    node2/lrm: status change wait_for_agent_lock => active
 info    143    node2/lrm: starting service ct:101
 info    143    node2/lrm: service status ct:101 started
-info    145    node3/lrm: got lock 'ha_agent_node3_lock'
-info    145    node3/lrm: status change wait_for_agent_lock => active
 info    145    node3/lrm: starting service ct:102
 info    145    node3/lrm: service status ct:102 started
 info    145    node3/lrm: starting service ct:103

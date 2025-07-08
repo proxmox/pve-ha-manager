@@ -14,6 +14,8 @@ info     20    node1/crm: node 'node1': state changed from 'unknown' => 'online'
 info     20    node1/crm: node 'node2': state changed from 'unknown' => 'online'
 info     20    node1/crm: node 'node3': state changed from 'unknown' => 'online'
 info     22    node2/crm: status change wait_for_quorum => slave
+info     23    node2/lrm: got lock 'ha_agent_node2_lock'
+info     23    node2/lrm: status change wait_for_agent_lock => active
 info     24    node3/crm: status change wait_for_quorum => slave
 info     25    node3/lrm: got lock 'ha_agent_node3_lock'
 info     25    node3/lrm: status change wait_for_agent_lock => active
