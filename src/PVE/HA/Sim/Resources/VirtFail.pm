@@ -8,8 +8,10 @@ use base qw(PVE::HA::Sim::Resources);
 # This module lets us simulate failing resources for the regression tests.
 #
 # To make it more interesting we can encode some behavior in the VMID
-# with the following format, where fa: is the type and a, b, c, ...
-# are digits in base 10, i.e. the full service ID would be:
+# with the following format, where fa: is the type and a, b, c, ... are digits
+# in base 10, i.e. the full service ID would be one of the following formats:
+#   fa:abc
+#   fa:abcd
 #   fa:abcde
 # And the digits after the fa: type prefix would mean:
 #   - a: no meaning but can be used for differentiating similar resources
