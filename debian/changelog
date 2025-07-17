@@ -1,3 +1,16 @@
+pve-ha-manager (5.0.1) trixie; urgency=medium
+
+  * LRM: count incoming migrations towards a nodes active resources, ensuring
+    an idle LRM will get active on incoming migrations.
+
+  * watchdog-mux: log a warning when the watchdog counter is 10s before
+    expiration and sync journal in that case.
+
+  * watchdog-mux: break out of loop when updates are disabled to ensure we hit
+    the code path where it will trigger another systemd-journal sync.
+
+ -- Proxmox Support Team <support@proxmox.com>  Thu, 17 Jul 2025 02:22:44 +0200
+
 pve-ha-manager (5.0.0) trixie; urgency=medium
 
   * re-build for Debian 13 Trixie based Proxmox VE 9 releases.
