@@ -226,7 +226,7 @@ int main(void) {
         goto err;
     }
 
-    epollfd = epoll_create(10);
+    epollfd = epoll_create1(EPOLL_CLOEXEC);
     if (epollfd == -1) {
         perror("epoll_create");
         goto err;
