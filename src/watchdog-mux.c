@@ -133,8 +133,42 @@ static void sync_journal_in_fork(void) {
     }
 }
 
+int create_and_bind_unix_socket(const char *socket_path) {
+    struct sockaddr_un my_addr;
+    int listen_sock;
+
+    // always unlink socket path then create socket
+    unlink(socket_path);
+
+    listen_sock = socket(AF_UNIX, SOCK_STREAM, 0);
+    if (listen_sock == -1) {
+        perror("socket create");
+        exit(EXIT_FAILURE);
+    }
+    memset(&my_addr, 0, sizeof(struct sockaddr_un));
+    my_addr.sun_family = AF_UNIX;
+    strncpy(my_addr.sun_path, socket_path, sizeof(my_addr.sun_path) - 1);
+
+    if (bind(listen_sock, (struct sockaddr *)&my_addr, sizeof(struct sockaddr_un)) == -1) {
+        perror("socket bind");
+        exit(EXIT_FAILURE);
+    }
+
+    if (listen(listen_sock, LISTEN_BACKLOG) == -1) {
+        perror("socket listen");
+        goto err;
+    }
+
+    return listen_sock;
+
+err:
+        close(listen_sock);
+        unlink(socket_path);
+        return -1;
+}
+
 int main(void) {
-    struct sockaddr_un my_addr, peer_addr;
+    struct sockaddr_un peer_addr;
     socklen_t peer_addr_size;
     struct epoll_event ev, events[MAX_EVENTS];
     int listen_sock, nfds, epollfd, sigfd;
@@ -187,25 +221,8 @@ int main(void) {
     wdinfo.identity[sizeof(wdinfo.identity) - 1] = 0; // just to be sure
     fprintf(stderr, "Watchdog driver '%s', version %x\n", wdinfo.identity, wdinfo.firmware_version);
 
-    /* always unlink socket path then create socket */
-    unlink(WD_SOCK_PATH);
-
-    listen_sock = socket(AF_UNIX, SOCK_STREAM, 0);
+    listen_sock = create_and_bind_unix_socket(WD_SOCK_PATH);
     if (listen_sock == -1) {
-        perror("socket create");
-        exit(EXIT_FAILURE);
-    }
-    memset(&my_addr, 0, sizeof(struct sockaddr_un));
-    my_addr.sun_family = AF_UNIX;
-    strncpy(my_addr.sun_path, WD_SOCK_PATH, sizeof(my_addr.sun_path) - 1);
-
-    if (bind(listen_sock, (struct sockaddr *)&my_addr, sizeof(struct sockaddr_un)) == -1) {
-        perror("socket bind");
-        exit(EXIT_FAILURE);
-    }
-
-    if (listen(listen_sock, LISTEN_BACKLOG) == -1) {
-        perror("socket listen");
         goto err;
     }
 
