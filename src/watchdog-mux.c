@@ -297,8 +297,10 @@ int main(void) {
                 }
             }
 
-            if (ioctl(watchdog_fd, WDIOC_KEEPALIVE, 0) == -1) {
-                perror("watchdog update failed");
+            if (update_watchdog) {
+                if (ioctl(watchdog_fd, WDIOC_KEEPALIVE, 0) == -1) {
+                    perror("watchdog update failed");
+                }
             }
 
             continue;
