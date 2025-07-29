@@ -162,9 +162,9 @@ int create_and_bind_unix_socket(const char *socket_path) {
     return listen_sock;
 
 err:
-        close(listen_sock);
-        unlink(socket_path);
-        return -1;
+    close(listen_sock);
+    unlink(socket_path);
+    return -1;
 }
 
 int main(void) {
