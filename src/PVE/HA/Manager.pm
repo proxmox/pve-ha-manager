@@ -8,6 +8,8 @@ use Digest::MD5 qw(md5_base64);
 use PVE::Tools;
 use PVE::HA::Tools ':exit_codes';
 use PVE::HA::NodeStatus;
+use PVE::HA::Rules;
+use PVE::HA::Rules::NodeAffinity;
 use PVE::HA::Usage::Basic;
 use PVE::HA::Usage::Static;
 
@@ -41,7 +43,11 @@ sub new {
 
     my $class = ref($this) || $this;
 
-    my $self = bless { haenv => $haenv, crs => {} }, $class;
+    my $self = bless {
+        haenv => $haenv,
+        crs => {},
+        last_rules_digest => '',
+    }, $class;
 
     my $old_ms = $haenv->read_manager_status();
 
@@ -554,6 +560,18 @@ sub manage {
 
         # remove all service related state information
         delete $ss->{$sid};
+    }
+
+    my $new_rules = $haenv->read_rules_config();
+
+    if ($new_rules->{digest} ne $self->{last_rules_digest}) {
+
+        my $messages = PVE::HA::Rules->canonicalize($new_rules);
+        $haenv->log('info', $_) for @$messages;
+
+        $self->{rules} = $new_rules;
+
+        $self->{last_rules_digest} = $self->{rules}->{digest};
     }
 
     $self->update_crm_commands();
