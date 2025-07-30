@@ -1,0 +1,60 @@
+--- Log ---
+--- Config ---
+$VAR1 = {
+          'digest' => 'c96c9de143221a82e44efa8bb4814b8248a8ea11',
+          'ids' => {
+                     'node-affinity-defaults' => {
+                                                   'nodes' => {
+                                                                'node1' => {
+                                                                             'priority' => 0
+                                                                           }
+                                                              },
+                                                   'resources' => {
+                                                                    'vm:101' => 1
+                                                                  },
+                                                   'type' => 'node-affinity'
+                                                 },
+                     'node-affinity-disabled' => {
+                                                   'disable' => 1,
+                                                   'nodes' => {
+                                                                'node2' => {
+                                                                             'priority' => 0
+                                                                           }
+                                                              },
+                                                   'resources' => {
+                                                                    'vm:102' => 1
+                                                                  },
+                                                   'type' => 'node-affinity'
+                                                 },
+                     'node-affinity-disabled-explicit' => {
+                                                            'disable' => 1,
+                                                            'nodes' => {
+                                                                         'node2' => {
+                                                                                      'priority' => 0
+                                                                                    }
+                                                                       },
+                                                            'resources' => {
+                                                                             'vm:103' => 1
+                                                                           },
+                                                            'type' => 'node-affinity'
+                                                          },
+                     'node-affinity-strict' => {
+                                                 'nodes' => {
+                                                              'node3' => {
+                                                                           'priority' => 0
+                                                                         }
+                                                            },
+                                                 'resources' => {
+                                                                  'vm:104' => 1
+                                                                },
+                                                 'strict' => 1,
+                                                 'type' => 'node-affinity'
+                                               }
+                   },
+          'order' => {
+                       'node-affinity-defaults' => 1,
+                       'node-affinity-disabled' => 2,
+                       'node-affinity-disabled-explicit' => 3,
+                       'node-affinity-strict' => 4
+                     }
+        };

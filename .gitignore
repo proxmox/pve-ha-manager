@@ -6,3 +6,4 @@
 /src/test/test-*/status/*
 /src/test/fence_cfgs/*.cfg.commands
 /src/test/fence_cfgs/*.cfg.write
+/src/test/rules_cfgs/*.cfg.output
