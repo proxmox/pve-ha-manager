@@ -24,6 +24,7 @@ use PVE::HA::Resources::PVEVM;
 use PVE::HA::Resources::PVECT;
 use PVE::HA::Rules;
 use PVE::HA::Rules::NodeAffinity;
+use PVE::HA::Rules::ResourceAffinity;
 
 PVE::HA::Resources::PVEVM->register();
 PVE::HA::Resources::PVECT->register();
@@ -31,6 +32,7 @@ PVE::HA::Resources::PVECT->register();
 PVE::HA::Resources->init();
 
 PVE::HA::Rules::NodeAffinity->register();
+PVE::HA::Rules::ResourceAffinity->register();
 
 PVE::HA::Rules->init(property_isolation => 1);
 

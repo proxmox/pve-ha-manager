@@ -1,4 +1,4 @@
-SOURCES=NodeAffinity.pm
+SOURCES=NodeAffinity.pm ResourceAffinity.pm
 
 .PHONY: install
 install:

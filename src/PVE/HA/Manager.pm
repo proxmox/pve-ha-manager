@@ -11,6 +11,7 @@ use PVE::HA::Tools ':exit_codes';
 use PVE::HA::NodeStatus;
 use PVE::HA::Rules;
 use PVE::HA::Rules::NodeAffinity qw(get_node_affinity);
+use PVE::HA::Rules::ResourceAffinity;
 use PVE::HA::Usage::Basic;
 use PVE::HA::Usage::Static;
 

@@ -12,6 +12,7 @@ use PVE::HA::Env;
 use PVE::HA::Resources;
 use PVE::HA::Rules;
 use PVE::HA::Rules::NodeAffinity;
+use PVE::HA::Rules::ResourceAffinity;
 use PVE::HA::Sim::Resources::VirtVM;
 use PVE::HA::Sim::Resources::VirtCT;
 use PVE::HA::Sim::Resources::VirtFail;
@@ -23,6 +24,7 @@ PVE::HA::Sim::Resources::VirtFail->register();
 PVE::HA::Resources->init();
 
 PVE::HA::Rules::NodeAffinity->register();
+PVE::HA::Rules::ResourceAffinity->register();
 
 PVE::HA::Rules->init(property_isolation => 1);
 
