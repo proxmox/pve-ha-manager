@@ -27,6 +27,24 @@ sub list_nodes {
     die "implement in subclass";
 }
 
+sub get_service_nodes {
+    my ($self, $sid) = @_;
+
+    die "implement in subclass";
+}
+
+sub set_service_node {
+    my ($self, $sid, $nodename) = @_;
+
+    die "implement in subclass";
+}
+
+sub add_service_node {
+    my ($self, $sid, $nodename) = @_;
+
+    die "implement in subclass";
+}
+
 sub contains_node {
     my ($self, $nodename) = @_;
 

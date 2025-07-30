@@ -271,6 +271,7 @@ sub recompute_online_node_usage {
                 || $state eq 'recovery'
             ) {
                 $online_node_usage->add_service_usage_to_node($sd->{node}, $sid, $sd->{node});
+                $online_node_usage->set_service_node($sid, $sd->{node});
             } elsif (
                 $state eq 'migrate'
                 || $state eq 'relocate'
@@ -278,10 +279,14 @@ sub recompute_online_node_usage {
             ) {
                 my $source = $sd->{node};
                 # count it for both, source and target as load is put on both
-                $online_node_usage->add_service_usage_to_node($source, $sid, $source, $target)
-                    if $state ne 'request_start_balance';
-                $online_node_usage->add_service_usage_to_node($target, $sid, $source, $target)
-                    if $online_node_usage->contains_node($target);
+                if ($state ne 'request_start_balance') {
+                    $online_node_usage->add_service_usage_to_node($source, $sid, $source, $target);
+                    $online_node_usage->add_service_node($sid, $source);
+                }
+                if ($online_node_usage->contains_node($target)) {
+                    $online_node_usage->add_service_usage_to_node($target, $sid, $source, $target);
+                    $online_node_usage->add_service_node($sid, $target);
+                }
             } elsif ($state eq 'stopped' || $state eq 'request_start') {
                 # do nothing
             } else {
@@ -293,6 +298,7 @@ sub recompute_online_node_usage {
                 # case a node dies, as we cannot really know if the to-be-aborted incoming migration
                 # has already cleaned up all used resources
                 $online_node_usage->add_service_usage_to_node($target, $sid, $sd->{node}, $target);
+                $online_node_usage->set_service_node($sid, $target);
             }
         }
     }
@@ -1132,6 +1138,7 @@ sub next_state_started {
 
             if ($node && ($sd->{node} ne $node)) {
                 $self->{online_node_usage}->add_service_usage_to_node($node, $sid, $sd->{node});
+                $self->{online_node_usage}->add_service_node($sid, $node);
 
                 if (defined(my $fallback = $sd->{maintenance_node})) {
                     if ($node eq $fallback) {
@@ -1260,6 +1267,7 @@ sub next_state_recovery {
 
         $haenv->steal_service($sid, $sd->{node}, $recovery_node);
         $self->{online_node_usage}->add_service_usage_to_node($recovery_node, $sid, $recovery_node);
+        $self->{online_node_usage}->add_service_node($sid, $recovery_node);
 
         # NOTE: $sd *is normally read-only*, fencing is the exception
         $cd->{node} = $sd->{node} = $recovery_node;
