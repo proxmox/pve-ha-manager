@@ -1,0 +1,5 @@
+{
+  "node1": { "power": "off", "network": "off", "version": "9.0.0~11" },
+  "node2": { "power": "off", "network": "off", "version": "9.0.1" },
+  "node3": { "power": "off", "network": "off", "version": "9.4.1" }
+}

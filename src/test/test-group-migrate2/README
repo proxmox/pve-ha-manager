@@ -1,0 +1,3 @@
+Test whether a fully upgraded cluster, i.e. each node has reached the minimum
+version to understand HA rules, correctly migrates the HA group config to the
+HA rules config and deletes the HA groups config.

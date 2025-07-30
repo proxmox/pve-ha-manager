@@ -1,0 +1,4 @@
+Test whether a partially upgraded cluster, i.e. at least one node has not
+reached the minimum version to understand HA rules, does not fully migrate the
+HA group config. That is, the HA groups config will not be deleted and the
+failback flag is not written to the service config.

@@ -39,6 +39,8 @@ use PVE::HA::Usage::Static;
 # patches for changing above, as that set is mostly sensible and should be easy to remember once
 # spending a bit time in the HA code base.
 
+my $group_migration_cooldown = 6;
+
 sub new {
     my ($this, $haenv) = @_;
 
@@ -50,6 +52,7 @@ sub new {
         last_rules_digest => '',
         last_groups_digest => '',
         last_services_digest => '',
+        group_migration_round => 3, # wait a little bit
     }, $class;
 
     my $old_ms = $haenv->read_manager_status();
@@ -464,6 +467,157 @@ sub update_crm_commands {
 
 }
 
+my $have_groups_been_migrated = sub {
+    my ($haenv) = @_;
+
+    my $groups = $haenv->read_group_config();
+
+    return 1 if !$groups;
+    return keys $groups->{ids}->%* < 1;
+};
+
+my $get_version_parts = sub {
+    my ($node_version) = @_;
+
+    return $node_version =~ m/^(\d+)\.(\d+)\.(\d+)/;
+};
+
+my $has_node_min_version = sub {
+    my ($node_version, $min_version) = @_;
+
+    my ($major, $minor, $patch) = $get_version_parts->($node_version);
+    my ($min_major, $min_minor, $min_patch) = $get_version_parts->($min_version);
+
+    return 0 if $major < $min_major;
+    return 0 if $major == $min_major && $minor < $min_minor;
+    return 0 if $major == $min_major && $minor == $min_minor && $patch < $min_patch;
+
+    return 1;
+};
+
+my $is_lrm_active_or_idle = sub {
+    my ($ss, $node, $lrm_state) = @_;
+
+    my $active_count = 0;
+    for my $sid (sort keys %$ss) {
+        my $sd = $ss->{$sid};
+        next if $sd->{node} ne $node;
+        my $req_state = $sd->{state};
+        next if !defined($req_state);
+        next if $req_state eq 'stopped';
+        next if $req_state eq 'freeze';
+        $active_count++;
+    }
+
+    return 1 if $lrm_state eq 'active';
+    return 1 if $lrm_state eq 'wait_for_agent_lock' && !$active_count;
+
+    return 0;
+};
+
+my $assert_cluster_can_migrate_ha_groups = sub {
+    my ($haenv, $ns, $ss) = @_;
+
+    # NOTE pve-manager has a version dependency on the ha-manager which supports HA rules
+    # FIXME Set the actual minimum version which depends on the correct ha-manager version
+    my $HA_RULES_MINVERSION = "9.0.0";
+
+    die "cluster is not quorate\n" if !$haenv->quorate();
+
+    my $nodelist = $ns->list_nodes();
+    die "node list is empty\n" if !@$nodelist;
+
+    for my $node (@$nodelist) {
+        die "node with empty name\n" if !$node;
+
+        my $node_status = $ns->get_node_state($node);
+        $haenv->log(
+            'notice', "ha groups migration: node '$node' is in state '$node_status'",
+        );
+        die "node '$node' is not online\n" if $node_status ne 'online';
+
+        my ($lrm_state, $lrm_mode) = $haenv->read_lrm_status($node)->@{qw(state mode)};
+        die "could not retrieve state for lrm '$node'\n" if !$lrm_state || !$lrm_mode;
+        $haenv->log(
+            'notice',
+            "ha groups migration: lrm '$node' is in state '$lrm_state' and mode '$lrm_mode'",
+        );
+        die "lrm '$node' is not in state 'active' or 'idle'\n"
+            if !$is_lrm_active_or_idle->($ss, $node, $lrm_state);
+        die "lrm '$node' is not in mode 'active'\n" if $lrm_mode ne 'active';
+
+        my $node_version = $haenv->get_node_version($node);
+        die "could not retrieve version from node '$node'\n" if !$node_version;
+        $haenv->log(
+            'notice', "ha groups migration: node '$node' has version '$node_version'",
+        );
+        my $has_min_version = $has_node_min_version->($node_version, $HA_RULES_MINVERSION);
+        die "node '$node' needs at least pve-manager version '$HA_RULES_MINVERSION'\n"
+            if !$has_min_version;
+    }
+};
+
+my $migrate_group_persistently = sub {
+    my ($haenv, $ns, $ss) = @_;
+
+    eval {
+        $assert_cluster_can_migrate_ha_groups->($haenv, $ns, $ss);
+
+        my $resources = $haenv->read_service_config();
+        my $groups = $haenv->read_group_config();
+        my $rules = $haenv->read_rules_config();
+
+        # write changes to rules config whenever possible so users can modify migrated rules
+        PVE::HA::Groups::migrate_groups_to_rules($rules, $groups, $resources);
+        $haenv->write_rules_config($rules);
+        $haenv->log('notice', "ha groups migration: migration to rules config successful");
+
+        PVE::HA::Groups::migrate_groups_to_resources($groups, $resources);
+        for my $sid (keys %$resources) {
+            my $param = { failback => $resources->{$sid}->{failback} };
+
+            $haenv->update_service_config($sid, $param, 'group');
+        }
+        $haenv->log('notice', "ha groups migration: migration to resources config successful");
+
+        $haenv->delete_group_config();
+        $haenv->log('notice', "ha groups migration: group config deletion successful");
+    };
+    if (my $err = $@) {
+        $haenv->log('err', "abort ha groups migration: $err");
+        return 0;
+    }
+
+    return 1;
+};
+
+# TODO PVE 10: Remove group migration when HA groups have been fully migrated to rules
+sub try_persistent_group_migration {
+    my ($self) = @_;
+
+    my ($haenv, $ns, $ss) = ($self->{haenv}, $self->{ns}, $self->{ss});
+
+    return if $have_groups_been_migrated->($haenv);
+
+    $self->{group_migration_round}--;
+    return if $self->{group_migration_round} > 0;
+    $self->{group_migration_round} = $group_migration_cooldown;
+
+    $haenv->log('notice', "start ha group migration...");
+
+    if ($migrate_group_persistently->($haenv, $ns, $ss)) {
+        $haenv->log('notice', "ha groups migration successful");
+    } else {
+        $haenv->log('err', "ha groups migration failed");
+        $haenv->log(
+            'notice',
+            "retry ha groups migration in $group_migration_cooldown rounds (~ "
+                . $group_migration_cooldown * 10
+                . " seconds)",
+        );
+    }
+}
+
 sub manage {
     my ($self) = @_;
 
@@ -480,6 +634,8 @@ sub manage {
     }
 
     $self->update_crs_scheduler_mode();
+
+    $self->try_persistent_group_migration();
 
     my ($sc, $services_digest) = $haenv->read_service_config();
 

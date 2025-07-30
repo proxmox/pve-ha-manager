@@ -215,6 +215,14 @@ sub update_service_config {
     return $self->{hardware}->update_service_config($sid, $param, $delete);
 }
 
+sub write_service_config {
+    my ($self, $conf) = @_;
+
+    $assert_cfs_can_rw->($self);
+
+    $self->{hardware}->write_service_config($conf);
+}
+
 sub parse_sid {
     my ($self, $sid) = @_;
 
@@ -259,12 +267,28 @@ sub read_rules_config {
     return $self->{hardware}->read_rules_config();
 }
 
+sub write_rules_config {
+    my ($self, $rules) = @_;
+
+    $assert_cfs_can_rw->($self);
+
+    $self->{hardware}->write_rules_config($rules);
+}
+
 sub read_group_config {
     my ($self) = @_;
 
     $assert_cfs_can_rw->($self);
 
     return $self->{hardware}->read_group_config();
+}
+
+sub delete_group_config {
+    my ($self) = @_;
+
+    $assert_cfs_can_rw->($self);
+
+    $self->{hardware}->delete_group_config();
 }
 
 # this is normally only allowed by the master to recover a _fenced_ service
@@ -466,6 +490,12 @@ sub get_static_node_stats {
     my ($self) = @_;
 
     return $self->{hardware}->get_static_node_stats();
+}
+
+sub get_node_version {
+    my ($self, $node) = @_;
+
+    return $self->{hardware}->get_node_version($node);
 }
 
 1;

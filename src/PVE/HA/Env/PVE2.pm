@@ -141,6 +141,12 @@ sub update_service_config {
     return PVE::HA::Config::update_resources_config($sid, $param, $delete);
 }
 
+sub write_service_config {
+    my ($self, $conf) = @_;
+
+    return PVE::HA::Config::write_resources_config($conf);
+}
+
 sub parse_sid {
     my ($self, $sid) = @_;
 
@@ -201,10 +207,22 @@ sub read_rules_config {
     return PVE::HA::Config::read_and_check_rules_config();
 }
 
+sub write_rules_config {
+    my ($self, $rules) = @_;
+
+    PVE::HA::Config::write_rules_config($rules);
+}
+
 sub read_group_config {
     my ($self) = @_;
 
     return PVE::HA::Config::read_group_config();
+}
+
+sub delete_group_config {
+    my ($self) = @_;
+
+    PVE::HA::Config::delete_group_config();
 }
 
 # this should return a hash containing info
@@ -487,6 +505,17 @@ sub get_static_node_stats {
     }
 
     return $stats;
+}
+
+sub get_node_version {
+    my ($self, $node) = @_;
+
+    my $version_info = PVE::Cluster::get_node_kv('version-info', $node);
+    return undef if !$version_info->{$node};
+
+    my $node_version_info = eval { decode_json($version_info->{$node}) };
+
+    return $node_version_info->{version};
 }
 
 1;

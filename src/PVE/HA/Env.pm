@@ -100,6 +100,12 @@ sub update_service_config {
     return $self->{plug}->update_service_config($sid, $param, $delete);
 }
 
+sub write_service_config {
+    my ($self, $conf) = @_;
+
+    $self->{plug}->write_service_config($conf);
+}
+
 sub parse_sid {
     my ($self, $sid) = @_;
 
@@ -137,10 +143,22 @@ sub read_rules_config {
     return $self->{plug}->read_rules_config();
 }
 
+sub write_rules_config {
+    my ($self, $rules) = @_;
+
+    $self->{plug}->write_rules_config($rules);
+}
+
 sub read_group_config {
     my ($self) = @_;
 
     return $self->{plug}->read_group_config();
+}
+
+sub delete_group_config {
+    my ($self) = @_;
+
+    $self->{plug}->delete_group_config();
 }
 
 # this should return a hash containing info
@@ -286,6 +304,12 @@ sub get_static_node_stats {
     my ($self) = @_;
 
     return $self->{plug}->get_static_node_stats();
+}
+
+sub get_node_version {
+    my ($self, $node) = @_;
+
+    return $self->{plug}->get_node_version($node);
 }
 
 1;

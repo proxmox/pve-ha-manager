@@ -343,6 +343,15 @@ sub read_rules_config {
     return $rules;
 }
 
+sub write_rules_config {
+    my ($self, $rules) = @_;
+
+    my $filename = "$self->{statusdir}/rules_config";
+
+    my $data = PVE::HA::Rules->write_config($filename, $rules);
+    PVE::Tools::file_set_contents($filename, $data);
+}
+
 sub read_group_config {
     my ($self) = @_;
 
@@ -351,6 +360,13 @@ sub read_group_config {
     $raw = PVE::Tools::file_get_contents($filename) if -f $filename;
 
     return PVE::HA::Groups->parse_config($filename, $raw);
+}
+
+sub delete_group_config {
+    my ($self) = @_;
+
+    my $filename = "$self->{statusdir}/groups";
+    unlink $filename or die "failed to remove group config: $!\n";
 }
 
 sub read_service_status {
@@ -930,6 +946,14 @@ sub get_static_node_stats {
     }
 
     return $stats;
+}
+
+sub get_node_version {
+    my ($self, $node) = @_;
+
+    my $cstatus = $self->read_hardware_status_nolock();
+
+    return $cstatus->{$node}->{version} // "9.0.0~2";
 }
 
 1;

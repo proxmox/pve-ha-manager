@@ -234,6 +234,11 @@ sub read_group_config {
     return cfs_read_file($ha_groups_config);
 }
 
+sub delete_group_config {
+
+    unlink "/etc/pve/$ha_groups_config" or die "failed to remove group config: $!\n";
+}
+
 sub write_group_config {
     my ($cfg) = @_;
 
