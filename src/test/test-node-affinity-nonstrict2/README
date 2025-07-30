@@ -1,6 +1,6 @@
-Test whether a service in a unrestricted group with nofailback enabled will
-stay on the manual migration target node, even though the target node is not a
-member of the unrestricted group.
+Test whether a service in a non-strict node affinity rule, where the service
+has failback disabled, will stay on the manual migration target node, even
+though the target node is not a member of the non-strict node affinity rule.
 
 The test scenario is:
 - vm:101 should be kept on node3
@@ -8,5 +8,5 @@ The test scenario is:
 
 The expected outcome is:
 - As vm:101 is manually migrated to node2, vm:101 stays on node2; even though
-  node2 is not a group member, the nofailback flag prevents vm:101 to be
-  migrated back to a group member
+  node2 is not a rule member, the disabled failback flag prevents vm:101 to be
+  migrated back to a rule member.

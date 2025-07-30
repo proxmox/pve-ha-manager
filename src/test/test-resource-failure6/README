@@ -1,5 +1,5 @@
-Test relocate policy on services with no group.
+Test relocate policy on services with no node affinity rule.
 Service 'fa:130' fails three times to restart and has a 'max_restart' policy
 of 0, thus will be relocated after each start try.
-As it has no group configured all available nodes should get chosen for
-when relocating.
+As it has no node affinity rule configured all available nodes should get
+chosen for when relocating.

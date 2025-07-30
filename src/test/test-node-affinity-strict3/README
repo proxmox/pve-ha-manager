@@ -1,5 +1,5 @@
-Test whether a service in a restricted group with only one node member will
-stay in recovery in case of a failover of their previously assigned node.
+Test whether a service in a strict node affinity rule with only one node member
+will stay in recovery in case of a failover of their previously assigned node.
 
 The test scenario is:
 - vm:101 must be kept on node3
@@ -7,4 +7,4 @@ The test scenario is:
 
 The expected outcome is:
 - As node3 fails, vm:101 stays in recovery since there's no available node
-  member left in the restricted group
+  member left in the strict node affinity rule

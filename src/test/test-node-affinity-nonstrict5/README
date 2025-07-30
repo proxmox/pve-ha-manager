@@ -1,6 +1,6 @@
-Test whether a service in a unrestricted group with two differently prioritized
-node members will stay on the node with the highest priority in case of a
-failover or when the service is on a lower-priority node.
+Test whether a service in a non-strict node affinity rule with two differently
+prioritized node members will stay on the node with the highest priority in
+case of a failover or when the service is on a lower-priority node.
 
 The test scenario is:
 - vm:101 should be kept on node2 or node3
@@ -11,6 +11,6 @@ The expected outcome is:
 - As vm:101 runs on node3, it is automatically migrated to node2, as node2 has
   a higher priority than node3
 - As node2 fails, vm:101 is migrated to node3 as node3 is the next and only
-  available node member left in the unrestricted group
+  available node member left in the non-strict node affinity rule
 - As node2 comes back online, vm:101 is migrated back to node2, as node2 has a
   higher priority than node3

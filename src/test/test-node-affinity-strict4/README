@@ -1,6 +1,6 @@
-Test whether a service in a restricted group with two node members will stay
-assigned to one of the node members in case of a failover of their previously
-assigned node.
+Test whether a service in a strict node affinity rule with two node members
+will stay assigned to one of the node members in case of a failover of their
+previously assigned node.
 
 The test scenario is:
 - vm:101 must be kept on node2 or node3
@@ -11,4 +11,4 @@ The test scenario is:
 
 The expected outcome is:
 - As node3 fails, vm:101 is migrated to node2, as it's the only available node
-  left in the restricted group
+  left in the strict node affinity rule

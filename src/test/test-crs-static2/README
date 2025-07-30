@@ -1,4 +1,5 @@
 Test how service recovery works with the 'static' resource scheduling mode.
 
 Expect that the single service always gets recovered to the node with the most
-available resources. Also tests that the group priority still takes precedence.
+available resources. Also tests that the node affinity rule's node priority
+still takes precedence.

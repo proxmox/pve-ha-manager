@@ -1,6 +1,6 @@
-Test whether a service in a unrestricted group with nofailback enabled and two
-differently prioritized node members will stay on the current node without
-migrating back to the highest priority node.
+Test whether a service in a non-strict node affinity rule with nofailback
+enabled and two differently prioritized node members will stay on the current
+node without migrating back to the highest priority node.
 
 The test scenario is:
 - vm:101 should be kept on node2 or node3
@@ -9,6 +9,6 @@ The test scenario is:
 
 The expected outcome is:
 - As node2 fails, vm:101 is migrated to node3 as it is the only available node
-  member left in the unrestricted group
+  member left in the non-strict node affinity rule
 - As node2 comes back online, vm:101 stays on node3; even though node2 has a
   higher priority, the nofailback flag prevents vm:101 to migrate back to node2
