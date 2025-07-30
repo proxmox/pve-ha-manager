@@ -1,0 +1,12 @@
+Test whether a service in a unrestricted group with nofailback enabled will
+stay on the manual migration target node, even though the target node is not a
+member of the unrestricted group.
+
+The test scenario is:
+- vm:101 should be kept on node3
+- vm:101 is currently running on node3
+
+The expected outcome is:
+- As vm:101 is manually migrated to node2, vm:101 stays on node2; even though
+  node2 is not a group member, the nofailback flag prevents vm:101 to be
+  migrated back to a group member

@@ -1,0 +1,10 @@
+Test whether a service in a unrestricted group with only one node member will
+be migrated to a non-member node in case of a failover of their previously
+assigned node.
+
+The test scenario is:
+- vm:101 should be kept on node3
+- vm:101 is currently running on node3
+
+The expected outcome is:
+- As node3 fails, vm:101 is migrated to node1

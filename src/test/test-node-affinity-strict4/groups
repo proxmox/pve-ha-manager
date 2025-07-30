@@ -1,0 +1,3 @@
+group: must_stay_here
+	nodes node2,node3
+	restricted 1

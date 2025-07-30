@@ -1,0 +1,14 @@
+Test whether a service in a restricted group with two node members will stay
+assigned to one of the node members in case of a failover of their previously
+assigned node.
+
+The test scenario is:
+- vm:101 must be kept on node2 or node3
+- vm:101 is currently running on node3
+- node2 has a higher service count than node1 to test whether the restriction
+  to node2 and node3 is applied even though the scheduler would prefer the less
+  utilized node1
+
+The expected outcome is:
+- As node3 fails, vm:101 is migrated to node2, as it's the only available node
+  left in the restricted group

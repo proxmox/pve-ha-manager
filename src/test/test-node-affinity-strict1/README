@@ -1,0 +1,10 @@
+Test whether a service in a restricted group will automatically migrate back to
+a restricted node member in case of a manual migration to a non-member node.
+
+The test scenario is:
+- vm:101 must be kept on node3
+- vm:101 is currently running on node3
+
+The expected outcome is:
+- As vm:101 is manually migrated to node2, it is migrated back to node3, as
+  node3 is the only available node member left in the restricted group

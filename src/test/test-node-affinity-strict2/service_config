@@ -1,0 +1,3 @@
+{
+    "vm:101": { "node": "node3", "state": "started", "group": "must_stay_here" }
+}
