@@ -109,6 +109,13 @@ my $defaultData = {
             type => 'boolean',
             optional => 1,
         },
+        resources => get_standard_option(
+            'pve-ha-resource-id-list',
+            {
+                completion => \&PVE::HA::Tools::complete_sid,
+                optional => 0,
+            },
+        ),
         comment => {
             description => "HA rule description.",
             type => 'string',
@@ -145,7 +152,17 @@ sub decode_plugin_value {
 sub decode_value {
     my ($class, $type, $key, $value) = @_;
 
-    if ($key eq 'comment') {
+    if ($key eq 'resources') {
+        my $res = {};
+
+        for my $sid (PVE::Tools::split_list($value)) {
+            if (PVE::HA::Tools::pve_verify_ha_resource_id($sid)) {
+                $res->{$sid} = 1;
+            }
+        }
+
+        return $res;
+    } elsif ($key eq 'comment') {
         return PVE::Tools::decode_text($value);
     }
 
@@ -176,7 +193,11 @@ sub encode_plugin_value {
 sub encode_value {
     my ($class, $type, $key, $value) = @_;
 
-    if ($key eq 'comment') {
+    if ($key eq 'resources') {
+        PVE::HA::Tools::pve_verify_ha_resource_id($_) for keys %$value;
+
+        return join(',', sort keys %$value);
+    } elsif ($key eq 'comment') {
         return PVE::Tools::encode_text($value);
     }
 
@@ -383,6 +404,8 @@ The filter properties for C<$opts> are:
 
 =over
 
+=item C<$sid>: Limits C<$rules> to those which contain the given resource C<$sid>.
+
 =item C<$type>: Limits C<$rules> to those which are of rule type C<$type>.
 
 =item C<$exclude_disabled_rules>: Limits C<$rules> to those which are enabled.
@@ -394,6 +417,7 @@ The filter properties for C<$opts> are:
 sub foreach_rule : prototype($$;$) {
     my ($rules, $func, $opts) = @_;
 
+    my $sid = $opts->{sid};
     my $type = $opts->{type};
     my $exclude_disabled_rules = $opts->{exclude_disabled_rules};
 
@@ -405,6 +429,7 @@ sub foreach_rule : prototype($$;$) {
         my $rule = $rules->{ids}->{$ruleid};
 
         next if !$rule; # skip invalid rules
+        next if defined($sid) && !defined($rule->{resources}->{$sid});
         next if defined($type) && $rule->{type} ne $type;
         next if $exclude_disabled_rules && exists($rule->{disable});
 

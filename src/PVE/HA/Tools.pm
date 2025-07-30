@@ -51,6 +51,18 @@ PVE::JSONSchema::register_standard_option(
     },
 );
 
+PVE::JSONSchema::register_standard_option(
+    'pve-ha-resource-id-list',
+    {
+        description =>
+            "List of HA resource IDs. This consists of a list of resource types followed"
+            . " by a resource specific name separated with a colon (example: vm:100,ct:101).",
+        typetext => "<type>:<name>{,<type>:<name>}*",
+        type => 'string',
+        format => 'pve-ha-resource-id-list',
+    },
+);
+
 PVE::JSONSchema::register_format('pve-ha-resource-or-vm-id', \&pve_verify_ha_resource_or_vm_id);
 
 sub pve_verify_ha_resource_or_vm_id {
@@ -102,6 +114,18 @@ PVE::JSONSchema::register_standard_option(
         typetext => '<node>[:<pri>]{,<node>[:<pri>]}*',
     },
 );
+
+sub parse_node_priority {
+    my ($value, $noerr) = @_;
+
+    if ($value =~ m/^([a-zA-Z0-9]([a-zA-Z0-9\-]*[a-zA-Z0-9])?)(:(\d+))?$/) {
+        # node without priority set defaults to priority 0
+        return ($1, int($4 // 0));
+    }
+
+    return undef if $noerr;
+    die "unable to parse HA node entry '$value'\n";
+}
 
 PVE::JSONSchema::register_standard_option(
     'pve-ha-group-id',
