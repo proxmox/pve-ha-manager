@@ -112,6 +112,15 @@ PVE::JSONSchema::register_standard_option(
     },
 );
 
+PVE::JSONSchema::register_standard_option(
+    'pve-ha-rule-id',
+    {
+        description => "HA rule identifier.",
+        type => 'string',
+        format => 'pve-configid',
+    },
+);
+
 sub read_json_from_file {
     my ($filename, $default) = @_;
 
@@ -287,6 +296,19 @@ sub complete_group {
             push @$res, $group;
         }
 
+    }
+
+    return $res;
+}
+
+sub complete_rule {
+    my ($cmd, $pname, $cur) = @_;
+
+    my $cfg = PVE::HA::Config::read_rules_config();
+
+    my $res = [];
+    foreach my $rule (keys %{ $cfg->{ids} }) {
+        push @$res, $rule;
     }
 
     return $res;

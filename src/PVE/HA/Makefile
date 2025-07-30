@@ -1,4 +1,4 @@
-SIM_SOURCES=CRM.pm Env.pm Groups.pm Resources.pm LRM.pm Manager.pm \
+SIM_SOURCES=CRM.pm Env.pm Groups.pm Rules.pm Resources.pm LRM.pm Manager.pm \
 	NodeStatus.pm Tools.pm FenceConfig.pm Fence.pm Usage.pm
 
 SOURCES=${SIM_SOURCES} Config.pm

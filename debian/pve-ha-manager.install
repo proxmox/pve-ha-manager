@@ -32,6 +32,7 @@
 /usr/share/perl5/PVE/HA/Resources.pm
 /usr/share/perl5/PVE/HA/Resources/PVECT.pm
 /usr/share/perl5/PVE/HA/Resources/PVEVM.pm
+/usr/share/perl5/PVE/HA/Rules.pm
 /usr/share/perl5/PVE/HA/Tools.pm
 /usr/share/perl5/PVE/HA/Usage.pm
 /usr/share/perl5/PVE/HA/Usage/Basic.pm
