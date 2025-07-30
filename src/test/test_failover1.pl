@@ -22,6 +22,7 @@ $online_node_usage->add_node("node3");
 my $service_conf = {
     node => 'node1',
     group => 'prefer_node1',
+    failback => 1,
 };
 
 my $sd = {

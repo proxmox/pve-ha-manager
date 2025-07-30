@@ -62,6 +62,15 @@ EODESC
                 completion => \&PVE::HA::Tools::complete_group,
             },
         ),
+        failback => {
+            description => "Automatically migrate HA resource to the node with"
+                . " the highest priority according to their node affinity "
+                . " rules, if a node with a higher priority than the current"
+                . " node comes online.",
+            type => 'boolean',
+            optional => 1,
+            default => 1,
+        },
         max_restart => {
             description => "Maximal number of tries to restart the service on"
                 . " a node after its start failed.",

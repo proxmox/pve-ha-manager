@@ -109,6 +109,15 @@ __PACKAGE__->register_method({
                     type => "string",
                     optional => 1,
                 },
+                failback => {
+                    description => "The HA resource is automatically migrated"
+                        . " to the node with the highest priority according to"
+                        . " their node affinity rule, if a node with a higher"
+                        . " priority than the current node comes online.",
+                    type => "boolean",
+                    optional => 1,
+                    default => 1,
+                },
                 max_relocate => {
                     description => "For type 'service'.",
                     type => "integer",
@@ -260,7 +269,7 @@ __PACKAGE__->register_method({
             # also return common resource attributes
             if (defined($sc)) {
                 $data->{request_state} = $sc->{state};
-                foreach my $key (qw(group max_restart max_relocate comment)) {
+                foreach my $key (qw(group max_restart max_relocate failback comment)) {
                     $data->{$key} = $sc->{$key} if defined($sc->{$key});
                 }
             }

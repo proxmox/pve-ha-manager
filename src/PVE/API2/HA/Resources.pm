@@ -127,6 +127,15 @@ __PACKAGE__->register_method({
                 optional => 1,
                 description => "Requested resource state.",
             },
+            failback => {
+                description => "The HA resource is automatically migrated to"
+                    . " the node with the highest priority according to their"
+                    . " node affinity rule, if a node with a higher priority"
+                    . " than the current node comes online.",
+                type => 'boolean',
+                optional => 1,
+                default => 1,
+            },
             group => get_standard_option('pve-ha-group-id', { optional => 1 }),
             max_restart => {
                 description => "Maximal number of tries to restart the service on"

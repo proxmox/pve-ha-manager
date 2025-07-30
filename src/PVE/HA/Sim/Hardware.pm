@@ -106,6 +106,7 @@ sub read_service_config {
         }
         $d->{state} = 'disabled' if !$d->{state};
         $d->{state} = 'started' if $d->{state} eq 'enabled'; # backward compatibility
+        $d->{failback} = 1 if !defined($d->{failback});
         $d->{max_restart} = 1 if !defined($d->{max_restart});
         $d->{max_relocate} = 1 if !defined($d->{max_relocate});
     }
