@@ -10,6 +10,7 @@ use base qw(Exporter);
 use base qw(PVE::HA::Rules);
 
 our @EXPORT_OK = qw(
+    get_affinitive_resources
     get_resource_affinity
     apply_positive_resource_affinity
     apply_negative_resource_affinity
@@ -446,6 +447,58 @@ sub plugin_canonicalize {
 =head1 RESOURCE AFFINITY RULE HELPERS
 
 =cut
+
+=head3 get_affinitive_resources($rules, $sid)
+
+Returns a list of two hash sets, where the first hash set contains the
+resources, which C<$sid> is positively affinitive to, and the second hash
+contains the resources, which C<$sid> is negatively affinitive to, acording to
+the resource affinity rules in C<$rules>.
+
+Note that a resource C<$sid> becomes part of any negative affinity relation
+of its positively affinitive resources.
+
+For example, if a resource is negatively affinitive to C<'vm:101'> and positively
+affinitive to C<'ct:200'> and C<'ct:201'>, the returned value will be:
+
+    {
+        together => {
+            'vm:101' => 1
+        },
+        separate => {
+            'ct:200' => 1,
+            'ct:201' => 1
+        }
+    }
+
+=cut
+
+sub get_affinitive_resources : prototype($$) {
+    my ($rules, $sid) = @_;
+
+    my $together = {};
+    my $separate = {};
+
+    PVE::HA::Rules::foreach_rule(
+        $rules,
+        sub {
+            my ($rule, $ruleid) = @_;
+
+            my $affinity_set = $rule->{affinity} eq 'positive' ? $together : $separate;
+
+            for my $csid (sort keys %{ $rule->{resources} }) {
+                $affinity_set->{$csid} = 1 if $csid ne $sid;
+            }
+        },
+        {
+            sid => $sid,
+            type => 'resource-affinity',
+            exclude_disabled_rules => 1,
+        },
+    );
+
+    return ($together, $separate);
+}
 
 =head3 get_resource_affinity($rules, $sid, $online_node_usage)
 

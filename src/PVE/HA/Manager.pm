@@ -12,7 +12,7 @@ use PVE::HA::NodeStatus;
 use PVE::HA::Rules;
 use PVE::HA::Rules::NodeAffinity qw(get_node_affinity);
 use PVE::HA::Rules::ResourceAffinity
-    qw(get_resource_affinity apply_positive_resource_affinity apply_negative_resource_affinity);
+    qw(get_affinitive_resources get_resource_affinity apply_positive_resource_affinity apply_negative_resource_affinity);
 use PVE::HA::Usage::Basic;
 use PVE::HA::Usage::Static;
 
@@ -412,6 +412,47 @@ sub read_lrm_status {
     return ($results, $modes);
 }
 
+sub execute_migration {
+    my ($self, $cmd, $task, $sid, $target) = @_;
+
+    my ($haenv, $ss) = $self->@{qw(haenv ss)};
+
+    my ($together, $separate) = get_affinitive_resources($self->{rules}, $sid);
+
+    for my $csid (sort keys %$separate) {
+        next if $ss->{$csid}->{node} && $ss->{$csid}->{node} ne $target;
+        next if $ss->{$csid}->{target} && $ss->{$csid}->{target} ne $target;
+
+        $haenv->log(
+            'err',
+            "crm command '$cmd' error - service '$csid' on node '$target' in"
+                . " negative affinity with service '$sid'",
+        );
+
+        return; # one negative resource affinity is enough to not execute migration
+    }
+
+    $haenv->log('info', "got crm command: $cmd");
+    $ss->{$sid}->{cmd} = [$task, $target];
+
+    my $resources_to_migrate = [];
+    for my $csid (sort keys %$together) {
+        next if $ss->{$csid}->{node} && $ss->{$csid}->{node} eq $target;
+        next if $ss->{$csid}->{target} && $ss->{$csid}->{target} eq $target;
+
+        push @$resources_to_migrate, $csid;
+    }
+
+    for my $csid (@$resources_to_migrate) {
+        $haenv->log(
+            'info',
+            "crm command '$cmd' - $task service '$csid' to node '$target'"
+                . " (service '$csid' in positive affinity with service '$sid')",
+        );
+        $ss->{$csid}->{cmd} = [$task, $target];
+    }
+}
+
 # read new crm commands and save them into crm master status
 sub update_crm_commands {
     my ($self) = @_;
@@ -435,8 +476,7 @@ sub update_crm_commands {
                             "ignore crm command - service already on target node: $cmd",
                         );
                     } else {
-                        $haenv->log('info', "got crm command: $cmd");
-                        $ss->{$sid}->{cmd} = [$task, $node];
+                        $self->execute_migration($cmd, $task, $sid, $node);
                     }
                 }
             } else {
