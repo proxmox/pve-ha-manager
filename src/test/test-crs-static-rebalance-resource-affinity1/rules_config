@@ -1,0 +1,19 @@
+resource-affinity: vms-must-stick-together1
+	resources vm:102,vm:107
+	affinity positive
+
+resource-affinity: vms-must-stick-together2
+	resources vm:104,vm:106,vm:108
+	affinity positive
+
+resource-affinity: vms-must-stay-apart1
+	resources vm:103,vm:104,vm:105
+	affinity negative
+
+resource-affinity: vms-must-stay-apart2
+	resources vm:103,vm:106,vm:107
+	affinity negative
+
+resource-affinity: vms-must-stay-apart3
+	resources vm:107,vm:108
+	affinity negative

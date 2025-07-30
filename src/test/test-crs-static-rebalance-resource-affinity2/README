@@ -1,0 +1,20 @@
+Test whether a pairwise strict negative resource affinity rules, i.e. negative
+resource affinity relations a<->b, b<->c and a<->c, in conjunction with the
+static load scheduler with auto-rebalancing are applied correctly on resource
+start and in case of a subsequent failover.
+
+The test scenario is:
+- vm:100 and vm:200 must be kept separate
+- vm:200 and vm:300 must be kept separate
+- vm:100 and vm:300 must be kept separate
+- Therefore, vm:100, vm:200, and vm:300 must be kept separate
+- The resources' static usage stats are chosen so that during rebalancing vm:300
+  will need to select a less than ideal node according to the static usage
+  scheduler, i.e. node1 being the ideal one, to test whether the resource
+  affinity rule still applies correctly
+
+The expected outcome is:
+- vm:100, vm:200, and vm:300 should be started on node1, node2, and node3
+  respectively, just as if the three negative resource affinity rule would've
+  been stated in a single negative resource affinity rule
+- As node3 fails, vm:300 cannot be recovered

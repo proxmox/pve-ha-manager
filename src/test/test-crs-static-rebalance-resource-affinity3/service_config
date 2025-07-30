@@ -1,0 +1,9 @@
+{
+    "vm:100": { "node": "node1", "state": "started" },
+    "vm:101": { "node": "node1", "state": "started" },
+    "vm:200": { "node": "node1", "state": "started" },
+    "vm:201": { "node": "node1", "state": "started" },
+    "vm:300": { "node": "node1", "state": "started" },
+    "vm:400": { "node": "node1", "state": "started" },
+    "vm:500": { "node": "node1", "state": "started" }
+}

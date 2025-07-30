@@ -1,0 +1,9 @@
+{
+    "vm:100": { "maxcpu": 16, "maxmem": 16000000000 },
+    "vm:101": { "maxcpu": 4, "maxmem": 8000000000 },
+    "vm:200": { "maxcpu": 2, "maxmem": 48000000000 },
+    "vm:201": { "maxcpu": 4, "maxmem": 8000000000 },
+    "vm:300": { "maxcpu": 8, "maxmem": 32000000000 },
+    "vm:400": { "maxcpu": 32, "maxmem": 32000000000 },
+    "vm:500": { "maxcpu": 16, "maxmem": 8000000000 }
+}

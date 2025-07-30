@@ -1,0 +1,26 @@
+Test whether a mixed set of strict resource affinity rules in conjunction with
+the static load scheduler with auto-rebalancing are applied correctly on
+resource start enabled and in case of a subsequent failover.
+
+The test scenario is:
+- vm:101 and vm:102 do not have any resource affinity
+- Services that must be kept together:
+    - vm:102 and vm:107
+    - vm:104, vm:106, and vm:108
+- Services that must be kept separate:
+    - vm:103, vm:104, and vm:105
+    - vm:103, vm:106, and vm:107
+    - vm:107 and vm:108
+- Therefore, there are consistent interdependencies between the positive and
+  negative resource affinity rules' resource members
+- vm:101 and vm:102 are currently assigned to node1 and node2 respectively
+- vm:103 through vm:108 are currently assigned to node3
+
+The expected outcome is:
+- vm:101, vm:102, vm:103 should be started on node1, node2, and node3
+  respectively, as there's nothing running on there yet
+- vm:104, vm:106, and vm:108 should all be assigned on the same node, which
+  will be node1, since it has the most resources left for vm:104
+- vm:105 and vm:107 should both be assigned on the same node, which will be
+  node2, since both cannot be assigned to the other nodes because of the
+  resource affinity constraints

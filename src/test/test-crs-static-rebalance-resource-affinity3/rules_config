@@ -1,0 +1,3 @@
+resource-affinity: keep-them-apart
+	resources vm:100,vm:200,vm:300,vm:400,vm:500
+	affinity negative

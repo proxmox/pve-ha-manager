@@ -1,0 +1,11 @@
+resource-affinity: very-lonely-services1
+	resources vm:100,vm:200
+	affinity negative
+
+resource-affinity: very-lonely-services2
+	resources vm:200,vm:300
+	affinity negative
+
+resource-affinity: very-lonely-services3
+	resources vm:100,vm:300
+	affinity negative

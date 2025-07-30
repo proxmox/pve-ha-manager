@@ -1,0 +1,174 @@
+info      0     hardware: starting simulation
+info     20      cmdlist: execute power node1 on
+info     20    node1/crm: status change startup => wait_for_quorum
+info     20    node1/lrm: status change startup => wait_for_agent_lock
+info     20      cmdlist: execute power node2 on
+info     20    node2/crm: status change startup => wait_for_quorum
+info     20    node2/lrm: status change startup => wait_for_agent_lock
+info     20      cmdlist: execute power node3 on
+info     20    node3/crm: status change startup => wait_for_quorum
+info     20    node3/lrm: status change startup => wait_for_agent_lock
+info     20    node1/crm: got lock 'ha_manager_lock'
+info     20    node1/crm: status change wait_for_quorum => master
+info     20    node1/crm: using scheduler mode 'static'
+info     20    node1/crm: node 'node1': state changed from 'unknown' => 'online'
+info     20    node1/crm: node 'node2': state changed from 'unknown' => 'online'
+info     20    node1/crm: node 'node3': state changed from 'unknown' => 'online'
+info     20    node1/crm: adding new service 'vm:100' on node 'node1'
+info     20    node1/crm: adding new service 'vm:101' on node 'node1'
+info     20    node1/crm: adding new service 'vm:102' on node 'node1'
+info     20    node1/crm: adding new service 'vm:103' on node 'node1'
+info     20    node1/crm: adding new service 'vm:200' on node 'node1'
+info     20    node1/crm: adding new service 'vm:201' on node 'node1'
+info     20    node1/crm: adding new service 'vm:202' on node 'node1'
+info     20    node1/crm: adding new service 'vm:203' on node 'node1'
+info     20    node1/crm: adding new service 'vm:300' on node 'node1'
+info     20    node1/crm: adding new service 'vm:301' on node 'node1'
+info     20    node1/crm: adding new service 'vm:302' on node 'node1'
+info     20    node1/crm: adding new service 'vm:303' on node 'node1'
+info     20    node1/crm: service vm:100: re-balance selected current node node1 for startup
+info     20    node1/crm: service 'vm:100': state changed from 'request_start' to 'started'  (node = node1)
+info     20    node1/crm: service vm:101: re-balance selected new node node2 for startup
+info     20    node1/crm: service 'vm:101': state changed from 'request_start' to 'request_start_balance'  (node = node1, target = node2)
+info     20    node1/crm: service vm:102: re-balance selected new node node3 for startup
+info     20    node1/crm: service 'vm:102': state changed from 'request_start' to 'request_start_balance'  (node = node1, target = node3)
+info     20    node1/crm: service vm:103: re-balance selected new node node3 for startup
+info     20    node1/crm: service 'vm:103': state changed from 'request_start' to 'request_start_balance'  (node = node1, target = node3)
+info     20    node1/crm: service vm:200: re-balance selected new node node2 for startup
+info     20    node1/crm: service 'vm:200': state changed from 'request_start' to 'request_start_balance'  (node = node1, target = node2)
+info     20    node1/crm: service vm:201: re-balance selected new node node3 for startup
+info     20    node1/crm: service 'vm:201': state changed from 'request_start' to 'request_start_balance'  (node = node1, target = node3)
+info     20    node1/crm: service vm:202: re-balance selected new node node3 for startup
+info     20    node1/crm: service 'vm:202': state changed from 'request_start' to 'request_start_balance'  (node = node1, target = node3)
+info     20    node1/crm: service vm:203: re-balance selected current node node1 for startup
+info     20    node1/crm: service 'vm:203': state changed from 'request_start' to 'started'  (node = node1)
+info     20    node1/crm: service vm:300: re-balance selected new node node3 for startup
+info     20    node1/crm: service 'vm:300': state changed from 'request_start' to 'request_start_balance'  (node = node1, target = node3)
+info     20    node1/crm: service vm:301: re-balance selected current node node1 for startup
+info     20    node1/crm: service 'vm:301': state changed from 'request_start' to 'started'  (node = node1)
+info     20    node1/crm: service vm:302: re-balance selected new node node2 for startup
+info     20    node1/crm: service 'vm:302': state changed from 'request_start' to 'request_start_balance'  (node = node1, target = node2)
+info     20    node1/crm: service vm:303: re-balance selected current node node1 for startup
+info     20    node1/crm: service 'vm:303': state changed from 'request_start' to 'started'  (node = node1)
+info     21    node1/lrm: got lock 'ha_agent_node1_lock'
+info     21    node1/lrm: status change wait_for_agent_lock => active
+info     21    node1/lrm: starting service vm:100
+info     21    node1/lrm: service status vm:100 started
+info     21    node1/lrm: service vm:101 - start relocate to node 'node2'
+info     21    node1/lrm: service vm:101 - end relocate to node 'node2'
+info     21    node1/lrm: service vm:102 - start relocate to node 'node3'
+info     21    node1/lrm: service vm:102 - end relocate to node 'node3'
+info     21    node1/lrm: service vm:103 - start relocate to node 'node3'
+info     21    node1/lrm: service vm:103 - end relocate to node 'node3'
+info     21    node1/lrm: service vm:200 - start relocate to node 'node2'
+info     21    node1/lrm: service vm:200 - end relocate to node 'node2'
+info     21    node1/lrm: service vm:201 - start relocate to node 'node3'
+info     21    node1/lrm: service vm:201 - end relocate to node 'node3'
+info     21    node1/lrm: service vm:202 - start relocate to node 'node3'
+info     21    node1/lrm: service vm:202 - end relocate to node 'node3'
+info     21    node1/lrm: starting service vm:203
+info     21    node1/lrm: service status vm:203 started
+info     21    node1/lrm: service vm:300 - start relocate to node 'node3'
+info     21    node1/lrm: service vm:300 - end relocate to node 'node3'
+info     21    node1/lrm: starting service vm:301
+info     21    node1/lrm: service status vm:301 started
+info     21    node1/lrm: service vm:302 - start relocate to node 'node2'
+info     21    node1/lrm: service vm:302 - end relocate to node 'node2'
+info     21    node1/lrm: starting service vm:303
+info     21    node1/lrm: service status vm:303 started
+info     22    node2/crm: status change wait_for_quorum => slave
+info     23    node2/lrm: got lock 'ha_agent_node2_lock'
+info     23    node2/lrm: status change wait_for_agent_lock => active
+info     24    node3/crm: status change wait_for_quorum => slave
+info     25    node3/lrm: got lock 'ha_agent_node3_lock'
+info     25    node3/lrm: status change wait_for_agent_lock => active
+info     40    node1/crm: service 'vm:101': state changed from 'request_start_balance' to 'started'  (node = node2)
+info     40    node1/crm: service 'vm:102': state changed from 'request_start_balance' to 'started'  (node = node3)
+info     40    node1/crm: service 'vm:103': state changed from 'request_start_balance' to 'started'  (node = node3)
+info     40    node1/crm: service 'vm:200': state changed from 'request_start_balance' to 'started'  (node = node2)
+info     40    node1/crm: service 'vm:201': state changed from 'request_start_balance' to 'started'  (node = node3)
+info     40    node1/crm: service 'vm:202': state changed from 'request_start_balance' to 'started'  (node = node3)
+info     40    node1/crm: service 'vm:300': state changed from 'request_start_balance' to 'started'  (node = node3)
+info     40    node1/crm: service 'vm:302': state changed from 'request_start_balance' to 'started'  (node = node2)
+info     43    node2/lrm: starting service vm:101
+info     43    node2/lrm: service status vm:101 started
+info     43    node2/lrm: starting service vm:200
+info     43    node2/lrm: service status vm:200 started
+info     43    node2/lrm: starting service vm:302
+info     43    node2/lrm: service status vm:302 started
+info     45    node3/lrm: starting service vm:102
+info     45    node3/lrm: service status vm:102 started
+info     45    node3/lrm: starting service vm:103
+info     45    node3/lrm: service status vm:103 started
+info     45    node3/lrm: starting service vm:201
+info     45    node3/lrm: service status vm:201 started
+info     45    node3/lrm: starting service vm:202
+info     45    node3/lrm: service status vm:202 started
+info     45    node3/lrm: starting service vm:300
+info     45    node3/lrm: service status vm:300 started
+info    120      cmdlist: execute network node3 off
+info    120    node1/crm: node 'node3': state changed from 'online' => 'unknown'
+info    124    node3/crm: status change slave => wait_for_quorum
+info    125    node3/lrm: status change active => lost_agent_lock
+info    160    node1/crm: service 'vm:102': state changed from 'started' to 'fence'
+info    160    node1/crm: service 'vm:103': state changed from 'started' to 'fence'
+info    160    node1/crm: service 'vm:201': state changed from 'started' to 'fence'
+info    160    node1/crm: service 'vm:202': state changed from 'started' to 'fence'
+info    160    node1/crm: service 'vm:300': state changed from 'started' to 'fence'
+info    160    node1/crm: node 'node3': state changed from 'unknown' => 'fence'
+emai    160    node1/crm: FENCE: Try to fence node 'node3'
+info    166     watchdog: execute power node3 off
+info    165    node3/crm: killed by poweroff
+info    166    node3/lrm: killed by poweroff
+info    166     hardware: server 'node3' stopped by poweroff (watchdog)
+info    240    node1/crm: got lock 'ha_agent_node3_lock'
+info    240    node1/crm: fencing: acknowledged - got agent lock for node 'node3'
+info    240    node1/crm: node 'node3': state changed from 'fence' => 'unknown'
+emai    240    node1/crm: SUCCEED: fencing: acknowledged - got agent lock for node 'node3'
+info    240    node1/crm: service 'vm:102': state changed from 'fence' to 'recovery'
+info    240    node1/crm: service 'vm:103': state changed from 'fence' to 'recovery'
+info    240    node1/crm: service 'vm:201': state changed from 'fence' to 'recovery'
+info    240    node1/crm: service 'vm:202': state changed from 'fence' to 'recovery'
+info    240    node1/crm: service 'vm:300': state changed from 'fence' to 'recovery'
+info    240    node1/crm: recover service 'vm:102' from fenced node 'node3' to node 'node1'
+info    240    node1/crm: service 'vm:102': state changed from 'recovery' to 'started'  (node = node1)
+info    240    node1/crm: recover service 'vm:103' from fenced node 'node3' to node 'node2'
+info    240    node1/crm: service 'vm:103': state changed from 'recovery' to 'started'  (node = node2)
+info    240    node1/crm: recover service 'vm:201' from fenced node 'node3' to node 'node2'
+info    240    node1/crm: service 'vm:201': state changed from 'recovery' to 'started'  (node = node2)
+info    240    node1/crm: recover service 'vm:202' from fenced node 'node3' to node 'node2'
+info    240    node1/crm: service 'vm:202': state changed from 'recovery' to 'started'  (node = node2)
+err     240    node1/crm: recovering service 'vm:300' from fenced node 'node3' failed, no recovery node found
+err     240    node1/crm: recovering service 'vm:300' from fenced node 'node3' failed, no recovery node found
+info    241    node1/lrm: starting service vm:102
+info    241    node1/lrm: service status vm:102 started
+info    243    node2/lrm: starting service vm:103
+info    243    node2/lrm: service status vm:103 started
+info    243    node2/lrm: starting service vm:201
+info    243    node2/lrm: service status vm:201 started
+info    243    node2/lrm: starting service vm:202
+info    243    node2/lrm: service status vm:202 started
+err     260    node1/crm: recovering service 'vm:300' from fenced node 'node3' failed, no recovery node found
+err     280    node1/crm: recovering service 'vm:300' from fenced node 'node3' failed, no recovery node found
+err     300    node1/crm: recovering service 'vm:300' from fenced node 'node3' failed, no recovery node found
+err     320    node1/crm: recovering service 'vm:300' from fenced node 'node3' failed, no recovery node found
+err     340    node1/crm: recovering service 'vm:300' from fenced node 'node3' failed, no recovery node found
+err     360    node1/crm: recovering service 'vm:300' from fenced node 'node3' failed, no recovery node found
+err     380    node1/crm: recovering service 'vm:300' from fenced node 'node3' failed, no recovery node found
+err     400    node1/crm: recovering service 'vm:300' from fenced node 'node3' failed, no recovery node found
+err     420    node1/crm: recovering service 'vm:300' from fenced node 'node3' failed, no recovery node found
+err     440    node1/crm: recovering service 'vm:300' from fenced node 'node3' failed, no recovery node found
+err     460    node1/crm: recovering service 'vm:300' from fenced node 'node3' failed, no recovery node found
+err     480    node1/crm: recovering service 'vm:300' from fenced node 'node3' failed, no recovery node found
+err     500    node1/crm: recovering service 'vm:300' from fenced node 'node3' failed, no recovery node found
+err     520    node1/crm: recovering service 'vm:300' from fenced node 'node3' failed, no recovery node found
+err     540    node1/crm: recovering service 'vm:300' from fenced node 'node3' failed, no recovery node found
+err     560    node1/crm: recovering service 'vm:300' from fenced node 'node3' failed, no recovery node found
+err     580    node1/crm: recovering service 'vm:300' from fenced node 'node3' failed, no recovery node found
+err     600    node1/crm: recovering service 'vm:300' from fenced node 'node3' failed, no recovery node found
+err     620    node1/crm: recovering service 'vm:300' from fenced node 'node3' failed, no recovery node found
+err     640    node1/crm: recovering service 'vm:300' from fenced node 'node3' failed, no recovery node found
+err     660    node1/crm: recovering service 'vm:300' from fenced node 'node3' failed, no recovery node found
+err     680    node1/crm: recovering service 'vm:300' from fenced node 'node3' failed, no recovery node found
+err     700    node1/crm: recovering service 'vm:300' from fenced node 'node3' failed, no recovery node found
+info    720     hardware: exit simulation - done
