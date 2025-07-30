@@ -4,12 +4,19 @@ use strict;
 use warnings;
 
 use lib '..';
-use PVE::HA::Groups;
 use PVE::HA::Manager;
 use PVE::HA::Usage::Basic;
 
-my $groups = PVE::HA::Groups->parse_config("groups.tmp", <<EOD);
-group: prefer_node1
+use PVE::HA::Rules;
+use PVE::HA::Rules::NodeAffinity;
+
+PVE::HA::Rules::NodeAffinity->register();
+
+PVE::HA::Rules->init(property_isolation => 1);
+
+my $rules = PVE::HA::Rules->parse_config("rules.tmp", <<EOD);
+node-affinity: prefer_node1
+	resources vm:111
 	nodes node1
 EOD
 
@@ -21,7 +28,6 @@ $online_node_usage->add_node("node3");
 
 my $service_conf = {
     node => 'node1',
-    group => 'prefer_node1',
     failback => 1,
 };
 
@@ -37,7 +43,7 @@ sub test {
     my $select_node_preference = $try_next ? 'try-next' : 'none';
 
     my $node = PVE::HA::Manager::select_service_node(
-        $groups, $online_node_usage, "vm:111", $service_conf, $sd, $select_node_preference,
+        $rules, $online_node_usage, "vm:111", $service_conf, $sd, $select_node_preference,
     );
 
     my (undef, undef, $line) = caller();

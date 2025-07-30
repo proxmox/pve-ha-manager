@@ -10,7 +10,7 @@ use PVE::HA::Groups;
 use PVE::HA::Tools ':exit_codes';
 use PVE::HA::NodeStatus;
 use PVE::HA::Rules;
-use PVE::HA::Rules::NodeAffinity;
+use PVE::HA::Rules::NodeAffinity qw(get_node_affinity);
 use PVE::HA::Usage::Basic;
 use PVE::HA::Usage::Static;
 
@@ -114,57 +114,13 @@ sub flush_master_status {
     $haenv->write_manager_status($ms);
 }
 
-sub get_service_group {
-    my ($groups, $online_node_usage, $service_conf) = @_;
-
-    my $group = {};
-    # add all online nodes to default group to allow try_next when no group set
-    $group->{nodes}->{$_} = 1 for $online_node_usage->list_nodes();
-
-    # overwrite default if service is bound to a specific group
-    if (my $group_id = $service_conf->{group}) {
-        $group = $groups->{ids}->{$group_id} if $groups->{ids}->{$group_id};
-    }
-
-    return $group;
-}
-
-# groups available nodes with their priority as group index
-sub get_node_priority_groups {
-    my ($group, $online_node_usage) = @_;
-
-    my $pri_groups = {};
-    my $group_members = {};
-    foreach my $entry (keys %{ $group->{nodes} }) {
-        my ($node, $pri) = ($entry, 0);
-        if ($entry =~ m/^(\S+):(\d+)$/) {
-            ($node, $pri) = ($1, $2);
-        }
-        next if !$online_node_usage->contains_node($node); # offline
-        $pri_groups->{$pri}->{$node} = 1;
-        $group_members->{$node} = $pri;
-    }
-
-    # add non-group members to unrestricted groups (priority -1)
-    if (!$group->{restricted}) {
-        my $pri = -1;
-        for my $node ($online_node_usage->list_nodes()) {
-            next if defined($group_members->{$node});
-            $pri_groups->{$pri}->{$node} = 1;
-            $group_members->{$node} = -1;
-        }
-    }
-
-    return ($pri_groups, $group_members);
-}
-
 =head3 select_service_node(...)
 
-=head3 select_service_node($groups, $online_node_usage, $sid, $service_conf, $sd, $node_preference)
+=head3 select_service_node($rules, $online_node_usage, $sid, $service_conf, $sd, $node_preference)
 
 Used to select the best fitting node for the service C<$sid>, with the
-configuration C<$service_conf> and state C<$sd>, according to the groups defined
-in C<$groups>, available node utilization in C<$online_node_usage>, and the
+configuration C<$service_conf> and state C<$sd>, according to the rules defined
+in C<$rules>, available node utilization in C<$online_node_usage>, and the
 given C<$node_preference>.
 
 The C<$node_preference> can be set to:
@@ -182,7 +138,7 @@ The C<$node_preference> can be set to:
 =cut
 
 sub select_service_node {
-    my ($groups, $online_node_usage, $sid, $service_conf, $sd, $node_preference) = @_;
+    my ($rules, $online_node_usage, $sid, $service_conf, $sd, $node_preference) = @_;
 
     die "'$node_preference' is not a valid node_preference for select_service_node\n"
         if $node_preference !~ m/(none|best-score|try-next)/;
@@ -190,42 +146,35 @@ sub select_service_node {
     my ($current_node, $tried_nodes, $maintenance_fallback) =
         $sd->@{qw(node failed_nodes maintenance_node)};
 
-    my $group = get_service_group($groups, $online_node_usage, $service_conf);
+    my ($allowed_nodes, $pri_nodes) = get_node_affinity($rules, $sid, $online_node_usage);
 
-    my ($pri_groups, $group_members) = get_node_priority_groups($group, $online_node_usage);
-
-    my @pri_list = sort { $b <=> $a } keys %$pri_groups;
-    return undef if !scalar(@pri_list);
+    return undef if !%$pri_nodes;
 
     # stay on current node if possible (avoids random migrations)
     if (
         $node_preference eq 'none'
-        && $group->{nofailback}
-        && defined($group_members->{$current_node})
+        && !$service_conf->{failback}
+        && $allowed_nodes->{$current_node}
     ) {
         return $current_node;
     }
 
-    # select node from top priority node list
-
-    my $top_pri = $pri_list[0];
-
     # try to avoid nodes where the service failed already if we want to relocate
     if ($node_preference eq 'try-next') {
         foreach my $node (@$tried_nodes) {
-            delete $pri_groups->{$top_pri}->{$node};
+            delete $pri_nodes->{$node};
         }
     }
 
     return $maintenance_fallback
-        if defined($maintenance_fallback) && $pri_groups->{$top_pri}->{$maintenance_fallback};
+        if defined($maintenance_fallback) && $pri_nodes->{$maintenance_fallback};
 
-    return $current_node if $node_preference eq 'none' && $pri_groups->{$top_pri}->{$current_node};
+    return $current_node if $node_preference eq 'none' && $pri_nodes->{$current_node};
 
     my $scores = $online_node_usage->score_nodes_to_start_service($sid, $current_node);
     my @nodes = sort {
         $scores->{$a} <=> $scores->{$b} || $a cmp $b
-    } keys %{ $pri_groups->{$top_pri} };
+    } keys %$pri_nodes;
 
     my $found;
     for (my $i = scalar(@nodes) - 1; $i >= 0; $i--) {
@@ -843,7 +792,7 @@ sub next_state_request_start {
 
     if ($self->{crs}->{rebalance_on_request_start}) {
         my $selected_node = select_service_node(
-            $self->{groups},
+            $self->{rules},
             $self->{online_node_usage},
             $sid,
             $cd,
@@ -1010,7 +959,7 @@ sub next_state_started {
             }
 
             my $node = select_service_node(
-                $self->{groups},
+                $self->{rules},
                 $self->{online_node_usage},
                 $sid,
                 $cd,
@@ -1128,7 +1077,7 @@ sub next_state_recovery {
     $self->recompute_online_node_usage(); # we want the most current node state
 
     my $recovery_node = select_service_node(
-        $self->{groups},
+        $self->{rules},
         $self->{online_node_usage},
         $sid,
         $cd,
