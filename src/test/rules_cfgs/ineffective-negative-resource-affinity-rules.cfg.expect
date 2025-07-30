@@ -1,0 +1,30 @@
+--- Log ---
+Drop rule 'remove-me1', because rule defines more resources than available nodes.
+Drop rule 'remove-me2', because rule defines more resources than available nodes.
+--- Config ---
+$VAR1 = {
+          'digest' => '68633cedeeb355ef78fe28221ef3f16537b3e788',
+          'ids' => {
+                     'do-not-remove-me1' => {
+                                              'affinity' => 'negative',
+                                              'resources' => {
+                                                               'vm:101' => 1,
+                                                               'vm:102' => 1
+                                                             },
+                                              'type' => 'resource-affinity'
+                                            },
+                     'do-not-remove-me2' => {
+                                              'affinity' => 'negative',
+                                              'resources' => {
+                                                               'vm:101' => 1,
+                                                               'vm:102' => 1,
+                                                               'vm:103' => 1
+                                                             },
+                                              'type' => 'resource-affinity'
+                                            }
+                   },
+          'order' => {
+                       'do-not-remove-me1' => 1,
+                       'do-not-remove-me2' => 2
+                     }
+        };

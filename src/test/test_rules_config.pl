@@ -13,8 +13,10 @@ use Data::Dumper;
 
 use PVE::HA::Rules;
 use PVE::HA::Rules::NodeAffinity;
+use PVE::HA::Rules::ResourceAffinity;
 
 PVE::HA::Rules::NodeAffinity->register();
+PVE::HA::Rules::ResourceAffinity->register();
 
 PVE::HA::Rules->init(property_isolation => 1);
 

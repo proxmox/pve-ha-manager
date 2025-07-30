@@ -1,0 +1,11 @@
+--- Log ---
+Drop rule 'keep-apart1', because rule shares two or more resources with 'stick-together1'.
+Drop rule 'keep-apart2', because rule shares two or more resources with 'stick-together1'.
+Drop rule 'stick-together1', because rule shares two or more resources with 'keep-apart1'.
+Drop rule 'stick-together1', because rule shares two or more resources with 'keep-apart2'.
+--- Config ---
+$VAR1 = {
+          'digest' => '50875b320034d8ac7dded185e590f5f87c4e2bb6',
+          'ids' => {},
+          'order' => {}
+        };
