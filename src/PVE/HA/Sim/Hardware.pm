@@ -375,20 +375,6 @@ sub read_static_service_stats {
     return $stats;
 }
 
-my $default_group_config = <<__EOD;
-group: prefer_node1
-    nodes node1
-    nofailback 1
-
-group: prefer_node2
-    nodes node2
-    nofailback 1
-
-group: prefer_node3
-    nodes node3
-    nofailback 1
-__EOD
-
 sub new {
     my ($this, $testdir) = @_;
 
@@ -415,8 +401,6 @@ sub new {
 
     if (-f "$testdir/groups") {
         copy("$testdir/groups", "$statusdir/groups");
-    } else {
-        PVE::Tools::file_set_contents("$statusdir/groups", $default_group_config);
     }
 
     if (-f "$testdir/service_config") {
