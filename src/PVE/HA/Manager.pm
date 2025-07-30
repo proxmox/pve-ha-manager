@@ -11,7 +11,8 @@ use PVE::HA::Tools ':exit_codes';
 use PVE::HA::NodeStatus;
 use PVE::HA::Rules;
 use PVE::HA::Rules::NodeAffinity qw(get_node_affinity);
-use PVE::HA::Rules::ResourceAffinity;
+use PVE::HA::Rules::ResourceAffinity
+    qw(get_resource_affinity apply_positive_resource_affinity apply_negative_resource_affinity);
 use PVE::HA::Usage::Basic;
 use PVE::HA::Usage::Static;
 
@@ -154,11 +155,16 @@ sub select_service_node {
 
     return undef if !%$pri_nodes;
 
+    my ($together, $separate) = get_resource_affinity($rules, $sid, $online_node_usage);
+
     # stay on current node if possible (avoids random migrations)
     if (
         $node_preference eq 'none'
         && !$service_conf->{failback}
         && $allowed_nodes->{$current_node}
+        && PVE::HA::Rules::ResourceAffinity::is_allowed_on_node(
+            $together, $separate, $current_node,
+        )
     ) {
         return $current_node;
     }
@@ -169,6 +175,9 @@ sub select_service_node {
             delete $pri_nodes->{$node};
         }
     }
+
+    apply_positive_resource_affinity($together, $pri_nodes);
+    apply_negative_resource_affinity($separate, $pri_nodes);
 
     return $maintenance_fallback
         if defined($maintenance_fallback) && $pri_nodes->{$maintenance_fallback};

@@ -6,7 +6,14 @@ use warnings;
 use PVE::HA::HashTools qw(set_intersect sets_are_disjoint);
 use PVE::HA::Rules;
 
+use base qw(Exporter);
 use base qw(PVE::HA::Rules);
+
+our @EXPORT_OK = qw(
+    get_resource_affinity
+    apply_positive_resource_affinity
+    apply_negative_resource_affinity
+);
 
 =head1 NAME
 
@@ -434,6 +441,149 @@ sub plugin_canonicalize {
         $args->{positive_rules},
         $args->{negative_rules},
     );
+}
+
+=head1 RESOURCE AFFINITY RULE HELPERS
+
+=cut
+
+=head3 get_resource_affinity($rules, $sid, $online_node_usage)
+
+Returns a list of two hashes, where the first describes the positive resource
+affinity and the second hash describes the negative resource affinity for
+resource C<$sid> according to the resource affinity rules in C<$rules> and the
+resource locations in C<$online_node_usage>.
+
+For the positive resource affinity of a resource C<$sid>, each element in the
+hash represents an online node, where other resources, which C<$sid> is in
+positive affinity with, are already running, and how many of them. That is,
+each element represents a node, where the resource must be.
+
+For the negative resource affinity of a resource C<$sid>, each element in the
+hash represents an online node, where other resources, which C<$sid> is in
+negative affinity with, are alreaddy running. That is, each element represents
+a node, where the resource must not be.
+
+For example, if there are already three resources running, which the resource
+C<$sid> is in a positive affinity with, and two running resources, which the
+resource C<$sid> is in a negative affinity with, the returned value will be:
+
+    {
+        together => {
+            node2 => 3
+        },
+        separate => {
+            node1 => 1,
+            node3 => 1
+        }
+    }
+
+=cut
+
+sub get_resource_affinity : prototype($$$) {
+    my ($rules, $sid, $online_node_usage) = @_;
+
+    my $together = {};
+    my $separate = {};
+
+    PVE::HA::Rules::foreach_rule(
+        $rules,
+        sub {
+            my ($rule) = @_;
+
+            for my $csid (keys %{ $rule->{resources} }) {
+                next if $csid eq $sid;
+
+                my $nodes = $online_node_usage->get_service_nodes($csid);
+
+                next if !$nodes || !@$nodes; # skip unassigned nodes
+
+                if ($rule->{affinity} eq 'positive') {
+                    $together->{$_}++ for @$nodes;
+                } elsif ($rule->{affinity} eq 'negative') {
+                    $separate->{$_} = 1 for @$nodes;
+                } else {
+                    die "unimplemented resource affinity type $rule->{affinity}\n";
+                }
+            }
+        },
+        {
+            sid => $sid,
+            type => 'resource-affinity',
+            exclude_disabled_rules => 1,
+        },
+    );
+
+    return ($together, $separate);
+}
+
+=head3 is_allowed_on_node($together, $separate, $node)
+
+Checks whether the resource affinity hashes C<$together> or C<$separate> state
+whether for C<$together> the C<$node> must be selected, or for C<$separate> the
+node C<$node> must be avoided.
+
+=cut
+
+sub is_allowed_on_node : prototype($$$) {
+    my ($together, $separate, $node) = @_;
+
+    return $together->{$node} || !$separate->{$node};
+}
+
+=head3 apply_positive_resource_affinity($together, $allowed_nodes)
+
+Applies the positive resource affinity C<$together> on the allowed node hash set
+C<$allowed_nodes> by modifying it directly.
+
+Positive resource affinity means keeping resources together on a single node and
+therefore minimizing the separation of resources.
+
+The allowed node hash set C<$allowed_nodes> is expected to contain all nodes,
+which are available to the resource this helper is called for, i.e. each node
+is currently online, available according to other location constraints, and the
+resource has not failed running there yet.
+
+=cut
+
+sub apply_positive_resource_affinity : prototype($$) {
+    my ($together, $allowed_nodes) = @_;
+
+    my @possible_nodes = sort keys $together->%*
+        or return; # nothing to do if there is no positive resource affinity
+
+    # select the most populated node from a positive resource affinity
+    @possible_nodes = sort { $together->{$b} <=> $together->{$a} } @possible_nodes;
+    my $majority_node = $possible_nodes[0];
+
+    for my $node (keys %$allowed_nodes) {
+        delete $allowed_nodes->{$node} if $node ne $majority_node;
+    }
+}
+
+=head3 apply_negative_resource_affinity($separate, $allowed_nodes)
+
+Applies the negative resource affinity C<$separate> on the allowed node hash set
+C<$allowed_nodes> by modifying it directly.
+
+Negative resource affinity means keeping resources separate on multiple nodes
+and therefore maximizing the separation of resources.
+
+The allowed node hash set C<$allowed_nodes> is expected to contain all nodes,
+which are available to the resource this helper is called for, i.e. each node
+is currently online, available according to other location constraints, and the
+resource has not failed running there yet.
+
+=cut
+
+sub apply_negative_resource_affinity : prototype($$) {
+    my ($separate, $allowed_nodes) = @_;
+
+    my $forbidden_nodes = { $separate->%* };
+
+    for my $node (keys %$forbidden_nodes) {
+        delete $allowed_nodes->{$node};
+    }
 }
 
 1;
