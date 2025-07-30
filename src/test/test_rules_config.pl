@@ -42,6 +42,8 @@ sub check_cfg {
 
     my $raw = PVE::Tools::file_get_contents($cfg_fn);
 
+    my $nodes = ['node1', 'node2', 'node3'];
+
     open(my $LOG, '>', "$outfile");
     select($LOG);
     $| = 1;
@@ -49,7 +51,7 @@ sub check_cfg {
     print "--- Log ---\n";
     my $cfg = PVE::HA::Rules->parse_config($cfg_fn, $raw);
     PVE::HA::Rules->set_rule_defaults($_) for values %{ $cfg->{ids} };
-    my $messages = PVE::HA::Rules->canonicalize($cfg);
+    my $messages = PVE::HA::Rules->canonicalize($cfg, $nodes);
     print $_ for @$messages;
     print "--- Config ---\n";
     {

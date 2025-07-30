@@ -98,7 +98,10 @@ my $check_feasibility = sub {
 
     $rules = $get_full_rules_config->($rules);
 
-    return PVE::HA::Rules->check_feasibility($rules);
+    my $manager_status = PVE::HA::Config::read_manager_status();
+    my $nodes = [keys $manager_status->{node_status}->%*];
+
+    return PVE::HA::Rules->check_feasibility($rules, $nodes);
 };
 
 my $assert_feasibility = sub {

@@ -688,7 +688,8 @@ sub manage {
     ) {
         PVE::HA::Groups::migrate_groups_to_rules($new_rules, $self->{groups}, $sc);
 
-        my $messages = PVE::HA::Rules->canonicalize($new_rules);
+        my $nodes = $self->{ns}->list_nodes();
+        my $messages = PVE::HA::Rules->canonicalize($new_rules, $nodes);
         $haenv->log('info', $_) for @$messages;
 
         $self->{rules} = $new_rules;
