@@ -27,6 +27,7 @@
 /usr/share/perl5/PVE/HA/Fence.pm
 /usr/share/perl5/PVE/HA/FenceConfig.pm
 /usr/share/perl5/PVE/HA/Groups.pm
+/usr/share/perl5/PVE/HA/HashTools.pm
 /usr/share/perl5/PVE/HA/LRM.pm
 /usr/share/perl5/PVE/HA/Manager.pm
 /usr/share/perl5/PVE/HA/NodeStatus.pm

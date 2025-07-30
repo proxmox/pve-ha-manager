@@ -1,5 +1,5 @@
-SIM_SOURCES=CRM.pm Env.pm Groups.pm Rules.pm Resources.pm LRM.pm Manager.pm \
-	NodeStatus.pm Tools.pm FenceConfig.pm Fence.pm Usage.pm
+SIM_SOURCES=CRM.pm Env.pm Groups.pm HashTools.pm Rules.pm Resources.pm LRM.pm \
+	Manager.pm NodeStatus.pm Tools.pm FenceConfig.pm Fence.pm Usage.pm
 
 SOURCES=${SIM_SOURCES} Config.pm
 
