@@ -971,6 +971,7 @@ sub next_state_started {
                 $try_next,
                 $sd->{failed_nodes},
                 $sd->{maintenance_node},
+                0, # best_score
             );
 
             if ($node && ($sd->{node} ne $node)) {
@@ -1083,7 +1084,15 @@ sub next_state_recovery {
     $self->recompute_online_node_usage(); # we want the most current node state
 
     my $recovery_node = select_service_node(
-        $self->{groups}, $self->{online_node_usage}, $sid, $cd, $sd->{node},
+        $self->{groups},
+        $self->{online_node_usage},
+        $sid,
+        $cd,
+        $sd->{node},
+        0, # try_next
+        $sd->{failed_nodes},
+        $sd->{maintenance_node},
+        1, # best_score
     );
 
     if ($recovery_node) {

@@ -24,13 +24,26 @@ my $service_conf = {
     group => 'prefer_node1',
 };
 
+my $sd = {
+    failed_nodes => undef,
+    maintenance_node => undef,
+};
+
 my $current_node = $service_conf->{node};
 
 sub test {
     my ($expected_node, $try_next) = @_;
 
     my $node = PVE::HA::Manager::select_service_node(
-        $groups, $online_node_usage, "vm:111", $service_conf, $current_node, $try_next,
+        $groups,
+        $online_node_usage,
+        "vm:111",
+        $service_conf,
+        $current_node,
+        $try_next,
+        $sd->{failed_nodes},
+        $sd->{maintenance_node},
+        0, # best_score
     );
 
     my (undef, undef, $line) = caller();
