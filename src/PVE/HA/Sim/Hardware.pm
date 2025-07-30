@@ -115,7 +115,7 @@ sub read_service_config {
 }
 
 sub update_service_config {
-    my ($self, $sid, $param) = @_;
+    my ($self, $sid, $param, $delete) = @_;
 
     my $conf = $self->read_service_config();
 
@@ -123,6 +123,12 @@ sub update_service_config {
 
     foreach my $k (%$param) {
         $sconf->{$k} = $param->{$k};
+    }
+
+    if ($delete) {
+        for my $k (PVE::Tools::split_list($delete)) {
+            delete $sconf->{$k};
+        }
     }
 
     $self->write_service_config($conf);

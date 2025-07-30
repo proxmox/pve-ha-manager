@@ -95,9 +95,9 @@ sub read_service_config {
 }
 
 sub update_service_config {
-    my ($self, $sid, $param) = @_;
+    my ($self, $sid, $param, $delete) = @_;
 
-    return $self->{plug}->update_service_config($sid, $param);
+    return $self->{plug}->update_service_config($sid, $param, $delete);
 }
 
 sub parse_sid {
