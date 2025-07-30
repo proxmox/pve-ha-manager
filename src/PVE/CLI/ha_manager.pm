@@ -147,6 +147,42 @@ __PACKAGE__->register_method({
     },
 });
 
+my $print_resource_motion_output = sub {
+    my ($cmd) = @_;
+
+    return sub {
+        my ($data) = @_;
+
+        my $sid = $data->{sid};
+        my $req_node = $data->{'requested-node'};
+
+        if (my $blocking_resources = $data->{'blocking-resources'}) {
+            my $err_msg = "cannot $cmd resource '$sid' to node '$req_node':\n\n";
+
+            for my $blocking_resource (@$blocking_resources) {
+                my ($csid, $cause) = $blocking_resource->@{qw(sid cause)};
+
+                $err_msg .= "- resource '$csid' on target node '$req_node'";
+
+                if ($cause eq 'resource-affinity') {
+                    $err_msg .= " in negative affinity with resource '$sid'";
+                }
+
+                $err_msg .= "\n";
+            }
+
+            die $err_msg;
+        }
+
+        if ($data->{'comigrated-resources'}) {
+            for my $csid ($data->{'comigrated-resources'}->@*) {
+                print "also $cmd resource '$csid' in positive affinity with"
+                    . " resource '$sid' to target node '$req_node'\n";
+            }
+        }
+    };
+};
+
 our $cmddef = {
     status => [__PACKAGE__, 'status'],
     config => [
@@ -243,8 +279,20 @@ our $cmddef = {
     relocate => { alias => 'crm-command relocate' },
 
     'crm-command' => {
-        migrate => ["PVE::API2::HA::Resources", 'migrate', ['sid', 'node']],
-        relocate => ["PVE::API2::HA::Resources", 'relocate', ['sid', 'node']],
+        migrate => [
+            "PVE::API2::HA::Resources",
+            'migrate',
+            ['sid', 'node'],
+            {},
+            $print_resource_motion_output->('migrate'),
+        ],
+        relocate => [
+            "PVE::API2::HA::Resources",
+            'relocate',
+            ['sid', 'node'],
+            {},
+            $print_resource_motion_output->('relocate'),
+        ],
         stop => [__PACKAGE__, 'stop', ['sid', 'timeout']],
         'node-maintenance' => {
             enable => [__PACKAGE__, 'node-maintenance-set', ['node'], { disable => 0 }],

@@ -8,6 +8,7 @@ use JSON;
 use PVE::HA::Tools;
 use PVE::HA::Groups;
 use PVE::HA::Rules;
+use PVE::HA::Rules::ResourceAffinity qw(get_affinitive_resources);
 use PVE::Cluster qw(cfs_register_file cfs_read_file cfs_write_file cfs_lock_file);
 use PVE::HA::Resources;
 
@@ -223,6 +224,24 @@ sub read_and_check_rules_config {
     return $rules;
 }
 
+sub read_and_check_effective_rules_config {
+
+    my $rules = read_and_check_rules_config();
+
+    my $manager_status = read_manager_status();
+    my $nodes = [keys $manager_status->{node_status}->%*];
+
+    # TODO PVE 10: Remove group migration when HA groups have been fully migrated to location rules
+    my $groups = read_group_config();
+    my $resources = read_and_check_resources_config();
+
+    PVE::HA::Groups::migrate_groups_to_rules($rules, $groups, $resources);
+
+    PVE::HA::Rules->canonicalize($rules, $nodes);
+
+    return $rules;
+}
+
 sub write_rules_config {
     my ($cfg) = @_;
 
@@ -357,6 +376,43 @@ sub service_is_configured {
         return 1;
     }
     return 0;
+}
+
+sub get_resource_motion_info {
+    my ($sid) = @_;
+
+    my $resources = read_resources_config();
+
+    my $comigrated_resources = [];
+    my $blocking_resources_by_node = {};
+
+    if (&$service_check_ha_state($resources, $sid)) {
+        my $manager_status = read_manager_status();
+        my $ss = $manager_status->{service_status};
+        my $ns = $manager_status->{node_status};
+
+        my $rules = read_and_check_effective_rules_config();
+        my ($together, $separate) = get_affinitive_resources($rules, $sid);
+
+        push @$comigrated_resources, $_ for sort keys %$together;
+
+        for my $node (keys %$ns) {
+            next if $ns->{$node} ne 'online';
+
+            for my $csid (sort keys %$separate) {
+                next if $ss->{$csid}->{node} && $ss->{$csid}->{node} ne $node;
+                next if $ss->{$csid}->{target} && $ss->{$csid}->{target} ne $node;
+
+                push $blocking_resources_by_node->{$node}->@*,
+                    {
+                        sid => $csid,
+                        cause => 'resource-affinity',
+                    };
+            }
+        }
+    }
+
+    return ($comigrated_resources, $blocking_resources_by_node);
 }
 
 # graceful, as long as locking + cfs_write works

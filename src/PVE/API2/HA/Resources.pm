@@ -327,19 +327,75 @@ __PACKAGE__->register_method({
             ),
         },
     },
-    returns => { type => 'null' },
+    returns => {
+        type => 'object',
+        properties => {
+            sid => {
+                description => "HA resource, which is requested to be migrated.",
+                type => 'string',
+                optional => 0,
+            },
+            'requested-node' => {
+                description => "Node, which was requested to be migrated to.",
+                type => 'string',
+                optional => 0,
+            },
+            'comigrated-resources' => {
+                description => "HA resources, which are migrated to the same"
+                    . " requested target node as the given HA resource, because"
+                    . " these are in positive affinity with the HA resource.",
+                type => 'array',
+                optional => 1,
+            },
+            'blocking-resources' => {
+                description => "HA resources, which are blocking the given"
+                    . " HA resource from being migrated to the requested"
+                    . " target node.",
+                type => 'array',
+                optional => 1,
+                items => {
+                    description => "A blocking HA resource",
+                    type => 'object',
+                    properties => {
+                        sid => {
+                            type => 'string',
+                            description => "The blocking HA resource id",
+                        },
+                        cause => {
+                            type => 'string',
+                            description => "The reason why the HA resource is"
+                                . " blocking the migration.",
+                            enum => ['resource-affinity'],
+                        },
+                    },
+                },
+            },
+        },
+    },
     code => sub {
         my ($param) = @_;
 
+        my $result = {};
+
         my ($sid, $type, $name) = PVE::HA::Config::parse_sid(extract_param($param, 'sid'));
+        my $req_node = extract_param($param, 'node');
 
         PVE::HA::Config::service_is_ha_managed($sid);
 
         check_service_state($sid);
 
-        PVE::HA::Config::queue_crm_commands("migrate $sid $param->{node}");
+        PVE::HA::Config::queue_crm_commands("migrate $sid $req_node");
+        $result->{sid} = $sid;
+        $result->{'requested-node'} = $req_node;
 
-        return undef;
+        my ($comigrated_resources, $blocking_resources_by_node) =
+            PVE::HA::Config::get_resource_motion_info($sid);
+        my $blocking_resources = $blocking_resources_by_node->{$req_node};
+
+        $result->{'comigrated-resources'} = $comigrated_resources if @$comigrated_resources;
+        $result->{'blocking-resources'} = $blocking_resources if $blocking_resources;
+
+        return $result;
     },
 });
 
@@ -369,19 +425,79 @@ __PACKAGE__->register_method({
             ),
         },
     },
-    returns => { type => 'null' },
+    returns => {
+        type => 'object',
+        properties => {
+            sid => {
+                description => "HA resource, which is requested to be relocated.",
+                type => 'string',
+                optional => 0,
+            },
+            'requested-node' => {
+                description => "Node, which was requested to be relocated to.",
+                type => 'string',
+                optional => 0,
+            },
+            'comigrated-resources' => {
+                description => "HA resources, which are relocated to the same"
+                    . " requested target node as the given HA resource, because"
+                    . " these are in positive affinity with the HA resource.",
+                type => 'array',
+                optional => 1,
+                items => {
+                    type => 'string',
+                    description => "A comigrated HA resource",
+                },
+            },
+            'blocking-resources' => {
+                description => "HA resources, which are blocking the given"
+                    . " HA resource from being relocated to the requested"
+                    . " target node.",
+                type => 'array',
+                optional => 1,
+                items => {
+                    description => "A blocking HA resource",
+                    type => 'object',
+                    properties => {
+                        sid => {
+                            type => 'string',
+                            description => "The blocking HA resource id",
+                        },
+                        cause => {
+                            type => 'string',
+                            description => "The reason why the HA resource is"
+                                . " blocking the relocation.",
+                            enum => ['resource-affinity'],
+                        },
+                    },
+                },
+            },
+        },
+    },
     code => sub {
         my ($param) = @_;
 
+        my $result = {};
+
         my ($sid, $type, $name) = PVE::HA::Config::parse_sid(extract_param($param, 'sid'));
+        my $req_node = extract_param($param, 'node');
 
         PVE::HA::Config::service_is_ha_managed($sid);
 
         check_service_state($sid);
 
-        PVE::HA::Config::queue_crm_commands("relocate $sid $param->{node}");
+        PVE::HA::Config::queue_crm_commands("relocate $sid $req_node");
+        $result->{sid} = $sid;
+        $result->{'requested-node'} = $req_node;
 
-        return undef;
+        my ($comigrated_resources, $blocking_resources_by_node) =
+            PVE::HA::Config::get_resource_motion_info($sid);
+        my $blocking_resources = $blocking_resources_by_node->{$req_node};
+
+        $result->{'comigrated-resources'} = $comigrated_resources if @$comigrated_resources;
+        $result->{'blocking-resources'} = $blocking_resources if @$blocking_resources;
+
+        return $result;
     },
 });
 
