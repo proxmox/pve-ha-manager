@@ -1,0 +1,11 @@
+Test whether a strict positive resource affinity rule makes three resources
+migrate to the same recovery node in case of a failover of their previously
+assigned node.
+
+The test scenario is:
+- vm:101, vm:102, and vm:103 must be kept together
+- vm:101, vm:102, and vm:103 are all currently running on node3
+
+The expected outcome is:
+- As node3 fails, all resources are migrated to node2, as node2 is less utilized
+  than the other available node1

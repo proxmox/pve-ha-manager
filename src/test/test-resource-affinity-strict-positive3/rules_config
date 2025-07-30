@@ -1,0 +1,3 @@
+resource-affinity: vms-must-stick-together
+	resources vm:101,vm:102,fa:120002
+	affinity positive

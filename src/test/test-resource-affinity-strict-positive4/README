@@ -1,0 +1,11 @@
+Test whether a strict positive resource affinity rule of three resources makes
+the resources stay together, if one of the resources is manually migrated to
+another node, i.e., migrate to the same node.
+
+The test scenario is:
+- vm:101, vm:102, and vm:103 must be kept together
+- vm:101, vm:102, and vm:103 are all currently running on node1
+
+The expected outcome is:
+- As vm:101 is migrated to node2, vm:102 and vm:103 are migrated to node2 as
+  well as a side-effect to follow the positive resource affinity rule.

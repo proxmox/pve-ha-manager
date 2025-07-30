@@ -1,0 +1,17 @@
+Test whether a strict positive resource affinity rule makes three resources
+migrate to the same recovery node in case of a failover of their previously
+assigned node. If one of those fail to start on the recovery node (e.g.
+insufficient resources), the failing resource will be kept on the recovery node.
+
+The test scenario is:
+- vm:101, vm:102, and fa:120002 must be kept together
+- vm:101, vm:102, and fa:120002 are all currently running on node3
+- fa:120002 will fail to start on node2
+- node1 has a higher resource count than node2 so that node2 is selected for
+  migration so that fa:12002 is guaranteed to fail there
+
+The expected outcome is:
+- As node3 fails, all resources are migrated to node2
+- Two of those resources will start successfully, but fa:120002 will stay in
+  recovery, since it cannot be started on this node, but cannot be relocated to
+  another one either due to the strict resource affinity rule

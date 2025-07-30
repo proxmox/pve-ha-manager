@@ -1,0 +1,19 @@
+Test whether multiple connected positive resource affinity rules makes the
+resources stay together, if one of the resources is manually migrated to another
+node, i.e., migrate all of them to the same node.
+
+The test scenario is:
+- vm:101, vm:102, and vm:103 must be kept together
+- vm:103, vm:104, and vm:105 must be kept together
+- vm:105, vm:106, and vm:107 must be kept together
+- vm:105, vm:108, and vm:109 must be kept together
+- So essentially, vm:101 through vm:109 must be kept together
+- vm:101 through vm:109 are all on node1
+
+The expected outcome is:
+- As vm:103 is migrated to node2, all of vm:101 through vm:109 are migrated to
+  node2 as well, as these all must be kept together
+- As vm:101 is migrated to node3, all of vm:101 through vm:109 are migrated to
+  node3 as well, as these all must be kept together
+- As vm:109 is migrated to node1, all of vm:101 through vm:109 are migrated to
+  node1 as well, as these all must be kept together
