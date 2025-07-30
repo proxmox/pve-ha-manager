@@ -7,12 +7,14 @@ use JSON;
 
 use PVE::HA::Tools;
 use PVE::HA::Groups;
+use PVE::HA::Rules;
 use PVE::Cluster qw(cfs_register_file cfs_read_file cfs_write_file cfs_lock_file);
 use PVE::HA::Resources;
 
 my $manager_status_filename = "ha/manager_status";
 my $ha_groups_config = "ha/groups.cfg";
 my $ha_resources_config = "ha/resources.cfg";
+my $ha_rules_config = "ha/rules.cfg";
 my $crm_commands_filename = "ha/crm_commands";
 my $ha_fence_config = "ha/fence.cfg";
 
@@ -30,6 +32,11 @@ cfs_register_file(
     $ha_resources_config,
     sub { PVE::HA::Resources->parse_config(@_); },
     sub { PVE::HA::Resources->write_config(@_); },
+);
+cfs_register_file(
+    $ha_rules_config,
+    sub { PVE::HA::Rules->parse_config(@_); },
+    sub { PVE::HA::Rules->write_config(@_); },
 );
 cfs_register_file($manager_status_filename, \&json_reader, \&json_writer);
 cfs_register_file(
@@ -195,6 +202,29 @@ sub parse_sid {
     }
 
     return wantarray ? ($sid, $type, $name) : $sid;
+}
+
+sub read_rules_config {
+
+    return cfs_read_file($ha_rules_config);
+}
+
+sub read_and_check_rules_config {
+
+    my $rules = cfs_read_file($ha_rules_config);
+
+    # set optional rule parameter's default values
+    for my $rule (values %{ $rules->{ids} }) {
+        PVE::HA::Rules->set_rule_defaults($rule);
+    }
+
+    return $rules;
+}
+
+sub write_rules_config {
+    my ($cfg) = @_;
+
+    cfs_write_file($ha_rules_config, $cfg);
 }
 
 sub read_group_config {

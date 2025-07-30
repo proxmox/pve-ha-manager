@@ -22,11 +22,17 @@ use PVE::HA::FenceConfig;
 use PVE::HA::Resources;
 use PVE::HA::Resources::PVEVM;
 use PVE::HA::Resources::PVECT;
+use PVE::HA::Rules;
+use PVE::HA::Rules::NodeAffinity;
 
 PVE::HA::Resources::PVEVM->register();
 PVE::HA::Resources::PVECT->register();
 
 PVE::HA::Resources->init();
+
+PVE::HA::Rules::NodeAffinity->register();
+
+PVE::HA::Rules->init(property_isolation => 1);
 
 my $lockdir = "/etc/pve/priv/lock";
 
@@ -187,6 +193,12 @@ sub steal_service {
     # Necessary for (at least) static usage plugin to always be able to read service config from new
     # node right away.
     $self->cluster_state_update();
+}
+
+sub read_rules_config {
+    my ($self) = @_;
+
+    return PVE::HA::Config::read_and_check_rules_config();
 }
 
 sub read_group_config {

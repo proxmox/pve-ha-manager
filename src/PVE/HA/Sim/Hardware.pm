@@ -28,6 +28,7 @@ my $watchdog_timeout = 60;
 # $testdir/cmdlist                    Command list for simulation
 # $testdir/hardware_status            Hardware description (number of nodes, ...)
 # $testdir/manager_status             CRM status (start with {})
+# $testdir/rules_config               Contraints / Rules configuration
 # $testdir/service_config             Service configuration
 # $testdir/static_service_stats       Static service usage information (cpu, memory)
 # $testdir/groups                     HA groups configuration
@@ -319,6 +320,22 @@ sub read_crm_commands {
     return $self->global_lock($code);
 }
 
+sub read_rules_config {
+    my ($self) = @_;
+
+    my $filename = "$self->{statusdir}/rules_config";
+    my $raw = '';
+    $raw = PVE::Tools::file_get_contents($filename) if -f $filename;
+    my $rules = PVE::HA::Rules->parse_config($filename, $raw);
+
+    # set optional rule parameter's default values
+    for my $rule (values %{ $rules->{ids} }) {
+        PVE::HA::Rules->set_rule_defaults($rule);
+    }
+
+    return $rules;
+}
+
 sub read_group_config {
     my ($self) = @_;
 
@@ -390,6 +407,10 @@ sub new {
 
     # copy initial configuartion
     copy("$testdir/manager_status", "$statusdir/manager_status"); # optional
+
+    if (-f "$testdir/rules_config") {
+        copy("$testdir/rules_config", "$statusdir/rules_config");
+    }
 
     if (-f "$testdir/groups") {
         copy("$testdir/groups", "$statusdir/groups");

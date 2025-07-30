@@ -10,6 +10,8 @@ use Fcntl qw(:DEFAULT :flock);
 use PVE::HA::Tools;
 use PVE::HA::Env;
 use PVE::HA::Resources;
+use PVE::HA::Rules;
+use PVE::HA::Rules::NodeAffinity;
 use PVE::HA::Sim::Resources::VirtVM;
 use PVE::HA::Sim::Resources::VirtCT;
 use PVE::HA::Sim::Resources::VirtFail;
@@ -19,6 +21,10 @@ PVE::HA::Sim::Resources::VirtCT->register();
 PVE::HA::Sim::Resources::VirtFail->register();
 
 PVE::HA::Resources->init();
+
+PVE::HA::Rules::NodeAffinity->register();
+
+PVE::HA::Rules->init(property_isolation => 1);
 
 sub new {
     my ($this, $nodename, $hardware, $log_id) = @_;
@@ -243,6 +249,14 @@ sub exec_fence_agent {
     my ($self, $agent, $node, @param) = @_;
 
     return $self->{hardware}->exec_fence_agent($agent, $node, @param);
+}
+
+sub read_rules_config {
+    my ($self) = @_;
+
+    $assert_cfs_can_rw->($self);
+
+    return $self->{hardware}->read_rules_config();
 }
 
 sub read_group_config {

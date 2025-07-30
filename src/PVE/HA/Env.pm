@@ -131,6 +131,12 @@ sub steal_service {
     return $self->{plug}->steal_service($sid, $current_node, $new_node);
 }
 
+sub read_rules_config {
+    my ($self) = @_;
+
+    return $self->{plug}->read_rules_config();
+}
+
 sub read_group_config {
     my ($self) = @_;
 
