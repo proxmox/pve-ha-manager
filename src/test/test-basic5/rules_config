@@ -1,0 +1,3 @@
+node-affinity: vm101-should-be-on-node1
+	nodes node1
+	resources vm:101

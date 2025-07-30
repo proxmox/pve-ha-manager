@@ -1,5 +1,5 @@
 {
-    "vm:101": { "node": "node3", "state": "started", "group": "must_stay_here" },
+    "vm:101": { "node": "node3", "state": "started" },
     "vm:102": { "node": "node2", "state": "started" },
     "vm:103": { "node": "node2", "state": "started" }
 }

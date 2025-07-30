@@ -1,0 +1,4 @@
+node-affinity: vm102-must-be-on-node2
+	nodes node2
+	resources vm:102
+	strict 1

@@ -1,3 +1,0 @@
-group: should_stay_here
-	nodes node3
-	nofailback 1
