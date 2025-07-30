@@ -354,6 +354,18 @@ sub check_feasibility : prototype($$) {
     return $global_errors;
 }
 
+=head3 $class->plugin_canonicalize($rules)
+
+B<OPTIONAL:> Can be implemented in the I<rule plugin>.
+
+Modifies the C<$rules> to a plugin-specific canonical form.
+
+=cut
+
+sub plugin_canonicalize : prototype($$) {
+    my ($class, $rules) = @_;
+}
+
 =head3 $class->canonicalize($rules)
 
 Modifies C<$rules> to contain only feasible rules.
@@ -383,6 +395,12 @@ sub canonicalize : prototype($$) {
                 push @$messages, "Drop rule '$ruleid', because $message.\n";
             }
         }
+    }
+
+    for my $type (@$types) {
+        my $plugin = $class->lookup($type);
+        eval { $plugin->plugin_canonicalize($rules) };
+        next if $@; # plugin doesn't implement plugin_canonicalize(...)
     }
 
     return $messages;
