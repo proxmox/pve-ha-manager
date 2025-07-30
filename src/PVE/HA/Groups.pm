@@ -107,4 +107,53 @@ sub parse_section_header {
 __PACKAGE__->register();
 __PACKAGE__->init();
 
+# Migrate nofailback flag from $groups to $resources
+sub migrate_groups_to_resources {
+    my ($groups, $resources) = @_;
+
+    for my $sid (keys %$resources) {
+        my $groupid = $resources->{$sid}->{group}
+            or next; # skip resources without groups
+
+        $resources->{$sid}->{failback} = int(!$groups->{ids}->{$groupid}->{nofailback});
+    }
+}
+
+# Migrate groups from groups from $groups and $resources to node affinity rules in $rules
+sub migrate_groups_to_rules {
+    my ($rules, $groups, $resources) = @_;
+
+    my $group_resources = {};
+
+    for my $sid (keys %$resources) {
+        my $groupid = $resources->{$sid}->{group}
+            or next; # skip resources without groups
+
+        $group_resources->{$groupid}->{$sid} = 1;
+    }
+
+    while (my ($group, $resources) = each %$group_resources) {
+        next if !$groups->{ids}->{$group}; # skip non-existant groups
+
+        my $nodes = {};
+        for my $entry (keys $groups->{ids}->{$group}->{nodes}->%*) {
+            my ($node, $priority) = PVE::HA::Tools::parse_node_priority($entry);
+
+            $nodes->{$node} = { priority => $priority };
+        }
+
+        my $new_ruleid = "ha-group-$group";
+        $rules->{ids}->{$new_ruleid} = {
+            type => 'node-affinity',
+            resources => $resources,
+            nodes => $nodes,
+            strict => $groups->{ids}->{$group}->{restricted},
+            comment => $groups->{ids}->{$group}->{comment},
+        };
+        $rules->{ids}->{$new_ruleid}->{comment} = "Generated from HA group '$group'."
+            if !$rules->{ids}->{$new_ruleid}->{comment};
+        $rules->{order}->{$new_ruleid} = PVE::HA::Rules::get_next_ordinal($rules);
+    }
+}
+
 1;

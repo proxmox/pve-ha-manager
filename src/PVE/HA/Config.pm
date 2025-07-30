@@ -131,7 +131,8 @@ sub read_and_check_resources_config {
         }
     }
 
-    return $conf;
+    # TODO PVE 10: Remove digest when HA groups have been fully migrated to rules
+    return wantarray ? ($conf, $res->{digest}) : $conf;
 }
 
 sub update_resources_config {

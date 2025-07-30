@@ -6,6 +6,7 @@ use warnings;
 use Digest::MD5 qw(md5_base64);
 
 use PVE::Tools;
+use PVE::HA::Groups;
 use PVE::HA::Tools ':exit_codes';
 use PVE::HA::NodeStatus;
 use PVE::HA::Rules;
@@ -47,6 +48,8 @@ sub new {
         haenv => $haenv,
         crs => {},
         last_rules_digest => '',
+        last_groups_digest => '',
+        last_services_digest => '',
     }, $class;
 
     my $old_ms = $haenv->read_manager_status();
@@ -529,7 +532,7 @@ sub manage {
 
     $self->update_crs_scheduler_mode();
 
-    my $sc = $haenv->read_service_config();
+    my ($sc, $services_digest) = $haenv->read_service_config();
 
     $self->{groups} = $haenv->read_group_config(); # update
 
@@ -564,7 +567,16 @@ sub manage {
 
     my $new_rules = $haenv->read_rules_config();
 
-    if ($new_rules->{digest} ne $self->{last_rules_digest}) {
+    # TODO PVE 10: Remove group migration when HA groups have been fully migrated to rules
+    PVE::HA::Groups::migrate_groups_to_resources($self->{groups}, $sc);
+
+    if (
+        !$self->{rules}
+        || $new_rules->{digest} ne $self->{last_rules_digest}
+        || $self->{groups}->{digest} ne $self->{last_groups_digest}
+        || $services_digest && $services_digest ne $self->{last_services_digest}
+    ) {
+        PVE::HA::Groups::migrate_groups_to_rules($new_rules, $self->{groups}, $sc);
 
         my $messages = PVE::HA::Rules->canonicalize($new_rules);
         $haenv->log('info', $_) for @$messages;
@@ -572,6 +584,8 @@ sub manage {
         $self->{rules} = $new_rules;
 
         $self->{last_rules_digest} = $self->{rules}->{digest};
+        $self->{last_groups_digest} = $self->{groups}->{digest};
+        $self->{last_services_digest} = $services_digest;
     }
 
     $self->update_crm_commands();
