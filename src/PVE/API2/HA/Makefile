@@ -1,4 +1,4 @@
-SOURCES=Resources.pm Groups.pm Status.pm
+SOURCES=Resources.pm Groups.pm Rules.pm Status.pm
 
 .PHONY: install
 install:
