@@ -149,18 +149,37 @@ sub get_node_priority_groups {
     return ($pri_groups, $group_members);
 }
 
+=head3 select_service_node(...)
+
+=head3 select_service_node($groups, $online_node_usage, $sid, $service_conf, $sd, $node_preference)
+
+Used to select the best fitting node for the service C<$sid>, with the
+configuration C<$service_conf> and state C<$sd>, according to the groups defined
+in C<$groups>, available node utilization in C<$online_node_usage>, and the
+given C<$node_preference>.
+
+The C<$node_preference> can be set to:
+
+=over
+
+=item C<'none'>: Try to stay on the current node as much as possible.
+
+=item C<'best-score'>: Try to select the best-scored node.
+
+=item C<'try-next'>: Try to select the best-scored node, which is not in C<< $sd->{failed_nodes} >>.
+
+=back
+
+=cut
+
 sub select_service_node {
-    my (
-        $groups,
-        $online_node_usage,
-        $sid,
-        $service_conf,
-        $current_node,
-        $try_next,
-        $tried_nodes,
-        $maintenance_fallback,
-        $best_scored,
-    ) = @_;
+    my ($groups, $online_node_usage, $sid, $service_conf, $sd, $node_preference) = @_;
+
+    die "'$node_preference' is not a valid node_preference for select_service_node\n"
+        if $node_preference !~ m/(none|best-score|try-next)/;
+
+    my ($current_node, $tried_nodes, $maintenance_fallback) =
+        $sd->@{qw(node failed_nodes maintenance_node)};
 
     my $group = get_service_group($groups, $online_node_usage, $service_conf);
 
@@ -171,7 +190,7 @@ sub select_service_node {
 
     # stay on current node if possible (avoids random migrations)
     if (
-        (!$try_next && !$best_scored)
+        $node_preference eq 'none'
         && $group->{nofailback}
         && defined($group_members->{$current_node})
     ) {
@@ -183,7 +202,7 @@ sub select_service_node {
     my $top_pri = $pri_list[0];
 
     # try to avoid nodes where the service failed already if we want to relocate
-    if ($try_next) {
+    if ($node_preference eq 'try-next') {
         foreach my $node (@$tried_nodes) {
             delete $pri_groups->{$top_pri}->{$node};
         }
@@ -192,8 +211,7 @@ sub select_service_node {
     return $maintenance_fallback
         if defined($maintenance_fallback) && $pri_groups->{$top_pri}->{$maintenance_fallback};
 
-    return $current_node
-        if (!$try_next && !$best_scored) && $pri_groups->{$top_pri}->{$current_node};
+    return $current_node if $node_preference eq 'none' && $pri_groups->{$top_pri}->{$current_node};
 
     my $scores = $online_node_usage->score_nodes_to_start_service($sid, $current_node);
     my @nodes = sort {
@@ -208,8 +226,8 @@ sub select_service_node {
         }
     }
 
-    if ($try_next) {
-        if (!$best_scored && defined($found) && ($found < (scalar(@nodes) - 1))) {
+    if ($node_preference eq 'try-next') {
+        if (defined($found) && ($found < (scalar(@nodes) - 1))) {
             return $nodes[$found + 1];
         } else {
             return $nodes[0];
@@ -797,11 +815,8 @@ sub next_state_request_start {
             $self->{online_node_usage},
             $sid,
             $cd,
-            $sd->{node},
-            0, # try_next
-            $sd->{failed_nodes},
-            $sd->{maintenance_node},
-            1, # best_score
+            $sd,
+            'best-score',
         );
         my $select_text = $selected_node ne $current_node ? 'new' : 'current';
         $haenv->log(
@@ -901,7 +916,7 @@ sub next_state_started {
 
         } else {
 
-            my $try_next = 0;
+            my $select_node_preference = 'none';
 
             if ($lrm_res) {
 
@@ -932,7 +947,7 @@ sub next_state_started {
                     if (scalar(@{ $sd->{failed_nodes} }) <= $cd->{max_relocate}) {
 
                         # tell select_service_node to relocate if possible
-                        $try_next = 1;
+                        $select_node_preference = 'try-next';
 
                         $haenv->log(
                             'warning',
@@ -967,11 +982,8 @@ sub next_state_started {
                 $self->{online_node_usage},
                 $sid,
                 $cd,
-                $sd->{node},
-                $try_next,
-                $sd->{failed_nodes},
-                $sd->{maintenance_node},
-                0, # best_score
+                $sd,
+                $select_node_preference,
             );
 
             if ($node && ($sd->{node} ne $node)) {
@@ -1009,7 +1021,7 @@ sub next_state_started {
                     );
                 }
             } else {
-                if ($try_next && !defined($node)) {
+                if ($select_node_preference eq 'try-next' && !defined($node)) {
                     $haenv->log(
                         'warning',
                         "Start Error Recovery: Tried all available nodes for service '$sid', retry"
@@ -1088,11 +1100,8 @@ sub next_state_recovery {
         $self->{online_node_usage},
         $sid,
         $cd,
-        $sd->{node},
-        0, # try_next
-        $sd->{failed_nodes},
-        $sd->{maintenance_node},
-        1, # best_score
+        $sd,
+        'best-score',
     );
 
     if ($recovery_node) {

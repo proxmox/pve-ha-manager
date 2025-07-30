@@ -25,32 +25,25 @@ my $service_conf = {
 };
 
 my $sd = {
+    node => $service_conf->{node},
     failed_nodes => undef,
     maintenance_node => undef,
 };
 
-my $current_node = $service_conf->{node};
-
 sub test {
     my ($expected_node, $try_next) = @_;
 
+    my $select_node_preference = $try_next ? 'try-next' : 'none';
+
     my $node = PVE::HA::Manager::select_service_node(
-        $groups,
-        $online_node_usage,
-        "vm:111",
-        $service_conf,
-        $current_node,
-        $try_next,
-        $sd->{failed_nodes},
-        $sd->{maintenance_node},
-        0, # best_score
+        $groups, $online_node_usage, "vm:111", $service_conf, $sd, $select_node_preference,
     );
 
     my (undef, undef, $line) = caller();
     die "unexpected result: $node != ${expected_node} at line $line\n"
         if $node ne $expected_node;
 
-    $current_node = $node;
+    $sd->{node} = $node;
 }
 
 test('node1');
