@@ -167,7 +167,8 @@ __PACKAGE__->register_check(
         my ($args) = @_;
 
         return check_negative_resource_affinity_resources_count(
-            $args->{negative_rules}, $args->{nodes},
+            $args->{negative_rules},
+            $args->{nodes},
         );
     },
     sub {

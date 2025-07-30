@@ -6,6 +6,7 @@ use warnings;
 use PVE::JSONSchema qw(get_standard_option);
 use PVE::Tools;
 
+use PVE::HA::HashTools qw(set_intersect set_union sets_are_disjoint);
 use PVE::HA::Tools;
 
 use base qw(PVE::SectionConfig);
@@ -475,5 +476,75 @@ sub get_next_ordinal : prototype($) {
 
     return $current_order + 1;
 }
+
+=head1 INTER-PLUGIN RULE CHECKERS
+
+=cut
+
+=head3 check_single_global_resource_reference($node_affinity_rules, $resource_affinity_rules)
+
+Returns all rules in C<$node_affinity_rules> and C<$resource_affinity_rules> as
+a list of lists, each consisting of the rule id and the resource id, where one
+of the resources is used in both a node affinity rule and resource affinity rule
+at the same time.
+
+If there are none, the returned list is empty.
+
+=cut
+
+sub check_single_global_resource_reference {
+    my ($node_affinity_rules, $resource_affinity_rules) = @_;
+
+    my @conflicts = ();
+    my $resource_ruleids = {};
+
+    while (my ($ruleid, $rule) = each %$node_affinity_rules) {
+        for my $sid (keys $rule->{resources}->%*) {
+            push $resource_ruleids->{$sid}->{node_affinity}->@*, $ruleid;
+        }
+    }
+    while (my ($ruleid, $rule) = each %$resource_affinity_rules) {
+        for my $sid (keys $rule->{resources}->%*) {
+            push $resource_ruleids->{$sid}->{resource_affinity}->@*, $ruleid;
+        }
+    }
+
+    for my $sid (keys %$resource_ruleids) {
+        my $node_affinity_ruleids = $resource_ruleids->{$sid}->{node_affinity} // [];
+        my $resource_affinity_ruleids = $resource_ruleids->{$sid}->{resource_affinity} // [];
+
+        next if @$node_affinity_ruleids > 0 && !@$resource_affinity_ruleids;
+        next if @$resource_affinity_ruleids > 0 && !@$node_affinity_ruleids;
+
+        for my $ruleid (@$node_affinity_ruleids, @$resource_affinity_ruleids) {
+            push @conflicts, [$ruleid, $sid];
+        }
+    }
+
+    @conflicts = sort { $a->[0] cmp $b->[0] || $a->[1] cmp $b->[1] } @conflicts;
+    return \@conflicts;
+}
+
+__PACKAGE__->register_check(
+    sub {
+        my ($args) = @_;
+
+        return check_single_global_resource_reference(
+            $args->{node_affinity_rules},
+            $args->{resource_affinity_rules},
+        );
+    },
+    sub {
+        my ($conflicts, $errors) = @_;
+
+        for my $conflict (@$conflicts) {
+            my ($ruleid, $sid) = @$conflict;
+
+            push $errors->{$ruleid}->{resources}->@*,
+                "resource '$sid' cannot be used in both a node affinity rule"
+                . " and a resource affinity rule at the same time";
+        }
+    },
+);
 
 1;
