@@ -17,6 +17,7 @@ use PVE::HA::Env::PVE2;
 use PVE::HA::Tools;
 use PVE::API2::HA::Resources;
 use PVE::API2::HA::Groups;
+use PVE::API2::HA::Rules;
 use PVE::API2::HA::Status;
 
 use base qw(PVE::CLIHandler);
@@ -198,6 +199,41 @@ our $cmddef = {
     groupadd => ["PVE::API2::HA::Groups", 'create', ['group']],
     groupremove => ["PVE::API2::HA::Groups", 'delete', ['group']],
     groupset => ["PVE::API2::HA::Groups", 'update', ['group']],
+
+    rules => {
+        list => [
+            'PVE::API2::HA::Rules',
+            'index',
+            [],
+            {},
+            sub {
+                my ($data, $schema, $options) = @_;
+                PVE::CLIFormatter::print_api_result($data, $schema, undef, $options);
+            },
+            $PVE::RESTHandler::standard_output_options,
+        ],
+        config => [
+            'PVE::API2::HA::Rules',
+            'index',
+            [],
+            {},
+            sub {
+                my ($data, $schema, $options) = @_;
+                my $props_to_print = [
+                    'enabled', 'state', 'rule', 'type', 'resources', 'comment',
+                ];
+                for my $rule (@$data) {
+                    $rule->{enabled} = int(!exists($rule->{disable}));
+                    $rule->{state} = $rule->{errors} ? 'ignored (conflicts)' : 'in use';
+                }
+                PVE::CLIFormatter::print_api_result($data, $schema, $props_to_print, $options);
+            },
+            $PVE::RESTHandler::standard_output_options,
+        ],
+        add => ['PVE::API2::HA::Rules', 'create_rule', ['type', 'rule']],
+        remove => ['PVE::API2::HA::Rules', 'delete_rule', ['rule']],
+        set => ['PVE::API2::HA::Rules', 'update_rule', ['type', 'rule']],
+    },
 
     add => ["PVE::API2::HA::Resources", 'create', ['sid']],
     remove => ["PVE::API2::HA::Resources", 'delete', ['sid']],
