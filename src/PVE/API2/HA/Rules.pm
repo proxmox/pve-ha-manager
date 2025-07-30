@@ -259,6 +259,9 @@ __PACKAGE__->register_method({
         PVE::Cluster::check_cfs_quorum();
         mkdir("/etc/pve/ha");
 
+        die "cannot create ha rule: ha groups have not been migrated yet\n"
+            if !PVE::HA::Config::have_groups_been_migrated();
+
         my $type = extract_param($param, 'type');
         my $ruleid = extract_param($param, 'rule');
 
@@ -304,6 +307,9 @@ __PACKAGE__->register_method({
     },
     code => sub {
         my ($param) = @_;
+
+        die "cannot update ha rule: ha groups have not been migrated yet\n"
+            if !PVE::HA::Config::have_groups_been_migrated();
 
         my $ruleid = extract_param($param, 'rule');
         my $digest = extract_param($param, 'digest');
