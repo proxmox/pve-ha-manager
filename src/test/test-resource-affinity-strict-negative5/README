@@ -1,0 +1,11 @@
+Test whether two pair-wise strict negative resource affinity rules, i.e. where
+one resource is in two separate negative resource affinity rules with two other
+resources, makes one of the outer resources migrate to the same node as the other
+outer resource in case of a failover of their previously assigned node.
+
+The test scenario is:
+- vm:101 and vm:102, and vm:101 and vm:103 must each be kept separate
+- vm:101, vm:102, and vm:103 are respectively on node1, node2, and node3
+
+The expected outcome is:
+- As node3 fails, vm:103 is migrated to node2 - the same as vm:102

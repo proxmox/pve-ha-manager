@@ -1,0 +1,18 @@
+Test whether a strict negative resource affinity rule among two resources makes
+one of the resources migrate to a different recovery node than the other resource
+in case of a failover of resource's previously assigned node. As the resource
+fails to start on the recovery node (e.g. insufficient resources), the failing
+resource is kept on the recovery node.
+
+The test scenario is:
+- vm:101 and fa:120001 must be kept separate
+- vm:101 and fa:120001 are on node2 and node3 respectively
+- fa:120001 will fail to start on node1
+- node1 has a higher resource count than node2 to test the resource affinity rule
+  is applied even though the scheduler would prefer the less utilized node
+
+The expected outcome is:
+- As node3 fails, fa:120001 is migrated to node1
+- fa:120001 will stay on the node (potentially in recovery), since it cannot be
+  started on node1, but cannot be relocated to another one either due to the
+  strict resource affinity rule

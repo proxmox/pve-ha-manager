@@ -1,0 +1,7 @@
+resource-affinity: lonely-must-some-vms-be1
+	resources vm:101,vm:102
+	affinity negative
+
+resource-affinity: lonely-must-some-vms-be2
+	resources vm:101,vm:103
+	affinity negative

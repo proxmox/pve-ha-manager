@@ -1,0 +1,16 @@
+Test whether a strict negative resource affinity rule among three resources makes
+two of the resources migrate to two different recovery nodes than the node of
+the third resource in case of a failover of their two previously assigned nodes.
+
+The test scenario is:
+- vm:101, vm:102, and vm:103 must be kept separate
+- vm:101, vm:102, and vm:103 are respectively on node3, node4, and node5
+- node1 and node2 have both higher resource counts than node3, node4 and node5
+  to test the resource affinity rule is enforced even though the utilization
+  would prefer the other node3
+
+The expected outcome is:
+- As node4 and node5 fails, vm:102 and vm:103 are migrated to node2 and node1
+  respectively; even though the utilization of node1 and node2 are high
+  already, the resources must be kept separate; node2 is chosen first since
+  node1 has one more resource running on it

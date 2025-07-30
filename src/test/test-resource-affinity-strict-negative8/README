@@ -1,0 +1,12 @@
+Test whether a strict negative resource affinity rule among three resources makes
+one of the resource, which is manually migrated to another resource's node, where
+the resource is in negative affinity with the migrated resource, stay on the node
+of the other resources.
+
+The test scenario is:
+- vm:101, vm:102, and vm:103 must be kept separate
+- vm:101, vm:102, and vm:103 are all running on node1, node2, and node3
+
+The expected outcome is:
+- vm:101 cannot be migrated to node3 as it would conflict the negative resource
+  affinity rule between vm:101, vm:102 and vm:103.

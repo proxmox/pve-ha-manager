@@ -1,0 +1,3 @@
+resource-affinity: lonely-must-vms-be
+	resources vm:101,fa:120001
+	affinity negative

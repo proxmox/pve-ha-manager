@@ -1,0 +1,10 @@
+{
+    "vm:101": { "node": "node3", "state": "started" },
+    "vm:102": { "node": "node4", "state": "started" },
+    "vm:103": { "node": "node5", "state": "started" },
+    "vm:104": { "node": "node1", "state": "started" },
+    "vm:105": { "node": "node1", "state": "started" },
+    "vm:106": { "node": "node1", "state": "started" },
+    "vm:107": { "node": "node2", "state": "started" },
+    "vm:108": { "node": "node2", "state": "started" }
+}
