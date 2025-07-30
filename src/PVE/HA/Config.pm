@@ -234,6 +234,15 @@ sub read_group_config {
     return cfs_read_file($ha_groups_config);
 }
 
+sub have_groups_been_migrated {
+    my ($groups) = @_;
+
+    $groups = read_group_config() if !$groups;
+
+    return 1 if !$groups;
+    return keys $groups->{ids}->%* < 1;
+}
+
 sub delete_group_config {
 
     unlink "/etc/pve/$ha_groups_config" or die "failed to remove group config: $!\n";

@@ -36,7 +36,7 @@ __PACKAGE__->register_method({
     name => 'index',
     path => '',
     method => 'GET',
-    description => "Get HA groups.",
+    description => "Get HA groups. (deprecated in favor of HA rules)",
     permissions => {
         check => ['perm', '/', ['Sys.Audit']],
     },
@@ -57,6 +57,9 @@ __PACKAGE__->register_method({
 
         my $cfg = PVE::HA::Config::read_group_config();
 
+        die "cannot index groups: ha groups have been migrated to rules\n"
+            if PVE::HA::Config::have_groups_been_migrated($cfg);
+
         my $res = [];
         foreach my $group (keys %{ $cfg->{ids} }) {
             my $scfg = &$api_copy_config($cfg, $group);
@@ -72,7 +75,7 @@ __PACKAGE__->register_method({
     name => 'read',
     path => '{group}',
     method => 'GET',
-    description => "Read ha group configuration.",
+    description => "Read ha group configuration. (deprecated in favor of HA rules)",
     permissions => {
         check => ['perm', '/', ['Sys.Audit']],
     },
@@ -91,6 +94,9 @@ __PACKAGE__->register_method({
 
         my $cfg = PVE::HA::Config::read_group_config();
 
+        die "cannot read group: ha groups have been migrated to rules\n"
+            if PVE::HA::Config::have_groups_been_migrated($cfg);
+
         return &$api_copy_config($cfg, $param->{group});
     },
 });
@@ -100,7 +106,7 @@ __PACKAGE__->register_method({
     protected => 1,
     path => '',
     method => 'POST',
-    description => "Create a new HA group.",
+    description => "Create a new HA group. (deprecated in favor of HA rules)",
     permissions => {
         check => ['perm', '/', ['Sys.Console']],
     },
@@ -108,6 +114,9 @@ __PACKAGE__->register_method({
     returns => { type => 'null' },
     code => sub {
         my ($param) = @_;
+
+        die "cannot create group: ha groups have been migrated to rules\n"
+            if PVE::HA::Config::have_groups_been_migrated();
 
         # create /etc/pve/ha directory
         PVE::Cluster::check_cfs_quorum();
@@ -151,7 +160,7 @@ __PACKAGE__->register_method({
     protected => 1,
     path => '{group}',
     method => 'PUT',
-    description => "Update ha group configuration.",
+    description => "Update ha group configuration. (deprecated in favor of HA rules)",
     permissions => {
         check => ['perm', '/', ['Sys.Console']],
     },
@@ -159,6 +168,9 @@ __PACKAGE__->register_method({
     returns => { type => 'null' },
     code => sub {
         my ($param) = @_;
+
+        die "cannot update group: ha groups have been migrated to rules\n"
+            if PVE::HA::Config::have_groups_been_migrated();
 
         my $digest = extract_param($param, 'digest');
         my $delete = extract_param($param, 'delete');
@@ -216,7 +228,7 @@ __PACKAGE__->register_method({
     protected => 1,
     path => '{group}',
     method => 'DELETE',
-    description => "Delete ha group configuration.",
+    description => "Delete ha group configuration. (deprecated in favor of HA rules)",
     permissions => {
         check => ['perm', '/', ['Sys.Console']],
     },
@@ -232,6 +244,9 @@ __PACKAGE__->register_method({
     returns => { type => 'null' },
     code => sub {
         my ($param) = @_;
+
+        die "cannot delete group: ha groups have been migrated to rules\n"
+            if PVE::HA::Config::have_groups_been_migrated();
 
         my $group = extract_param($param, 'group');
 
