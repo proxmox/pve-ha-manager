@@ -195,6 +195,9 @@ __PACKAGE__->register_method({
             die "types does not match\n" if $param_type ne $type;
         }
 
+        die "invalid parameter 'group': ha groups have been migrated to rules\n"
+            if defined($param->{group}) && PVE::HA::Config::have_groups_been_migrated();
+
         my $plugin = PVE::HA::Resources->lookup($type);
         $plugin->verify_name($name);
 
@@ -249,6 +252,9 @@ __PACKAGE__->register_method({
 
         if (my $group = $param->{group}) {
             my $group_cfg = PVE::HA::Config::read_group_config();
+
+            die "invalid parameter 'group': ha groups have been migrated to rules\n"
+                if PVE::HA::Config::have_groups_been_migrated($group_cfg);
 
             die "HA group '$group' does not exist\n"
                 if !$group_cfg->{ids}->{$group};
