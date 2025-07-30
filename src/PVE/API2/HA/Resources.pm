@@ -22,13 +22,14 @@ use base qw(PVE::RESTHandler);
 my $resource_type_enum = PVE::HA::Resources->lookup_types();
 
 my $api_copy_config = sub {
-    my ($cfg, $sid) = @_;
+    my ($cfg, $sid, $exclude_group_property) = @_;
 
     die "no such resource '$sid'\n" if !$cfg->{ids}->{$sid};
 
     my $scfg = dclone($cfg->{ids}->{$sid});
     $scfg->{sid} = $sid;
     $scfg->{digest} = $cfg->{digest};
+    delete $scfg->{group} if $exclude_group_property;
 
     return $scfg;
 };
@@ -77,10 +78,11 @@ __PACKAGE__->register_method({
 
         my $cfg = PVE::HA::Config::read_resources_config();
         my $groups = PVE::HA::Config::read_group_config();
+        my $exclude_group_property = PVE::HA::Config::have_groups_been_migrated($groups);
 
         my $res = [];
         foreach my $sid (keys %{ $cfg->{ids} }) {
-            my $scfg = &$api_copy_config($cfg, $sid);
+            my $scfg = &$api_copy_config($cfg, $sid, $exclude_group_property);
             next if $param->{type} && $param->{type} ne $scfg->{type};
             if ($scfg->{group} && !$groups->{ids}->{ $scfg->{group} }) {
                 $scfg->{errors}->{group} = "group '$scfg->{group}' does not exist";
@@ -160,10 +162,11 @@ __PACKAGE__->register_method({
         my ($param) = @_;
 
         my $cfg = PVE::HA::Config::read_resources_config();
+        my $exclude_group_property = PVE::HA::Config::have_groups_been_migrated();
 
         my $sid = PVE::HA::Config::parse_sid($param->{sid});
 
-        return &$api_copy_config($cfg, $sid);
+        return &$api_copy_config($cfg, $sid, $exclude_group_property);
     },
 });
 
