@@ -525,7 +525,7 @@ my $assert_cluster_can_migrate_ha_groups = sub {
 
     # NOTE pve-manager has a version dependency on the ha-manager which supports HA rules
     # FIXME Set the actual minimum version which depends on the correct ha-manager version
-    my $HA_RULES_MINVERSION = "9.0.0";
+    my $HA_RULES_MINVERSION = "9.0.0~16";
 
     die "cluster is not quorate\n" if !$haenv->quorate();
 

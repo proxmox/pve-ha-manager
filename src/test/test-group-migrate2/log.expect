@@ -36,7 +36,7 @@ info     25    node3/lrm: service status vm:103 started
 noti     60    node1/crm: start ha group migration...
 noti     60    node1/crm: ha groups migration: node 'node1' is in state 'online'
 noti     60    node1/crm: ha groups migration: lrm 'node1' is in state 'active' and mode 'active'
-noti     60    node1/crm: ha groups migration: node 'node1' has version '9.0.0~11'
+noti     60    node1/crm: ha groups migration: node 'node1' has version '9.0.0~16'
 noti     60    node1/crm: ha groups migration: node 'node2' is in state 'online'
 noti     60    node1/crm: ha groups migration: lrm 'node2' is in state 'active' and mode 'active'
 noti     60    node1/crm: ha groups migration: node 'node2' has version '9.0.1'
