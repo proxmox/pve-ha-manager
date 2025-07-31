@@ -1,3 +1,17 @@
+pve-ha-manager (5.0.3) trixie; urgency=medium
+
+  * rules: add global checks between node and resource affinity rules, being
+    currently overly strict in what is allowed and what not, e.g. combinations
+    of any resources-to-nodes and resources-to-resources rules are not
+    allowed, this safety constraint will be loosened in a future version to
+    allow simple cases that are always straight forward to resolve.
+
+  * manager: apply resource affinity rules when selecting service nodes.
+
+  * api: resources: add check for resource affinity in resource migrations.
+
+ -- Proxmox Support Team <support@proxmox.com>  Thu, 31 Jul 2025 11:24:29 +0200
+
 pve-ha-manager (5.0.2) trixie; urgency=medium
 
   * watchdog-mux: restore if guard for watchdog updates to avoid an recent
