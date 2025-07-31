@@ -479,18 +479,23 @@ my $have_groups_been_migrated = sub {
 my $get_version_parts = sub {
     my ($node_version) = @_;
 
-    return $node_version =~ m/^(\d+)\.(\d+)\.(\d+)/;
+    return $node_version =~ m/^(\d+)\.(\d+)\.(\d+)(?:~(\d+))?/;
 };
 
 my $has_node_min_version = sub {
     my ($node_version, $min_version) = @_;
 
-    my ($major, $minor, $patch) = $get_version_parts->($node_version);
-    my ($min_major, $min_minor, $min_patch) = $get_version_parts->($min_version);
+    my ($major, $minor, $patch, $rev) = $get_version_parts->($node_version);
+    my ($min_major, $min_minor, $min_patch, $min_rev) = $get_version_parts->($min_version);
 
     return 0 if $major < $min_major;
     return 0 if $major == $min_major && $minor < $min_minor;
     return 0 if $major == $min_major && $minor == $min_minor && $patch < $min_patch;
+
+    $rev //= 0;
+    $min_rev //= 0;
+    return 0
+        if $major == $min_major && $minor == $min_minor && $patch == $min_patch && $rev < $min_rev;
 
     return 1;
 };
