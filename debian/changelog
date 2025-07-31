@@ -1,3 +1,21 @@
+pve-ha-manager (5.0.2) trixie; urgency=medium
+
+  * watchdog-mux: restore if guard for watchdog updates to avoid an recent
+    regression causing an extra round of delay when fencing due to client
+    timeout.
+
+  * introduce HA affinity rules, which will replace the HA groups and provide
+    the groundwork for future service-to-service affinity rules.
+
+  * manager: migrate ha groups to node affinity rules in-memory and write out
+    the new config once all nodes have a recent enough pve-manager version
+    installed, which depends on the new ha-manager version.
+
+  * api: groups: disallow calls to HA groups endpoints if already fully
+    migrated to affinity rules.
+
+ -- Proxmox Support Team <support@proxmox.com>  Thu, 31 Jul 2025 09:01:39 +0200
+
 pve-ha-manager (5.0.1) trixie; urgency=medium
 
   * LRM: count incoming migrations towards a nodes active resources, ensuring
