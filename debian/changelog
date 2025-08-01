@@ -1,3 +1,26 @@
+pve-ha-manager (5.0.4) trixie; urgency=medium
+
+  * api: rules: cope if disable parameter is explicitly set to a falsy value.
+
+  * rules: make positive affinity resources migrate on single resource fail.
+
+  * rules: allow same resources in node and resource affinity rules but
+    restrict inter-plugin resource references to simple cases:
+    - the resources of a resource affinity rule are not part of any node
+      affinity rule, which has multiple priority groups. This is because of
+      the dynamic nature of priority groups.
+    - the resources of a positive resource affinity rule are part of at most
+      one node affinity rule, but no more. Otherwise, it is not easily
+      decidable (yet) what the common node restrictions are.
+    - the positive resource affinity rules, which have at least one resource
+      which is part of one node affinity rule, make all the resources part of
+      the node affinity rule.
+    - the resources of a negative resource affinity rule are not restricted
+      by their node affinity rules in such a way that these do not have enough
+      nodes to be separated on.
+
+ -- Proxmox Support Team <support@proxmox.com>  Fri, 01 Aug 2025 19:34:52 +0200
+
 pve-ha-manager (5.0.3) trixie; urgency=medium
 
   * rules: add global checks between node and resource affinity rules, being
