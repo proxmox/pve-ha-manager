@@ -596,6 +596,10 @@ resource has not failed running there yet.
 sub apply_positive_resource_affinity : prototype($$) {
     my ($together, $allowed_nodes) = @_;
 
+    for my $node (keys %$together) {
+        delete $together->{$node} if !$allowed_nodes->{$node};
+    }
+
     my @possible_nodes = sort keys $together->%*
         or return; # nothing to do if there is no positive resource affinity
 

@@ -82,8 +82,26 @@ info    263    node2/lrm: starting service fa:120002
 warn    263    node2/lrm: unable to start service fa:120002
 err     263    node2/lrm: unable to start service fa:120002 on local node after 1 retries
 warn    280    node1/crm: starting service fa:120002 on node 'node2' failed, relocating service.
-warn    280    node1/crm: Start Error Recovery: Tried all available nodes for service 'fa:120002', retry start on current node. Tried nodes: node2
-info    283    node2/lrm: starting service fa:120002
-info    283    node2/lrm: service status fa:120002 started
-info    300    node1/crm: relocation policy successful for 'fa:120002' on node 'node2', failed nodes: node2
+info    280    node1/crm: relocate service 'fa:120002' to node 'node1'
+info    280    node1/crm: service 'fa:120002': state changed from 'started' to 'relocate'  (node = node2, target = node1)
+info    283    node2/lrm: service fa:120002 - start relocate to node 'node1'
+info    283    node2/lrm: service fa:120002 - end relocate to node 'node1'
+info    300    node1/crm: service 'fa:120002': state changed from 'relocate' to 'started'  (node = node1)
+info    300    node1/crm: migrate service 'vm:101' to node 'node1' (running)
+info    300    node1/crm: service 'vm:101': state changed from 'started' to 'migrate'  (node = node2, target = node1)
+info    300    node1/crm: migrate service 'vm:102' to node 'node1' (running)
+info    300    node1/crm: service 'vm:102': state changed from 'started' to 'migrate'  (node = node2, target = node1)
+info    301    node1/lrm: starting service fa:120002
+info    301    node1/lrm: service status fa:120002 started
+info    303    node2/lrm: service vm:101 - start migrate to node 'node1'
+info    303    node2/lrm: service vm:101 - end migrate to node 'node1'
+info    303    node2/lrm: service vm:102 - start migrate to node 'node1'
+info    303    node2/lrm: service vm:102 - end migrate to node 'node1'
+info    320    node1/crm: relocation policy successful for 'fa:120002' on node 'node1', failed nodes: node2
+info    320    node1/crm: service 'vm:101': state changed from 'migrate' to 'started'  (node = node1)
+info    320    node1/crm: service 'vm:102': state changed from 'migrate' to 'started'  (node = node1)
+info    321    node1/lrm: starting service vm:101
+info    321    node1/lrm: service status vm:101 started
+info    321    node1/lrm: starting service vm:102
+info    321    node1/lrm: service status vm:102 started
 info    720     hardware: exit simulation - done
