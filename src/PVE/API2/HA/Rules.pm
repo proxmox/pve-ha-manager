@@ -268,6 +268,8 @@ __PACKAGE__->register_method({
         my $type = extract_param($param, 'type');
         my $ruleid = extract_param($param, 'rule');
 
+        delete $param->{disable} if !$param->{disable};
+
         my $plugin = PVE::HA::Rules->lookup($type);
 
         my $opts = $plugin->check_config($ruleid, $param, 1, 1);
@@ -317,6 +319,8 @@ __PACKAGE__->register_method({
         my $ruleid = extract_param($param, 'rule');
         my $digest = extract_param($param, 'digest');
         my $delete = extract_param($param, 'delete');
+
+        delete $param->{disable} if !$param->{disable};
 
         if ($delete) {
             $delete = [PVE::Tools::split_list($delete)];
