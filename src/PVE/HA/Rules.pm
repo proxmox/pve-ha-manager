@@ -419,13 +419,13 @@ sub canonicalize : prototype($$$) {
 
 =head3 foreach_rule(...)
 
-=head3 foreach_rule($rules, $func [, $opts])
+=head3 foreach_rule($rules, $func [, %opts])
 
 Filters the given C<$rules> according to the C<$opts> and loops over the
 resulting rules in the order as defined in the section config and executes
 C<$func> with the parameters C<L<< ($rule, $ruleid) >>>.
 
-The filter properties for C<$opts> are:
+The following key-value pairs for C<$opts> as filter properties are:
 
 =over
 
@@ -439,12 +439,10 @@ The filter properties for C<$opts> are:
 
 =cut
 
-sub foreach_rule : prototype($$;$) {
-    my ($rules, $func, $opts) = @_;
+sub foreach_rule : prototype($$;%) {
+    my ($rules, $func, %opts) = @_;
 
-    my $sid = $opts->{sid};
-    my $type = $opts->{type};
-    my $exclude_disabled_rules = $opts->{exclude_disabled_rules};
+    my $sid = $opts{sid};
 
     my @ruleids = sort {
         $rules->{order}->{$a} <=> $rules->{order}->{$b}
@@ -455,8 +453,8 @@ sub foreach_rule : prototype($$;$) {
 
         next if !$rule; # skip invalid rules
         next if defined($sid) && !defined($rule->{resources}->{$sid});
-        next if defined($type) && $rule->{type} ne $type;
-        next if $exclude_disabled_rules && exists($rule->{disable});
+        next if defined($opts{type}) && $rule->{type} ne $opts{type};
+        next if $opts{exclude_disabled_rules} && exists($rule->{disable});
 
         $func->($rule, $ruleid);
     }

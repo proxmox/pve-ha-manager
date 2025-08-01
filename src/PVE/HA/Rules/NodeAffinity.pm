@@ -148,10 +148,8 @@ sub get_plugin_check_arguments {
 
             $result->{node_affinity_rules}->{$ruleid} = $rule;
         },
-        {
-            type => 'node-affinity',
-            exclude_disabled_rules => 1,
-        },
+        type => 'node-affinity',
+        exclude_disabled_rules => 1,
     );
 
     return $result;
@@ -231,11 +229,9 @@ my $get_resource_node_affinity_rule = sub {
 
             $node_affinity_rule = dclone($rule) if !$node_affinity_rule;
         },
-        {
-            sid => $sid,
-            type => 'node-affinity',
-            exclude_disabled_rules => 1,
-        },
+        sid => $sid,
+        type => 'node-affinity',
+        exclude_disabled_rules => 1,
     );
 
     return $node_affinity_rule;

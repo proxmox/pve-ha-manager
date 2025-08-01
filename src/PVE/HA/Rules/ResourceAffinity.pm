@@ -92,10 +92,8 @@ sub get_plugin_check_arguments {
             $result->{positive_rules}->{$ruleid} = $rule if $rule->{affinity} eq 'positive';
             $result->{negative_rules}->{$ruleid} = $rule if $rule->{affinity} eq 'negative';
         },
-        {
-            type => 'resource-affinity',
-            exclude_disabled_rules => 1,
-        },
+        type => 'resource-affinity',
+        exclude_disabled_rules => 1,
     );
 
     return $result;
@@ -490,11 +488,9 @@ sub get_affinitive_resources : prototype($$) {
                 $affinity_set->{$csid} = 1 if $csid ne $sid;
             }
         },
-        {
-            sid => $sid,
-            type => 'resource-affinity',
-            exclude_disabled_rules => 1,
-        },
+        sid => $sid,
+        type => 'resource-affinity',
+        exclude_disabled_rules => 1,
     );
 
     return ($together, $separate);
@@ -560,11 +556,9 @@ sub get_resource_affinity : prototype($$$) {
                 }
             }
         },
-        {
-            sid => $sid,
-            type => 'resource-affinity',
-            exclude_disabled_rules => 1,
-        },
+        sid => $sid,
+        type => 'resource-affinity',
+        exclude_disabled_rules => 1,
     );
 
     return ($together, $separate);

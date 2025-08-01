@@ -192,10 +192,8 @@ __PACKAGE__->register_method({
 
                 push @$res, $cfg;
             },
-            {
-                type => $type,
-                sid => $resource,
-            },
+            type => $type,
+            sid => $resource,
         );
 
         return $res;
