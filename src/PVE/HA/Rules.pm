@@ -410,6 +410,8 @@ sub canonicalize : prototype($$$) {
         next if $@; # plugin doesn't implement plugin_canonicalize(...)
     }
 
+    $class->global_canonicalize($rules);
+
     return $messages;
 }
 
@@ -473,6 +475,285 @@ sub get_next_ordinal : prototype($) {
     my $current_order = (sort { $a <=> $b } values %{ $rules->{order} })[0] || 0;
 
     return $current_order + 1;
+}
+
+=head1 INTER-PLUGIN RULE CHECKERS
+
+=cut
+
+my $has_multiple_priorities = sub {
+    my ($node_affinity_rule) = @_;
+
+    my $priority;
+    for my $node (values $node_affinity_rule->{nodes}->%*) {
+        $priority = $node->{priority} if !defined($priority);
+
+        return 1 if $priority != $node->{priority};
+    }
+};
+
+=head3 check_single_priority_node_affinity_in_resource_affinity_rules(...)
+
+Returns all rules in C<$resource_affinity_rules> and C<$node_affinity_rules> as
+a list of lists, each consisting of the rule type and resource id, where at
+least one resource in a resource affinity rule are in node affinity rules,
+which have multiple priority groups defined.
+
+That is, the resource affinity rule cannot be statically checked to be feasible
+as the selection of the priority group is dependent on the currently online
+nodes.
+
+If there are none, the returned list is empty.
+
+=cut
+
+sub check_single_priority_node_affinity_in_resource_affinity_rules {
+    my ($resource_affinity_rules, $node_affinity_rules) = @_;
+
+    my @conflicts = ();
+
+    while (my ($resource_affinity_id, $resource_affinity_rule) = each %$resource_affinity_rules) {
+        my $has_conflicts;
+        my $resources = $resource_affinity_rule->{resources};
+        my @paired_node_affinity_rules = ();
+
+        for my $node_affinity_id (keys %$node_affinity_rules) {
+            my $node_affinity_rule = $node_affinity_rules->{$node_affinity_id};
+
+            next if sets_are_disjoint($resources, $node_affinity_rule->{resources});
+
+            $has_conflicts = $has_multiple_priorities->($node_affinity_rule)
+                if !$has_conflicts;
+
+            push @paired_node_affinity_rules, $node_affinity_id;
+        }
+        if ($has_conflicts) {
+            push @conflicts, ['resource-affinity', $resource_affinity_id];
+            push @conflicts, ['node-affinity', $_] for @paired_node_affinity_rules;
+        }
+    }
+
+    @conflicts = sort { $a->[0] cmp $b->[0] || $a->[1] cmp $b->[1] } @conflicts;
+    return \@conflicts;
+}
+
+__PACKAGE__->register_check(
+    sub {
+        my ($args) = @_;
+
+        return check_single_priority_node_affinity_in_resource_affinity_rules(
+            $args->{resource_affinity_rules},
+            $args->{node_affinity_rules},
+        );
+    },
+    sub {
+        my ($conflicts, $errors) = @_;
+
+        for my $conflict (@$conflicts) {
+            my ($type, $ruleid) = @$conflict;
+
+            if ($type eq 'node-affinity') {
+                push $errors->{$ruleid}->{resources}->@*,
+                    "resources are in a resource affinity rule and cannot be in"
+                    . " a node affinity rule with multiple priorities";
+            } elsif ($type eq 'resource-affinity') {
+                push $errors->{$ruleid}->{resources}->@*,
+                    "resources are in node affinity rules with multiple priorities";
+            }
+        }
+    },
+);
+
+=head3 check_single_node_affinity_per_positive_resource_affinity_rule(...)
+
+Returns all rules in C<$positive_rules> and C<$node_affinity_rules> as a list of
+lists, each consisting of the rule type and resource id, where one of the
+resources is used in a positive resource affinity rule and more than one node
+affinity rule.
+
+If there are none, the returned list is empty.
+
+=cut
+
+sub check_single_node_affinity_per_positive_resource_affinity_rule {
+    my ($positive_rules, $node_affinity_rules) = @_;
+
+    my @conflicts = ();
+
+    while (my ($positiveid, $positive_rule) = each %$positive_rules) {
+        my $positive_resources = $positive_rule->{resources};
+        my @paired_node_affinity_rules = ();
+
+        while (my ($node_affinity_id, $node_affinity_rule) = each %$node_affinity_rules) {
+            next if sets_are_disjoint($positive_resources, $node_affinity_rule->{resources});
+
+            push @paired_node_affinity_rules, $node_affinity_id;
+        }
+        if (@paired_node_affinity_rules > 1) {
+            push @conflicts, ['positive', $positiveid];
+            push @conflicts, ['node-affinity', $_] for @paired_node_affinity_rules;
+        }
+    }
+
+    @conflicts = sort { $a->[0] cmp $b->[0] || $a->[1] cmp $b->[1] } @conflicts;
+    return \@conflicts;
+}
+
+__PACKAGE__->register_check(
+    sub {
+        my ($args) = @_;
+
+        return check_single_node_affinity_per_positive_resource_affinity_rule(
+            $args->{positive_rules},
+            $args->{node_affinity_rules},
+        );
+    },
+    sub {
+        my ($conflicts, $errors) = @_;
+
+        for my $conflict (@$conflicts) {
+            my ($type, $ruleid) = @$conflict;
+
+            if ($type eq 'positive') {
+                push $errors->{$ruleid}->{resources}->@*,
+                    "resources are in multiple node affinity rules";
+            } elsif ($type eq 'node-affinity') {
+                push $errors->{$ruleid}->{resources}->@*,
+                    "at least one resource is in a positive resource affinity"
+                    . " rule and there are other resources in at least one"
+                    . " other node affinity rule already";
+            }
+        }
+    },
+);
+
+=head3 check_negative_resource_affinity_node_affinity_consistency(...)
+
+Returns all rules in C<$negative_rules> and C<$node_affinity_rules> as a list
+of lists, each consisting of the rule type and resource id, where the resources
+in the negative resource affinity rule are restricted to less nodes than needed
+to keep them separate by their node affinity rules.
+
+That is, the negative resource affinity rule cannot be fullfilled as there are
+not enough nodes to spread the resources on.
+
+If there are none, the returned list is empty.
+
+=cut
+
+sub check_negative_resource_affinity_node_affinity_consistency {
+    my ($negative_rules, $node_affinity_rules) = @_;
+
+    my @conflicts = ();
+
+    while (my ($negativeid, $negative_rule) = each %$negative_rules) {
+        my $allowed_nodes = {};
+        my $located_resources;
+        my $resources = $negative_rule->{resources};
+        my @paired_node_affinity_rules = ();
+
+        for my $node_affinity_id (keys %$node_affinity_rules) {
+            my ($node_affinity_resources, $node_affinity_nodes) =
+                $node_affinity_rules->{$node_affinity_id}->@{qw(resources nodes)};
+            my $common_resources = set_intersect($resources, $node_affinity_resources);
+
+            next if keys %$common_resources < 1;
+
+            $located_resources = set_union($located_resources, $common_resources);
+            $allowed_nodes = set_union($allowed_nodes, $node_affinity_nodes);
+
+            push @paired_node_affinity_rules, $node_affinity_id;
+        }
+        if (keys %$allowed_nodes < keys %$located_resources) {
+            push @conflicts, ['negative', $negativeid];
+            push @conflicts, ['node-affinity', $_] for @paired_node_affinity_rules;
+        }
+    }
+
+    @conflicts = sort { $a->[0] cmp $b->[0] || $a->[1] cmp $b->[1] } @conflicts;
+    return \@conflicts;
+}
+
+__PACKAGE__->register_check(
+    sub {
+        my ($args) = @_;
+
+        return check_negative_resource_affinity_node_affinity_consistency(
+            $args->{negative_rules},
+            $args->{node_affinity_rules},
+        );
+    },
+    sub {
+        my ($conflicts, $errors) = @_;
+
+        for my $conflict (@$conflicts) {
+            my ($type, $ruleid) = @$conflict;
+
+            if ($type eq 'negative') {
+                push $errors->{$ruleid}->{resources}->@*,
+                    "two or more resources are restricted to less nodes than"
+                    . " available to the resources";
+            } elsif ($type eq 'node-affinity') {
+                push $errors->{$ruleid}->{resources}->@*,
+                    "at least one resource is in a negative resource affinity"
+                    . " rule and this rule would restrict these to less nodes"
+                    . " than available to the resources";
+            }
+        }
+    },
+);
+
+=head1 INTER-PLUGIN RULE CANONICALIZATION HELPERS
+
+=cut
+
+=head3 create_implicit_positive_resource_affinity_node_affinity_rules(...)
+
+Modifies C<$rules> such that all resources of a positive resource affinity rule,
+defined in C<$positive_rules>, where at least one of their resources is also in
+a node affinity rule, defined in C<$node_affinity_rules>, makes all the other
+positive resource affinity rule's resources also part of the node affinity rule.
+
+This helper assumes that there can only be a single node affinity rule per
+positive resource affinity rule as there is no heuristic yet what should be
+done in the case of multiple node affinity rules.
+
+This also makes it cheaper to infer these implicit constraints later instead of
+propagating that information in each scheduler invocation.
+
+=cut
+
+sub create_implicit_positive_resource_affinity_node_affinity_rules {
+    my ($rules, $positive_rules, $node_affinity_rules) = @_;
+
+    my @conflicts = ();
+
+    while (my ($positiveid, $positive_rule) = each %$positive_rules) {
+        my $found_node_affinity_id;
+        my $positive_resources = $positive_rule->{resources};
+
+        for my $node_affinity_id (keys %$node_affinity_rules) {
+            my $node_affinity_rule = $rules->{ids}->{$node_affinity_id};
+            next if sets_are_disjoint($positive_resources, $node_affinity_rule->{resources});
+
+            # assuming that all $resources have at most one node affinity rule,
+            # take the first found node affinity rule.
+            $node_affinity_rule->{resources}->{$_} = 1 for keys %$positive_resources;
+            last;
+        }
+    }
+}
+
+sub global_canonicalize {
+    my ($class, $rules) = @_;
+
+    my $args = $class->get_check_arguments($rules);
+
+    create_implicit_positive_resource_affinity_node_affinity_rules(
+        $rules,
+        $args->{positive_rules},
+        $args->{node_affinity_rules},
+    );
 }
 
 1;
