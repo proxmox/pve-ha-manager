@@ -1,0 +1,8 @@
+Test whether a cluster, where all nodes have the same version from the previous
+major release, can be properly upgraded to the neede major release version and
+then the CRM correctly migrates the HA group config only after all nodes have
+the minimum major release version.
+
+Additionally, the nodes are rebooted with every version upgrade and in-between
+the CFS sporadically fails to read/write, fails to update cluster state and an
+LRM is restarted, which all prohibit the HA groups config migration.

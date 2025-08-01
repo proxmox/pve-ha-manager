@@ -1,0 +1,277 @@
+info      0     hardware: starting simulation
+info     20      cmdlist: execute power node1 on
+info     20    node1/crm: status change startup => wait_for_quorum
+info     20    node1/lrm: status change startup => wait_for_agent_lock
+info     20      cmdlist: execute power node2 on
+info     20    node2/crm: status change startup => wait_for_quorum
+info     20    node2/lrm: status change startup => wait_for_agent_lock
+info     20      cmdlist: execute power node3 on
+info     20    node3/crm: status change startup => wait_for_quorum
+info     20    node3/lrm: status change startup => wait_for_agent_lock
+info     20    node1/crm: got lock 'ha_manager_lock'
+info     20    node1/crm: status change wait_for_quorum => master
+info     20    node1/crm: node 'node1': state changed from 'unknown' => 'online'
+info     20    node1/crm: node 'node2': state changed from 'unknown' => 'online'
+info     20    node1/crm: node 'node3': state changed from 'unknown' => 'online'
+info     20    node1/crm: adding new service 'vm:101' on node 'node1'
+info     20    node1/crm: adding new service 'vm:102' on node 'node2'
+info     20    node1/crm: adding new service 'vm:103' on node 'node3'
+info     20    node1/crm: service 'vm:101': state changed from 'request_start' to 'started'  (node = node1)
+info     20    node1/crm: service 'vm:102': state changed from 'request_start' to 'started'  (node = node2)
+info     20    node1/crm: service 'vm:103': state changed from 'request_start' to 'started'  (node = node3)
+info     21    node1/lrm: got lock 'ha_agent_node1_lock'
+info     21    node1/lrm: status change wait_for_agent_lock => active
+info     21    node1/lrm: starting service vm:101
+info     21    node1/lrm: service status vm:101 started
+info     22    node2/crm: status change wait_for_quorum => slave
+info     23    node2/lrm: got lock 'ha_agent_node2_lock'
+info     23    node2/lrm: status change wait_for_agent_lock => active
+info     23    node2/lrm: starting service vm:102
+info     23    node2/lrm: service status vm:102 started
+info     24    node3/crm: status change wait_for_quorum => slave
+info     25    node3/lrm: got lock 'ha_agent_node3_lock'
+info     25    node3/lrm: status change wait_for_agent_lock => active
+info     25    node3/lrm: starting service vm:103
+info     25    node3/lrm: service status vm:103 started
+noti     60    node1/crm: start ha group migration...
+noti     60    node1/crm: ha groups migration: node 'node1' is in state 'online'
+noti     60    node1/crm: ha groups migration: lrm 'node1' is in state 'active' and mode 'active'
+noti     60    node1/crm: ha groups migration: node 'node1' has version '8.4.1'
+err      60    node1/crm: abort ha groups migration: node 'node1' needs at least pve-manager version '9.0.0~16'
+err      60    node1/crm: ha groups migration failed
+noti     60    node1/crm: retry ha groups migration in 6 rounds (~ 60 seconds)
+info    120      cmdlist: execute delay 10
+noti    180    node1/crm: start ha group migration...
+noti    180    node1/crm: ha groups migration: node 'node1' is in state 'online'
+noti    180    node1/crm: ha groups migration: lrm 'node1' is in state 'active' and mode 'active'
+noti    180    node1/crm: ha groups migration: node 'node1' has version '8.4.1'
+err     180    node1/crm: abort ha groups migration: node 'node1' needs at least pve-manager version '9.0.0~16'
+err     180    node1/crm: ha groups migration failed
+noti    180    node1/crm: retry ha groups migration in 6 rounds (~ 60 seconds)
+info    220      cmdlist: execute version node1 set 9.0.0
+noti    300    node1/crm: start ha group migration...
+noti    300    node1/crm: ha groups migration: node 'node1' is in state 'online'
+noti    300    node1/crm: ha groups migration: lrm 'node1' is in state 'active' and mode 'active'
+noti    300    node1/crm: ha groups migration: node 'node1' has version '9.0.0'
+noti    300    node1/crm: ha groups migration: node 'node2' is in state 'online'
+noti    300    node1/crm: ha groups migration: lrm 'node2' is in state 'active' and mode 'active'
+noti    300    node1/crm: ha groups migration: node 'node2' has version '8.4.1'
+err     300    node1/crm: abort ha groups migration: node 'node2' needs at least pve-manager version '9.0.0~16'
+err     300    node1/crm: ha groups migration failed
+noti    300    node1/crm: retry ha groups migration in 6 rounds (~ 60 seconds)
+info    320      cmdlist: execute reboot node1
+info    320    node1/lrm: got shutdown request with shutdown policy 'conditional'
+info    320    node1/lrm: reboot LRM, stop and freeze all services
+info    320    node1/crm: service 'vm:101': state changed from 'started' to 'freeze'
+info    321    node1/lrm: stopping service vm:101
+info    321    node1/lrm: service status vm:101 stopped
+info    322    node1/lrm: exit (loop end)
+info    322       reboot: execute crm node1 stop
+info    321    node1/crm: server received shutdown request
+info    340    node1/crm: voluntary release CRM lock
+info    341    node1/crm: exit (loop end)
+info    341       reboot: execute power node1 off
+info    341       reboot: execute power node1 on
+info    341    node1/crm: status change startup => wait_for_quorum
+info    340    node1/lrm: status change startup => wait_for_agent_lock
+info    342    node2/crm: got lock 'ha_manager_lock'
+info    342    node2/crm: status change slave => master
+info    342    node2/crm: service 'vm:101': state changed from 'freeze' to 'started'
+info    360    node1/crm: status change wait_for_quorum => slave
+info    361    node1/lrm: got lock 'ha_agent_node1_lock'
+info    361    node1/lrm: status change wait_for_agent_lock => active
+info    361    node1/lrm: starting service vm:101
+info    361    node1/lrm: service status vm:101 started
+noti    382    node2/crm: start ha group migration...
+noti    382    node2/crm: ha groups migration: node 'node1' is in state 'online'
+noti    382    node2/crm: ha groups migration: lrm 'node1' is in state 'active' and mode 'active'
+noti    382    node2/crm: ha groups migration: node 'node1' has version '9.0.0'
+noti    382    node2/crm: ha groups migration: node 'node2' is in state 'online'
+noti    382    node2/crm: ha groups migration: lrm 'node2' is in state 'active' and mode 'active'
+noti    382    node2/crm: ha groups migration: node 'node2' has version '8.4.1'
+err     382    node2/crm: abort ha groups migration: node 'node2' needs at least pve-manager version '9.0.0~16'
+err     382    node2/crm: ha groups migration failed
+noti    382    node2/crm: retry ha groups migration in 6 rounds (~ 60 seconds)
+info    420      cmdlist: execute cfs node2 rw fail
+err     422    node2/crm: could not read manager status: cfs connection refused - not mounted?
+err     422    node2/crm: got unexpected error - cfs connection refused - not mounted?
+err     423    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
+err     423    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
+err     423    node2/lrm: unable to write lrm status file - cfs connection refused - not mounted?
+err     442    node2/crm: could not read manager status: cfs connection refused - not mounted?
+err     442    node2/crm: got unexpected error - cfs connection refused - not mounted?
+err     443    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
+err     443    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
+err     443    node2/lrm: unable to write lrm status file - cfs connection refused - not mounted?
+err     462    node2/crm: could not read manager status: cfs connection refused - not mounted?
+err     462    node2/crm: got unexpected error - cfs connection refused - not mounted?
+err     463    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
+err     463    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
+err     463    node2/lrm: unable to write lrm status file - cfs connection refused - not mounted?
+err     482    node2/crm: could not read manager status: cfs connection refused - not mounted?
+err     482    node2/crm: got unexpected error - cfs connection refused - not mounted?
+err     483    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
+err     483    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
+err     483    node2/lrm: unable to write lrm status file - cfs connection refused - not mounted?
+err     502    node2/crm: could not read manager status: cfs connection refused - not mounted?
+err     502    node2/crm: got unexpected error - cfs connection refused - not mounted?
+err     503    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
+err     503    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
+err     503    node2/lrm: unable to write lrm status file - cfs connection refused - not mounted?
+info    520      cmdlist: execute version node2 set 9.0.0
+err     522    node2/crm: could not read manager status: cfs connection refused - not mounted?
+err     522    node2/crm: got unexpected error - cfs connection refused - not mounted?
+err     523    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
+err     523    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
+err     523    node2/lrm: unable to write lrm status file - cfs connection refused - not mounted?
+err     542    node2/crm: could not read manager status: cfs connection refused - not mounted?
+err     542    node2/crm: got unexpected error - cfs connection refused - not mounted?
+err     543    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
+err     543    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
+err     543    node2/lrm: unable to write lrm status file - cfs connection refused - not mounted?
+err     562    node2/crm: could not read manager status: cfs connection refused - not mounted?
+err     562    node2/crm: got unexpected error - cfs connection refused - not mounted?
+err     563    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
+err     563    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
+err     563    node2/lrm: unable to write lrm status file - cfs connection refused - not mounted?
+err     582    node2/crm: could not read manager status: cfs connection refused - not mounted?
+err     582    node2/crm: got unexpected error - cfs connection refused - not mounted?
+err     583    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
+err     583    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
+err     583    node2/lrm: unable to write lrm status file - cfs connection refused - not mounted?
+err     602    node2/crm: could not read manager status: cfs connection refused - not mounted?
+err     602    node2/crm: got unexpected error - cfs connection refused - not mounted?
+err     603    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
+err     603    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
+err     603    node2/lrm: unable to write lrm status file - cfs connection refused - not mounted?
+info    620      cmdlist: execute cfs node2 rw work
+noti    702    node2/crm: start ha group migration...
+noti    702    node2/crm: ha groups migration: node 'node1' is in state 'online'
+noti    702    node2/crm: ha groups migration: lrm 'node1' is in state 'active' and mode 'active'
+noti    702    node2/crm: ha groups migration: node 'node1' has version '9.0.0'
+noti    702    node2/crm: ha groups migration: node 'node2' is in state 'online'
+noti    702    node2/crm: ha groups migration: lrm 'node2' is in state 'active' and mode 'active'
+noti    702    node2/crm: ha groups migration: node 'node2' has version '9.0.0'
+noti    702    node2/crm: ha groups migration: node 'node3' is in state 'online'
+noti    702    node2/crm: ha groups migration: lrm 'node3' is in state 'active' and mode 'active'
+noti    702    node2/crm: ha groups migration: node 'node3' has version '8.4.1'
+err     702    node2/crm: abort ha groups migration: node 'node3' needs at least pve-manager version '9.0.0~16'
+err     702    node2/crm: ha groups migration failed
+noti    702    node2/crm: retry ha groups migration in 6 rounds (~ 60 seconds)
+info    720      cmdlist: execute reboot node2
+info    720    node2/lrm: got shutdown request with shutdown policy 'conditional'
+info    720    node2/lrm: reboot LRM, stop and freeze all services
+info    722    node2/crm: service 'vm:102': state changed from 'started' to 'freeze'
+info    723    node2/lrm: stopping service vm:102
+info    723    node2/lrm: service status vm:102 stopped
+info    724    node2/lrm: exit (loop end)
+info    724       reboot: execute crm node2 stop
+info    723    node2/crm: server received shutdown request
+info    742    node2/crm: voluntary release CRM lock
+info    743    node2/crm: exit (loop end)
+info    743       reboot: execute power node2 off
+info    743       reboot: execute power node2 on
+info    743    node2/crm: status change startup => wait_for_quorum
+info    740    node2/lrm: status change startup => wait_for_agent_lock
+info    744    node3/crm: got lock 'ha_manager_lock'
+info    744    node3/crm: status change slave => master
+info    744    node3/crm: service 'vm:102': state changed from 'freeze' to 'started'
+info    762    node2/crm: status change wait_for_quorum => slave
+info    763    node2/lrm: got lock 'ha_agent_node2_lock'
+info    763    node2/lrm: status change wait_for_agent_lock => active
+info    763    node2/lrm: starting service vm:102
+info    763    node2/lrm: service status vm:102 started
+noti    784    node3/crm: start ha group migration...
+noti    784    node3/crm: ha groups migration: node 'node1' is in state 'online'
+noti    784    node3/crm: ha groups migration: lrm 'node1' is in state 'active' and mode 'active'
+noti    784    node3/crm: ha groups migration: node 'node1' has version '9.0.0'
+noti    784    node3/crm: ha groups migration: node 'node2' is in state 'online'
+noti    784    node3/crm: ha groups migration: lrm 'node2' is in state 'active' and mode 'active'
+noti    784    node3/crm: ha groups migration: node 'node2' has version '9.0.0'
+noti    784    node3/crm: ha groups migration: node 'node3' is in state 'online'
+noti    784    node3/crm: ha groups migration: lrm 'node3' is in state 'active' and mode 'active'
+noti    784    node3/crm: ha groups migration: node 'node3' has version '8.4.1'
+err     784    node3/crm: abort ha groups migration: node 'node3' needs at least pve-manager version '9.0.0~16'
+err     784    node3/crm: ha groups migration failed
+noti    784    node3/crm: retry ha groups migration in 6 rounds (~ 60 seconds)
+info    820      cmdlist: execute cfs node3 update fail
+noti    824    node3/crm: temporary inconsistent cluster state (cfs restart?), skip round
+noti    825    node3/lrm: temporary inconsistent cluster state (cfs restart?), skip round
+noti    844    node3/crm: temporary inconsistent cluster state (cfs restart?), skip round
+noti    845    node3/lrm: temporary inconsistent cluster state (cfs restart?), skip round
+noti    864    node3/crm: temporary inconsistent cluster state (cfs restart?), skip round
+noti    865    node3/lrm: temporary inconsistent cluster state (cfs restart?), skip round
+noti    884    node3/crm: temporary inconsistent cluster state (cfs restart?), skip round
+noti    885    node3/lrm: temporary inconsistent cluster state (cfs restart?), skip round
+noti    904    node3/crm: temporary inconsistent cluster state (cfs restart?), skip round
+noti    905    node3/lrm: temporary inconsistent cluster state (cfs restart?), skip round
+info    920      cmdlist: execute cfs node3 update work
+noti   1004    node3/crm: start ha group migration...
+noti   1004    node3/crm: ha groups migration: node 'node1' is in state 'online'
+noti   1004    node3/crm: ha groups migration: lrm 'node1' is in state 'active' and mode 'active'
+noti   1004    node3/crm: ha groups migration: node 'node1' has version '9.0.0'
+noti   1004    node3/crm: ha groups migration: node 'node2' is in state 'online'
+noti   1004    node3/crm: ha groups migration: lrm 'node2' is in state 'active' and mode 'active'
+noti   1004    node3/crm: ha groups migration: node 'node2' has version '9.0.0'
+noti   1004    node3/crm: ha groups migration: node 'node3' is in state 'online'
+noti   1004    node3/crm: ha groups migration: lrm 'node3' is in state 'active' and mode 'active'
+noti   1004    node3/crm: ha groups migration: node 'node3' has version '8.4.1'
+err    1004    node3/crm: abort ha groups migration: node 'node3' needs at least pve-manager version '9.0.0~16'
+err    1004    node3/crm: ha groups migration failed
+noti   1004    node3/crm: retry ha groups migration in 6 rounds (~ 60 seconds)
+info   1020      cmdlist: execute version node3 set 9.0.1
+info   1120      cmdlist: execute restart-lrm node2
+info   1120    node2/lrm: restart LRM, freeze all services
+noti   1124    node3/crm: start ha group migration...
+noti   1124    node3/crm: ha groups migration: node 'node1' is in state 'online'
+noti   1124    node3/crm: ha groups migration: lrm 'node1' is in state 'active' and mode 'active'
+noti   1124    node3/crm: ha groups migration: node 'node1' has version '9.0.0'
+noti   1124    node3/crm: ha groups migration: node 'node2' is in state 'online'
+noti   1124    node3/crm: ha groups migration: lrm 'node2' is in state 'active' and mode 'restart'
+err    1124    node3/crm: abort ha groups migration: lrm 'node2' is not in mode 'active'
+err    1124    node3/crm: ha groups migration failed
+noti   1124    node3/crm: retry ha groups migration in 6 rounds (~ 60 seconds)
+info   1124    node3/crm: service 'vm:102': state changed from 'started' to 'freeze'
+info   1144    node2/lrm: exit (loop end)
+info   1144    node2/lrm: status change startup => wait_for_agent_lock
+info   1164    node3/crm: service 'vm:102': state changed from 'freeze' to 'started'
+info   1183    node2/lrm: got lock 'ha_agent_node2_lock'
+info   1183    node2/lrm: status change wait_for_agent_lock => active
+info   1220      cmdlist: execute reboot node3
+info   1220    node3/lrm: got shutdown request with shutdown policy 'conditional'
+info   1220    node3/lrm: reboot LRM, stop and freeze all services
+info   1224    node3/crm: service 'vm:103': state changed from 'started' to 'freeze'
+info   1225    node3/lrm: stopping service vm:103
+info   1225    node3/lrm: service status vm:103 stopped
+info   1226    node3/lrm: exit (loop end)
+info   1226       reboot: execute crm node3 stop
+info   1225    node3/crm: server received shutdown request
+info   1244    node3/crm: voluntary release CRM lock
+info   1245    node3/crm: exit (loop end)
+info   1245       reboot: execute power node3 off
+info   1245       reboot: execute power node3 on
+info   1245    node3/crm: status change startup => wait_for_quorum
+info   1240    node3/lrm: status change startup => wait_for_agent_lock
+info   1260    node1/crm: got lock 'ha_manager_lock'
+info   1260    node1/crm: status change slave => master
+info   1260    node1/crm: service 'vm:103': state changed from 'freeze' to 'started'
+info   1264    node3/crm: status change wait_for_quorum => slave
+info   1265    node3/lrm: got lock 'ha_agent_node3_lock'
+info   1265    node3/lrm: status change wait_for_agent_lock => active
+info   1265    node3/lrm: starting service vm:103
+info   1265    node3/lrm: service status vm:103 started
+noti   1300    node1/crm: start ha group migration...
+noti   1300    node1/crm: ha groups migration: node 'node1' is in state 'online'
+noti   1300    node1/crm: ha groups migration: lrm 'node1' is in state 'active' and mode 'active'
+noti   1300    node1/crm: ha groups migration: node 'node1' has version '9.0.0'
+noti   1300    node1/crm: ha groups migration: node 'node2' is in state 'online'
+noti   1300    node1/crm: ha groups migration: lrm 'node2' is in state 'active' and mode 'active'
+noti   1300    node1/crm: ha groups migration: node 'node2' has version '9.0.0'
+noti   1300    node1/crm: ha groups migration: node 'node3' is in state 'online'
+noti   1300    node1/crm: ha groups migration: lrm 'node3' is in state 'active' and mode 'active'
+noti   1300    node1/crm: ha groups migration: node 'node3' has version '9.0.1'
+noti   1300    node1/crm: ha groups migration: migration to rules config successful
+noti   1300    node1/crm: ha groups migration: migration to resources config successful
+noti   1300    node1/crm: ha groups migration: group config deletion successful
+noti   1300    node1/crm: ha groups migration successful
+info   1820     hardware: exit simulation - done

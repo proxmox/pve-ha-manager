@@ -1,0 +1,7 @@
+Test whether an initial (unsupported) mixed version cluster can be properly
+upgraded per major version and then the CRM correctly migrates the HA group
+config only after all nodes have at least the proper pre-release version.
+
+By rebooting every node after each version change, this tests whether the
+switching of the CRM node and a few instances of LRM restarts are properly
+prohibiting the HA groups config migration.

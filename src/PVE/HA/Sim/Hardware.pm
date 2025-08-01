@@ -596,6 +596,7 @@ sub get_cfs_state {
 # simulate hardware commands, the following commands are available:
 #   power <node> <on|off>
 #   network <node> <on|off>
+#   version <node> set <version>
 #   delay <seconds>
 #   skip-round <crm|lrm> [<rounds=1>]
 #   cfs <node> <rw|update> <work|fail>
@@ -680,6 +681,13 @@ sub sim_hardware_cmd {
             die "sim_hardware_cmd: unknown network action '$action'"
                 if $action !~ m/^(on|off)$/;
             $cstatus->{$node}->{network} = $action;
+
+            $self->write_hardware_status_nolock($cstatus);
+
+        } elsif ($cmd eq 'version') {
+            die "sim_hardware_cmd: unknown version action '$action'"
+                if $action ne "set";
+            $cstatus->{$node}->{version} = $param;
 
             $self->write_hardware_status_nolock($cstatus);
 

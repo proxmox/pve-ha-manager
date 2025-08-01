@@ -1,0 +1,15 @@
+[
+    [ "power node1 on", "power node2 on", "power node3 on" ],
+    [ "delay 10" ],
+    [ "version node1 set 9.0.0" ],
+    [ "reboot node1" ],
+    [ "cfs node2 rw fail" ],
+    [ "version node2 set 9.0.0" ],
+    [ "cfs node2 rw work" ],
+    [ "reboot node2" ],
+    [ "cfs node3 update fail" ],
+    [ "cfs node3 update work" ],
+    [ "version node3 set 9.0.1" ],
+    [ "restart-lrm node2" ],
+    [ "reboot node3" ]
+]

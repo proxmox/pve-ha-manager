@@ -1,0 +1,7 @@
+group: group1
+	nodes node1
+	restricted 1
+
+group: group2
+	nodes node2:2,node3
+	nofailback 1
