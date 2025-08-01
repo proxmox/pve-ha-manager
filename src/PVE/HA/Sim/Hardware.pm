@@ -596,13 +596,13 @@ sub get_cfs_state {
 # simulate hardware commands, the following commands are available:
 #   power <node> <on|off>
 #   network <node> <on|off>
-#   version <node> set <version>
 #   delay <seconds>
 #   skip-round <crm|lrm> [<rounds=1>]
 #   cfs <node> <rw|update> <work|fail>
 #   crm <stop|start>
 #   crm enable-node-maintenance <node>
 #   crm disable-node-maintenance <node>
+#   pve-manager-version <node> set <version>   # note: this is NOT the *ha*-manager version
 #   reboot <node>
 #   shutdown <node>
 #   restart-lrm <node>
@@ -684,10 +684,10 @@ sub sim_hardware_cmd {
 
             $self->write_hardware_status_nolock($cstatus);
 
-        } elsif ($cmd eq 'version') {
+        } elsif ($cmd eq 'pve-manager-version') {
             die "sim_hardware_cmd: unknown version action '$action'"
                 if $action ne "set";
-            $cstatus->{$node}->{version} = $param;
+            $cstatus->{$node}->{'pve-manager-version'} = $param;
 
             $self->write_hardware_status_nolock($cstatus);
 
@@ -961,7 +961,7 @@ sub get_node_version {
 
     my $cstatus = $self->read_hardware_status_nolock();
 
-    return $cstatus->{$node}->{version} // "9.0.0~2";
+    return $cstatus->{$node}->{'pve-manager-version'} // "9.0.0~2";
 }
 
 1;

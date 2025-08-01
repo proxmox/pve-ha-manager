@@ -40,7 +40,7 @@ noti     60    node1/crm: ha groups migration: node 'node1' has version '7.4-4'
 err      60    node1/crm: abort ha groups migration: node 'node1' needs at least pve-manager version '9.0.0~16'
 err      60    node1/crm: ha groups migration failed
 noti     60    node1/crm: retry ha groups migration in 6 rounds (~ 60 seconds)
-info    120      cmdlist: execute version node1 set 8.4.1
+info    120      cmdlist: execute pve-manager-version node1 set 8.4.1
 noti    180    node1/crm: start ha group migration...
 noti    180    node1/crm: ha groups migration: node 'node1' is in state 'online'
 noti    180    node1/crm: ha groups migration: lrm 'node1' is in state 'active' and mode 'active'
@@ -78,7 +78,7 @@ noti    282    node2/crm: ha groups migration: node 'node1' has version '8.4.1'
 err     282    node2/crm: abort ha groups migration: node 'node1' needs at least pve-manager version '9.0.0~16'
 err     282    node2/crm: ha groups migration failed
 noti    282    node2/crm: retry ha groups migration in 6 rounds (~ 60 seconds)
-info    320      cmdlist: execute version node2 set 8.4.1
+info    320      cmdlist: execute pve-manager-version node2 set 8.4.1
 noti    402    node2/crm: start ha group migration...
 noti    402    node2/crm: ha groups migration: node 'node1' is in state 'online'
 noti    402    node2/crm: ha groups migration: lrm 'node1' is in state 'active' and mode 'active'
@@ -116,7 +116,7 @@ noti    484    node3/crm: ha groups migration: node 'node1' has version '8.4.1'
 err     484    node3/crm: abort ha groups migration: node 'node1' needs at least pve-manager version '9.0.0~16'
 err     484    node3/crm: ha groups migration failed
 noti    484    node3/crm: retry ha groups migration in 6 rounds (~ 60 seconds)
-info    520      cmdlist: execute version node3 set 8.4.1
+info    520      cmdlist: execute pve-manager-version node3 set 8.4.1
 noti    604    node3/crm: start ha group migration...
 noti    604    node3/crm: ha groups migration: node 'node1' is in state 'online'
 noti    604    node3/crm: ha groups migration: lrm 'node1' is in state 'active' and mode 'active'
@@ -154,7 +154,7 @@ noti    700    node1/crm: ha groups migration: node 'node1' has version '8.4.1'
 err     700    node1/crm: abort ha groups migration: node 'node1' needs at least pve-manager version '9.0.0~16'
 err     700    node1/crm: ha groups migration failed
 noti    700    node1/crm: retry ha groups migration in 6 rounds (~ 60 seconds)
-info    720      cmdlist: execute version node1 set 9.0.0~16
+info    720      cmdlist: execute pve-manager-version node1 set 9.0.0~16
 info    820      cmdlist: execute reboot node1
 info    820    node1/lrm: got shutdown request with shutdown policy 'conditional'
 info    820    node1/lrm: reboot LRM, stop and freeze all services
@@ -194,7 +194,7 @@ noti    882    node2/crm: ha groups migration: node 'node2' has version '8.4.1'
 err     882    node2/crm: abort ha groups migration: node 'node2' needs at least pve-manager version '9.0.0~16'
 err     882    node2/crm: ha groups migration failed
 noti    882    node2/crm: retry ha groups migration in 6 rounds (~ 60 seconds)
-info    920      cmdlist: execute version node2 set 9.0.0~16
+info    920      cmdlist: execute pve-manager-version node2 set 9.0.0~16
 noti   1002    node2/crm: start ha group migration...
 noti   1002    node2/crm: ha groups migration: node 'node1' is in state 'online'
 noti   1002    node2/crm: ha groups migration: lrm 'node1' is in state 'active' and mode 'active'
@@ -244,7 +244,7 @@ noti   1084    node3/crm: ha groups migration: node 'node3' has version '8.4.1'
 err    1084    node3/crm: abort ha groups migration: node 'node3' needs at least pve-manager version '9.0.0~16'
 err    1084    node3/crm: ha groups migration failed
 noti   1084    node3/crm: retry ha groups migration in 6 rounds (~ 60 seconds)
-info   1120      cmdlist: execute version node3 set 9.0.0~15
+info   1120      cmdlist: execute pve-manager-version node3 set 9.0.0~15
 noti   1204    node3/crm: start ha group migration...
 noti   1204    node3/crm: ha groups migration: node 'node1' is in state 'online'
 noti   1204    node3/crm: ha groups migration: lrm 'node1' is in state 'active' and mode 'active'
@@ -294,7 +294,7 @@ noti   1300    node1/crm: ha groups migration: node 'node3' has version '9.0.0~1
 err    1300    node1/crm: abort ha groups migration: node 'node3' needs at least pve-manager version '9.0.0~16'
 err    1300    node1/crm: ha groups migration failed
 noti   1300    node1/crm: retry ha groups migration in 6 rounds (~ 60 seconds)
-info   1320      cmdlist: execute version node3 set 9.0.0~17
+info   1320      cmdlist: execute pve-manager-version node3 set 9.0.0~17
 info   1420      cmdlist: execute reboot node3
 info   1420    node3/lrm: got shutdown request with shutdown policy 'conditional'
 info   1420    node3/lrm: reboot LRM, stop and freeze all services

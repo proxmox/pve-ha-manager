@@ -48,7 +48,7 @@ noti    180    node1/crm: ha groups migration: node 'node1' has version '8.4.1'
 err     180    node1/crm: abort ha groups migration: node 'node1' needs at least pve-manager version '9.0.0~16'
 err     180    node1/crm: ha groups migration failed
 noti    180    node1/crm: retry ha groups migration in 6 rounds (~ 60 seconds)
-info    220      cmdlist: execute version node1 set 9.0.0
+info    220      cmdlist: execute pve-manager-version node1 set 9.0.0
 noti    300    node1/crm: start ha group migration...
 noti    300    node1/crm: ha groups migration: node 'node1' is in state 'online'
 noti    300    node1/crm: ha groups migration: lrm 'node1' is in state 'active' and mode 'active'
@@ -118,7 +118,7 @@ err     502    node2/crm: got unexpected error - cfs connection refused - not mo
 err     503    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
 err     503    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
 err     503    node2/lrm: unable to write lrm status file - cfs connection refused - not mounted?
-info    520      cmdlist: execute version node2 set 9.0.0
+info    520      cmdlist: execute pve-manager-version node2 set 9.0.0
 err     522    node2/crm: could not read manager status: cfs connection refused - not mounted?
 err     522    node2/crm: got unexpected error - cfs connection refused - not mounted?
 err     523    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
@@ -219,7 +219,7 @@ noti   1004    node3/crm: ha groups migration: node 'node3' has version '8.4.1'
 err    1004    node3/crm: abort ha groups migration: node 'node3' needs at least pve-manager version '9.0.0~16'
 err    1004    node3/crm: ha groups migration failed
 noti   1004    node3/crm: retry ha groups migration in 6 rounds (~ 60 seconds)
-info   1020      cmdlist: execute version node3 set 9.0.1
+info   1020      cmdlist: execute pve-manager-version node3 set 9.0.1
 info   1120      cmdlist: execute restart-lrm node2
 info   1120    node2/lrm: restart LRM, freeze all services
 noti   1124    node3/crm: start ha group migration...

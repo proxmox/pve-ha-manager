@@ -1,5 +1,5 @@
 {
-  "node1": { "power": "off", "network": "off", "version": "9.0.0~16" },
-  "node2": { "power": "off", "network": "off", "version": "9.0.1" },
-  "node3": { "power": "off", "network": "off", "version": "9.4.1" }
+  "node1": { "power": "off", "network": "off", "pve-manager-version": "9.0.0~16" },
+  "node2": { "power": "off", "network": "off", "pve-manager-version": "9.0.1" },
+  "node3": { "power": "off", "network": "off", "pve-manager-version": "9.4.1" }
 }
