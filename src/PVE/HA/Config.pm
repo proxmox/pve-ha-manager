@@ -383,7 +383,7 @@ sub get_resource_motion_info {
 
     my $resources = read_resources_config();
 
-    my $comigrated_resources = [];
+    my $dependent_resources = [];
     my $blocking_resources_by_node = {};
 
     if (&$service_check_ha_state($resources, $sid)) {
@@ -394,7 +394,7 @@ sub get_resource_motion_info {
         my $rules = read_and_check_effective_rules_config();
         my ($together, $separate) = get_affinitive_resources($rules, $sid);
 
-        push @$comigrated_resources, $_ for sort keys %$together;
+        push @$dependent_resources, $_ for sort keys %$together;
 
         for my $node (keys %$ns) {
             next if $ns->{$node} ne 'online';
@@ -412,7 +412,7 @@ sub get_resource_motion_info {
         }
     }
 
-    return ($comigrated_resources, $blocking_resources_by_node);
+    return ($dependent_resources, $blocking_resources_by_node);
 }
 
 # graceful, as long as locking + cfs_write works
