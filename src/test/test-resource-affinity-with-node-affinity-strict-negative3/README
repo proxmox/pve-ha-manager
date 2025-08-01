@@ -1,0 +1,17 @@
+Test whether a strict negative resource affinity rule among three resources,
+where two resources are restricted each to nodes they are not yet on, can be
+exchanged to the nodes described by their node affinity rules, if one of the
+resources is stopped.
+
+The test scenario is:
+- vm:101, vm:102, and vm:103 should be on node2, node3 or node1 respectively
+- vm:101, vm:102, and vm:103 must be kept separate
+- vm:101, vm:102, and vm:103 are currently on node1, node2, node3 respectively
+
+The expected outcome is:
+- the resources can neither be manually migrated nor automatically exchange
+  their nodes to match their node affinity rules, because of the strict
+  condition, that they cannot be on either a node, where a resource with
+  negative affinity is currently on or is migrated to
+- therefore, one of the resources must be stopped manually to allow the
+  rearrangement to fullfill the node affinity rules

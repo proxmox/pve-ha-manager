@@ -1,0 +1,7 @@
+node-affinity: vms-must-be-on-subcluster
+	resources vm:101,vm:102,vm:103
+	nodes node2,node3,node4
+
+resource-affinity: lonely-must-vms-be
+	resources vm:101,vm:102,vm:103
+	affinity negative

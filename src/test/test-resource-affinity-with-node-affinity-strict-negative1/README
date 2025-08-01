@@ -1,0 +1,14 @@
+Test whether a strict negative resource affinity rule among three resources,
+where the resources are contradicting the negative resource affinity rule and
+one of them should be on a specific node by its node affinity rule, makes the
+resource in the node affinity rule migrate to its preferred node, if possible.
+
+The test scenario is:
+- vm:102 should be on node2
+- vm:101, vm:102, and vm:103 must be kept separate
+- vm:101 is currently on node1
+- vm:102 and vm:103 are currently on node1, which must be separated
+
+The expected outcome is:
+- As vm:102 and vm:103 are still on the same node, make vm:102 migrate to node2
+  to fulfill its node affinity rule

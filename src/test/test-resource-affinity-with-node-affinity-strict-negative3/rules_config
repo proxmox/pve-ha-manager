@@ -1,0 +1,15 @@
+node-affinity: vm101-must-be-on-node2
+	resources vm:101
+	nodes node2
+
+node-affinity: vm102-must-be-on-node3
+	resources vm:102
+	nodes node3
+
+node-affinity: vm103-must-be-on-node1
+	resources vm:103
+	nodes node1
+
+resource-affinity: lonely-must-vms-be
+	resources vm:101,vm:102,vm:103
+	affinity negative

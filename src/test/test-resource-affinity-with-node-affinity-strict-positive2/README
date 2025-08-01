@@ -1,0 +1,15 @@
+Test whether a strict positive resource affinity rule among three resources,
+where one of these resources is restricted to another node than they are
+currently on with a node affinity rule, makes all resources migrate to that
+node.
+
+The test scenario is:
+- vm:102 must be kept on node1 or node2
+- vm:101, vm:102, and vm:103 must be kept together
+- vm:101, vm:102, and vm:103 are currently running on node3
+
+The expected outcome is:
+- As vm:102 is on node3, which contradicts its node affinity rule, vm:102 is
+  migrated to node1 to fullfill its node affinity rule
+- As vm:102 is in a positive resource affinity rule with vm:101 and vm:103, all
+  of them are migrated to node1 as these are inferred for all of them

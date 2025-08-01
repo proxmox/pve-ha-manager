@@ -1,0 +1,13 @@
+Test whether a strict negative resource affinity rule among three resources,
+where all resources are in a node affinity rule restricting them to three
+nodes, are migrated to these nodes as all three resources are still on a common
+node outside of the cluster.
+
+The test scenario is:
+- vm:101, vm:102, and vm:103 should be on node2, node3 or node4
+- vm:101, vm:102, and vm:103 must be kept separate
+- vm:101, vm:102, and vm:103 is currently on node1
+
+The expected outcome is:
+- As vm:101, vm:102, and vm:103 are still on the same node and should be on
+  node2, node3 or node4, migrate them to node2, node3, and node4 respectively
