@@ -548,10 +548,13 @@ my $has_node_min_version = sub {
     return 0 if $major == $min_major && $minor < $min_minor;
     return 0 if $major == $min_major && $minor == $min_minor && $patch < $min_patch;
 
-    $rev //= 0;
     $min_rev //= 0;
     return 0
-        if $major == $min_major && $minor == $min_minor && $patch == $min_patch && $rev < $min_rev;
+        if $major == $min_major
+        && $minor == $min_minor
+        && $patch == $min_patch
+        && defined($rev)
+        && $rev < $min_rev;
 
     return 1;
 };
