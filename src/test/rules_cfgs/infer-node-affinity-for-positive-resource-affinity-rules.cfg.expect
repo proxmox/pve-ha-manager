@@ -1,0 +1,111 @@
+--- Log ---
+--- Config ---
+$VAR1 = {
+          'digest' => '32ae135ef2f8bd84cd12c18af6910dce9d6bc9fa',
+          'ids' => {
+                     'do-not-infer-negative1' => {
+                                                   'nodes' => {
+                                                                'node1' => {
+                                                                             'priority' => 0
+                                                                           },
+                                                                'node2' => {
+                                                                             'priority' => 0
+                                                                           }
+                                                              },
+                                                   'resources' => {
+                                                                    'vm:203' => 1
+                                                                  },
+                                                   'strict' => 1,
+                                                   'type' => 'node-affinity'
+                                                 },
+                     'do-not-infer-negative2' => {
+                                                   'nodes' => {
+                                                                'node3' => {
+                                                                             'priority' => 0
+                                                                           }
+                                                              },
+                                                   'resources' => {
+                                                                    'vm:201' => 1
+                                                                  },
+                                                   'type' => 'node-affinity'
+                                                 },
+                     'do-not-infer-negative3' => {
+                                                   'affinity' => 'negative',
+                                                   'resources' => {
+                                                                    'vm:201' => 1,
+                                                                    'vm:203' => 1
+                                                                  },
+                                                   'type' => 'resource-affinity'
+                                                 },
+                     'do-not-infer-positive1' => {
+                                                   'affinity' => 'positive',
+                                                   'resources' => {
+                                                                    'vm:101' => 1,
+                                                                    'vm:102' => 1,
+                                                                    'vm:103' => 1
+                                                                  },
+                                                   'type' => 'resource-affinity'
+                                                 },
+                     'infer-multi-resources1' => {
+                                                   'nodes' => {
+                                                                'node1' => {
+                                                                             'priority' => 0
+                                                                           },
+                                                                'node3' => {
+                                                                             'priority' => 0
+                                                                           }
+                                                              },
+                                                   'resources' => {
+                                                                    'vm:401' => 1,
+                                                                    'vm:402' => 1,
+                                                                    'vm:403' => 1,
+                                                                    'vm:404' => 1,
+                                                                    'vm:405' => 1
+                                                                  },
+                                                   'strict' => 1,
+                                                   'type' => 'node-affinity'
+                                                 },
+                     'infer-multi-resources2' => {
+                                                   'affinity' => 'positive',
+                                                   'resources' => {
+                                                                    'vm:401' => 1,
+                                                                    'vm:402' => 1,
+                                                                    'vm:403' => 1,
+                                                                    'vm:404' => 1
+                                                                  },
+                                                   'type' => 'resource-affinity'
+                                                 },
+                     'infer-single-resource1' => {
+                                                   'nodes' => {
+                                                                'node3' => {
+                                                                             'priority' => 0
+                                                                           }
+                                                              },
+                                                   'resources' => {
+                                                                    'vm:301' => 1,
+                                                                    'vm:302' => 1,
+                                                                    'vm:303' => 1
+                                                                  },
+                                                   'type' => 'node-affinity'
+                                                 },
+                     'infer-single-resource2' => {
+                                                   'affinity' => 'positive',
+                                                   'resources' => {
+                                                                    'vm:301' => 1,
+                                                                    'vm:302' => 1,
+                                                                    'vm:303' => 1
+                                                                  },
+                                                   'type' => 'resource-affinity'
+                                                 }
+                   },
+          'order' => {
+                       'do-not-infer-negative1' => 2,
+                       'do-not-infer-negative2' => 3,
+                       'do-not-infer-negative3' => 4,
+                       'do-not-infer-positive1' => 1,
+                       'infer-multi-resources1' => 7,
+                       'infer-multi-resources2' => 8,
+                       'infer-single-resource1' => 5,
+                       'infer-single-resource2' => 6
+                     }
+        };
