@@ -223,6 +223,8 @@ __PACKAGE__->register_method({
             rule => get_standard_option('pve-ha-rule-id'),
             type => {
                 type => 'string',
+                description => "HA rule type.",
+                enum => PVE::HA::Rules->lookup_types(),
             },
         },
     },
