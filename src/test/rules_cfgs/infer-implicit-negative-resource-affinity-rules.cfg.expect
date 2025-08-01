@@ -1,6 +1,6 @@
 --- Log ---
-Drop rule 'do-not-infer-inconsistent-negative2', because rule shares two or more resources with 'do-not-infer-inconsistent-positive1'.
-Drop rule 'do-not-infer-inconsistent-positive1', because rule shares two or more resources with 'do-not-infer-inconsistent-negative2'.
+Drop rule 'do-not-infer-inconsistent-negative2', because rule shares two or more resources with a positive resource affinity rule.
+Drop rule 'do-not-infer-inconsistent-positive1', because rule shares two or more resources with a negative resource affinity rule.
 --- Config ---
 $VAR1 = {
           'digest' => 'd8724dfe2130bb642b98e021da973aa0ec0695f0',

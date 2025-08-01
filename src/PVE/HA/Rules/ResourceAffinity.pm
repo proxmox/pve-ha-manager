@@ -236,9 +236,9 @@ __PACKAGE__->register_check(
             my ($positiveid, $negativeid) = @$conflict;
 
             push $errors->{$positiveid}->{resources}->@*,
-                "rule shares two or more resources with '$negativeid'";
+                "rule shares two or more resources with a negative resource affinity rule";
             push $errors->{$negativeid}->{resources}->@*,
-                "rule shares two or more resources with '$positiveid'";
+                "rule shares two or more resources with a positive resource affinity rule";
         }
     },
 );
