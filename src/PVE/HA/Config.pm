@@ -400,6 +400,8 @@ sub get_resource_motion_info {
             next if $ns->{$node} ne 'online';
 
             for my $csid (sort keys %$separate) {
+                next if !defined($ss->{$csid});
+                next if $ss->{$csid}->{state} eq 'ignored';
                 next if $ss->{$csid}->{node} && $ss->{$csid}->{node} ne $node;
                 next if $ss->{$csid}->{target} && $ss->{$csid}->{target} ne $node;
 

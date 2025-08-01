@@ -420,6 +420,8 @@ sub execute_migration {
     my ($together, $separate) = get_affinitive_resources($self->{rules}, $sid);
 
     for my $csid (sort keys %$separate) {
+        next if !defined($ss->{$csid});
+        next if $ss->{$csid}->{state} eq 'ignored';
         next if $ss->{$csid}->{node} && $ss->{$csid}->{node} ne $target;
         next if $ss->{$csid}->{target} && $ss->{$csid}->{target} ne $target;
 
@@ -437,6 +439,8 @@ sub execute_migration {
 
     my $resources_to_migrate = [];
     for my $csid (sort keys %$together) {
+        next if !defined($ss->{$csid});
+        next if $ss->{$csid}->{state} eq 'ignored';
         next if $ss->{$csid}->{node} && $ss->{$csid}->{node} eq $target;
         next if $ss->{$csid}->{target} && $ss->{$csid}->{target} eq $target;
 
