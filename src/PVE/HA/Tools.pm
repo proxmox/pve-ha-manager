@@ -87,30 +87,30 @@ PVE::JSONSchema::register_standard_option(
     },
 );
 
-PVE::JSONSchema::register_format('pve-ha-group-node', \&pve_verify_ha_group_node);
+PVE::JSONSchema::register_format('pve-ha-node', \&pve_verify_ha_node);
 
-sub pve_verify_ha_group_node {
+sub pve_verify_ha_node {
     my ($node, $noerr) = @_;
 
     if ($node !~ m/^([a-zA-Z0-9]([a-zA-Z0-9\-]*[a-zA-Z0-9])?)(:\d+)?$/) {
         return undef if $noerr;
-        die "value does not look like a valid ha group node\n";
+        die "value does not look like a valid ha node\n";
     }
     return $node;
 }
 
 PVE::JSONSchema::register_standard_option(
-    'pve-ha-group-node-list',
+    'pve-ha-node-list',
     {
         description => "List of cluster node names with optional priority.",
         verbose_description =>
             "List of cluster node members, where a priority can be given to each"
-            . " node. A resource bound to a group will run on the available nodes with the highest"
-            . " priority. If there are more nodes in the highest priority class, the services will get"
-            . " distributed to those nodes. The priorities have a relative meaning only. The higher the"
-            . " number, the higher the priority.",
+            . " node. A resource will run on the available nodes with the highest priority. If"
+            . " there are more nodes in the highest priority class, the resources will get"
+            . " distributed to those nodes. The priorities have a relative meaning only. The"
+            . " higher the number, the higher the priority.",
         type => 'string',
-        format => 'pve-ha-group-node-list',
+        format => 'pve-ha-node-list',
         typetext => '<node>[:<pri>]{,<node>[:<pri>]}*',
     },
 );

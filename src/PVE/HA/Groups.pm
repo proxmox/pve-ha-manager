@@ -19,7 +19,7 @@ my $defaultData = {
             'pve-ha-group-id',
             { completion => \&PVE::HA::Tools::complete_group },
         ),
-        nodes => get_standard_option('pve-ha-group-node-list', { optional => 1 }),
+        nodes => get_standard_option('pve-ha-node-list', { optional => 1 }),
         restricted => {
             description =>
                 "Resources bound to restricted groups may only run on nodes defined by the group.",
@@ -69,7 +69,7 @@ sub decode_value {
         my $res = {};
 
         foreach my $node (PVE::Tools::split_list($value)) {
-            if (PVE::HA::Tools::pve_verify_ha_group_node($node)) {
+            if (PVE::HA::Tools::pve_verify_ha_node($node)) {
                 $res->{$node} = 1;
             }
         }

@@ -58,7 +58,7 @@ sub type {
 sub properties {
     return {
         nodes => get_standard_option(
-            'pve-ha-group-node-list',
+            'pve-ha-node-list',
             {
                 completion => \&PVE::Cluster::get_nodelist,
                 optional => 0,
