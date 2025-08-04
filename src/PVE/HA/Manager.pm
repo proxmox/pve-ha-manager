@@ -539,7 +539,7 @@ my $have_groups_been_migrated = sub {
 my $get_version_parts = sub {
     my ($node_version) = @_;
 
-    return $node_version =~ m/^(\d+)\.(\d+)\.(\d+)(?:~(\d+))?/;
+    return $node_version =~ m/^(\d+)\.(\d+)(?:\.|-)(\d+)(?:~(\d+))?/;
 };
 
 my $has_node_min_version = sub {
