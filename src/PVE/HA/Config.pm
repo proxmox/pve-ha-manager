@@ -490,7 +490,6 @@ sub get_service_status {
         my $manager_status = cfs_read_file($manager_status_filename);
 
         $status->{managed} = 1;
-        $status->{group} = $conf->{ids}->{$sid}->{group};
         $status->{state} = $manager_status->{service_status}->{$sid}->{state};
     }
 
