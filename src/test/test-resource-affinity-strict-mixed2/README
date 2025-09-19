@@ -7,4 +7,15 @@ The test scenario is:
 - vm:101, vm:103, vm:201, and vm:203 are currently running on node1
 - vm:102 and vm:202 are running on node3 and node2 respectively
 
-The current outcome is incorrect.
+The expected outcome is:
+- The resource-node placements do not adhere to the defined resource affinity
+  rules, therefore the HA resources must be moved accordingly: As vm:101 and
+  vm:103 must be kept separate from vm:201 and vm:203, which are all currently
+  running on node1, these must be migrated to separate nodes:
+    - As the negative resource affinity rule is strict, resources must neither
+      share the current nor the migration target node, so both positive
+      affinity groups must be put on "spare" nodes, which in that case is node3
+      (for vm:101 and vm:103) and node2 (for vm:201 and vm:203) respectively.
+      These node selections are because there are already other positive
+      resource affinity rule members running on these nodes (vm:102 on node3
+      and vm:202 on node2).

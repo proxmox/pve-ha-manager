@@ -181,8 +181,8 @@ sub select_service_node {
         }
     }
 
-    apply_positive_resource_affinity($together, $pri_nodes);
     apply_negative_resource_affinity($separate, $pri_nodes);
+    apply_positive_resource_affinity($together, $pri_nodes);
 
     return $maintenance_fallback
         if defined($maintenance_fallback) && $pri_nodes->{$maintenance_fallback};
