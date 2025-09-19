@@ -1,0 +1,7 @@
+resource-affinity: vms-100s-must-stick-together
+	resources vm:201,vm:202,vm:203
+	affinity positive
+
+resource-affinity: vms-100s-and-vm201-must-be-separate
+	resources vm:201,vm:101
+	affinity negative

@@ -1,0 +1,10 @@
+The test scenario is:
+- vm:101, vm:102, and vm:103 must be kept together
+- vm:201, vm:202, and vm:203 must be kept together
+- vm:101 and vm:201 must be kept separate
+- Therefore, vm:101, vm:102, and vm:103 must all be kept separate from vm:201,
+  vm:202, and vm:203 and vice versa
+- vm:101, vm:103, vm:201, and vm:203 are currently running on node1
+- vm:102 and vm:202 are running on node3 and node2 respectively
+
+The current outcome is incorrect.

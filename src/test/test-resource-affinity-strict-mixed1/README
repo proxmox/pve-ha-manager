@@ -1,0 +1,16 @@
+The test scenario is:
+- vm:201, vm:202, and vm:203 must be kept together
+- vm:101 and vm:201 must be kept separate
+- Therefore, vm:201, vm:202, vm:203 must all be kept separate from vm:101
+- vm:101 and vm:202 are currently running on node2
+- vm:201 and vm:203 are currently running on node1
+
+The expected outcome is:
+- The resource-node placements do not adhere to the defined resource affinity
+  rules, therefore the HA resources must be moved accordingly: As vm:101 and
+  vm:202 must be on separate nodes, these must be migrated to separate nodes:
+    - As the negative resource affinity rule is strict, resources should
+      neither share the current nor the migration target node, so vm:101 is
+      moved to node2, where neither vm:201, vm:202,nor vm:203 is assigned to
+    - Afterwards, vm:202 is migrated to node1, where vm:201 and vm:203 are
+      already running on
