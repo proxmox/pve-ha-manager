@@ -1,0 +1,14 @@
+The test scenario is:
+- vm:101, vm:102, and vm:103 must be kept together
+- vm:201, vm:202, and vm:203 must be kept together
+- vm:101 and vm:201 must be kept separate
+- Therefore, vm:101, vm:102, and vm:103 must all be kept separate from vm:201,
+  vm:202, and vm:203 and vice versa
+- vm:101, vm:103, vm:201, and vm:203 are currently running on node1
+- vm:102 and vm:202 are both running on node2
+
+The expected outcome is:
+- The resource-node placements do not adhere to the defined resource affinity
+  rules, therefore the HA resources must be moved accordingly. In the end,
+  vm:101, vm:102, and vm:103 should be on a separate node as vm:201, vm:202,
+  and vm:203.

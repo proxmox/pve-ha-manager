@@ -1,0 +1,11 @@
+resource-affinity: together-100s
+	resources vm:101,vm:102,vm:103
+	affinity positive
+
+resource-affinity: together-200s
+	resources vm:201,vm:202,vm:203
+	affinity positive
+
+resource-affinity: lonely-must-vms-be
+	resources vm:101,vm:201
+	affinity negative
