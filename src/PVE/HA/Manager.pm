@@ -14,7 +14,12 @@ use PVE::HA::Rules::NodeAffinity qw(get_node_affinity);
 use PVE::HA::Rules::ResourceAffinity
     qw(get_affinitive_resources get_resource_affinity apply_positive_resource_affinity apply_negative_resource_affinity);
 use PVE::HA::Usage::Basic;
-use PVE::HA::Usage::Static;
+
+my $have_static_scheduling;
+eval {
+    require PVE::HA::Usage::Static;
+    $have_static_scheduling = 1;
+};
 
 ## Variable Name & Abbreviations Convention
 #
@@ -244,11 +249,15 @@ sub recompute_online_node_usage {
 
     if (my $mode = $self->{crs}->{scheduler}) {
         if ($mode eq 'static') {
-            $online_node_usage = eval {
-                my $scheduler = PVE::HA::Usage::Static->new($haenv);
-                $scheduler->add_node($_) for $online_nodes->@*;
-                return $scheduler;
-            };
+            if ($have_static_scheduling) {
+                $online_node_usage = eval {
+                    my $scheduler = PVE::HA::Usage::Static->new($haenv);
+                    $scheduler->add_node($_) for $online_nodes->@*;
+                    return $scheduler;
+                };
+            } else {
+                $@ = "static scheduling not available\n";
+            }
             $haenv->log(
                 'warning',
                 "fallback to 'basic' scheduler mode, init for 'static' failed - $@",
