@@ -3,8 +3,6 @@ package PVE::HA::NodeStatus;
 use strict;
 use warnings;
 
-use PVE::Notify;
-
 use JSON;
 
 my $fence_delay = 60;
@@ -195,7 +193,7 @@ my $send_fence_state_email = sub {
     my $haenv = $self->{haenv};
     my $status = $haenv->read_manager_status();
 
-    my $template_data = PVE::Notify::common_template_data();
+    my $template_data = {};
     # Those two are needed for the expected output for test cases,
     # see src/PVE/HA/Sim/Env.pm
     $template_data->{"fence-status"} = $subject;

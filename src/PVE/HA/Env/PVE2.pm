@@ -261,6 +261,11 @@ sub log {
 sub send_notification {
     my ($self, $template_name, $template_data, $metadata_fields) = @_;
 
+    # set here to avoid pulling in notification stack in simulator
+    my $common_data = PVE::Notify::common_template_data();
+    for my $key (keys $common_data->%*) {
+        $template_data->{$key} = $common_data->{$key} if !$template_data->{$key};
+    }
     eval { PVE::Notify::error($template_name, $template_data, $metadata_fields); };
 
     $self->log("warning", "could not notify: $@") if $@;
