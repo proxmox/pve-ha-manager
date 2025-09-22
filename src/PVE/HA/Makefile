@@ -18,3 +18,4 @@ installsim:
 	for i in ${SIM_SOURCES}; do install -D -m 0644 $$i ${DESTDIR}${PERLDIR}/PVE/HA/$$i; done
 	make -C Sim install
 	make -C Rules installsim
+	make -C Usage installsim
