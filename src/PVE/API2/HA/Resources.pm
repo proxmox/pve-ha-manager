@@ -284,6 +284,13 @@ __PACKAGE__->register_method({
                 'pve-ha-resource-or-vm-id',
                 { completion => \&PVE::HA::Tools::complete_sid },
             ),
+            purge => {
+                type => 'boolean',
+                description =>
+                    "Remove this resource from rules that reference it, deleting the rule if this resource is the only resource in the rule",
+                optional => 1,
+                default => 1,
+            },
         },
     },
     returns => { type => 'null' },
@@ -291,12 +298,13 @@ __PACKAGE__->register_method({
         my ($param) = @_;
 
         my ($sid, $type, $name) = PVE::HA::Config::parse_sid(extract_param($param, 'sid'));
+        my $purge = extract_param($param, 'purge') // 1;
 
         if (!PVE::HA::Config::service_is_configured($sid)) {
             die "cannot delete service '$sid', not HA managed!\n";
         }
 
-        PVE::HA::Config::delete_service_from_config($sid);
+        PVE::HA::Config::delete_service_from_config($sid, $purge);
 
         return undef;
     },
