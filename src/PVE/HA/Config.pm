@@ -425,17 +425,28 @@ sub get_resource_motion_info {
 
 # graceful, as long as locking + cfs_write works
 sub delete_service_from_config {
-    my ($sid) = @_;
+    my ($sid, $purge) = @_;
 
     return 1 if !service_is_configured($sid);
 
     my $res;
     PVE::HA::Config::lock_ha_domain(
         sub {
+
             my $conf = read_resources_config();
             $res = delete $conf->{ids}->{$sid};
             write_resources_config($conf);
 
+            if ($purge) {
+                my $rules = read_rules_config();
+                for my $ruleid (keys $rules->{ids}->%*) {
+                    my $rule_resources = $rules->{ids}->{$ruleid}->{resources} // {};
+
+                    delete $rule_resources->{$sid};
+                    delete $rules->{ids}->{$ruleid} if !%$rule_resources;
+                }
+                write_rules_config($rules);
+            }
         },
         "delete resource failed",
     );
