@@ -495,7 +495,7 @@ __PACKAGE__->register_method({
         my $blocking_resources = $blocking_resources_by_node->{$req_node};
 
         $result->{'comigrated-resources'} = $comigrated_resources if @$comigrated_resources;
-        $result->{'blocking-resources'} = $blocking_resources if @$blocking_resources;
+        $result->{'blocking-resources'} = $blocking_resources if $blocking_resources;
 
         return $result;
     },
