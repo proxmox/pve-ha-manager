@@ -1,3 +1,17 @@
+pve-ha-manager (5.0.5) trixie; urgency=medium
+
+  * manager: support older versioning schema for ha group migration.
+
+  * fix #6839: move PVE::Notify usage to "real" Env to avoid error in HA
+    simulator on non-PVE systems.
+
+  * fix #6881: api: relocate resource: fix check to avoid Perl warning.
+
+  * manager: fix precedence in mixed resource affinity rules usage that could
+    lead to a resource not getting migrated while it could be.
+
+ -- Proxmox Support Team <support@proxmox.com>  Fri, 03 Oct 2025 22:51:47 +0200
+
 pve-ha-manager (5.0.4) trixie; urgency=medium
 
   * api: rules: cope if disable parameter is explicitly set to a falsy value.
