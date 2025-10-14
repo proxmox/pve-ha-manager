@@ -507,6 +507,58 @@ sub new {
     return $self;
 }
 
+sub save_state {
+    my ($self, $testdir) = @_;
+
+    die "missing testdir" if !$testdir;
+
+    die "testdir '$testdir' does not exist or is not a directory!\n"
+        if !-d $testdir;
+
+    my $statusdir = $self->{statusdir};
+    my $cstatus = $self->read_hardware_status_nolock();
+
+    foreach my $node (sort keys %$cstatus) {
+        if (-f "$statusdir/service_status_$node") {
+            copy("$statusdir/service_status_$node", "$testdir/service_status_$node");
+        }
+    }
+
+    if (-f "$statusdir/static_service_stats") {
+        copy("$statusdir/static_service_stats", "$testdir/static_service_stats");
+    }
+
+    if (-f "$statusdir/datacenter.cfg") {
+        copy("$statusdir/datacenter.cfg", "$testdir/datacenter.cfg");
+    }
+
+    if (-f "$statusdir/fence.cfg") {
+        copy("$statusdir/fence.cfg", "$testdir/fence.cfg");
+    }
+
+    if (-f "$statusdir/hardware_status") {
+        copy("$statusdir/hardware_status", "$testdir/hardware_status");
+    }
+
+    if (-f "$statusdir/service_config") {
+        copy("$statusdir/service_config", "$testdir/service_config");
+    }
+
+    if (-f "$statusdir/groups") {
+        copy("$statusdir/groups", "$testdir/groups");
+    }
+
+    if (-f "$statusdir/rules_config") {
+        copy("$statusdir/rules_config", "$testdir/rules_config");
+    }
+
+    if (-f "$statusdir/manager_status") {
+        copy("$statusdir/manager_status", "$testdir/manager_status");
+    }
+
+    print "current state saved\n";
+}
+
 sub get_time {
     my ($self) = @_;
 
