@@ -490,6 +490,75 @@ sub show_service_add_dialog {
     $dialog->destroy();
 }
 
+sub show_service_edit_dialog {
+    my ($self, $sid) = @_;
+
+    my $stats = $self->read_static_service_stats();
+    my $resource_stats = $stats->{$sid}
+        // { maxcpu => $DEFAULT_MAXCPU, maxmemory => $DEFAULT_MAXMEM };
+
+    my $cpu_label = Gtk3::Label->new('CPU Count');
+    $cpu_label->set_hexpand(1);
+    $cpu_label->set_xalign(0);
+
+    my $cpu_count_spin = Gtk3::SpinButton->new_with_range(1.0, 1024, 1.0);
+    $cpu_count_spin->set_value($resource_stats->{maxcpu});
+
+    my $cpu_box = Gtk3::Box->new('horizontal', 6);
+    $cpu_box->add($cpu_label);
+    $cpu_box->add($cpu_count_spin);
+
+    my $memory_label = Gtk3::Label->new('Memory (MiB)');
+    $memory_label->set_hexpand(1);
+    $memory_label->set_xalign(0);
+
+    # There is an arbitrary limit of 10 TiB
+    my $memory_spin = Gtk3::SpinButton->new_with_range(1.0, 10485760.0, 1.0);
+    $memory_spin->set_value($resource_stats->{maxmemory});
+
+    my $memory_box = Gtk3::Box->new('horizontal', 6);
+    $memory_box->add($memory_label);
+    $memory_box->add($memory_spin);
+
+    my $vbox = Gtk3::Box->new('vertical', 6);
+    $vbox->add($cpu_box);
+    $vbox->add($memory_box);
+
+    my $dialog = Gtk3::Dialog->new();
+
+    $dialog->set_title("Edit $sid");
+    $dialog->set_modal(1);
+    $dialog->set_transient_for($self->{main_window});
+
+    $dialog->add_button("_OK", 'ok');
+
+    my $content_area = $dialog->get_content_area();
+    $content_area->add($vbox);
+    $vbox->set_margin_start(12);
+    $vbox->set_margin_end(12);
+    $vbox->set_margin_top(12);
+    $vbox->set_margin_bottom(12);
+
+    $dialog->show_all();
+
+    $dialog->signal_connect(
+        'response' => sub {
+            my ($dialog, $response) = @_;
+
+            if ($response eq 'ok') {
+                $self->set_static_service_stats(
+                    $sid,
+                    {
+                        maxcpu => $cpu_count_spin->get_value(),
+                        maxmemory => $memory_spin->get_value(),
+                    },
+                );
+            }
+            $dialog->close();
+        },
+    );
+}
+
 sub show_service_delete_dialog {
     my ($self, $sid) = @_;
 
@@ -659,8 +728,17 @@ sub new_service_gui_entry {
     $sgrid->attach($w, 4, $row, 1, 1);
     $self->{service_gui}->{$sid}->{status_label} = $w;
 
+    my $edit_button = Gtk3::Button->new_from_icon_name('document-edit', 1);
+    $edit_button->set_tooltip_text('Edit static resources');
+    $sgrid->attach($edit_button, 5, $row, 1, 1);
+    $edit_button->signal_connect(
+        clicked => sub {
+            $self->show_service_edit_dialog($sid);
+        },
+    );
+
     $w = Gtk3::Button->new_from_icon_name('edit-delete', 1);
-    $sgrid->attach($w, 5, $row, 1, 1);
+    $sgrid->attach($w, 6, $row, 1, 1);
     $w->signal_connect(
         clicked => sub {
             $self->show_service_delete_dialog($sid);
@@ -699,7 +777,7 @@ sub create_service_control {
     }
 
     $w = Gtk3::Button->new_from_icon_name('list-add', 1);
-    $sgrid->attach($w, 5, $row, 1, 1);
+    $sgrid->attach($w, 6, $row, 1, 1);
     $w->signal_connect(
         clicked => sub {
             $self->show_service_add_dialog();
