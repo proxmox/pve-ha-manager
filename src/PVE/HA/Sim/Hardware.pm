@@ -178,6 +178,25 @@ sub set_service_state {
     return $conf;
 }
 
+sub set_static_service_stats {
+    my ($self, $sid, $new_stats) = @_;
+
+    my $stats = $self->read_static_service_stats();
+    die "no such service '$sid'" if !$stats->{$sid};
+
+    if (my $memory = $new_stats->{maxmemory}) {
+        print "setting $sid memory to $memory\n" if $memory != $stats->{$sid}->{maxmemory};
+        $stats->{$sid}->{maxmemory} = $memory;
+    }
+
+    if (my $cpu = $new_stats->{maxcpu}) {
+        print "setting $sid memory to $cpu\n" if $cpu != $stats->{$sid}->{maxcpu};
+        $stats->{$sid}->{maxcpu} = $cpu;
+    }
+
+    $self->write_static_service_stats($stats);
+}
+
 sub add_service {
     my ($self, $sid, $opts, $running) = @_;
 
@@ -397,6 +416,14 @@ sub read_static_service_stats {
     return $stats;
 }
 
+sub write_static_service_stats {
+    my ($self, $stats) = @_;
+
+    my $filename = "$self->{statusdir}/static_service_stats";
+    eval { PVE::HA::Tools::write_json_to_file($filename, $stats) };
+    $self->log('error', "writing static service stats failed - $@") if $@;
+}
+
 sub new {
     my ($this, $testdir) = @_;
 
@@ -611,6 +638,7 @@ sub get_cfs_state {
 #   service <sid> stop <timeout>
 #   service <sid> lock/unlock [lockname]
 #   service <sid> add <node> [<request-state=started>] [<running=0>]
+#   service <sid> set-static-stats <maxcpu> <maxmemory>
 #   service <sid> delete
 sub sim_hardware_cmd {
     my ($self, $cmdstr, $logid) = @_;
@@ -758,6 +786,15 @@ sub sim_hardware_cmd {
                     $sid,
                     { state => $params[1] || 'started', node => $param },
                     $params[2] || 0,
+                );
+
+            } elsif ($action eq 'set-static-stats') {
+                die "sim_hardware_cmd: missing maxcpu for '$action' command" if !$params[0];
+                die "sim_hardware_cmd: missing maxmemory for '$action' command" if !$params[1];
+
+                $self->set_static_service_stats(
+                    $sid,
+                    { maxcpu => $params[0], maxmemory => $params[1] },
                 );
 
             } elsif ($action eq 'delete') {
