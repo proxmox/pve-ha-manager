@@ -24,6 +24,9 @@ use PVE::HA::LRM;
 use PVE::HA::Sim::RTEnv;
 use base qw(PVE::HA::Sim::Hardware);
 
+my $DEFAULT_MAXMEM = 4096;
+my $DEFAULT_MAXCPU = 4;
+
 sub new {
     my ($this, $testdir) = @_;
 
@@ -434,8 +437,41 @@ sub show_service_add_dialog {
     $node_cb->set_active(0);
     $grid->attach($node_cb, 2, 1, 1, 1);
 
+    my $cpu_label = Gtk3::Label->new('CPU Count');
+    $cpu_label->set_hexpand(1);
+    $cpu_label->set_xalign(0);
+
+    my $cpu_count_spin = Gtk3::SpinButton->new_with_range(1.0, 1024, 1.0);
+    $cpu_count_spin->set_value($DEFAULT_MAXCPU);
+
+    my $cpu_box = Gtk3::Box->new('horizontal', 6);
+    $cpu_box->add($cpu_label);
+    $cpu_box->add($cpu_count_spin);
+
+    my $memory_label = Gtk3::Label->new('Memory (MiB)');
+    $memory_label->set_hexpand(1);
+    $memory_label->set_xalign(0);
+
+    # There is an arbitrary limit of 10 TiB
+    my $memory_spin = Gtk3::SpinButton->new_with_range(1.0, 10485760.0, 1.0);
+    $memory_spin->set_value($DEFAULT_MAXMEM);
+
+    my $memory_box = Gtk3::Box->new('horizontal', 6);
+    $memory_box->add($memory_label);
+    $memory_box->add($memory_spin);
+
+    my $vbox = Gtk3::Box->new('vertical', 6);
+    $vbox->set_margin_start(6);
+    $vbox->set_margin_end(6);
+    $vbox->set_margin_top(6);
+    $vbox->set_margin_bottom(6);
+    $vbox->add($grid);
+    $vbox->add($cpu_box);
+    $vbox->add($memory_box);
+    $vbox->show_all();
+
     my $contarea = $dialog->get_content_area();
-    $contarea->add($grid);
+    $contarea->add($vbox);
 
     $dialog->show_all();
     my $res = $dialog->run();
@@ -443,6 +479,11 @@ sub show_service_add_dialog {
     if (defined($res) && $res eq 'ok') {
         my $sid = "$service_type:$service_id";
         $self->sim_hardware_cmd("service $sid add $service_node", 'command');
+
+        my $maxcpu = $cpu_count_spin->get_value();
+        my $maxmemory = $memory_spin->get_value();
+        $self->sim_hardware_cmd("service $sid set-static-stats $maxcpu $maxmemory", 'command');
+
         $self->add_service_to_gui($sid);
     }
 
