@@ -7,3 +7,4 @@
 /src/test/fence_cfgs/*.cfg.commands
 /src/test/fence_cfgs/*.cfg.write
 /src/test/rules_cfgs/*.cfg.output
+/pve-ha-manager-[0-9]*/
