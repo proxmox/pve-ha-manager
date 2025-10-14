@@ -290,6 +290,56 @@ sub set_network_state {
     $self->sim_hardware_cmd("network $node $action");
 }
 
+sub create_datacenter_control {
+    my ($self) = @_;
+
+    my $active = 0;
+    my $initial_conf = $self->read_datacenter_conf();
+    if (my $crs = $initial_conf->{crs}) {
+        if (my $ha = $crs->{ha}) {
+            $active = 1 if $ha eq 'static';
+        }
+    }
+
+    my $crs_types = ['basic', 'static'];
+
+    my $label = Gtk3::Label->new('Cluster Resource Scheduler');
+    $label->set_hexpand(1);
+    $label->set_xalign(0.0);
+
+    my $crs_combo = Gtk3::ComboBoxText->new();
+    $crs_combo->set_valign('center');
+    foreach my $type (@$crs_types) {
+        $crs_combo->append_text($type);
+    }
+    $crs_combo->set_active($active);
+    $crs_combo->signal_connect(
+        'notify::active' => sub {
+            my $combo = shift;
+
+            my $active = $combo->get_active();
+            return if $active < 0;
+
+            my $ha_type = $crs_types->[$active];
+
+            my $conf = $self->read_datacenter_conf();
+            $conf->{crs}->{ha} = $ha_type;
+            $self->write_datacenter_conf($conf);
+        },
+    );
+
+    my $hbox = Gtk3::Box->new('horizontal', 0);
+    $hbox->set_margin_start(6);
+    $hbox->set_margin_end(6);
+    $hbox->set_margin_top(6);
+    $hbox->set_margin_bottom(6);
+    $hbox->add($label);
+    $hbox->add($crs_combo);
+    $hbox->show_all();
+
+    return $hbox;
+}
+
 sub create_node_control {
     my ($self) = @_;
 
@@ -854,10 +904,18 @@ sub create_main_window {
     my $vbox = Gtk3::VBox->new(0, 0);
     $grid->attach($vbox, 1, 0, 1, 1);
 
+    my $datacenter_control = $self->create_datacenter_control();
+    $vbox->pack_start($datacenter_control, 0, 0, 0);
+
+    my $sep = Gtk3::Separator->new('horizontal');
+    $sep->set('margin-top', 10);
+    $sep->set_vexpand(0);
+    $vbox->pack_start($sep, 0, 0, 0);
+
     my $ngrid = $self->create_node_control();
     $vbox->pack_start($ngrid, 0, 0, 0);
 
-    my $sep = Gtk3::HSeparator->new;
+    $sep = Gtk3::Separator->new('horizontal');
     $sep->set('margin-top', 10);
     $vbox->pack_start($sep, 0, 0, 0);
 
