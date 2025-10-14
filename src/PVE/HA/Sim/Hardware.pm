@@ -471,9 +471,9 @@ sub new {
             || die "Copy failed: $!\n";
     } else {
         my $cstatus = {
-            node1 => { power => 'off', network => 'off' },
-            node2 => { power => 'off', network => 'off' },
-            node3 => { power => 'off', network => 'off' },
+            node1 => { power => 'off', network => 'off', cpus => 24, memory => 131072 },
+            node2 => { power => 'off', network => 'off', cpus => 24, memory => 131072 },
+            node3 => { power => 'off', network => 'off', cpus => 24, memory => 131072 },
         };
         $self->write_hardware_status_nolock($cstatus);
     }
