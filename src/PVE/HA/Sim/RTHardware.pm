@@ -48,7 +48,7 @@ sub new {
         $d->{lrm_env} = PVE::HA::Env->new('PVE::HA::Sim::RTEnv', $node, $self, 'lrm');
     }
 
-    $self->create_main_window();
+    $self->create_main_window($testdir);
 
     return $self;
 }
@@ -886,10 +886,26 @@ sub create_log_view {
 }
 
 sub create_main_window {
-    my ($self) = @_;
+    my ($self, $testdir) = @_;
+
+    my $title = 'Proxmox HA Simulator';
 
     my $window = Gtk3::Window->new();
-    $window->set_title("Proxmox HA Simulator");
+    $window->set_title($title);
+
+    my $save_button = Gtk3::Button->new('Save');
+    $save_button->signal_connect(
+        clicked => sub {
+            $self->save_state($testdir);
+        },
+    );
+
+    my $header_bar = Gtk3::HeaderBar->new();
+    $header_bar->pack_end($save_button);
+    $header_bar->set_title($title);
+    $header_bar->set_show_close_button(1);
+
+    $window->set_titlebar($header_bar);
 
     $window->signal_connect(destroy => sub { Gtk3::main_quit(); });
 
