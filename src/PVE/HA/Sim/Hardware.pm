@@ -538,6 +538,13 @@ sub read_datacenter_conf {
     return PVE::HA::Tools::read_json_from_file($filename, {});
 }
 
+sub write_datacenter_conf {
+    my ($self, $conf) = @_;
+
+    my $filename = "$self->{statusdir}/datacenter.cfg";
+    PVE::HA::Tools::write_json_to_file($filename, $conf);
+}
+
 sub global_lock {
     my ($self, $code, @param) = @_;
 
