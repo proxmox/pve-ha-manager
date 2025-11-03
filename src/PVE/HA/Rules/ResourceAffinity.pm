@@ -518,8 +518,10 @@ sub get_resource_affinity {
     for my $csid (keys $positive->%*) {
         my ($current_node, $target_node) = $get_used_service_nodes->($csid);
 
-        $together->{$current_node}++ if defined($current_node);
-        $together->{$target_node}++ if defined($target_node);
+        # consider only the target node for positive affinity to prevent already
+        # moved HA resources to move back to the source node (see #6801)
+        my $node = $target_node // $current_node;
+        $together->{$node}++ if defined($node);
     }
 
     for my $csid (keys $negative->%*) {

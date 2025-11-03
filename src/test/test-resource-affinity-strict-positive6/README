@@ -1,5 +1,2 @@
 Test whether two HA resources in positive resource affinity will migrate to the
 same target node when one of them finishes earlier than the other.
-
-The current behavior is not correct, because the already migrated HA resource
-will be migrated back to the source node.

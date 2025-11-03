@@ -10,8 +10,6 @@ info     20    node3/crm: status change startup => wait_for_quorum
 info     20    node3/lrm: status change startup => wait_for_agent_lock
 info     20    node1/crm: got lock 'ha_manager_lock'
 info     20    node1/crm: status change wait_for_quorum => master
-info     20    node1/crm: migrate service 'vm:101' to node 'node1' (running)
-info     20    node1/crm: service 'vm:101': state changed from 'started' to 'migrate'  (node = node3, target = node1)
 info     21    node1/lrm: got lock 'ha_agent_node1_lock'
 info     21    node1/lrm: status change wait_for_agent_lock => active
 info     21    node1/lrm: service vm:102 - start migrate to node 'node3'
@@ -20,27 +18,9 @@ info     22    node2/crm: status change wait_for_quorum => slave
 info     24    node3/crm: status change wait_for_quorum => slave
 info     25    node3/lrm: got lock 'ha_agent_node3_lock'
 info     25    node3/lrm: status change wait_for_agent_lock => active
-info     25    node3/lrm: service vm:101 - start migrate to node 'node1'
-info     25    node3/lrm: service vm:101 - end migrate to node 'node1'
-info     40    node1/crm: service 'vm:101': state changed from 'migrate' to 'started'  (node = node1)
+info     25    node3/lrm: starting service vm:101
+info     25    node3/lrm: service status vm:101 started
 info     40    node1/crm: service 'vm:102': state changed from 'migrate' to 'started'  (node = node3)
-info     40    node1/crm: migrate service 'vm:101' to node 'node3' (running)
-info     40    node1/crm: service 'vm:101': state changed from 'started' to 'migrate'  (node = node1, target = node3)
-info     40    node1/crm: migrate service 'vm:102' to node 'node1' (running)
-info     40    node1/crm: service 'vm:102': state changed from 'started' to 'migrate'  (node = node3, target = node1)
-info     41    node1/lrm: service vm:101 - start migrate to node 'node3'
-info     41    node1/lrm: service vm:101 - end migrate to node 'node3'
-info     45    node3/lrm: service vm:102 - start migrate to node 'node1'
-info     45    node3/lrm: service vm:102 - end migrate to node 'node1'
-info     60    node1/crm: service 'vm:101': state changed from 'migrate' to 'started'  (node = node3)
-info     60    node1/crm: service 'vm:102': state changed from 'migrate' to 'started'  (node = node1)
-info     60    node1/crm: migrate service 'vm:101' to node 'node1' (running)
-info     60    node1/crm: service 'vm:101': state changed from 'started' to 'migrate'  (node = node3, target = node1)
-info     61    node1/lrm: starting service vm:102
-info     61    node1/lrm: service status vm:102 started
-info     65    node3/lrm: service vm:101 - start migrate to node 'node1'
-info     65    node3/lrm: service vm:101 - end migrate to node 'node1'
-info     80    node1/crm: service 'vm:101': state changed from 'migrate' to 'started'  (node = node1)
-info     81    node1/lrm: starting service vm:101
-info     81    node1/lrm: service status vm:101 started
+info     45    node3/lrm: starting service vm:102
+info     45    node3/lrm: service status vm:102 started
 info    620     hardware: exit simulation - done
