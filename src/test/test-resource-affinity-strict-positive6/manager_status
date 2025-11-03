@@ -1,0 +1,21 @@
+{
+    "master_node": "node1",
+    "node_status": {
+	"node1":"online",
+	"node2":"online",
+	"node3":"online"
+    },
+    "service_status": {
+	"vm:101": {
+	    "node": "node3",
+	    "state": "started",
+	    "uid": "RoPGTlvNYq/oZFokv9fgWw"
+	},
+	"vm:102": {
+	    "node": "node1",
+	    "state": "migrate",
+	    "target": "node3",
+	    "uid": "JVDARwmsXoVTF8Zd0BY2Mg"
+	}
+    }
+}
