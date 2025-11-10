@@ -38,7 +38,11 @@ sub check_service_state {
     my ($sid, $req_state) = @_;
 
     my $service_status = PVE::HA::Config::get_service_status($sid);
-    if ($service_status->{managed} && $service_status->{state} eq 'error') {
+    if (
+        $service_status->{managed}
+        && $service_status->{state}
+        && $service_status->{state} eq 'error'
+    ) {
         # service in error state, must get disabled before new state request
         # can be executed
         return if defined($req_state) && $req_state eq 'disabled';
