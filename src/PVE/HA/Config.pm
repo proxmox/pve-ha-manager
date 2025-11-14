@@ -394,7 +394,12 @@ sub get_resource_motion_info {
         my $rules = read_and_check_effective_rules_config();
         my ($together, $separate) = get_affinitive_resources($rules, $sid);
 
-        push @$dependent_resources, $_ for sort keys %$together;
+        for my $csid (sort keys %$together) {
+            next if !defined($ss->{$csid});
+            next if $ss->{$csid}->{state} eq 'ignored';
+
+            push @$dependent_resources, $csid;
+        }
 
         for my $node (keys %$ns) {
             next if $ns->{$node} ne 'online';
