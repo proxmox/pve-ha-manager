@@ -194,6 +194,7 @@ __PACKAGE__->register_method({
             },
             type => $type,
             sid => $resource,
+            sorted => 1,
         );
 
         return $res;

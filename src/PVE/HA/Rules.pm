@@ -428,7 +428,7 @@ Filters the given C<$rules> according to the C<$opts> and loops over the
 resulting rules in the order as defined in the section config and executes
 C<$func> with the parameters C<L<< ($rule, $ruleid) >>>.
 
-The following key-value pairs for C<$opts> as filter properties are:
+The following key-value pairs for C<$opts> are:
 
 =over
 
@@ -437,6 +437,8 @@ The following key-value pairs for C<$opts> as filter properties are:
 =item C<$type>: Limits C<$rules> to those which are of rule type C<$type>.
 
 =item C<$exclude_disabled_rules>: Limits C<$rules> to those which are enabled.
+
+=item C<$sorted>: Sorts C<$rules> according to C<< $rules->{order} >>.
 
 =back
 
@@ -447,9 +449,9 @@ sub foreach_rule : prototype($$;%) {
 
     my $sid = $opts{sid};
 
-    my @ruleids = sort {
-        $rules->{order}->{$a} <=> $rules->{order}->{$b}
-    } keys %{ $rules->{ids} };
+    my @ruleids = keys $rules->{ids}->%*;
+    @ruleids = sort { $rules->{order}->{$a} <=> $rules->{order}->{$b} } @ruleids
+        if defined($opts{sorted});
 
     for my $ruleid (@ruleids) {
         my $rule = $rules->{ids}->{$ruleid};
