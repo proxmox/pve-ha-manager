@@ -5,9 +5,13 @@ Drop rule 'vm301-vm302-must-be-kept-together', because resources are in multiple
 Drop rule 'vm401-must-be-on-node1', because at least one resource is in a negative resource affinity rule and this rule would restrict these to less nodes than available to the resources.
 Drop rule 'vm401-vm402-must-be-kept-separate', because two or more resources are restricted to less nodes than available to the resources.
 Drop rule 'vm402-must-be-on-node1', because at least one resource is in a negative resource affinity rule and this rule would restrict these to less nodes than available to the resources.
+Drop rule 'vm501-must-be-on-node1', because at least one resource is in a positive resource affinity rule and there are other resources in at least one other node affinity rule already.
+Drop rule 'vm501-vm502-must-be-kept-together', because resources are in multiple node affinity rules.
+Drop rule 'vm502-vm503-must-be-kept-together', because resources are in multiple node affinity rules.
+Drop rule 'vm503-must-be-on-node2', because at least one resource is in a positive resource affinity rule and there are other resources in at least one other node affinity rule already.
 --- Config ---
 $VAR1 = {
-          'digest' => 'a5d782a442bbe3bf3a4d088db82a575b382a53fe',
+          'digest' => '00a70f4c2bdd41aed16b6e5b9860cd9fb7f0f098',
           'ids' => {
                      'vm101-vm102-must-be-kept-together' => {
                                                               'affinity' => 'positive',

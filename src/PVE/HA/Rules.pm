@@ -8,6 +8,7 @@ use PVE::Tools;
 
 use PVE::HA::HashTools qw(set_intersect set_union sets_are_disjoint);
 use PVE::HA::Tools;
+use PVE::HA::Rules::Helpers;
 
 use base qw(PVE::SectionConfig);
 
@@ -580,8 +581,11 @@ sub check_single_node_affinity_per_positive_resource_affinity_rule {
 
     my @conflicts = ();
 
-    while (my ($positiveid, $positive_rule) = each %$positive_rules) {
-        my $positive_resources = $positive_rule->{resources};
+    my @disjoint_positive_rules =
+        PVE::HA::Rules::Helpers::find_disjoint_rules_resource_sets($positive_rules);
+
+    for my $entry (@disjoint_positive_rules) {
+        my $positive_resources = $entry->{resources};
         my @paired_node_affinity_rules = ();
 
         while (my ($node_affinity_id, $node_affinity_rule) = each %$node_affinity_rules) {
@@ -590,7 +594,7 @@ sub check_single_node_affinity_per_positive_resource_affinity_rule {
             push @paired_node_affinity_rules, $node_affinity_id;
         }
         if (@paired_node_affinity_rules > 1) {
-            push @conflicts, ['positive', $positiveid];
+            push @conflicts, ['positive', $_] for $entry->{ruleids}->@*;
             push @conflicts, ['node-affinity', $_] for @paired_node_affinity_rules;
         }
     }
