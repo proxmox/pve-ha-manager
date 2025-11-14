@@ -194,21 +194,8 @@ __PACKAGE__->register_method({
         }
 
         foreach my $node (sort keys %{ $status->{node_status} }) {
-            my $active_count = 0;
-            for my $sid (keys $status->{service_status}->%*) {
-                my $sd = $status->{service_status}->{$sid};
-                my $target = $sd->{target};
-                next
-                    if (!$sd->{node} || $sd->{node} ne $nodename)
-                    && (!$target || $target ne $nodename);
-                my $req_state = $sd->{state};
-                next if !defined($req_state);
-                next if $req_state eq 'stopped';
-                next if $req_state eq 'freeze';
-                next if $req_state eq 'error';
-                next if $req_state eq 'request_start';
-                $active_count++;
-            }
+            my $active_count =
+                PVE::HA::Tools::count_active_services($status->{service_status}, $node);
             my $lrm_status = PVE::HA::Config::read_lrm_status($node);
             my $id = "lrm:$node";
             if (!$lrm_status->{timestamp}) {

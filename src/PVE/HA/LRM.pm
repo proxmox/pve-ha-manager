@@ -297,25 +297,7 @@ sub active_service_count {
 
     my $ss = $self->{service_status};
 
-    my $count = 0;
-    foreach my $sid (keys %$ss) {
-        my $sd = $ss->{$sid};
-        my $target = $sd->{target}; # count as active if we are the target.
-        next if (!$sd->{node} || $sd->{node} ne $nodename) && (!$target || $target ne $nodename);
-        my $req_state = $sd->{state};
-        next if !defined($req_state);
-        next if $req_state eq 'stopped';
-        # NOTE: 'ignored' ones are already dropped by the manager from service_status
-        next if $req_state eq 'freeze';
-        # erroneous services are not managed by HA, don't count them as active
-        next if $req_state eq 'error';
-        # request_start is for (optional) better node selection for stop -> started transition
-        next if $req_state eq 'request_start';
-
-        $count++;
-    }
-
-    return $count;
+    return PVE::HA::Tools::count_active_services($ss, $nodename);
 }
 
 my $wrote_lrm_status_at_startup = 0;

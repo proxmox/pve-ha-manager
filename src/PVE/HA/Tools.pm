@@ -188,6 +188,31 @@ sub count_fenced_services {
     return $count;
 }
 
+sub count_active_services {
+    my ($ss, $node) = @_;
+
+    my $active_count = 0;
+
+    for my $sid (keys %$ss) {
+        my $sd = $ss->{$sid};
+        my $target = $sd->{target}; # count as active if we are the target.
+        next if (!$sd->{node} || $sd->{node} ne $node) && (!$target || $target ne $node);
+        my $req_state = $sd->{state};
+        next if !defined($req_state);
+        next if $req_state eq 'stopped';
+        # NOTE: 'ignored' ones are already dropped by the manager from service_status
+        next if $req_state eq 'freeze';
+        # erroneous services are not managed by HA, don't count them as active
+        next if $req_state eq 'error';
+        # request_start is for (optional) better node selection for stop -> started transition
+        next if $req_state eq 'request_start';
+
+        $active_count++;
+    }
+
+    return $active_count;
+}
+
 sub get_verbose_service_state {
     my ($service_state, $service_conf) = @_;
 

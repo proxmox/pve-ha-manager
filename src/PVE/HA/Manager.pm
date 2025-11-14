@@ -512,19 +512,7 @@ my $have_groups_been_migrated = sub {
 my $is_lrm_active_or_idle = sub {
     my ($ss, $node, $lrm_state) = @_;
 
-    my $active_count = 0;
-    for my $sid (keys %$ss) {
-        my $sd = $ss->{$sid};
-        my $target = $sd->{target}; # count as active if we are the target.
-        next if (!$sd->{node} || $sd->{node} ne $node) && (!$target || $target ne $node);
-        my $req_state = $sd->{state};
-        next if !defined($req_state);
-        next if $req_state eq 'stopped';
-        next if $req_state eq 'freeze';
-        next if $req_state eq 'error';
-        next if $req_state eq 'request_start';
-        $active_count++;
-    }
+    my $active_count = PVE::HA::Tools::count_active_services($ss, $node);
 
     return 1 if $lrm_state eq 'active';
     return 1 if $lrm_state eq 'wait_for_agent_lock' && !$active_count;
