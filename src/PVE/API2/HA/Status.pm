@@ -193,20 +193,22 @@ __PACKAGE__->register_method({
                 };
         }
 
-        # compute active services for all nodes
-        my $active_count = {};
-        foreach my $sid (sort keys %{ $status->{service_status} }) {
-            my $sd = $status->{service_status}->{$sid};
-            next if !$sd->{node};
-            $active_count->{ $sd->{node} } = 0 if !defined($active_count->{ $sd->{node} });
-            my $req_state = $sd->{state};
-            next if !defined($req_state);
-            next if $req_state eq 'stopped';
-            next if $req_state eq 'freeze';
-            $active_count->{ $sd->{node} }++;
-        }
-
         foreach my $node (sort keys %{ $status->{node_status} }) {
+            my $active_count = 0;
+            for my $sid (keys $status->{service_status}->%*) {
+                my $sd = $status->{service_status}->{$sid};
+                my $target = $sd->{target};
+                next
+                    if (!$sd->{node} || $sd->{node} ne $nodename)
+                    && (!$target || $target ne $nodename);
+                my $req_state = $sd->{state};
+                next if !defined($req_state);
+                next if $req_state eq 'stopped';
+                next if $req_state eq 'freeze';
+                next if $req_state eq 'error';
+                next if $req_state eq 'request_start';
+                $active_count++;
+            }
             my $lrm_status = PVE::HA::Config::read_lrm_status($node);
             my $id = "lrm:$node";
             if (!$lrm_status->{timestamp}) {
@@ -227,7 +229,7 @@ __PACKAGE__->register_method({
                     if ($lrm_mode ne 'active') {
                         $status_str = "$lrm_mode mode";
                     } else {
-                        if ($lrm_state eq 'wait_for_agent_lock' && !$active_count->{$node}) {
+                        if ($lrm_state eq 'wait_for_agent_lock' && !$active_count) {
                             $status_str = 'idle';
                         } else {
                             $status_str = $lrm_state;
