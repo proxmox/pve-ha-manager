@@ -1309,8 +1309,6 @@ sub next_state_recovery {
 
     my $fenced_node = $sd->{node}; # for logging purpose
 
-    $self->recompute_online_node_usage(); # we want the most current node state
-
     my $recovery_node = select_service_node(
         $self->{rules},
         $self->{online_node_usage},
