@@ -664,6 +664,7 @@ sub manage {
     my ($haenv, $ms, $ns, $ss) = ($self->{haenv}, $self->{ms}, $self->{ns}, $self->{ss});
 
     my ($node_info) = $haenv->get_node_info();
+    my $has_changed_nodelist = $ns->check_for_changed_nodelist($node_info);
     my ($lrm_results, $lrm_modes) = $self->read_lrm_status();
 
     $ns->update($node_info, $lrm_modes);
@@ -719,6 +720,7 @@ sub manage {
 
     if (
         !$self->{rules}
+        || $has_changed_nodelist
         || $new_rules->{digest} ne $self->{last_rules_digest}
         || $self->{groups}->{digest} ne $self->{last_groups_digest}
         || $services_digest && $services_digest ne $self->{last_services_digest}

@@ -90,6 +90,20 @@ sub list_online_nodes {
     return $res;
 }
 
+sub check_for_changed_nodelist {
+    my ($self, $node_info) = @_;
+
+    for my $node (keys %$node_info) {
+        return 1 if !$self->{status}->{$node};
+    }
+
+    for my $node (keys $self->{status}->%*) {
+        return 1 if !$node_info->{$node};
+    }
+
+    return 0;
+}
+
 my $delete_node = sub {
     my ($self, $node) = @_;
 
