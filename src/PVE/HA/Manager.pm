@@ -157,11 +157,11 @@ sub select_service_node {
     my ($current_node, $tried_nodes, $maintenance_fallback) =
         $sd->@{qw(node failed_nodes maintenance_node)};
 
-    my ($allowed_nodes, $pri_nodes) = get_node_affinity($rules, $sid, $online_node_usage);
+    my $online_nodes = { map { $_ => 1 } $online_node_usage->list_nodes() };
+    my ($allowed_nodes, $pri_nodes) = get_node_affinity($rules, $sid, $online_nodes);
 
     return undef if !%$pri_nodes;
 
-    my $online_nodes = { map { $_ => 1 } $online_node_usage->list_nodes() };
     my ($together, $separate) = get_resource_affinity($rules, $sid, $ss, $online_nodes);
 
     # stay on current node if possible (avoids random migrations)

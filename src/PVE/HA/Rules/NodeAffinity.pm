@@ -237,11 +237,11 @@ my $get_resource_node_affinity_rule = sub {
     return $node_affinity_rule;
 };
 
-=head3 get_node_affinity($rules, $sid, $online_node_usage)
+=head3 get_node_affinity($rules, $sid, $online_nodes)
 
 Returns a list of two hashes representing the node affinity of C<$sid>
 according to the node affinity rules in C<$rules> and the available nodes in
-C<$online_node_usage>.
+the C<$online_nodes> hash.
 
 The first hash is a hash set of available nodes, i.e. nodes where the
 resource C<$sid> is allowed to be assigned to, and the second hash is a hash set
@@ -252,20 +252,20 @@ If there are no available nodes at all, returns C<undef>.
 =cut
 
 sub get_node_affinity : prototype($$$) {
-    my ($rules, $sid, $online_node_usage) = @_;
+    my ($rules, $sid, $online_nodes) = @_;
 
     my $node_affinity_rule = $get_resource_node_affinity_rule->($rules, $sid);
 
     # default to a node affinity rule with all available nodes
     if (!$node_affinity_rule) {
-        for my $node ($online_node_usage->list_nodes()) {
+        for my $node (keys %$online_nodes) {
             $node_affinity_rule->{nodes}->{$node} = { priority => 0 };
         }
     }
 
     # add remaining nodes with low priority for non-strict node affinity rules
     if (!$node_affinity_rule->{strict}) {
-        for my $node ($online_node_usage->list_nodes()) {
+        for my $node (keys %$online_nodes) {
             next if defined($node_affinity_rule->{nodes}->{$node});
 
             $node_affinity_rule->{nodes}->{$node} = { priority => -1 };
@@ -276,7 +276,7 @@ sub get_node_affinity : prototype($$$) {
     my $prioritized_nodes = {};
 
     while (my ($node, $props) = each %{ $node_affinity_rule->{nodes} }) {
-        next if !$online_node_usage->contains_node($node); # node is offline
+        next if !defined($online_nodes->{$node}); # node is offline
 
         $allowed_nodes->{$node} = 1;
         $prioritized_nodes->{ $props->{priority} }->{$node} = 1;
