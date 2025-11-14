@@ -1329,8 +1329,6 @@ sub next_state_recovery {
         $fence_recovery_cleanup->($self, $sid, $fenced_node);
 
         $haenv->steal_service($sid, $sd->{node}, $recovery_node);
-        $self->{online_node_usage}->add_service_usage_to_node($recovery_node, $sid, $recovery_node);
-        $self->{online_node_usage}->add_service_node($sid, $recovery_node);
 
         # NOTE: $sd *is normally read-only*, fencing is the exception
         $cd->{node} = $sd->{node} = $recovery_node;
