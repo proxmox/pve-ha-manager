@@ -32,6 +32,13 @@ the feasibility between rules of the same type and and between rules of
 different types, and prune the rule set in such a way, that it becomes feasible
 again, while minimizing the amount of rules that need to be pruned.
 
+The feasibility checks must verify that all rules can be applied error-free in
+any runtime state of the HA resources, cluster nodes, and the HA Manager in a
+reasonable amount of time. This might require more rules to be rejected than
+necessary as some checks can become computationally expensive for little benefit
+to the core feature, but this can certainly be reevaluated if there are user
+requests for these cases.
+
 More so, the rules given by the config file might not be in the best format to
 be used internally or does not contain the implicitly stated rules, which are
 induced by the relationship between different rules. Therefore, this package
@@ -598,9 +605,11 @@ a list of lists, each consisting of the rule type and rule id, where at
 least one resource in a resource affinity rule is in a node affinity rule,
 which has multiple priority groups defined.
 
-That is, the resource affinity rule cannot be statically checked to be feasible
-as the selection of the priority group is dependent on the currently online
-nodes.
+These cases are currently rejected, because the selection of the highest
+priority class is dependent on the currently online nodes and on the current
+HA resource states and node placements in the case of negative resource affinity
+rules. This makes the verification of these rules' feasibility in all possible
+states computationally hard.
 
 If there are none, the returned list is empty.
 
@@ -669,6 +678,10 @@ Returns all rules in C<$positive_rules> and C<$node_affinity_rules> as a list of
 lists, each item consisting of the rule type and rule id, where at least one of
 the resources is used in a positive resource affinity rule and more than one
 node affinity rule.
+
+These cases are currently rejected, because there is no definitive method to
+merge multiple node affinity rules, e.g. with different strictness values and
+different priority classes, yet.
 
 If there are none, the returned list is empty.
 
