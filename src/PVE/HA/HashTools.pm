@@ -39,7 +39,7 @@ key-value pairs are always set to C<1> or another truthy value.
 
 =cut
 
-sub set_intersect : prototype($$) {
+sub set_intersect {
     my ($hash1, $hash2) = @_;
 
     my $result = { map { $hash1->{$_} && $hash2->{$_} ? ($_ => 1) : () } keys %$hash1 };
@@ -57,7 +57,7 @@ key-value pairs are always set to C<1> or another truthy value.
 
 =cut
 
-sub set_union : prototype($$) {
+sub set_union {
     my ($hash1, $hash2) = @_;
 
     my $result = { map { $_ => 1 } keys %$hash1, keys %$hash2 };
@@ -77,7 +77,7 @@ Returns C<1> if they are disjoint, C<0> otherwise.
 
 =cut
 
-sub sets_are_disjoint : prototype($$) {
+sub sets_are_disjoint {
     my ($hash1, $hash2) = @_;
 
     for my $key (keys %$hash1) {

@@ -265,7 +265,7 @@ If there are no available nodes at all, returns C<undef>.
 
 =cut
 
-sub get_node_affinity : prototype($$$) {
+sub get_node_affinity {
     my ($node_affinity, $sid, $online_nodes) = @_;
 
     return ($online_nodes, $online_nodes) if !defined($node_affinity->{$sid});

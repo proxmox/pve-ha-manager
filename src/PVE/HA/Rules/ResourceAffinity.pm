@@ -458,7 +458,7 @@ affinitive to C<'ct:200'> and C<'ct:201'>, the returned value will be:
 
 =cut
 
-sub get_affinitive_resources : prototype($$) {
+sub get_affinitive_resources {
     my ($resource_affinity, $sid) = @_;
 
     my $together = $resource_affinity->{positive}->{$sid} // {};
@@ -500,7 +500,7 @@ resource C<$sid> is in a negative affinity with, the returned value will be:
 
 =cut
 
-sub get_resource_affinity : prototype($$$$) {
+sub get_resource_affinity {
     my ($resource_affinity, $sid, $ss, $online_nodes) = @_;
 
     my $together = {};
@@ -540,7 +540,7 @@ node C<$node> must be avoided.
 
 =cut
 
-sub is_allowed_on_node : prototype($$$) {
+sub is_allowed_on_node {
     my ($together, $separate, $node) = @_;
 
     return $together->{$node} || !$separate->{$node};
@@ -561,7 +561,7 @@ resource has not failed running there yet.
 
 =cut
 
-sub apply_positive_resource_affinity : prototype($$) {
+sub apply_positive_resource_affinity {
     my ($together, $allowed_nodes) = @_;
 
     for my $node (keys %$together) {
@@ -595,7 +595,7 @@ resource has not failed running there yet.
 
 =cut
 
-sub apply_negative_resource_affinity : prototype($$) {
+sub apply_negative_resource_affinity {
     my ($separate, $allowed_nodes) = @_;
 
     my $forbidden_nodes = { $separate->%* };

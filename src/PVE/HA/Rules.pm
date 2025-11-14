@@ -264,7 +264,7 @@ haven't been explicitly set yet.
 
 =cut
 
-sub set_rule_defaults : prototype($$) {
+sub set_rule_defaults {
     my ($class, $rule) = @_;
 
     if (my $plugin = $class->lookup($rule->{type})) {
@@ -303,7 +303,7 @@ Used to register rule checks for a rule plugin.
 
 =cut
 
-sub register_check : prototype($$$) {
+sub register_check {
     my ($class, $check_func, $collect_errors_func) = @_;
 
     my $type = eval { $class->type() };
@@ -322,7 +322,7 @@ Used to register rule transformers for a rule plugin.
 
 =cut
 
-sub register_transform : prototype($$) {
+sub register_transform {
     my ($class, $transform_func) = @_;
 
     my $type = eval { $class->type() };
@@ -345,7 +345,7 @@ implementations.
 
 =cut
 
-sub get_plugin_check_arguments : prototype($$) {
+sub get_plugin_check_arguments {
     my ($class, $rules) = @_;
 
     return {};
@@ -361,7 +361,7 @@ creation of these can be shared inbetween rule check implementations.
 
 =cut
 
-sub get_check_arguments : prototype($$) {
+sub get_check_arguments {
     my ($class, $rules) = @_;
 
     my $global_args = {};
@@ -391,7 +391,7 @@ very last.
 
 =cut
 
-sub check_feasibility : prototype($$$) {
+sub check_feasibility {
     my ($class, $rules, $nodes) = @_;
 
     my $global_errors = {};
@@ -429,7 +429,7 @@ Returns a list of messages with the reasons why rules were removed.
 
 =cut
 
-sub transform : prototype($$$) {
+sub transform {
     my ($class, $rules, $nodes) = @_;
 
     my $messages = [];
@@ -540,7 +540,7 @@ The following key-value pairs for C<$opts> are:
 
 =cut
 
-sub foreach_rule : prototype($$;%) {
+sub foreach_rule {
     my ($rules, $func, %opts) = @_;
 
     my $sid = $opts{sid};
@@ -568,7 +568,7 @@ be used a newly introduced rule afterwards.
 
 =cut
 
-sub get_next_ordinal : prototype($) {
+sub get_next_ordinal {
     my ($rules) = @_;
 
     my $current_order = (sort { $a <=> $b } values %{ $rules->{order} })[0] || 0;
