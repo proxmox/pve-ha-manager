@@ -207,14 +207,18 @@ sub check_inter_resource_affinity_rules_consistency {
 
     my @conflicts = ();
 
-    while (my ($positiveid, $positive) = each %$positive_rules) {
-        my $positive_resources = $positive->{resources};
+    my @disjoint_positive_rules =
+        PVE::HA::Rules::Helpers::find_disjoint_rules_resource_sets($positive_rules);
+
+    for my $entry (@disjoint_positive_rules) {
+        my $positive_resources = $entry->{resources};
 
         while (my ($negativeid, $negative) = each %$negative_rules) {
             my $common_resources = set_intersect($positive_resources, $negative->{resources});
             next if %$common_resources < 2;
 
-            push @conflicts, [$positiveid, $negativeid];
+            push @conflicts, ['negative', $negativeid];
+            push @conflicts, ['positive', $_] for $entry->{ruleids}->@*;
         }
     }
 
@@ -235,12 +239,15 @@ __PACKAGE__->register_check(
         my ($conflicts, $errors) = @_;
 
         for my $conflict (@$conflicts) {
-            my ($positiveid, $negativeid) = @$conflict;
+            my ($type, $ruleid) = @$conflict;
 
-            push $errors->{$positiveid}->{resources}->@*,
-                "rule shares two or more resources with a negative resource affinity rule";
-            push $errors->{$negativeid}->{resources}->@*,
-                "rule shares two or more resources with a positive resource affinity rule";
+            if ($type eq 'positive') {
+                push $errors->{$ruleid}->{resources}->@*,
+                    "rule shares two or more resources with a negative resource affinity rule";
+            } elsif ($type eq 'negative') {
+                push $errors->{$ruleid}->{resources}->@*,
+                    "rule shares two or more resources with a positive resource affinity rule";
+            }
         }
     },
 );
