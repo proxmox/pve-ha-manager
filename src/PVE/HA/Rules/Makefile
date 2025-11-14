@@ -1,4 +1,4 @@
-SIM_SOURCES=NodeAffinity.pm ResourceAffinity.pm
+SIM_SOURCES=Helpers.pm NodeAffinity.pm ResourceAffinity.pm
 SOURCES=${SIM_SOURCES}
 
 .PHONY: install

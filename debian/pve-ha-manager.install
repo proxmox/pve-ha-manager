@@ -35,6 +35,7 @@
 /usr/share/perl5/PVE/HA/Resources/PVECT.pm
 /usr/share/perl5/PVE/HA/Resources/PVEVM.pm
 /usr/share/perl5/PVE/HA/Rules.pm
+/usr/share/perl5/PVE/HA/Rules/Helpers.pm
 /usr/share/perl5/PVE/HA/Rules/NodeAffinity.pm
 /usr/share/perl5/PVE/HA/Rules/ResourceAffinity.pm
 /usr/share/perl5/PVE/HA/Tools.pm

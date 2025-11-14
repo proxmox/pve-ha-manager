@@ -3,8 +3,9 @@ package PVE::HA::Rules::ResourceAffinity;
 use strict;
 use warnings;
 
-use PVE::HA::HashTools qw(set_intersect sets_are_disjoint);
+use PVE::HA::HashTools qw(set_intersect);
 use PVE::HA::Rules;
+use PVE::HA::Rules::Helpers;
 use PVE::HA::Usage;
 
 use base qw(Exporter);
@@ -248,58 +249,6 @@ __PACKAGE__->register_check(
 
 =cut
 
-my $sort_by_lowest_resource_id = sub {
-    my ($rules) = @_;
-
-    my $lowest_rule_resource_id = {};
-    for my $ruleid (keys %$rules) {
-        my @rule_resources = sort keys $rules->{$ruleid}->{resources}->%*;
-        $lowest_rule_resource_id->{$ruleid} = $rule_resources[0];
-    }
-
-    # sort rules such that rules with the lowest numbered resource come first
-    my @sorted_ruleids = sort {
-        $lowest_rule_resource_id->{$a} cmp $lowest_rule_resource_id->{$b}
-    } sort keys %$rules;
-
-    return @sorted_ruleids;
-};
-
-# returns a list of hashes, which contain disjoint resource affinity rules, i.e.,
-# put resource affinity constraints on disjoint sets of resources
-my $find_disjoint_resource_affinity_rules = sub {
-    my ($rules) = @_;
-
-    my @disjoint_rules = ();
-
-    # order needed so that it is easier to check whether there is an overlap
-    my @sorted_ruleids = $sort_by_lowest_resource_id->($rules);
-
-    for my $ruleid (@sorted_ruleids) {
-        my $rule = $rules->{$ruleid};
-
-        my $found = 0;
-        for my $entry (@disjoint_rules) {
-            next if sets_are_disjoint($rule->{resources}, $entry->{resources});
-
-            $found = 1;
-            push @{ $entry->{ruleids} }, $ruleid;
-            $entry->{resources}->{$_} = 1 for keys $rule->{resources}->%*;
-
-            last;
-        }
-        if (!$found) {
-            push @disjoint_rules,
-                {
-                    ruleids => [$ruleid],
-                    resources => { $rule->{resources}->%* },
-                };
-        }
-    }
-
-    return @disjoint_rules;
-};
-
 =head3 merge_connected_positive_resource_affinity_rules($rules, $positive_rules)
 
 Modifies C<$rules> to contain only disjoint positive resource affinity rules
@@ -320,7 +269,8 @@ a resource, in C<$rules> at a later point in time.
 sub merge_connected_positive_resource_affinity_rules {
     my ($rules, $positive_rules) = @_;
 
-    my @disjoint_positive_rules = $find_disjoint_resource_affinity_rules->($positive_rules);
+    my @disjoint_positive_rules =
+        PVE::HA::Rules::Helpers::find_disjoint_rules_resource_sets($positive_rules);
 
     for my $entry (@disjoint_positive_rules) {
         next if @{ $entry->{ruleids} } < 2;
