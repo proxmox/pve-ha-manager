@@ -1202,9 +1202,6 @@ sub next_state_started {
             );
 
             if ($node && ($sd->{node} ne $node)) {
-                $self->{online_node_usage}->add_service_usage_to_node($node, $sid, $sd->{node});
-                $self->{online_node_usage}->add_service_node($sid, $node);
-
                 if (defined(my $fallback = $sd->{maintenance_node})) {
                     if ($node eq $fallback) {
                         $haenv->log(
