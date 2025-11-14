@@ -55,6 +55,12 @@ sub add_service_usage {
         if $target_node;
 }
 
+sub remove_service_usage {
+    my ($self, $sid) = @_;
+
+    die "implement in subclass";
+}
+
 # Returns a hash with $nodename => $score pairs. A lower $score is better.
 sub score_nodes_to_start_service {
     my ($self, $sid, $service_node) = @_;

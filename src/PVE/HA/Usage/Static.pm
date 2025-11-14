@@ -22,14 +22,14 @@ sub new {
         'service-stats' => {},
         haenv => $haenv,
         scheduler => $scheduler,
-        'service-counts' => {}, # Service count on each node. Fallback if scoring calculation fails.
+        'node-services' => {}, # Services on each node. Fallback if scoring calculation fails.
     }, $class;
 }
 
 sub add_node {
     my ($self, $nodename) = @_;
 
-    $self->{'service-counts'}->{$nodename} = 0;
+    $self->{'node-services'}->{$nodename} = {};
 
     my $stats = $self->{'node-stats'}->{$nodename}
         or die "did not get static node usage information for '$nodename'\n";
@@ -43,7 +43,7 @@ sub add_node {
 sub remove_node {
     my ($self, $nodename) = @_;
 
-    delete $self->{'service-counts'}->{$nodename};
+    delete $self->{'node-services'}->{$nodename};
 
     $self->{scheduler}->remove_node($nodename);
 }
@@ -89,14 +89,25 @@ my sub get_service_usage {
 sub add_service_usage_to_node {
     my ($self, $nodename, $sid, $service_node, $migration_target) = @_;
 
-    $self->{'service-counts'}->{$nodename}++;
+    $self->{'node-services'}->{$nodename}->{$sid} = 1;
 
     eval {
         my $service_usage = get_service_usage($self, $sid, $service_node, $migration_target);
-        $self->{scheduler}->add_service_usage_to_node($nodename, $service_usage);
+        $self->{scheduler}->add_service_usage_to_node($nodename, $sid, $service_usage);
     };
     $self->{haenv}->log('warning', "unable to add service '$sid' usage to node '$nodename' - $@")
         if $@;
+}
+
+sub remove_service_usage {
+    my ($self, $sid) = @_;
+
+    delete($self->{'node-services'}->{$_}->{$sid}) for $self->list_nodes();
+
+    eval { $self->{scheduler}->remove_service_usage($sid) };
+    $self->{haenv}->log('warning', "unable to remove service '$sid' usage - $@") if $@;
+
+    delete $self->{'service-stats'}->{$sid}; # Invalidate old service stats
 }
 
 sub score_nodes_to_start_service {
@@ -111,7 +122,8 @@ sub score_nodes_to_start_service {
             'err',
             "unable to score nodes according to static usage for service '$sid' - $err",
         );
-        return $self->{'service-counts'};
+        my $node_services = $self->{'node-services'};
+        return { map { $_ => scalar(keys $node_services->{$_}->%*) } keys $node_services->%* };
     }
 
     # Take minus the value, so that a lower score is better, which our caller(s) expect(s).

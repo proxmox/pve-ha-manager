@@ -17,7 +17,7 @@ sub new {
 sub add_node {
     my ($self, $nodename) = @_;
 
-    $self->{nodes}->{$nodename} = 0;
+    $self->{nodes}->{$nodename} = {};
 }
 
 sub remove_node {
@@ -42,7 +42,7 @@ sub add_service_usage_to_node {
     my ($self, $nodename, $sid, $service_node, $migration_target) = @_;
 
     if ($self->contains_node($nodename)) {
-        $self->{nodes}->{$nodename}++;
+        $self->{nodes}->{$nodename}->{$sid} = 1;
     } else {
         $self->{haenv}->log(
             'warning',
@@ -51,10 +51,20 @@ sub add_service_usage_to_node {
     }
 }
 
+sub remove_service_usage {
+    my ($self, $sid) = @_;
+
+    for my $node ($self->list_nodes()) {
+        delete $self->{nodes}->{$node}->{$sid};
+    }
+}
+
 sub score_nodes_to_start_service {
     my ($self, $sid, $service_node) = @_;
 
-    return $self->{nodes};
+    my $nodes = $self->{nodes};
+
+    return { map { $_ => scalar(keys $nodes->{$_}->%*) } keys $nodes->%* };
 }
 
 1;
