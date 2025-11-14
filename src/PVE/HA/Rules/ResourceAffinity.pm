@@ -101,6 +101,35 @@ sub get_plugin_check_arguments {
     return $result;
 }
 
+sub plugin_compile {
+    my ($class, $rules, $nodes) = @_;
+
+    my $positive = {};
+    my $negative = {};
+
+    PVE::HA::Rules::foreach_rule(
+        $rules,
+        sub {
+            my ($rule, $ruleid) = @_;
+
+            my $affinity_set = $rule->{affinity} eq 'positive' ? $positive : $negative;
+
+            for my $sid (keys $rule->{resources}->%*) {
+                for my $csid (keys $rule->{resources}->%*) {
+                    $affinity_set->{$sid}->{$csid} = 1 if $csid ne $sid;
+                }
+            }
+        },
+        type => 'resource-affinity',
+        exclude_disabled_rules => 1,
+    );
+
+    return {
+        positive => $positive,
+        negative => $negative,
+    };
+}
+
 =head1 RESOURCE AFFINITY RULE CHECKERS
 
 =cut
@@ -404,12 +433,12 @@ __PACKAGE__->register_transform(sub {
 
 =cut
 
-=head3 get_affinitive_resources($rules, $sid)
+=head3 get_affinitive_resources($resource_affinity, $sid)
 
 Returns a list of two hash sets, where the first hash set contains the
 resources, which C<$sid> is positively affinitive to, and the second hash
 contains the resources, which C<$sid> is negatively affinitive to, acording to
-the resource affinity rules in C<$rules>.
+the resource's resource affinity in C<$resource_affinity>.
 
 Note that a resource C<$sid> becomes part of any negative affinity relation
 of its positively affinitive resources.
@@ -430,36 +459,20 @@ affinitive to C<'ct:200'> and C<'ct:201'>, the returned value will be:
 =cut
 
 sub get_affinitive_resources : prototype($$) {
-    my ($rules, $sid) = @_;
+    my ($resource_affinity, $sid) = @_;
 
-    my $together = {};
-    my $separate = {};
-
-    PVE::HA::Rules::foreach_rule(
-        $rules,
-        sub {
-            my ($rule, $ruleid) = @_;
-
-            my $affinity_set = $rule->{affinity} eq 'positive' ? $together : $separate;
-
-            for my $csid (sort keys %{ $rule->{resources} }) {
-                $affinity_set->{$csid} = 1 if $csid ne $sid;
-            }
-        },
-        sid => $sid,
-        type => 'resource-affinity',
-        exclude_disabled_rules => 1,
-    );
+    my $together = $resource_affinity->{positive}->{$sid} // {};
+    my $separate = $resource_affinity->{negative}->{$sid} // {};
 
     return ($together, $separate);
 }
 
-=head3 get_resource_affinity($rules, $sid, $ss, $online_nodes)
+=head3 get_resource_affinity($resource_affinity, $sid, $ss, $online_nodes)
 
 Returns a list of two hashes, where the first describes the positive resource
 affinity and the second hash describes the negative resource affinity for
-resource C<$sid> according to the resource affinity rules in C<$rules>, the
-service status C<$ss> and the C<$online_nodes> hash.
+resource C<$sid> according to the resource's resource affinity rules in
+C<$resource_affinity>, the service status C<$ss> and the C<$online_nodes> hash.
 
 For the positive resource affinity of a resource C<$sid>, each element in the
 hash represents an online node, where other resources, which C<$sid> is in
@@ -488,39 +501,33 @@ resource C<$sid> is in a negative affinity with, the returned value will be:
 =cut
 
 sub get_resource_affinity : prototype($$$$) {
-    my ($rules, $sid, $ss, $online_nodes) = @_;
+    my ($resource_affinity, $sid, $ss, $online_nodes) = @_;
 
     my $together = {};
     my $separate = {};
 
-    PVE::HA::Rules::foreach_rule(
-        $rules,
-        sub {
-            my ($rule) = @_;
+    my ($positive, $negative) = get_affinitive_resources($resource_affinity, $sid);
 
-            for my $csid (keys %{ $rule->{resources} }) {
-                next if $csid eq $sid;
-                next if !defined($ss->{$csid});
+    my $get_used_service_nodes = sub {
+        my ($sid) = @_;
+        return (undef, undef) if !defined($ss->{$sid});
+        my ($state, $node, $target) = $ss->{$sid}->@{qw(state node target)};
+        return PVE::HA::Usage::get_used_service_nodes($online_nodes, $state, $node, $target);
+    };
 
-                my ($state, $node, $target) = $ss->{$csid}->@{qw(state node target)};
-                my ($current_node, $target_node) =
-                    PVE::HA::Usage::get_used_service_nodes($online_nodes, $state, $node, $target);
+    for my $csid (keys $positive->%*) {
+        my ($current_node, $target_node) = $get_used_service_nodes->($csid);
 
-                if ($rule->{affinity} eq 'positive') {
-                    $together->{$current_node}++ if defined($current_node);
-                    $together->{$target_node}++ if defined($target_node);
-                } elsif ($rule->{affinity} eq 'negative') {
-                    $separate->{$current_node} = 1 if defined($current_node);
-                    $separate->{$target_node} = 1 if defined($target_node);
-                } else {
-                    die "unimplemented resource affinity type $rule->{affinity}\n";
-                }
-            }
-        },
-        sid => $sid,
-        type => 'resource-affinity',
-        exclude_disabled_rules => 1,
-    );
+        $together->{$current_node}++ if defined($current_node);
+        $together->{$target_node}++ if defined($target_node);
+    }
+
+    for my $csid (keys $negative->%*) {
+        my ($current_node, $target_node) = $get_used_service_nodes->($csid);
+
+        $separate->{$current_node} = 1 if defined($current_node);
+        $separate->{$target_node} = 1 if defined($target_node);
+    }
 
     return ($together, $separate);
 }

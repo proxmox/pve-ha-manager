@@ -224,7 +224,7 @@ sub read_and_check_rules_config {
     return $rules;
 }
 
-sub read_and_check_effective_rules_config {
+sub read_and_compile_rules_config {
 
     my $rules = read_and_check_rules_config();
 
@@ -239,7 +239,7 @@ sub read_and_check_effective_rules_config {
 
     PVE::HA::Rules->transform($rules, $nodes);
 
-    return $rules;
+    return PVE::HA::Rules->compile($rules, $nodes);
 }
 
 sub write_rules_config {
@@ -391,8 +391,9 @@ sub get_resource_motion_info {
         my $ss = $manager_status->{service_status};
         my $ns = $manager_status->{node_status};
 
-        my $rules = read_and_check_effective_rules_config();
-        my ($together, $separate) = get_affinitive_resources($rules, $sid);
+        my $compiled_rules = read_and_compile_rules_config();
+        my $resource_affinity = $compiled_rules->{'resource-affinity'};
+        my ($together, $separate) = get_affinitive_resources($resource_affinity, $sid);
 
         for my $csid (sort keys %$together) {
             next if !defined($ss->{$csid});

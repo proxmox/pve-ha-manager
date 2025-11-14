@@ -47,6 +47,12 @@ Each I<rule plugin> is required to implement the methods C<L<type()>>,
 C<L<properties()>>, and C<L<options>> from the C<L<PVE::SectionConfig>> to
 extend the properties of this I<base plugin> with plugin-specific properties.
 
+Each I<rule plugin> is required to implement the method
+C<L<< plugin_compile()|/$class->plugin_compile(...) >>> to distill a compiled
+representation of the more verbose C<$rules> from the config file, which is
+returned by C<L<< compile()|/$class->compile(...) >>> to be more appropriate
+and efficient for the scheduler and other users.
+
 =head2 REGISTERING CHECKS
 
 In order to C<L<< register checks|/$class->register_check(...) >>> for a rule
@@ -451,6 +457,59 @@ sub transform : prototype($$$) {
     }
 
     return $messages;
+}
+
+=head3 $class->plugin_compile(...)
+
+=head3 $class->plugin_compile($rules, $nodes)
+
+B<MANDATORY:> Must be implemented in a I<rule plugin>.
+
+Called in C<$class->compile($rules, $nodes)> in order to get a more compact
+representation of the rule plugin's rules in C<$rules>, which holds only the
+relevant information for the scheduler and other users.
+
+C<$nodes> is a list of the configured cluster nodes.
+
+=cut
+
+sub plugin_compile {
+    my ($class, $rules, $nodes) = @_;
+
+    die "implement in subclass";
+}
+
+=head3 $class->compile(...)
+
+=head3 $class->compile($rules, $nodes)
+
+Compiles and returns a hash, where each key-value pair represents a rule
+plugin's more compact representation compiled from the more verbose rules
+defined in C<$rules>.
+
+C<$nodes> is a list of the configured cluster nodes.
+
+The transformation to the compact representation for each rule plugin is
+implemented in C<L<< plugin_compile()|/$class->plugin_compile(...) >>>.
+
+=cut
+
+sub compile {
+    my ($class, $rules, $nodes) = @_;
+
+    my $compiled_rules = {};
+
+    for my $type (@$types) {
+        my $plugin = $class->lookup($type);
+        my $compiled_plugin_rules = $plugin->plugin_compile($rules, $nodes);
+
+        die "plugin_compile(...) of type '$type' must return hash reference\n"
+            if ref($compiled_plugin_rules) ne 'HASH';
+
+        $compiled_rules->{$type} = $compiled_plugin_rules;
+    }
+
+    return $compiled_rules;
 }
 
 =head1 FUNCTIONS

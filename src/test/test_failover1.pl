@@ -21,11 +21,13 @@ node-affinity: prefer_node1
 	nodes node1
 EOD
 
+my $nodes = ['node1', 'node2', 'node3'];
+
+my $compiled_rules = PVE::HA::Rules->compile($rules, $nodes);
+
 # Relies on the fact that the basic plugin doesn't use the haenv.
 my $online_node_usage = PVE::HA::Usage::Basic->new();
-$online_node_usage->add_node("node1");
-$online_node_usage->add_node("node2");
-$online_node_usage->add_node("node3");
+$online_node_usage->add_node($_) for @$nodes;
 
 my $service_conf = {
     node => 'node1',
@@ -46,7 +48,12 @@ sub test {
     my $select_node_preference = $try_next ? 'try-next' : 'none';
 
     my $node = PVE::HA::Manager::select_service_node(
-        $rules, $online_node_usage, "$sid", $service_conf, $ss, $select_node_preference,
+        $compiled_rules,
+        $online_node_usage,
+        $sid,
+        $service_conf,
+        $ss,
+        $select_node_preference,
     );
 
     my (undef, undef, $line) = caller();

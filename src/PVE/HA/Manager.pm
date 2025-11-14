@@ -126,12 +126,12 @@ sub flush_master_status {
 
 =head3 select_service_node(...)
 
-=head3 select_service_node($rules, $online_node_usage, $sid, $service_conf, $ss, $node_preference)
+=head3 select_service_node($compiled_rules, $online_node_usage, $sid, $service_conf, $ss, $node_preference)
 
 Used to select the best fitting node for the service C<$sid>, with the
-configuration C<$service_conf>, according to the rules defined in C<$rules>,
-available node utilization in C<$online_node_usage>, the service states in
-C<$ss> and the given C<$node_preference>.
+configuration C<$service_conf>, according to the rules defined in
+C<$compiled_rules>, available node utilization in C<$online_node_usage>, the
+service states in C<$ss> and the given C<$node_preference>.
 
 The C<$node_preference> can be set to:
 
@@ -148,7 +148,7 @@ The C<$node_preference> can be set to:
 =cut
 
 sub select_service_node {
-    my ($rules, $online_node_usage, $sid, $service_conf, $ss, $node_preference) = @_;
+    my ($compiled_rules, $online_node_usage, $sid, $service_conf, $ss, $node_preference) = @_;
 
     die "'$node_preference' is not a valid node_preference for select_service_node\n"
         if $node_preference !~ m/(none|best-score|try-next)/;
@@ -156,13 +156,15 @@ sub select_service_node {
     my $sd = $ss->{$sid};
     my ($current_node, $tried_nodes, $maintenance_fallback) =
         $sd->@{qw(node failed_nodes maintenance_node)};
+    my ($node_affinity, $resource_affinity) =
+        $compiled_rules->@{qw(node-affinity resource-affinity)};
 
     my $online_nodes = { map { $_ => 1 } $online_node_usage->list_nodes() };
-    my ($allowed_nodes, $pri_nodes) = get_node_affinity($rules, $sid, $online_nodes);
+    my ($allowed_nodes, $pri_nodes) = get_node_affinity($node_affinity, $sid, $online_nodes);
 
     return undef if !%$pri_nodes;
 
-    my ($together, $separate) = get_resource_affinity($rules, $sid, $ss, $online_nodes);
+    my ($together, $separate) = get_resource_affinity($resource_affinity, $sid, $ss, $online_nodes);
 
     # stay on current node if possible (avoids random migrations)
     if (
@@ -389,7 +391,8 @@ sub execute_migration {
 
     my ($haenv, $ss) = $self->@{qw(haenv ss)};
 
-    my ($together, $separate) = get_affinitive_resources($self->{rules}, $sid);
+    my $resource_affinity = $self->{compiled_rules}->{'resource-affinity'};
+    my ($together, $separate) = get_affinitive_resources($resource_affinity, $sid);
 
     for my $csid (sort keys %$separate) {
         next if !defined($ss->{$csid});
@@ -719,7 +722,7 @@ sub manage {
     PVE::HA::Groups::migrate_groups_to_resources($self->{groups}, $sc);
 
     if (
-        !$self->{rules}
+        !$self->{compiled_rules}
         || $has_changed_nodelist
         || $new_rules->{digest} ne $self->{last_rules_digest}
         || $self->{groups}->{digest} ne $self->{last_groups_digest}
@@ -731,9 +734,9 @@ sub manage {
         my $messages = PVE::HA::Rules->transform($new_rules, $nodes);
         $haenv->log('info', $_) for @$messages;
 
-        $self->{rules} = $new_rules;
+        $self->{compiled_rules} = PVE::HA::Rules->compile($new_rules, $nodes);
 
-        $self->{last_rules_digest} = $self->{rules}->{digest};
+        $self->{last_rules_digest} = $new_rules->{digest};
         $self->{last_groups_digest} = $self->{groups}->{digest};
         $self->{last_services_digest} = $services_digest;
     }
@@ -991,7 +994,7 @@ sub next_state_request_start {
 
     if ($self->{crs}->{rebalance_on_request_start}) {
         my $selected_node = select_service_node(
-            $self->{rules},
+            $self->{compiled_rules},
             $self->{online_node_usage},
             $sid,
             $cd,
@@ -1158,7 +1161,7 @@ sub next_state_started {
             }
 
             my $node = select_service_node(
-                $self->{rules},
+                $self->{compiled_rules},
                 $self->{online_node_usage},
                 $sid,
                 $cd,
@@ -1272,7 +1275,7 @@ sub next_state_recovery {
     my $fenced_node = $sd->{node}; # for logging purpose
 
     my $recovery_node = select_service_node(
-        $self->{rules},
+        $self->{compiled_rules},
         $self->{online_node_usage},
         $sid,
         $cd,
