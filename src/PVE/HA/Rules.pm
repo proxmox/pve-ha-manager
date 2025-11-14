@@ -594,9 +594,9 @@ my $has_multiple_priorities = sub {
 =head3 check_single_priority_node_affinity_in_resource_affinity_rules(...)
 
 Returns all rules in C<$resource_affinity_rules> and C<$node_affinity_rules> as
-a list of lists, each consisting of the rule type and resource id, where at
-least one resource in a resource affinity rule are in node affinity rules,
-which have multiple priority groups defined.
+a list of lists, each consisting of the rule type and rule id, where at
+least one resource in a resource affinity rule is in a node affinity rule,
+which has multiple priority groups defined.
 
 That is, the resource affinity rule cannot be statically checked to be feasible
 as the selection of the priority group is dependent on the currently online
@@ -666,9 +666,9 @@ __PACKAGE__->register_check(
 =head3 check_single_node_affinity_per_positive_resource_affinity_rule(...)
 
 Returns all rules in C<$positive_rules> and C<$node_affinity_rules> as a list of
-lists, each consisting of the rule type and resource id, where one of the
-resources is used in a positive resource affinity rule and more than one node
-affinity rule.
+lists, each item consisting of the rule type and rule id, where at least one of
+the resources is used in a positive resource affinity rule and more than one
+node affinity rule.
 
 If there are none, the returned list is empty.
 
