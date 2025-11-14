@@ -1,38 +1,38 @@
 --- Log ---
 --- Config ---
-$VAR1 = {
-          'digest' => '9ac7cc517f02c41e3403085ec02f6a9259f2ac94',
-          'ids' => {
-                     'resource-affinity-defaults' => {
-                                                       'affinity' => 'negative',
-                                                       'resources' => {
-                                                                        'vm:101' => 1,
-                                                                        'vm:102' => 1
-                                                                      },
-                                                       'type' => 'resource-affinity'
-                                                     },
-                     'resource-affinity-disabled' => {
-                                                       'affinity' => 'negative',
-                                                       'disable' => 1,
-                                                       'resources' => {
-                                                                        'vm:201' => 1,
-                                                                        'vm:202' => 1
-                                                                      },
-                                                       'type' => 'resource-affinity'
-                                                     },
-                     'resource-affinity-disabled-explicit' => {
-                                                                'affinity' => 'negative',
-                                                                'disable' => 1,
-                                                                'resources' => {
-                                                                                 'vm:301' => 1,
-                                                                                 'vm:302' => 1
-                                                                               },
-                                                                'type' => 'resource-affinity'
-                                                              }
-                   },
-          'order' => {
-                       'resource-affinity-defaults' => 1,
-                       'resource-affinity-disabled' => 2,
-                       'resource-affinity-disabled-explicit' => 3
-                     }
-        };
+{
+   "digest" : "9ac7cc517f02c41e3403085ec02f6a9259f2ac94",
+   "ids" : {
+      "resource-affinity-defaults" : {
+         "affinity" : "negative",
+         "resources" : {
+            "vm:101" : 1,
+            "vm:102" : 1
+         },
+         "type" : "resource-affinity"
+      },
+      "resource-affinity-disabled" : {
+         "affinity" : "negative",
+         "disable" : 1,
+         "resources" : {
+            "vm:201" : 1,
+            "vm:202" : 1
+         },
+         "type" : "resource-affinity"
+      },
+      "resource-affinity-disabled-explicit" : {
+         "affinity" : "negative",
+         "disable" : 1,
+         "resources" : {
+            "vm:301" : 1,
+            "vm:302" : 1
+         },
+         "type" : "resource-affinity"
+      }
+   },
+   "order" : {
+      "resource-affinity-defaults" : 1,
+      "resource-affinity-disabled" : 2,
+      "resource-affinity-disabled-explicit" : 3
+   }
+}

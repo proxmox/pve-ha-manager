@@ -10,68 +10,68 @@ Drop rule 'vm501-vm502-must-be-kept-together', because resources are in multiple
 Drop rule 'vm502-vm503-must-be-kept-together', because resources are in multiple node affinity rules.
 Drop rule 'vm503-must-be-on-node2', because at least one resource is in a positive resource affinity rule and there are other resources in at least one other node affinity rule already.
 --- Config ---
-$VAR1 = {
-          'digest' => '00a70f4c2bdd41aed16b6e5b9860cd9fb7f0f098',
-          'ids' => {
-                     'vm101-vm102-must-be-kept-together' => {
-                                                              'affinity' => 'positive',
-                                                              'resources' => {
-                                                                               'vm:101' => 1,
-                                                                               'vm:102' => 1
-                                                                             },
-                                                              'type' => 'resource-affinity'
-                                                            },
-                     'vm101-vm102-must-be-on-node1' => {
-                                                         'nodes' => {
-                                                                      'node1' => {
-                                                                                   'priority' => 0
-                                                                                 }
-                                                                    },
-                                                         'resources' => {
-                                                                          'vm:101' => 1,
-                                                                          'vm:102' => 1
-                                                                        },
-                                                         'strict' => 1,
-                                                         'type' => 'node-affinity'
-                                                       },
-                     'vm201-must-be-on-node1' => {
-                                                   'nodes' => {
-                                                                'node1' => {
-                                                                             'priority' => 0
-                                                                           }
-                                                              },
-                                                   'resources' => {
-                                                                    'vm:201' => 1
-                                                                  },
-                                                   'strict' => 1,
-                                                   'type' => 'node-affinity'
-                                                 },
-                     'vm201-vm202-must-be-kept-separate' => {
-                                                              'affinity' => 'negative',
-                                                              'resources' => {
-                                                                               'vm:201' => 1,
-                                                                               'vm:202' => 1
-                                                                             },
-                                                              'type' => 'resource-affinity'
-                                                            },
-                     'vm202-must-be-on-node2' => {
-                                                   'nodes' => {
-                                                                'node2' => {
-                                                                             'priority' => 0
-                                                                           }
-                                                              },
-                                                   'resources' => {
-                                                                    'vm:202' => 1
-                                                                  },
-                                                   'strict' => 1,
-                                                   'type' => 'node-affinity'
-                                                 }
-                   },
-          'order' => {
-                       'vm101-vm102-must-be-kept-together' => 2,
-                       'vm101-vm102-must-be-on-node1' => 1,
-                       'vm201-must-be-on-node1' => 3,
-                       'vm201-vm202-must-be-kept-separate' => 5,
-                       'vm202-must-be-on-node2' => 4
-                     }
-        };
+{
+   "digest" : "00a70f4c2bdd41aed16b6e5b9860cd9fb7f0f098",
+   "ids" : {
+      "vm101-vm102-must-be-kept-together" : {
+         "affinity" : "positive",
+         "resources" : {
+            "vm:101" : 1,
+            "vm:102" : 1
+         },
+         "type" : "resource-affinity"
+      },
+      "vm101-vm102-must-be-on-node1" : {
+         "nodes" : {
+            "node1" : {
+               "priority" : 0
+            }
+         },
+         "resources" : {
+            "vm:101" : 1,
+            "vm:102" : 1
+         },
+         "strict" : 1,
+         "type" : "node-affinity"
+      },
+      "vm201-must-be-on-node1" : {
+         "nodes" : {
+            "node1" : {
+               "priority" : 0
+            }
+         },
+         "resources" : {
+            "vm:201" : 1
+         },
+         "strict" : 1,
+         "type" : "node-affinity"
+      },
+      "vm201-vm202-must-be-kept-separate" : {
+         "affinity" : "negative",
+         "resources" : {
+            "vm:201" : 1,
+            "vm:202" : 1
+         },
+         "type" : "resource-affinity"
+      },
+      "vm202-must-be-on-node2" : {
+         "nodes" : {
+            "node2" : {
+               "priority" : 0
+            }
+         },
+         "resources" : {
+            "vm:202" : 1
+         },
+         "strict" : 1,
+         "type" : "node-affinity"
+      }
+   },
+   "order" : {
+      "vm101-vm102-must-be-kept-together" : 2,
+      "vm101-vm102-must-be-on-node1" : 1,
+      "vm201-must-be-on-node1" : 3,
+      "vm201-vm202-must-be-kept-separate" : 5,
+      "vm202-must-be-on-node2" : 4
+   }
+}

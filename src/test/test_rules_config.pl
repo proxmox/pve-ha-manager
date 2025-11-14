@@ -6,10 +6,10 @@ use Getopt::Long;
 
 use lib qw(..);
 
+use JSON;
+
 use Test::More;
 use Test::MockModule;
-
-use Data::Dumper;
 
 use PVE::HA::Rules;
 use PVE::HA::Rules::NodeAffinity;
@@ -56,10 +56,7 @@ sub check_cfg {
     my $messages = PVE::HA::Rules->transform($cfg, $nodes);
     print $_ for @$messages;
     print "--- Config ---\n";
-    {
-        local $Data::Dumper::Sortkeys = 1;
-        print Dumper($cfg);
-    }
+    print to_json($cfg, { canonical => 1, pretty => 1, utf8 => 1 });
 
     select(STDOUT);
 }

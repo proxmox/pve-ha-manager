@@ -1,73 +1,73 @@
 --- Log ---
 --- Config ---
-$VAR1 = {
-          'digest' => '5695bd62a65966a275a62a01d2d8fbc370d91668',
-          'ids' => {
-                     '_implicit-negative-_merged-infer-connected-positive1-infer-connected-positive2-vm:101-vm:105' => {
-                                                                                                                         'affinity' => 'negative',
-                                                                                                                         'resources' => {
-                                                                                                                                          'vm:101' => 1,
-                                                                                                                                          'vm:105' => 1
-                                                                                                                                        },
-                                                                                                                         'type' => 'resource-affinity'
-                                                                                                                       },
-                     '_implicit-negative-_merged-infer-connected-positive1-infer-connected-positive2-vm:102-vm:104' => {
-                                                                                                                         'affinity' => 'negative',
-                                                                                                                         'resources' => {
-                                                                                                                                          'vm:102' => 1,
-                                                                                                                                          'vm:104' => 1
-                                                                                                                                        },
-                                                                                                                         'type' => 'resource-affinity'
-                                                                                                                       },
-                     '_implicit-negative-_merged-infer-connected-positive1-infer-connected-positive2-vm:103-vm:104' => {
-                                                                                                                         'affinity' => 'negative',
-                                                                                                                         'resources' => {
-                                                                                                                                          'vm:103' => 1,
-                                                                                                                                          'vm:104' => 1
-                                                                                                                                        },
-                                                                                                                         'type' => 'resource-affinity'
-                                                                                                                       },
-                     '_implicit-negative-_merged-infer-connected-positive1-infer-connected-positive2-vm:103-vm:105' => {
-                                                                                                                         'affinity' => 'negative',
-                                                                                                                         'resources' => {
-                                                                                                                                          'vm:103' => 1,
-                                                                                                                                          'vm:105' => 1
-                                                                                                                                        },
-                                                                                                                         'type' => 'resource-affinity'
-                                                                                                                       },
-                     '_merged-infer-connected-positive1-infer-connected-positive2' => {
-                                                                                        'affinity' => 'positive',
-                                                                                        'resources' => {
-                                                                                                         'vm:101' => 1,
-                                                                                                         'vm:102' => 1,
-                                                                                                         'vm:103' => 1
-                                                                                                       },
-                                                                                        'type' => 'resource-affinity'
-                                                                                      },
-                     'infer-connected-negative1' => {
-                                                      'affinity' => 'negative',
-                                                      'resources' => {
-                                                                       'vm:101' => 1,
-                                                                       'vm:104' => 1
-                                                                     },
-                                                      'type' => 'resource-affinity'
-                                                    },
-                     'infer-connected-negative2' => {
-                                                      'affinity' => 'negative',
-                                                      'resources' => {
-                                                                       'vm:102' => 1,
-                                                                       'vm:105' => 1
-                                                                     },
-                                                      'type' => 'resource-affinity'
-                                                    }
-                   },
-          'order' => {
-                       '_implicit-negative-_merged-infer-connected-positive1-infer-connected-positive2-vm:101-vm:105' => 2,
-                       '_implicit-negative-_merged-infer-connected-positive1-infer-connected-positive2-vm:102-vm:104' => 2,
-                       '_implicit-negative-_merged-infer-connected-positive1-infer-connected-positive2-vm:103-vm:104' => 2,
-                       '_implicit-negative-_merged-infer-connected-positive1-infer-connected-positive2-vm:103-vm:105' => 2,
-                       '_merged-infer-connected-positive1-infer-connected-positive2' => 1,
-                       'infer-connected-negative1' => 3,
-                       'infer-connected-negative2' => 4
-                     }
-        };
+{
+   "digest" : "5695bd62a65966a275a62a01d2d8fbc370d91668",
+   "ids" : {
+      "_implicit-negative-_merged-infer-connected-positive1-infer-connected-positive2-vm:101-vm:105" : {
+         "affinity" : "negative",
+         "resources" : {
+            "vm:101" : 1,
+            "vm:105" : 1
+         },
+         "type" : "resource-affinity"
+      },
+      "_implicit-negative-_merged-infer-connected-positive1-infer-connected-positive2-vm:102-vm:104" : {
+         "affinity" : "negative",
+         "resources" : {
+            "vm:102" : 1,
+            "vm:104" : 1
+         },
+         "type" : "resource-affinity"
+      },
+      "_implicit-negative-_merged-infer-connected-positive1-infer-connected-positive2-vm:103-vm:104" : {
+         "affinity" : "negative",
+         "resources" : {
+            "vm:103" : 1,
+            "vm:104" : 1
+         },
+         "type" : "resource-affinity"
+      },
+      "_implicit-negative-_merged-infer-connected-positive1-infer-connected-positive2-vm:103-vm:105" : {
+         "affinity" : "negative",
+         "resources" : {
+            "vm:103" : 1,
+            "vm:105" : 1
+         },
+         "type" : "resource-affinity"
+      },
+      "_merged-infer-connected-positive1-infer-connected-positive2" : {
+         "affinity" : "positive",
+         "resources" : {
+            "vm:101" : 1,
+            "vm:102" : 1,
+            "vm:103" : 1
+         },
+         "type" : "resource-affinity"
+      },
+      "infer-connected-negative1" : {
+         "affinity" : "negative",
+         "resources" : {
+            "vm:101" : 1,
+            "vm:104" : 1
+         },
+         "type" : "resource-affinity"
+      },
+      "infer-connected-negative2" : {
+         "affinity" : "negative",
+         "resources" : {
+            "vm:102" : 1,
+            "vm:105" : 1
+         },
+         "type" : "resource-affinity"
+      }
+   },
+   "order" : {
+      "_implicit-negative-_merged-infer-connected-positive1-infer-connected-positive2-vm:101-vm:105" : 2,
+      "_implicit-negative-_merged-infer-connected-positive1-infer-connected-positive2-vm:102-vm:104" : 2,
+      "_implicit-negative-_merged-infer-connected-positive1-infer-connected-positive2-vm:103-vm:104" : 2,
+      "_implicit-negative-_merged-infer-connected-positive1-infer-connected-positive2-vm:103-vm:105" : 2,
+      "_merged-infer-connected-positive1-infer-connected-positive2" : 1,
+      "infer-connected-negative1" : 3,
+      "infer-connected-negative2" : 4
+   }
+}

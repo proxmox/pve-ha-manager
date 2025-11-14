@@ -4,45 +4,45 @@ Drop rule 'vm101-vm102-should-be-on-node1-or-node2', because resources are in a 
 Drop rule 'vm201-vm202-must-be-kept-together', because resources are in node affinity rules with multiple priorities.
 Drop rule 'vm201-vm202-must-be-on-node1-or-node2', because resources are in a resource affinity rule and cannot be in a node affinity rule with multiple priorities.
 --- Config ---
-$VAR1 = {
-          'digest' => '722a98914555f296af0916c980a9d6c780f5f072',
-          'ids' => {
-                     'vm301-must-be-on-node1-with-prio-1' => {
-                                                               'nodes' => {
-                                                                            'node1' => {
-                                                                                         'priority' => 1
-                                                                                       }
-                                                                          },
-                                                               'resources' => {
-                                                                                'vm:301' => 1
-                                                                              },
-                                                               'strict' => 1,
-                                                               'type' => 'node-affinity'
-                                                             },
-                     'vm301-vm302-must-be-kept-together' => {
-                                                              'affinity' => 'negative',
-                                                              'resources' => {
-                                                                               'vm:301' => 1,
-                                                                               'vm:302' => 1
-                                                                             },
-                                                              'type' => 'resource-affinity'
-                                                            },
-                     'vm302-must-be-on-node2-with-prio-2' => {
-                                                               'nodes' => {
-                                                                            'node2' => {
-                                                                                         'priority' => 2
-                                                                                       }
-                                                                          },
-                                                               'resources' => {
-                                                                                'vm:302' => 1
-                                                                              },
-                                                               'strict' => 1,
-                                                               'type' => 'node-affinity'
-                                                             }
-                   },
-          'order' => {
-                       'vm301-must-be-on-node1-with-prio-1' => 5,
-                       'vm301-vm302-must-be-kept-together' => 7,
-                       'vm302-must-be-on-node2-with-prio-2' => 6
-                     }
-        };
+{
+   "digest" : "722a98914555f296af0916c980a9d6c780f5f072",
+   "ids" : {
+      "vm301-must-be-on-node1-with-prio-1" : {
+         "nodes" : {
+            "node1" : {
+               "priority" : 1
+            }
+         },
+         "resources" : {
+            "vm:301" : 1
+         },
+         "strict" : 1,
+         "type" : "node-affinity"
+      },
+      "vm301-vm302-must-be-kept-together" : {
+         "affinity" : "negative",
+         "resources" : {
+            "vm:301" : 1,
+            "vm:302" : 1
+         },
+         "type" : "resource-affinity"
+      },
+      "vm302-must-be-on-node2-with-prio-2" : {
+         "nodes" : {
+            "node2" : {
+               "priority" : 2
+            }
+         },
+         "resources" : {
+            "vm:302" : 1
+         },
+         "strict" : 1,
+         "type" : "node-affinity"
+      }
+   },
+   "order" : {
+      "vm301-must-be-on-node1-with-prio-1" : 5,
+      "vm301-vm302-must-be-kept-together" : 7,
+      "vm302-must-be-on-node2-with-prio-2" : 6
+   }
+}

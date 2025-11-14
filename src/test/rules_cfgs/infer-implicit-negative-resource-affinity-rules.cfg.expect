@@ -2,130 +2,130 @@
 Drop rule 'do-not-infer-inconsistent-negative2', because rule shares two or more resources with a positive resource affinity rule.
 Drop rule 'do-not-infer-inconsistent-positive1', because rule shares two or more resources with a negative resource affinity rule.
 --- Config ---
-$VAR1 = {
-          'digest' => 'd8724dfe2130bb642b98e021da973aa0ec0695f0',
-          'ids' => {
-                     '_implicit-negative-infer-simple-positive1-vm:202-vm:204' => {
-                                                                                    'affinity' => 'negative',
-                                                                                    'resources' => {
-                                                                                                     'vm:202' => 1,
-                                                                                                     'vm:204' => 1
-                                                                                                   },
-                                                                                    'type' => 'resource-affinity'
-                                                                                  },
-                     '_implicit-negative-infer-simple-positive1-vm:203-vm:204' => {
-                                                                                    'affinity' => 'negative',
-                                                                                    'resources' => {
-                                                                                                     'vm:203' => 1,
-                                                                                                     'vm:204' => 1
-                                                                                                   },
-                                                                                    'type' => 'resource-affinity'
-                                                                                  },
-                     '_implicit-negative-infer-two-positive1-vm:301-vm:304' => {
-                                                                                 'affinity' => 'negative',
-                                                                                 'resources' => {
-                                                                                                  'vm:301' => 1,
-                                                                                                  'vm:304' => 1
-                                                                                                },
-                                                                                 'type' => 'resource-affinity'
-                                                                               },
-                     '_implicit-negative-infer-two-positive1-vm:301-vm:305' => {
-                                                                                 'affinity' => 'negative',
-                                                                                 'resources' => {
-                                                                                                  'vm:301' => 1,
-                                                                                                  'vm:305' => 1
-                                                                                                },
-                                                                                 'type' => 'resource-affinity'
-                                                                               },
-                     '_implicit-negative-infer-two-positive1-vm:302-vm:304' => {
-                                                                                 'affinity' => 'negative',
-                                                                                 'resources' => {
-                                                                                                  'vm:302' => 1,
-                                                                                                  'vm:304' => 1
-                                                                                                },
-                                                                                 'type' => 'resource-affinity'
-                                                                               },
-                     '_implicit-negative-infer-two-positive1-vm:303-vm:305' => {
-                                                                                 'affinity' => 'negative',
-                                                                                 'resources' => {
-                                                                                                  'vm:303' => 1,
-                                                                                                  'vm:305' => 1
-                                                                                                },
-                                                                                 'type' => 'resource-affinity'
-                                                                               },
-                     'do-not-infer-inconsistent-negative1' => {
-                                                                'affinity' => 'negative',
-                                                                'resources' => {
-                                                                                 'vm:401' => 1,
-                                                                                 'vm:404' => 1
-                                                                               },
-                                                                'type' => 'resource-affinity'
-                                                              },
-                     'do-not-infer-positive1' => {
-                                                   'affinity' => 'positive',
-                                                   'resources' => {
-                                                                    'vm:101' => 1,
-                                                                    'vm:102' => 1,
-                                                                    'vm:103' => 1
-                                                                  },
-                                                   'type' => 'resource-affinity'
-                                                 },
-                     'infer-simple-negative1' => {
-                                                   'affinity' => 'negative',
-                                                   'resources' => {
-                                                                    'vm:201' => 1,
-                                                                    'vm:204' => 1
-                                                                  },
-                                                   'type' => 'resource-affinity'
-                                                 },
-                     'infer-simple-positive1' => {
-                                                   'affinity' => 'positive',
-                                                   'resources' => {
-                                                                    'vm:201' => 1,
-                                                                    'vm:202' => 1,
-                                                                    'vm:203' => 1
-                                                                  },
-                                                   'type' => 'resource-affinity'
-                                                 },
-                     'infer-two-negative1' => {
-                                                'affinity' => 'negative',
-                                                'resources' => {
-                                                                 'vm:303' => 1,
-                                                                 'vm:304' => 1
-                                                               },
-                                                'type' => 'resource-affinity'
-                                              },
-                     'infer-two-negative2' => {
-                                                'affinity' => 'negative',
-                                                'resources' => {
-                                                                 'vm:302' => 1,
-                                                                 'vm:305' => 1
-                                                               },
-                                                'type' => 'resource-affinity'
-                                              },
-                     'infer-two-positive1' => {
-                                                'affinity' => 'positive',
-                                                'resources' => {
-                                                                 'vm:301' => 1,
-                                                                 'vm:302' => 1,
-                                                                 'vm:303' => 1
-                                                               },
-                                                'type' => 'resource-affinity'
-                                              }
-                   },
-          'order' => {
-                       '_implicit-negative-infer-simple-positive1-vm:202-vm:204' => 2,
-                       '_implicit-negative-infer-simple-positive1-vm:203-vm:204' => 2,
-                       '_implicit-negative-infer-two-positive1-vm:301-vm:304' => 2,
-                       '_implicit-negative-infer-two-positive1-vm:301-vm:305' => 2,
-                       '_implicit-negative-infer-two-positive1-vm:302-vm:304' => 2,
-                       '_implicit-negative-infer-two-positive1-vm:303-vm:305' => 2,
-                       'do-not-infer-inconsistent-negative1' => 8,
-                       'do-not-infer-positive1' => 1,
-                       'infer-simple-negative1' => 3,
-                       'infer-simple-positive1' => 2,
-                       'infer-two-negative1' => 5,
-                       'infer-two-negative2' => 6,
-                       'infer-two-positive1' => 4
-                     }
-        };
+{
+   "digest" : "d8724dfe2130bb642b98e021da973aa0ec0695f0",
+   "ids" : {
+      "_implicit-negative-infer-simple-positive1-vm:202-vm:204" : {
+         "affinity" : "negative",
+         "resources" : {
+            "vm:202" : 1,
+            "vm:204" : 1
+         },
+         "type" : "resource-affinity"
+      },
+      "_implicit-negative-infer-simple-positive1-vm:203-vm:204" : {
+         "affinity" : "negative",
+         "resources" : {
+            "vm:203" : 1,
+            "vm:204" : 1
+         },
+         "type" : "resource-affinity"
+      },
+      "_implicit-negative-infer-two-positive1-vm:301-vm:304" : {
+         "affinity" : "negative",
+         "resources" : {
+            "vm:301" : 1,
+            "vm:304" : 1
+         },
+         "type" : "resource-affinity"
+      },
+      "_implicit-negative-infer-two-positive1-vm:301-vm:305" : {
+         "affinity" : "negative",
+         "resources" : {
+            "vm:301" : 1,
+            "vm:305" : 1
+         },
+         "type" : "resource-affinity"
+      },
+      "_implicit-negative-infer-two-positive1-vm:302-vm:304" : {
+         "affinity" : "negative",
+         "resources" : {
+            "vm:302" : 1,
+            "vm:304" : 1
+         },
+         "type" : "resource-affinity"
+      },
+      "_implicit-negative-infer-two-positive1-vm:303-vm:305" : {
+         "affinity" : "negative",
+         "resources" : {
+            "vm:303" : 1,
+            "vm:305" : 1
+         },
+         "type" : "resource-affinity"
+      },
+      "do-not-infer-inconsistent-negative1" : {
+         "affinity" : "negative",
+         "resources" : {
+            "vm:401" : 1,
+            "vm:404" : 1
+         },
+         "type" : "resource-affinity"
+      },
+      "do-not-infer-positive1" : {
+         "affinity" : "positive",
+         "resources" : {
+            "vm:101" : 1,
+            "vm:102" : 1,
+            "vm:103" : 1
+         },
+         "type" : "resource-affinity"
+      },
+      "infer-simple-negative1" : {
+         "affinity" : "negative",
+         "resources" : {
+            "vm:201" : 1,
+            "vm:204" : 1
+         },
+         "type" : "resource-affinity"
+      },
+      "infer-simple-positive1" : {
+         "affinity" : "positive",
+         "resources" : {
+            "vm:201" : 1,
+            "vm:202" : 1,
+            "vm:203" : 1
+         },
+         "type" : "resource-affinity"
+      },
+      "infer-two-negative1" : {
+         "affinity" : "negative",
+         "resources" : {
+            "vm:303" : 1,
+            "vm:304" : 1
+         },
+         "type" : "resource-affinity"
+      },
+      "infer-two-negative2" : {
+         "affinity" : "negative",
+         "resources" : {
+            "vm:302" : 1,
+            "vm:305" : 1
+         },
+         "type" : "resource-affinity"
+      },
+      "infer-two-positive1" : {
+         "affinity" : "positive",
+         "resources" : {
+            "vm:301" : 1,
+            "vm:302" : 1,
+            "vm:303" : 1
+         },
+         "type" : "resource-affinity"
+      }
+   },
+   "order" : {
+      "_implicit-negative-infer-simple-positive1-vm:202-vm:204" : 2,
+      "_implicit-negative-infer-simple-positive1-vm:203-vm:204" : 2,
+      "_implicit-negative-infer-two-positive1-vm:301-vm:304" : 2,
+      "_implicit-negative-infer-two-positive1-vm:301-vm:305" : 2,
+      "_implicit-negative-infer-two-positive1-vm:302-vm:304" : 2,
+      "_implicit-negative-infer-two-positive1-vm:303-vm:305" : 2,
+      "do-not-infer-inconsistent-negative1" : 8,
+      "do-not-infer-positive1" : 1,
+      "infer-simple-negative1" : 3,
+      "infer-simple-positive1" : 2,
+      "infer-two-negative1" : 5,
+      "infer-two-negative2" : 6,
+      "infer-two-positive1" : 4
+   }
+}

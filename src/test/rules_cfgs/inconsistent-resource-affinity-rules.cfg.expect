@@ -7,8 +7,8 @@ Drop rule 'split-stick-together2', because rule shares two or more resources wit
 Drop rule 'stick-together1', because rule shares two or more resources with a negative resource affinity rule.
 Drop rule 'stick-together1', because rule shares two or more resources with a negative resource affinity rule.
 --- Config ---
-$VAR1 = {
-          'digest' => '80cdc11a1d5bf2d1d500665af1210cd59aabede6',
-          'ids' => {},
-          'order' => {}
-        };
+{
+   "digest" : "80cdc11a1d5bf2d1d500665af1210cd59aabede6",
+   "ids" : {},
+   "order" : {}
+}

@@ -1,70 +1,70 @@
 --- Log ---
 --- Config ---
-$VAR1 = {
-          'digest' => '920d9caac206fc0dd893753bfb2cab3e6d6a9b9b',
-          'ids' => {
-                     '_merged-merge-positive1-merge-positive3-merge-positive4-merge-positive2-merge-positive5' => {
-                                                                                                                    'affinity' => 'positive',
-                                                                                                                    'resources' => {
-                                                                                                                                     'vm:301' => 1,
-                                                                                                                                     'vm:302' => 1,
-                                                                                                                                     'vm:303' => 1,
-                                                                                                                                     'vm:304' => 1,
-                                                                                                                                     'vm:305' => 1,
-                                                                                                                                     'vm:306' => 1,
-                                                                                                                                     'vm:307' => 1,
-                                                                                                                                     'vm:308' => 1,
-                                                                                                                                     'vm:309' => 1
-                                                                                                                                   },
-                                                                                                                    'type' => 'resource-affinity'
-                                                                                                                  },
-                     'do-not-merge-negative1' => {
-                                                   'affinity' => 'negative',
-                                                   'resources' => {
-                                                                    'vm:101' => 1,
-                                                                    'vm:102' => 1
-                                                                  },
-                                                   'type' => 'resource-affinity'
-                                                 },
-                     'do-not-merge-negative2' => {
-                                                   'affinity' => 'negative',
-                                                   'resources' => {
-                                                                    'vm:102' => 1,
-                                                                    'vm:103' => 1
-                                                                  },
-                                                   'type' => 'resource-affinity'
-                                                 },
-                     'do-not-merge-negative3' => {
-                                                   'affinity' => 'negative',
-                                                   'resources' => {
-                                                                    'vm:104' => 1,
-                                                                    'vm:105' => 1
-                                                                  },
-                                                   'type' => 'resource-affinity'
-                                                 },
-                     'do-not-merge-positive1' => {
-                                                   'affinity' => 'positive',
-                                                   'resources' => {
-                                                                    'vm:201' => 1,
-                                                                    'vm:202' => 1
-                                                                  },
-                                                   'type' => 'resource-affinity'
-                                                 },
-                     'do-not-merge-positive2' => {
-                                                   'affinity' => 'positive',
-                                                   'resources' => {
-                                                                    'vm:203' => 1,
-                                                                    'vm:204' => 1
-                                                                  },
-                                                   'type' => 'resource-affinity'
-                                                 }
-                   },
-          'order' => {
-                       '_merged-merge-positive1-merge-positive3-merge-positive4-merge-positive2-merge-positive5' => 6,
-                       'do-not-merge-negative1' => 1,
-                       'do-not-merge-negative2' => 2,
-                       'do-not-merge-negative3' => 3,
-                       'do-not-merge-positive1' => 4,
-                       'do-not-merge-positive2' => 5
-                     }
-        };
+{
+   "digest" : "920d9caac206fc0dd893753bfb2cab3e6d6a9b9b",
+   "ids" : {
+      "_merged-merge-positive1-merge-positive3-merge-positive4-merge-positive2-merge-positive5" : {
+         "affinity" : "positive",
+         "resources" : {
+            "vm:301" : 1,
+            "vm:302" : 1,
+            "vm:303" : 1,
+            "vm:304" : 1,
+            "vm:305" : 1,
+            "vm:306" : 1,
+            "vm:307" : 1,
+            "vm:308" : 1,
+            "vm:309" : 1
+         },
+         "type" : "resource-affinity"
+      },
+      "do-not-merge-negative1" : {
+         "affinity" : "negative",
+         "resources" : {
+            "vm:101" : 1,
+            "vm:102" : 1
+         },
+         "type" : "resource-affinity"
+      },
+      "do-not-merge-negative2" : {
+         "affinity" : "negative",
+         "resources" : {
+            "vm:102" : 1,
+            "vm:103" : 1
+         },
+         "type" : "resource-affinity"
+      },
+      "do-not-merge-negative3" : {
+         "affinity" : "negative",
+         "resources" : {
+            "vm:104" : 1,
+            "vm:105" : 1
+         },
+         "type" : "resource-affinity"
+      },
+      "do-not-merge-positive1" : {
+         "affinity" : "positive",
+         "resources" : {
+            "vm:201" : 1,
+            "vm:202" : 1
+         },
+         "type" : "resource-affinity"
+      },
+      "do-not-merge-positive2" : {
+         "affinity" : "positive",
+         "resources" : {
+            "vm:203" : 1,
+            "vm:204" : 1
+         },
+         "type" : "resource-affinity"
+      }
+   },
+   "order" : {
+      "_merged-merge-positive1-merge-positive3-merge-positive4-merge-positive2-merge-positive5" : 6,
+      "do-not-merge-negative1" : 1,
+      "do-not-merge-negative2" : 2,
+      "do-not-merge-negative3" : 3,
+      "do-not-merge-positive1" : 4,
+      "do-not-merge-positive2" : 5
+   }
+}

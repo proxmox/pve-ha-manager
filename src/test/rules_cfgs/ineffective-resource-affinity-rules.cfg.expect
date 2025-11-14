@@ -2,8 +2,8 @@
 Drop rule 'lonely-resource1', because rule is ineffective as there are less than two resources.
 Drop rule 'lonely-resource2', because rule is ineffective as there are less than two resources.
 --- Config ---
-$VAR1 = {
-          'digest' => 'fe89f8c8f5acc29f807eaa0cec5974b6e957a596',
-          'ids' => {},
-          'order' => {}
-        };
+{
+   "digest" : "fe89f8c8f5acc29f807eaa0cec5974b6e957a596",
+   "ids" : {},
+   "order" : {}
+}
