@@ -46,8 +46,6 @@ eval {
 # patches for changing above, as that set is mostly sensible and should be easy to remember once
 # spending a bit time in the HA code base.
 
-my $group_migration_cooldown = 6;
-
 sub new {
     my ($this, $haenv) = @_;
 
@@ -612,13 +610,16 @@ my $migrate_group_persistently = sub {
 sub try_persistent_group_migration {
     my ($self) = @_;
 
+    # rounds to wait until next ha group migration try
+    my $group_migration_cooldown_rounds = 6;
+
     my ($haenv, $ns, $ss) = ($self->{haenv}, $self->{ns}, $self->{ss});
 
     return if $have_groups_been_migrated->($haenv);
 
     $self->{group_migration_round}--;
     return if $self->{group_migration_round} > 0;
-    $self->{group_migration_round} = $group_migration_cooldown;
+    $self->{group_migration_round} = $group_migration_cooldown_rounds;
 
     $haenv->log('notice', "start ha group migration...");
 
@@ -628,8 +629,8 @@ sub try_persistent_group_migration {
         $haenv->log('err', "ha groups migration failed");
         $haenv->log(
             'notice',
-            "retry ha groups migration in $group_migration_cooldown rounds (~ "
-                . $group_migration_cooldown * 10
+            "retry ha groups migration in $group_migration_cooldown_rounds rounds (~ "
+                . $group_migration_cooldown_rounds * 10
                 . " seconds)",
         );
     }
