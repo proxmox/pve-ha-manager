@@ -237,6 +237,33 @@ sub upid_wait {
     PVE::ProcFSTools::upid_wait($upid, $waitfunc, 5);
 }
 
+sub has_min_version {
+    my ($version, $min_version) = @_;
+
+    my $get_version_parts = sub {
+        my ($version_str) = @_;
+
+        return $version_str =~ m/^(\d+)\.(\d+)(?:\.|-)(\d+)(?:~(\d+))?/;
+    };
+
+    my ($major, $minor, $patch, $rev) = $get_version_parts->($version);
+    my ($min_major, $min_minor, $min_patch, $min_rev) = $get_version_parts->($min_version);
+
+    return 0 if $major < $min_major;
+    return 0 if $major == $min_major && $minor < $min_minor;
+    return 0 if $major == $min_major && $minor == $min_minor && $patch < $min_patch;
+
+    $min_rev //= 0;
+    return 0
+        if $major == $min_major
+        && $minor == $min_minor
+        && $patch == $min_patch
+        && defined($rev)
+        && $rev < $min_rev;
+
+    return 1;
+}
+
 # bash auto completion helper
 
 # NOTE: we use PVE::HA::Config here without declaring an 'use' clause above as

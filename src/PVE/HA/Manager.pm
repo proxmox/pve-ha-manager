@@ -511,33 +511,6 @@ my $have_groups_been_migrated = sub {
     return keys $groups->{ids}->%* < 1;
 };
 
-my $get_version_parts = sub {
-    my ($node_version) = @_;
-
-    return $node_version =~ m/^(\d+)\.(\d+)(?:\.|-)(\d+)(?:~(\d+))?/;
-};
-
-my $has_node_min_version = sub {
-    my ($node_version, $min_version) = @_;
-
-    my ($major, $minor, $patch, $rev) = $get_version_parts->($node_version);
-    my ($min_major, $min_minor, $min_patch, $min_rev) = $get_version_parts->($min_version);
-
-    return 0 if $major < $min_major;
-    return 0 if $major == $min_major && $minor < $min_minor;
-    return 0 if $major == $min_major && $minor == $min_minor && $patch < $min_patch;
-
-    $min_rev //= 0;
-    return 0
-        if $major == $min_major
-        && $minor == $min_minor
-        && $patch == $min_patch
-        && defined($rev)
-        && $rev < $min_rev;
-
-    return 1;
-};
-
 my $is_lrm_active_or_idle = sub {
     my ($ss, $node, $lrm_state) = @_;
 
@@ -594,7 +567,8 @@ my $assert_cluster_can_migrate_ha_groups = sub {
         $haenv->log(
             'notice', "ha groups migration: node '$node' has version '$node_version'",
         );
-        my $has_min_version = $has_node_min_version->($node_version, $HA_RULES_MINVERSION);
+        my $has_min_version =
+            PVE::HA::Tools::has_min_version($node_version, $HA_RULES_MINVERSION);
         die "node '$node' needs at least pve-manager version '$HA_RULES_MINVERSION'\n"
             if !$has_min_version;
     }
