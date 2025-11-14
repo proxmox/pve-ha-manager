@@ -253,6 +253,7 @@ sub recompute_online_node_usage {
                 $online_node_usage = eval {
                     my $scheduler = PVE::HA::Usage::Static->new($haenv);
                     $scheduler->add_node($_) for $online_nodes->@*;
+                    $haenv->update_static_service_stats();
                     return $scheduler;
                 };
             } else {

@@ -49,6 +49,8 @@ sub new {
 
     $self->{nodename} = $nodename;
 
+    $self->{static_service_stats} = undef;
+
     return $self;
 }
 
@@ -500,6 +502,40 @@ sub get_datacenter_settings {
         ha => $datacenterconfig->{ha} // {},
         crs => $datacenterconfig->{crs} // {},
     };
+}
+
+sub get_static_service_stats {
+    my ($self, $id) = @_;
+
+    # undef if update_static_service_stats(...) failed before
+    return undef if !defined($self->{static_service_stats});
+
+    return $self->{static_service_stats}->{$id};
+}
+
+sub update_static_service_stats {
+    my ($self) = @_;
+
+    my $properties = ['cores', 'cpulimit', 'memory', 'sockets', 'vcpus'];
+    my $service_stats = eval {
+        my $stats = PVE::Cluster::get_guest_config_properties($properties);
+
+        # get_guest_config_properties(...) doesn't add guests which do not
+        # specify any of the given properties, but we need to make a distinction
+        # between "not cached" and "not specified" here
+        my $vmlist = PVE::Cluster::get_vmlist();
+        my $idlist = $vmlist->{ids} // {};
+        for my $id (keys %$idlist) {
+            next if defined($stats->{$id});
+
+            $stats->{$id} = {};
+        }
+
+        return $stats;
+    };
+    $self->log('warning', "unable to update static service stats cache - $@") if $@;
+
+    $self->{static_service_stats} = $service_stats;
 }
 
 sub get_static_node_stats {

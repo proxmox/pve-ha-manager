@@ -177,7 +177,8 @@ sub remove_locks {
 sub get_static_stats {
     my ($class, $haenv, $id, $service_node) = @_;
 
-    my $conf = PVE::QemuConfig->load_config($id, $service_node);
+    my $conf = $haenv->get_static_service_stats($id);
+    $conf = PVE::QemuConfig->load_config($id, $service_node) if !defined($conf);
 
     return {
         maxcpu => PVE::QemuConfig->get_derived_property($conf, 'max-cpu'),

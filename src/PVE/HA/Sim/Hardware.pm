@@ -504,6 +504,8 @@ sub new {
 
     $self->{service_config} = $self->read_service_config();
 
+    $self->{static_service_stats} = undef;
+
     return $self;
 }
 
@@ -1037,6 +1039,25 @@ sub watchdog_update {
     };
 
     return &$modify_watchog($self, $code);
+}
+
+sub get_static_service_stats {
+    my ($self, $id) = @_;
+
+    # undef if update_static_service_stats(...) failed before
+    return undef if !defined($self->{static_service_stats});
+
+    return $self->{static_service_stats}->{$id};
+}
+
+sub update_static_service_stats {
+    my ($self) = @_;
+
+    my $filename = "$self->{statusdir}/static_service_stats";
+    my $stats = eval { PVE::HA::Tools::read_json_from_file($filename) };
+    $self->log('warning', "unable to update static service stats cache - $@") if $@;
+
+    $self->{static_service_stats} = $stats;
 }
 
 sub get_static_node_stats {

@@ -143,8 +143,7 @@ sub get_static_stats {
     my $sid = $class->type() . ":$id";
     my $hardware = $haenv->hardware();
 
-    my $stats = $hardware->read_static_service_stats();
-    if (my $service_stats = $stats->{$sid}) {
+    if (my $service_stats = $hardware->get_static_service_stats($sid)) {
         return $service_stats;
     } elsif ($id =~ /^(\d)(\d\d)/) {
         # auto assign usage calculated from ID for convenience
