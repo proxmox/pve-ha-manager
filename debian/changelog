@@ -1,3 +1,19 @@
+pve-ha-manager (5.0.7) trixie; urgency=medium
+
+  * compile ha rules to a more efficient representation, dramatically reducing
+    the time needed to evaluate all rules every round.
+
+  * affinity rules: do not add ignored resources as dependent resources.
+
+  * api: status: sync active service counting with lrm's helper.
+
+  * fix #6613: update rules containing a resource that is currently being
+    removed from being managed by the HA stack.
+
+  * api: add purge parameter for HA resource removal.
+
+ -- Proxmox Support Team <support@proxmox.com>  Fri, 14 Nov 2025 20:47:44 +0100
+
 pve-ha-manager (5.0.6) trixie; urgency=medium
 
   * simulator: integrate basic support for simulating the cluster resource
