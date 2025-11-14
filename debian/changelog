@@ -1,3 +1,15 @@
+pve-ha-manager (5.0.6) trixie; urgency=medium
+
+  * simulator: integrate basic support for simulating the cluster resource
+    scheduler.
+
+  * manager: make online node usage computation granular and do not rebuild it
+    from scratch on every round. This greatly improves the performance when
+    managing many HA resources, making scheduling up to ten thousand resources
+    at the same time feasible.
+
+ -- Proxmox Support Team <support@proxmox.com>  Fri, 14 Nov 2025 13:34:31 +0100
+
 pve-ha-manager (5.0.5) trixie; urgency=medium
 
   * manager: support older versioning schema for ha group migration.
