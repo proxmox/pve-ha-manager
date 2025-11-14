@@ -238,8 +238,6 @@ my $valid_service_states = {
     error => 1,
 };
 
-# FIXME with 'static' mode and thousands of services, the overhead can be noticable and the fact
-# that this function is called for each state change and upon recovery doesn't help.
 sub recompute_online_node_usage {
     my ($self) = @_;
 
@@ -317,7 +315,9 @@ my $change_service_state = sub {
         $sd->{$k} = $v;
     }
 
-    $self->recompute_online_node_usage();
+    $self->{online_node_usage}->remove_service_usage($sid);
+    $self->{online_node_usage}
+        ->add_service_usage($sid, $sd->{state}, $sd->{node}, $sd->{target});
 
     $sd->{uid} = compute_new_uuid($new_state);
 
@@ -709,6 +709,8 @@ sub manage {
         delete $ss->{$sid};
     }
 
+    $self->recompute_online_node_usage();
+
     my $new_rules = $haenv->read_rules_config();
 
     # TODO PVE 10: Remove group migration when HA groups have been fully migrated to rules
@@ -737,8 +739,6 @@ sub manage {
 
     for (;;) {
         my $repeat = 0;
-
-        $self->recompute_online_node_usage();
 
         foreach my $sid (sort keys %$ss) {
             my $sd = $ss->{$sid};
