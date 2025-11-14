@@ -276,8 +276,10 @@ sub get_node_affinity : prototype($$$) {
     while (my ($node, $props) = each $node_affinity->{$sid}->{nodes}->%*) {
         next if !defined($online_nodes->{$node}); # node is offline
 
+        my $node_priority = $props->{priority} // 0;
+
         $allowed_nodes->{$node} = 1;
-        $prioritized_nodes->{ $props->{priority} }->{$node} = 1;
+        $prioritized_nodes->{$node_priority}->{$node} = 1;
     }
 
     my $preferred_nodes = {};
