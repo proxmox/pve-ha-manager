@@ -14,9 +14,10 @@ PVE::HA::Rules::NodeAffinity->register();
 
 PVE::HA::Rules->init(property_isolation => 1);
 
+my $sid = 'vm:111';
 my $rules = PVE::HA::Rules->parse_config("rules.tmp", <<EOD);
 node-affinity: prefer_node1
-	resources vm:111
+	resources $sid
 	nodes node1
 EOD
 
@@ -31,10 +32,12 @@ my $service_conf = {
     failback => 1,
 };
 
-my $sd = {
-    node => $service_conf->{node},
-    failed_nodes => undef,
-    maintenance_node => undef,
+my $ss = {
+    "$sid" => {
+        node => $service_conf->{node},
+        failed_nodes => undef,
+        maintenance_node => undef,
+    },
 };
 
 sub test {
@@ -43,14 +46,14 @@ sub test {
     my $select_node_preference = $try_next ? 'try-next' : 'none';
 
     my $node = PVE::HA::Manager::select_service_node(
-        $rules, $online_node_usage, "vm:111", $service_conf, $sd, $select_node_preference,
+        $rules, $online_node_usage, "$sid", $service_conf, $ss, $select_node_preference,
     );
 
     my (undef, undef, $line) = caller();
     die "unexpected result: $node != ${expected_node} at line $line\n"
         if $node ne $expected_node;
 
-    $sd->{node} = $node;
+    $ss->{$sid}->{node} = $node;
 }
 
 test('node1');

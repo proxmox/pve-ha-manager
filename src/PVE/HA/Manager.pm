@@ -126,12 +126,12 @@ sub flush_master_status {
 
 =head3 select_service_node(...)
 
-=head3 select_service_node($rules, $online_node_usage, $sid, $service_conf, $sd, $node_preference)
+=head3 select_service_node($rules, $online_node_usage, $sid, $service_conf, $ss, $node_preference)
 
 Used to select the best fitting node for the service C<$sid>, with the
-configuration C<$service_conf> and state C<$sd>, according to the rules defined
-in C<$rules>, available node utilization in C<$online_node_usage>, and the
-given C<$node_preference>.
+configuration C<$service_conf>, according to the rules defined in C<$rules>,
+available node utilization in C<$online_node_usage>, the service states in
+C<$ss> and the given C<$node_preference>.
 
 The C<$node_preference> can be set to:
 
@@ -148,11 +148,12 @@ The C<$node_preference> can be set to:
 =cut
 
 sub select_service_node {
-    my ($rules, $online_node_usage, $sid, $service_conf, $sd, $node_preference) = @_;
+    my ($rules, $online_node_usage, $sid, $service_conf, $ss, $node_preference) = @_;
 
     die "'$node_preference' is not a valid node_preference for select_service_node\n"
         if $node_preference !~ m/(none|best-score|try-next)/;
 
+    my $sd = $ss->{$sid};
     my ($current_node, $tried_nodes, $maintenance_fallback) =
         $sd->@{qw(node failed_nodes maintenance_node)};
 
@@ -160,7 +161,8 @@ sub select_service_node {
 
     return undef if !%$pri_nodes;
 
-    my ($together, $separate) = get_resource_affinity($rules, $sid, $online_node_usage);
+    my $online_nodes = { map { $_ => 1 } $online_node_usage->list_nodes() };
+    my ($together, $separate) = get_resource_affinity($rules, $sid, $ss, $online_nodes);
 
     # stay on current node if possible (avoids random migrations)
     if (
@@ -289,7 +291,6 @@ sub recompute_online_node_usage {
                 || $state eq 'recovery'
             ) {
                 $online_node_usage->add_service_usage_to_node($sd->{node}, $sid, $sd->{node});
-                $online_node_usage->set_service_node($sid, $sd->{node});
             } elsif (
                 $state eq 'migrate'
                 || $state eq 'relocate'
@@ -299,11 +300,9 @@ sub recompute_online_node_usage {
                 # count it for both, source and target as load is put on both
                 if ($state ne 'request_start_balance') {
                     $online_node_usage->add_service_usage_to_node($source, $sid, $source, $target);
-                    $online_node_usage->add_service_node($sid, $source);
                 }
                 if ($online_node_usage->contains_node($target)) {
                     $online_node_usage->add_service_usage_to_node($target, $sid, $source, $target);
-                    $online_node_usage->add_service_node($sid, $target);
                 }
             } elsif ($state eq 'stopped' || $state eq 'request_start') {
                 # do nothing
@@ -316,7 +315,6 @@ sub recompute_online_node_usage {
                 # case a node dies, as we cannot really know if the to-be-aborted incoming migration
                 # has already cleaned up all used resources
                 $online_node_usage->add_service_usage_to_node($target, $sid, $sd->{node}, $target);
-                $online_node_usage->set_service_node($sid, $target);
             }
         }
     }
@@ -1030,7 +1028,7 @@ sub next_state_request_start {
             $self->{online_node_usage},
             $sid,
             $cd,
-            $sd,
+            $self->{ss},
             'best-score',
         );
         my $select_text = $selected_node ne $current_node ? 'new' : 'current';
@@ -1197,7 +1195,7 @@ sub next_state_started {
                 $self->{online_node_usage},
                 $sid,
                 $cd,
-                $sd,
+                $self->{ss},
                 $select_node_preference,
             );
 
@@ -1311,7 +1309,7 @@ sub next_state_recovery {
         $self->{online_node_usage},
         $sid,
         $cd,
-        $sd,
+        $self->{ss},
         'best-score',
     );
 

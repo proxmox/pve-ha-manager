@@ -5,6 +5,7 @@ use warnings;
 
 use PVE::HA::HashTools qw(set_intersect sets_are_disjoint);
 use PVE::HA::Rules;
+use PVE::HA::Usage;
 
 use base qw(Exporter);
 use base qw(PVE::HA::Rules);
@@ -496,12 +497,12 @@ sub get_affinitive_resources : prototype($$) {
     return ($together, $separate);
 }
 
-=head3 get_resource_affinity($rules, $sid, $online_node_usage)
+=head3 get_resource_affinity($rules, $sid, $ss, $online_nodes)
 
 Returns a list of two hashes, where the first describes the positive resource
 affinity and the second hash describes the negative resource affinity for
-resource C<$sid> according to the resource affinity rules in C<$rules> and the
-resource locations in C<$online_node_usage>.
+resource C<$sid> according to the resource affinity rules in C<$rules>, the
+service status C<$ss> and the C<$online_nodes> hash.
 
 For the positive resource affinity of a resource C<$sid>, each element in the
 hash represents an online node, where other resources, which C<$sid> is in
@@ -529,8 +530,8 @@ resource C<$sid> is in a negative affinity with, the returned value will be:
 
 =cut
 
-sub get_resource_affinity : prototype($$$) {
-    my ($rules, $sid, $online_node_usage) = @_;
+sub get_resource_affinity : prototype($$$$) {
+    my ($rules, $sid, $ss, $online_nodes) = @_;
 
     my $together = {};
     my $separate = {};
@@ -542,15 +543,18 @@ sub get_resource_affinity : prototype($$$) {
 
             for my $csid (keys %{ $rule->{resources} }) {
                 next if $csid eq $sid;
+                next if !defined($ss->{$csid});
 
-                my $nodes = $online_node_usage->get_service_nodes($csid);
-
-                next if !$nodes || !@$nodes; # skip unassigned nodes
+                my ($state, $node, $target) = $ss->{$csid}->@{qw(state node target)};
+                my ($current_node, $target_node) =
+                    PVE::HA::Usage::get_used_service_nodes($online_nodes, $state, $node, $target);
 
                 if ($rule->{affinity} eq 'positive') {
-                    $together->{$_}++ for @$nodes;
+                    $together->{$current_node}++ if defined($current_node);
+                    $together->{$target_node}++ if defined($target_node);
                 } elsif ($rule->{affinity} eq 'negative') {
-                    $separate->{$_} = 1 for @$nodes;
+                    $separate->{$current_node} = 1 if defined($current_node);
+                    $separate->{$target_node} = 1 if defined($target_node);
                 } else {
                     die "unimplemented resource affinity type $rule->{affinity}\n";
                 }
