@@ -252,7 +252,7 @@ __PACKAGE__->register_check(
     },
 );
 
-=head1 RESOURCE AFFINITY RULE CANONICALIZATION HELPERS
+=head1 RESOURCE AFFINITY RULE TRANSFORMATION HELPERS
 
 =cut
 
@@ -382,7 +382,7 @@ sub create_implicit_negative_resource_affinity_rules {
     }
 }
 
-sub plugin_canonicalize {
+sub plugin_transform {
     my ($class, $rules) = @_;
 
     my $args = $class->get_plugin_check_arguments($rules);

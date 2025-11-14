@@ -53,7 +53,7 @@ sub check_cfg {
     print "--- Log ---\n";
     my $cfg = PVE::HA::Rules->parse_config($cfg_fn, $raw);
     PVE::HA::Rules->set_rule_defaults($_) for values %{ $cfg->{ids} };
-    my $messages = PVE::HA::Rules->canonicalize($cfg, $nodes);
+    my $messages = PVE::HA::Rules->transform($cfg, $nodes);
     print $_ for @$messages;
     print "--- Config ---\n";
     {

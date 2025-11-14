@@ -237,7 +237,7 @@ sub read_and_check_effective_rules_config {
 
     PVE::HA::Groups::migrate_groups_to_rules($rules, $groups, $resources);
 
-    PVE::HA::Rules->canonicalize($rules, $nodes);
+    PVE::HA::Rules->transform($rules, $nodes);
 
     return $rules;
 }

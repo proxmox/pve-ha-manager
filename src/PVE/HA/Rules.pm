@@ -360,7 +360,7 @@ sub check_feasibility : prototype($$$) {
     return $global_errors;
 }
 
-=head3 $class->plugin_canonicalize($rules)
+=head3 $class->plugin_transform($rules)
 
 B<OPTIONAL:> Can be implemented in the I<rule plugin>.
 
@@ -368,11 +368,11 @@ Modifies the C<$rules> to a plugin-specific canonical form.
 
 =cut
 
-sub plugin_canonicalize : prototype($$) {
+sub plugin_transform : prototype($$) {
     my ($class, $rules) = @_;
 }
 
-=head3 $class->canonicalize($rules, $nodes)
+=head3 $class->transform($rules, $nodes)
 
 Modifies C<$rules> to contain only feasible rules.
 
@@ -386,7 +386,7 @@ Returns a list of messages with the reasons why rules were removed.
 
 =cut
 
-sub canonicalize : prototype($$$) {
+sub transform : prototype($$$) {
     my ($class, $rules, $nodes) = @_;
 
     my $messages = [];
@@ -407,11 +407,11 @@ sub canonicalize : prototype($$$) {
 
     for my $type (@$types) {
         my $plugin = $class->lookup($type);
-        eval { $plugin->plugin_canonicalize($rules) };
-        next if $@; # plugin doesn't implement plugin_canonicalize(...)
+        eval { $plugin->plugin_transform($rules) };
+        next if $@; # plugin doesn't implement plugin_transform(...)
     }
 
-    $class->global_canonicalize($rules);
+    $class->global_transform($rules);
 
     return $messages;
 }
@@ -709,7 +709,7 @@ __PACKAGE__->register_check(
     },
 );
 
-=head1 INTER-PLUGIN RULE CANONICALIZATION HELPERS
+=head1 INTER-PLUGIN RULE TRANSFORMATION HELPERS
 
 =cut
 
@@ -750,7 +750,7 @@ sub create_implicit_positive_resource_affinity_node_affinity_rules {
     }
 }
 
-sub global_canonicalize {
+sub global_transform {
     my ($class, $rules) = @_;
 
     my $args = $class->get_check_arguments($rules);
