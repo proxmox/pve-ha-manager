@@ -40,6 +40,21 @@ sub add_service_usage_to_node {
     die "implement in subclass";
 }
 
+# Adds service $sid's usage to the online nodes according to their $state,
+# $service_node and $migration_target.
+sub add_service_usage {
+    my ($self, $sid, $service_state, $service_node, $migration_target) = @_;
+
+    my $online_nodes = { map { $_ => 1 } $self->list_nodes() };
+    my ($current_node, $target_node) =
+        get_used_service_nodes($online_nodes, $service_state, $service_node, $migration_target);
+
+    $self->add_service_usage_to_node($current_node, $sid, $service_node, $migration_target)
+        if $current_node;
+    $self->add_service_usage_to_node($target_node, $sid, $service_node, $migration_target)
+        if $target_node;
+}
+
 # Returns a hash with $nodename => $score pairs. A lower $score is better.
 sub score_nodes_to_start_service {
     my ($self, $sid, $service_node) = @_;

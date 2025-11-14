@@ -279,44 +279,8 @@ sub recompute_online_node_usage {
 
     foreach my $sid (sort keys %{ $self->{ss} }) {
         my $sd = $self->{ss}->{$sid};
-        my $state = $sd->{state};
-        my $target = $sd->{target}; # optional
-        if ($online_node_usage->contains_node($sd->{node})) {
-            if (
-                $state eq 'started'
-                || $state eq 'request_stop'
-                || $state eq 'fence'
-                || $state eq 'freeze'
-                || $state eq 'error'
-                || $state eq 'recovery'
-            ) {
-                $online_node_usage->add_service_usage_to_node($sd->{node}, $sid, $sd->{node});
-            } elsif (
-                $state eq 'migrate'
-                || $state eq 'relocate'
-                || $state eq 'request_start_balance'
-            ) {
-                my $source = $sd->{node};
-                # count it for both, source and target as load is put on both
-                if ($state ne 'request_start_balance') {
-                    $online_node_usage->add_service_usage_to_node($source, $sid, $source, $target);
-                }
-                if ($online_node_usage->contains_node($target)) {
-                    $online_node_usage->add_service_usage_to_node($target, $sid, $source, $target);
-                }
-            } elsif ($state eq 'stopped' || $state eq 'request_start') {
-                # do nothing
-            } else {
-                die "should not be reached (sid = '$sid', state = '$state')";
-            }
-        } elsif (defined($target) && $online_node_usage->contains_node($target)) {
-            if ($state eq 'migrate' || $state eq 'relocate') {
-                # to correctly track maintenance modi and also consider the target as used for the
-                # case a node dies, as we cannot really know if the to-be-aborted incoming migration
-                # has already cleaned up all used resources
-                $online_node_usage->add_service_usage_to_node($target, $sid, $sd->{node}, $target);
-            }
-        }
+
+        $online_node_usage->add_service_usage($sid, $sd->{state}, $sd->{node}, $sd->{target});
     }
 
     $self->{online_node_usage} = $online_node_usage;
