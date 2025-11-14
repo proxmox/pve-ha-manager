@@ -299,6 +299,12 @@ sub merge_connected_positive_resource_affinity_rules {
     }
 }
 
+__PACKAGE__->register_transform(sub {
+    my ($rules, $args) = @_;
+
+    merge_connected_positive_resource_affinity_rules($rules, $args->{positive_rules});
+});
+
 # retrieve the existing negative resource affinity relationships for any of the
 # $resources in the $negative_rules; returns a hash map, where the keys are the
 # resources to be separated from and the values are subsets of the $resources
@@ -382,23 +388,17 @@ sub create_implicit_negative_resource_affinity_rules {
     }
 }
 
-sub plugin_transform {
-    my ($class, $rules) = @_;
+# must come after merging connected positive rules, because of this helpers
+# assumptions about resource sets and inter-resource affinity consistency
+__PACKAGE__->register_transform(sub {
+    my ($rules, $args) = @_;
 
-    my $args = $class->get_plugin_check_arguments($rules);
-
-    merge_connected_positive_resource_affinity_rules($rules, $args->{positive_rules});
-
-    $args = $class->get_plugin_check_arguments($rules);
-
-    # must come after merging connected positive rules, because of this helpers
-    # assumptions about resource sets and inter-resource affinity consistency
     create_implicit_negative_resource_affinity_rules(
         $rules,
         $args->{positive_rules},
         $args->{negative_rules},
     );
-}
+});
 
 =head1 RESOURCE AFFINITY RULE HELPERS
 

@@ -32,6 +32,12 @@ the feasibility between rules of the same type and and between rules of
 different types, and prune the rule set in such a way, that it becomes feasible
 again, while minimizing the amount of rules that need to be pruned.
 
+More so, the rules given by the config file might not be in the best format to
+be used internally or does not contain the implicitly stated rules, which are
+induced by the relationship between different rules. Therefore, this package
+also provides the capability to C<L<register transforms|/REGISTERING TRANSFORMS>>
+to implement these internal rule transformations.
+
 This packages inherits its config-related methods from C<L<PVE::SectionConfig>>
 and therefore rule plugins need to implement methods from there as well.
 
@@ -86,6 +92,28 @@ and blames these errors on the I<comment> property:
             for my $ruleid (@$ruleids) {
                 push @{$errors->{$ruleid}->{comment}},
                     "rule is ineffective, because I said so.";
+            }
+        }
+    );
+
+=head2 REGISTERING TRANSFORMS
+
+Rule transforms are used for transforming the rule set in such a way that
+the rules provided by the rules config are easier to work with (for example,
+transforming rules into equivalent forms) or make the rule set more complete
+(e.g. explicitly create semantically implicit rules).
+
+C<L<< Registering transforms|/$class->register_transform(...) >>> is the same
+as for registering checks. Following up on the example from that section, the
+following example shows a possible rule plugin's transform, which removes the
+I<comment> property from each rule:
+
+    __PACKAGE__->register_transformer(
+        sub {
+            my ($rules, $args) = @_;
+
+            for my $ruleid (keys $args->{custom_rules}->%*) {
+                delete $rules->{ids}->{$ruleid}->{comment};
             }
         }
     );
@@ -246,10 +274,11 @@ sub set_rule_defaults : prototype($$) {
     }
 }
 
-# Rule checks definition and methods
+# Rule checks and transforms definition and methods
 
 my $types = [];
 my $checkdef;
+my $transformdef;
 
 sub register {
     my ($class) = @_;
@@ -279,6 +308,23 @@ sub register_check : prototype($$$) {
     ];
 }
 
+=head3 $class->register_transform(...)
+
+=head3 $class->register_transform($transform_func)
+
+Used to register rule transformers for a rule plugin.
+
+=cut
+
+sub register_transform : prototype($$) {
+    my ($class, $transform_func) = @_;
+
+    my $type = eval { $class->type() };
+    $type = 'global' if $@;
+
+    push $transformdef->{$type}->@*, $transform_func;
+}
+
 =head3 $class->get_plugin_check_arguments(...)
 
 =head3 $class->get_plugin_check_arguments($rules)
@@ -287,6 +333,7 @@ B<OPTIONAL:> Can be implemented in the I<rule plugin>.
 
 Returns a hash, usually subsets of rules relevant to the plugin, which are
 passed to the plugin's C<L<< registered checks|/$class->register_check(...) >>>
+and C<L<< registered transforms|/$class->register_transform(...) >>>
 so that the creation of these can be shared inbetween rule check
 implementations.
 
@@ -360,18 +407,6 @@ sub check_feasibility : prototype($$$) {
     return $global_errors;
 }
 
-=head3 $class->plugin_transform($rules)
-
-B<OPTIONAL:> Can be implemented in the I<rule plugin>.
-
-Modifies the C<$rules> to a plugin-specific canonical form.
-
-=cut
-
-sub plugin_transform : prototype($$) {
-    my ($class, $rules) = @_;
-}
-
 =head3 $class->transform($rules, $nodes)
 
 Modifies C<$rules> to contain only feasible rules.
@@ -380,7 +415,9 @@ C<$nodes> is a list of the configured cluster nodes.
 
 This is done by running all checks, which were registered with
 C<L<< register_check()|/$class->register_check(...) >>> and removing any
-rule, which makes the rule set infeasible.
+rule, which makes the rule set infeasible, and afterwards running all
+transforms on the feasible rule set, which were registered with
+C<L<< register_transform()|/$class->register_transform(...) >>>.
 
 Returns a list of messages with the reasons why rules were removed.
 
@@ -405,13 +442,13 @@ sub transform : prototype($$$) {
         }
     }
 
-    for my $type (@$types) {
-        my $plugin = $class->lookup($type);
-        eval { $plugin->plugin_transform($rules) };
-        next if $@; # plugin doesn't implement plugin_transform(...)
-    }
+    for my $type (@$types, 'global') {
+        for my $transform ($transformdef->{$type}->@*) {
+            my $global_args = $class->get_check_arguments($rules);
 
-    $class->global_transform($rules);
+            $transform->($rules, $global_args);
+        }
+    }
 
     return $messages;
 }
@@ -750,16 +787,14 @@ sub create_implicit_positive_resource_affinity_node_affinity_rules {
     }
 }
 
-sub global_transform {
-    my ($class, $rules) = @_;
-
-    my $args = $class->get_check_arguments($rules);
+__PACKAGE__->register_transform(sub {
+    my ($rules, $args) = @_;
 
     create_implicit_positive_resource_affinity_node_affinity_rules(
         $rules,
         $args->{positive_rules},
         $args->{node_affinity_rules},
     );
-}
+});
 
 1;
