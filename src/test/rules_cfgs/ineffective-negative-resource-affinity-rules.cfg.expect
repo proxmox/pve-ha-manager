@@ -28,3 +28,24 @@ Drop rule 'remove-me2', because rule defines more resources than available nodes
       "do-not-remove-me2" : 2
    }
 }
+--- Compiled Config ---
+{
+   "node-affinity" : {},
+   "resource-affinity" : {
+      "negative" : {
+         "vm:101" : {
+            "vm:102" : 1,
+            "vm:103" : 1
+         },
+         "vm:102" : {
+            "vm:101" : 1,
+            "vm:103" : 1
+         },
+         "vm:103" : {
+            "vm:101" : 1,
+            "vm:102" : 1
+         }
+      },
+      "positive" : {}
+   }
+}

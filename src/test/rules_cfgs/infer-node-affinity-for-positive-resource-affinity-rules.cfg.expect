@@ -109,3 +109,176 @@
       "infer-single-resource2" : 6
    }
 }
+--- Compiled Config ---
+{
+   "node-affinity" : {
+      "vm:201" : {
+         "nodes" : {
+            "node1" : {
+               "priority" : -1
+            },
+            "node2" : {
+               "priority" : -1
+            },
+            "node3" : {
+               "priority" : 0
+            }
+         }
+      },
+      "vm:203" : {
+         "nodes" : {
+            "node1" : {
+               "priority" : 0
+            },
+            "node2" : {
+               "priority" : 0
+            }
+         }
+      },
+      "vm:301" : {
+         "nodes" : {
+            "node1" : {
+               "priority" : -1
+            },
+            "node2" : {
+               "priority" : -1
+            },
+            "node3" : {
+               "priority" : 0
+            }
+         }
+      },
+      "vm:302" : {
+         "nodes" : {
+            "node1" : {
+               "priority" : -1
+            },
+            "node2" : {
+               "priority" : -1
+            },
+            "node3" : {
+               "priority" : 0
+            }
+         }
+      },
+      "vm:303" : {
+         "nodes" : {
+            "node1" : {
+               "priority" : -1
+            },
+            "node2" : {
+               "priority" : -1
+            },
+            "node3" : {
+               "priority" : 0
+            }
+         }
+      },
+      "vm:401" : {
+         "nodes" : {
+            "node1" : {
+               "priority" : 0
+            },
+            "node3" : {
+               "priority" : 0
+            }
+         }
+      },
+      "vm:402" : {
+         "nodes" : {
+            "node1" : {
+               "priority" : 0
+            },
+            "node3" : {
+               "priority" : 0
+            }
+         }
+      },
+      "vm:403" : {
+         "nodes" : {
+            "node1" : {
+               "priority" : 0
+            },
+            "node3" : {
+               "priority" : 0
+            }
+         }
+      },
+      "vm:404" : {
+         "nodes" : {
+            "node1" : {
+               "priority" : 0
+            },
+            "node3" : {
+               "priority" : 0
+            }
+         }
+      },
+      "vm:405" : {
+         "nodes" : {
+            "node1" : {
+               "priority" : 0
+            },
+            "node3" : {
+               "priority" : 0
+            }
+         }
+      }
+   },
+   "resource-affinity" : {
+      "negative" : {
+         "vm:201" : {
+            "vm:203" : 1
+         },
+         "vm:203" : {
+            "vm:201" : 1
+         }
+      },
+      "positive" : {
+         "vm:101" : {
+            "vm:102" : 1,
+            "vm:103" : 1
+         },
+         "vm:102" : {
+            "vm:101" : 1,
+            "vm:103" : 1
+         },
+         "vm:103" : {
+            "vm:101" : 1,
+            "vm:102" : 1
+         },
+         "vm:301" : {
+            "vm:302" : 1,
+            "vm:303" : 1
+         },
+         "vm:302" : {
+            "vm:301" : 1,
+            "vm:303" : 1
+         },
+         "vm:303" : {
+            "vm:301" : 1,
+            "vm:302" : 1
+         },
+         "vm:401" : {
+            "vm:402" : 1,
+            "vm:403" : 1,
+            "vm:404" : 1
+         },
+         "vm:402" : {
+            "vm:401" : 1,
+            "vm:403" : 1,
+            "vm:404" : 1
+         },
+         "vm:403" : {
+            "vm:401" : 1,
+            "vm:402" : 1,
+            "vm:404" : 1
+         },
+         "vm:404" : {
+            "vm:401" : 1,
+            "vm:402" : 1,
+            "vm:403" : 1
+         }
+      }
+   }
+}

@@ -54,9 +54,12 @@ sub check_cfg {
     my $cfg = PVE::HA::Rules->parse_config($cfg_fn, $raw);
     PVE::HA::Rules->set_rule_defaults($_) for values %{ $cfg->{ids} };
     my $messages = PVE::HA::Rules->transform($cfg, $nodes);
+    my $compiled_cfg = PVE::HA::Rules->compile($cfg, $nodes);
     print $_ for @$messages;
     print "--- Config ---\n";
     print to_json($cfg, { canonical => 1, pretty => 1, utf8 => 1 });
+    print "--- Compiled Config ---\n";
+    print to_json($compiled_cfg, { canonical => 1, pretty => 1, utf8 => 1 });
 
     select(STDOUT);
 }

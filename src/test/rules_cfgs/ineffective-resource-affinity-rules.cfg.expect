@@ -7,3 +7,11 @@ Drop rule 'lonely-resource2', because rule is ineffective as there are less than
    "ids" : {},
    "order" : {}
 }
+--- Compiled Config ---
+{
+   "node-affinity" : {},
+   "resource-affinity" : {
+      "negative" : {},
+      "positive" : {}
+   }
+}

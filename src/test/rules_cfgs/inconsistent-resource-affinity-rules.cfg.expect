@@ -12,3 +12,11 @@ Drop rule 'stick-together1', because rule shares two or more resources with a ne
    "ids" : {},
    "order" : {}
 }
+--- Compiled Config ---
+{
+   "node-affinity" : {},
+   "resource-affinity" : {
+      "negative" : {},
+      "positive" : {}
+   }
+}

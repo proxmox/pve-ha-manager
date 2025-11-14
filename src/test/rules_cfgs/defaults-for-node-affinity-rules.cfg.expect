@@ -58,3 +58,32 @@
       "node-affinity-strict" : 4
    }
 }
+--- Compiled Config ---
+{
+   "node-affinity" : {
+      "vm:101" : {
+         "nodes" : {
+            "node1" : {
+               "priority" : 0
+            },
+            "node2" : {
+               "priority" : -1
+            },
+            "node3" : {
+               "priority" : -1
+            }
+         }
+      },
+      "vm:104" : {
+         "nodes" : {
+            "node3" : {
+               "priority" : 0
+            }
+         }
+      }
+   },
+   "resource-affinity" : {
+      "negative" : {},
+      "positive" : {}
+   }
+}

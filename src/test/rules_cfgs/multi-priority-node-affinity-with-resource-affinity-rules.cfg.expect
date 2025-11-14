@@ -46,3 +46,33 @@ Drop rule 'vm201-vm202-must-be-on-node1-or-node2', because resources are in a re
       "vm302-must-be-on-node2-with-prio-2" : 6
    }
 }
+--- Compiled Config ---
+{
+   "node-affinity" : {
+      "vm:301" : {
+         "nodes" : {
+            "node1" : {
+               "priority" : 1
+            }
+         }
+      },
+      "vm:302" : {
+         "nodes" : {
+            "node2" : {
+               "priority" : 2
+            }
+         }
+      }
+   },
+   "resource-affinity" : {
+      "negative" : {
+         "vm:301" : {
+            "vm:302" : 1
+         },
+         "vm:302" : {
+            "vm:301" : 1
+         }
+      },
+      "positive" : {}
+   }
+}

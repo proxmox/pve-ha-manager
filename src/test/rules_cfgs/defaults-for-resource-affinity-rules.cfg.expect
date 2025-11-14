@@ -36,3 +36,18 @@
       "resource-affinity-disabled-explicit" : 3
    }
 }
+--- Compiled Config ---
+{
+   "node-affinity" : {},
+   "resource-affinity" : {
+      "negative" : {
+         "vm:101" : {
+            "vm:102" : 1
+         },
+         "vm:102" : {
+            "vm:101" : 1
+         }
+      },
+      "positive" : {}
+   }
+}

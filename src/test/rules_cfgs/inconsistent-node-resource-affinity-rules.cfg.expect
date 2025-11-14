@@ -75,3 +75,54 @@ Drop rule 'vm503-must-be-on-node2', because at least one resource is in a positi
       "vm202-must-be-on-node2" : 4
    }
 }
+--- Compiled Config ---
+{
+   "node-affinity" : {
+      "vm:101" : {
+         "nodes" : {
+            "node1" : {
+               "priority" : 0
+            }
+         }
+      },
+      "vm:102" : {
+         "nodes" : {
+            "node1" : {
+               "priority" : 0
+            }
+         }
+      },
+      "vm:201" : {
+         "nodes" : {
+            "node1" : {
+               "priority" : 0
+            }
+         }
+      },
+      "vm:202" : {
+         "nodes" : {
+            "node2" : {
+               "priority" : 0
+            }
+         }
+      }
+   },
+   "resource-affinity" : {
+      "negative" : {
+         "vm:201" : {
+            "vm:202" : 1
+         },
+         "vm:202" : {
+            "vm:201" : 1
+         }
+      },
+      "positive" : {
+         "vm:101" : {
+            "vm:102" : 1
+         },
+         "vm:102" : {
+            "vm:101" : 1
+         }
+      }
+   }
+}

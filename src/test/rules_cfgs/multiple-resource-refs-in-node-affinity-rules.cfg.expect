@@ -61,3 +61,87 @@ Drop rule 'same-resource3', because resource 'vm:201' is already used in another
       "no-same-resource3" : 3
    }
 }
+--- Compiled Config ---
+{
+   "node-affinity" : {
+      "vm:101" : {
+         "nodes" : {
+            "node1" : {
+               "priority" : 0
+            },
+            "node2" : {
+               "priority" : 2
+            },
+            "node3" : {
+               "priority" : -1
+            }
+         }
+      },
+      "vm:102" : {
+         "nodes" : {
+            "node1" : {
+               "priority" : 0
+            },
+            "node2" : {
+               "priority" : 2
+            },
+            "node3" : {
+               "priority" : -1
+            }
+         }
+      },
+      "vm:103" : {
+         "nodes" : {
+            "node1" : {
+               "priority" : 0
+            },
+            "node2" : {
+               "priority" : 2
+            },
+            "node3" : {
+               "priority" : -1
+            }
+         }
+      },
+      "vm:104" : {
+         "nodes" : {
+            "node1" : {
+               "priority" : 0
+            },
+            "node2" : {
+               "priority" : 2
+            },
+            "node3" : {
+               "priority" : -1
+            }
+         }
+      },
+      "vm:105" : {
+         "nodes" : {
+            "node1" : {
+               "priority" : 0
+            },
+            "node2" : {
+               "priority" : 2
+            },
+            "node3" : {
+               "priority" : -1
+            }
+         }
+      },
+      "vm:106" : {
+         "nodes" : {
+            "node1" : {
+               "priority" : 0
+            },
+            "node2" : {
+               "priority" : 2
+            }
+         }
+      }
+   },
+   "resource-affinity" : {
+      "negative" : {},
+      "positive" : {}
+   }
+}
