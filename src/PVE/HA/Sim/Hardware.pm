@@ -456,12 +456,12 @@ sub new {
         copy("$testdir/service_config", "$statusdir/service_config");
     } else {
         my $conf = {
-            'vm:101' => { node => 'node1', group => 'prefer_node1' },
-            'vm:102' => { node => 'node2', group => 'prefer_node2' },
-            'vm:103' => { node => 'node3', group => 'prefer_node3' },
-            'vm:104' => { node => 'node1', group => 'prefer_node1' },
-            'vm:105' => { node => 'node2', group => 'prefer_node2' },
-            'vm:106' => { node => 'node3', group => 'prefer_node3' },
+            'vm:101' => { node => 'node1' },
+            'vm:102' => { node => 'node2' },
+            'vm:103' => { node => 'node3' },
+            'vm:104' => { node => 'node1' },
+            'vm:105' => { node => 'node2' },
+            'vm:106' => { node => 'node3' },
         };
         $self->write_service_config($conf);
     }
