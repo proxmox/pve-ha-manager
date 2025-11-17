@@ -17,12 +17,14 @@ override_dh_install:
 	install -d -m 0755 debian/tmp/usr/share/pve-ha-simulator/PVE
 	install -m 0644 \
 		/usr/share/perl5/PVE/Exception.pm \
+		/usr/share/perl5/PVE/File.pm \
 		/usr/share/perl5/PVE/JSONSchema.pm \
 		/usr/share/perl5/PVE/ProcFSTools.pm \
 		/usr/share/perl5/PVE/SafeSyslog.pm \
 		/usr/share/perl5/PVE/SectionConfig.pm \
 		/usr/share/perl5/PVE/Syscall.pm \
 		/usr/share/perl5/PVE/Tools.pm \
+		/usr/share/perl5/PVE/UPID.pm \
 		debian/tmp/usr/share/pve-ha-simulator/PVE/
 	dh_install
 
