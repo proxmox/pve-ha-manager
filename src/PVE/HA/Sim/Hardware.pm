@@ -488,6 +488,10 @@ sub new {
 
     if (-f "$testdir/static_service_stats") {
         copy("$testdir/static_service_stats", "$statusdir/static_service_stats");
+    } else {
+        my $services = $self->read_service_config();
+        my $stats = { map { $_ => { maxcpu => 4, maxmem => 4096 } } keys %$services };
+        $self->write_static_service_stats($stats);
     }
 
     my $cstatus = $self->read_hardware_status_nolock();
