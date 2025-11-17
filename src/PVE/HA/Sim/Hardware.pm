@@ -226,6 +226,12 @@ sub delete_service {
 
     $self->write_service_config($conf);
 
+    my $stats = $self->read_static_service_stats();
+
+    delete $stats->{$sid};
+
+    $self->write_static_service_stats($stats);
+
     return $conf;
 }
 
