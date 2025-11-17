@@ -184,9 +184,9 @@ sub set_static_service_stats {
     my $stats = $self->read_static_service_stats();
     die "no such service '$sid'" if !$stats->{$sid};
 
-    if (my $memory = $new_stats->{maxmemory}) {
-        print "setting $sid memory to $memory\n" if $memory != $stats->{$sid}->{maxmemory};
-        $stats->{$sid}->{maxmemory} = $memory;
+    if (my $memory = $new_stats->{maxmem}) {
+        print "setting $sid memory to $memory\n" if $memory != $stats->{$sid}->{maxmem};
+        $stats->{$sid}->{maxmem} = $memory;
     }
 
     if (my $cpu = $new_stats->{maxcpu}) {
@@ -699,7 +699,7 @@ sub get_cfs_state {
 #   service <sid> stop <timeout>
 #   service <sid> lock/unlock [lockname]
 #   service <sid> add <node> [<request-state=started>] [<running=0>]
-#   service <sid> set-static-stats <maxcpu> <maxmemory>
+#   service <sid> set-static-stats <maxcpu> <maxmem>
 #   service <sid> delete
 sub sim_hardware_cmd {
     my ($self, $cmdstr, $logid) = @_;
@@ -851,11 +851,11 @@ sub sim_hardware_cmd {
 
             } elsif ($action eq 'set-static-stats') {
                 die "sim_hardware_cmd: missing maxcpu for '$action' command" if !$params[0];
-                die "sim_hardware_cmd: missing maxmemory for '$action' command" if !$params[1];
+                die "sim_hardware_cmd: missing maxmem for '$action' command" if !$params[1];
 
                 $self->set_static_service_stats(
                     $sid,
-                    { maxcpu => $params[0], maxmemory => $params[1] },
+                    { maxcpu => $params[0], maxmem => $params[1] },
                 );
 
             } elsif ($action eq 'delete') {

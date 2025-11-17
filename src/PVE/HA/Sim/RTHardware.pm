@@ -531,8 +531,8 @@ sub show_service_add_dialog {
         $self->sim_hardware_cmd("service $sid add $service_node", 'command');
 
         my $maxcpu = $cpu_count_spin->get_value();
-        my $maxmemory = $memory_spin->get_value();
-        $self->sim_hardware_cmd("service $sid set-static-stats $maxcpu $maxmemory", 'command');
+        my $maxmem = $memory_spin->get_value();
+        $self->sim_hardware_cmd("service $sid set-static-stats $maxcpu $maxmem", 'command');
 
         $self->add_service_to_gui($sid);
     }
@@ -544,8 +544,7 @@ sub show_service_edit_dialog {
     my ($self, $sid) = @_;
 
     my $stats = $self->read_static_service_stats();
-    my $resource_stats = $stats->{$sid}
-        // { maxcpu => $DEFAULT_MAXCPU, maxmemory => $DEFAULT_MAXMEM };
+    my $resource_stats = $stats->{$sid} // { maxcpu => $DEFAULT_MAXCPU, maxmem => $DEFAULT_MAXMEM };
 
     my $cpu_label = Gtk3::Label->new('CPU Count');
     $cpu_label->set_hexpand(1);
@@ -564,7 +563,7 @@ sub show_service_edit_dialog {
 
     # There is an arbitrary limit of 10 TiB
     my $memory_spin = Gtk3::SpinButton->new_with_range(1.0, 10485760.0, 1.0);
-    $memory_spin->set_value($resource_stats->{maxmemory});
+    $memory_spin->set_value($resource_stats->{maxmem});
 
     my $memory_box = Gtk3::Box->new('horizontal', 6);
     $memory_box->add($memory_label);
@@ -600,7 +599,7 @@ sub show_service_edit_dialog {
                     $sid,
                     {
                         maxcpu => $cpu_count_spin->get_value(),
-                        maxmemory => $memory_spin->get_value(),
+                        maxmem => $memory_spin->get_value(),
                     },
                 );
             }
