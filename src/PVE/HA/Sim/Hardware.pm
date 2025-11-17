@@ -187,12 +187,10 @@ sub set_static_service_stats {
     my $stats = $self->read_static_service_stats();
 
     if (my $memory = $new_stats->{maxmem}) {
-        print "setting $sid memory to $memory\n" if $memory != $stats->{$sid}->{maxmem};
         $stats->{$sid}->{maxmem} = $memory;
     }
 
     if (my $cpu = $new_stats->{maxcpu}) {
-        print "setting $sid memory to $cpu\n" if $cpu != $stats->{$sid}->{maxcpu};
         $stats->{$sid}->{maxcpu} = $cpu;
     }
 
