@@ -1,3 +1,17 @@
+pve-ha-manager (5.0.8) trixie; urgency=medium
+
+  * api: resources: fix possible warning of uninitialized value when checking
+    a resource's state.
+
+  * various improvements for the HA simulator, among other things:
+    - remove hidden service default groups.
+    - ensure all resources have a valid static resource usage state from the
+      start.
+    - clean up static service stats on service deletion.
+    - avoid overly verbose prints when changing a resource's usage stats.
+
+ -- Proxmox Support Team <support@proxmox.com>  Mon, 17 Nov 2025 22:37:03 +0100
+
 pve-ha-manager (5.0.7) trixie; urgency=medium
 
   * compile ha rules to a more efficient representation, dramatically reducing
