@@ -181,8 +181,10 @@ sub set_service_state {
 sub set_static_service_stats {
     my ($self, $sid, $new_stats) = @_;
 
+    my $conf = $self->read_service_config();
+    die "no such service '$sid'" if !$conf->{$sid};
+
     my $stats = $self->read_static_service_stats();
-    die "no such service '$sid'" if !$stats->{$sid};
 
     if (my $memory = $new_stats->{maxmem}) {
         print "setting $sid memory to $memory\n" if $memory != $stats->{$sid}->{maxmem};
