@@ -1,3 +1,12 @@
+pve-ha-manager (5.1.0) trixie; urgency=medium
+
+  * fix #6801: fix an issue where resources with positive affinity could
+    accidentally be migrated back to the source node after a migration. This
+    could happen in case one of the resources took more than 10 seconds longer
+    to be migrated than the other(s).
+
+ -- Proxmox Support Team <support@proxmox.com>  Fri, 12 Dec 2025 14:05:59 +0100
+
 pve-ha-manager (5.0.8) trixie; urgency=medium
 
   * api: resources: fix possible warning of uninitialized value when checking
