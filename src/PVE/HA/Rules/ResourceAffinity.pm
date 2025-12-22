@@ -180,7 +180,7 @@ C<$negative_rules>, which do have more resources defined than available accordin
 to the node list C<$nodes>, i.e., there are not enough nodes to separate the
 resources on, even if all nodes are available.
 
-If there are none, the returned list ist empty.
+If there are none, the returned list is empty.
 
 =cut
 
@@ -437,7 +437,7 @@ __PACKAGE__->register_transform(sub {
 
 Returns a list of two hash sets, where the first hash set contains the
 resources, which C<$sid> is positively affinitive to, and the second hash
-contains the resources, which C<$sid> is negatively affinitive to, acording to
+contains the resources, which C<$sid> is negatively affinitive to, according to
 the resource's resource affinity in C<$resource_affinity>.
 
 Note that a resource C<$sid> becomes part of any negative affinity relation

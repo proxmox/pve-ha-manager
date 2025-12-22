@@ -181,7 +181,7 @@ B<OPTIONAL:> Can be implemented in a I<rule plugin>.
 Called during base plugin's C<decode_value(...)> in order to extend the
 deserialization for plugin-specific values which need it (e.g. lists).
 
-If it is not overrridden by the I<rule plugin>, then it does nothing to
+If it is not overridden by the I<rule plugin>, then it does nothing to
 C<$value> by default.
 
 =cut
@@ -222,7 +222,7 @@ B<OPTIONAL:> Can be implemented in a I<rule plugin>.
 Called during base plugin's C<encode_value(...)> in order to extend the
 serialization for plugin-specific values which need it (e.g. lists).
 
-If it is not overrridden by the I<rule plugin>, then it does nothing to
+If it is not overridden by the I<rule plugin>, then it does nothing to
 C<$value> by default.
 
 =cut
@@ -388,7 +388,7 @@ sub get_check_arguments {
 
 Checks whether the given C<$rules> are feasible by running all checks, which
 were registered with C<L<< register_check()|/$class->register_check(...) >>>,
-and returns a hash map of errorneous rules.
+and returns a hash map of erroneous rules.
 
 C<$nodes> is a list of the configured cluster nodes.
 
@@ -749,7 +749,7 @@ of lists, each consisting of the rule type and resource id, where the resources
 in the negative resource affinity rule are restricted to less nodes than needed
 to keep them separate by their node affinity rules.
 
-That is, the negative resource affinity rule cannot be fullfilled as there are
+That is, the negative resource affinity rule cannot be fulfilled as there are
 not enough nodes to spread the resources on.
 
 If there are none, the returned list is empty.

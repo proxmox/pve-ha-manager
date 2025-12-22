@@ -151,7 +151,7 @@ __PACKAGE__->register_method({
             },
             max_relocate => {
                 description => "Maximal number of service relocate tries when a"
-                    . " service failes to start.",
+                    . " service fails to start.",
                 type => 'integer',
                 optional => 1,
             },
