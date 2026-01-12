@@ -53,13 +53,19 @@ sub exists {
     my ($class, $vmid, $noerr) = @_;
 
     my $vmlist = PVE::Cluster::get_vmlist();
+    my $entry = $vmlist->{ids}->{$vmid};
 
-    if (!defined($vmlist->{ids}->{$vmid})) {
+    if (!defined($entry)) {
         die "resource 'ct:$vmid' does not exist in cluster\n" if !$noerr;
         return undef;
-    } else {
-        return 1;
     }
+
+    if ($entry->{type} ne 'lxc') {
+        die "resource 'ct:$vmid' - guest with ID $vmid is not a container\n" if !$noerr;
+        return undef;
+    }
+
+    return 1;
 }
 
 sub start {
