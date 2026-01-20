@@ -212,9 +212,9 @@ sub read_service_config {
 }
 
 sub update_service_config {
-    my ($self, $sid, $param, $delete) = @_;
+    my ($self, $changes) = @_;
 
-    return $self->{hardware}->update_service_config($sid, $param, $delete);
+    return $self->{hardware}->update_service_config($changes);
 }
 
 sub write_service_config {

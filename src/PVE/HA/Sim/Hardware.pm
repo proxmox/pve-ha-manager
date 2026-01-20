@@ -114,10 +114,8 @@ sub read_service_config {
     return $conf;
 }
 
-sub update_service_config {
-    my ($self, $sid, $param, $delete) = @_;
-
-    my $conf = $self->read_service_config();
+my sub update_single_service_config_inplace {
+    my ($conf, $sid, $param, $delete) = @_;
 
     my $sconf = $conf->{$sid} || die "no such resource '$sid'\n";
 
@@ -129,6 +127,19 @@ sub update_service_config {
         for my $k (PVE::Tools::split_list($delete)) {
             delete $sconf->{$k};
         }
+    }
+}
+
+sub update_service_config {
+    my ($self, $changes) = @_;
+
+    my $conf = $self->read_service_config();
+
+    for my $sid (sort keys %$changes) {
+        my $param = $changes->{$sid}->{param} // {};
+        my $delete = $changes->{$sid}->{delete};
+
+        update_single_service_config_inplace($conf, $sid, $param, $delete);
     }
 
     $self->write_service_config($conf);

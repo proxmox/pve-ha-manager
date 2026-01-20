@@ -583,10 +583,11 @@ my $migrate_group_persistently = sub {
             # prevent unnecessary updates for HA resources that do not change
             next if !defined($resources->{$sid}->{group});
 
-            my $param = {};
-            $param->{failback} = 0 if !$resources->{$sid}->{failback};
+            my $changes = {};
+            $changes->{$sid} = { param => {}, delete => 'group' };
+            $changes->{$sid}->{param}->{failback} = 0 if !$resources->{$sid}->{failback};
 
-            $haenv->update_service_config($sid, $param, 'group');
+            $haenv->update_service_config($changes);
         }
         $haenv->log('notice', "ha groups migration: migration to resources config successful");
 
@@ -1060,7 +1061,12 @@ sub next_state_started {
                     );
                 }
                 &$change_service_state($self, $sid, 'request_stop', timeout => $timeout);
-                $haenv->update_service_config($sid, { 'state' => 'stopped' });
+                my $changes = {
+                    $sid => {
+                        param => { state => 'stopped' },
+                    },
+                };
+                $haenv->update_service_config($changes);
             } else {
                 $haenv->log('err', "unknown command '$cmd' for service '$sid'");
             }

@@ -95,9 +95,9 @@ sub read_service_config {
 }
 
 sub update_service_config {
-    my ($self, $sid, $param, $delete) = @_;
+    my ($self, $changes) = @_;
 
-    return $self->{plug}->update_service_config($sid, $param, $delete);
+    return $self->{plug}->update_service_config($changes);
 }
 
 sub write_service_config {

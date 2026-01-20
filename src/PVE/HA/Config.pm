@@ -136,37 +136,48 @@ sub read_and_check_resources_config {
     return wantarray ? ($conf, $res->{digest}) : $conf;
 }
 
+my sub update_single_resource_config_inplace {
+    my ($cfg, $sid, $param, $delete) = @_;
+
+    ($sid, my $type, my $name) = parse_sid($sid);
+
+    my $scfg = $cfg->{ids}->{$sid}
+        || die "no such resource '$sid'\n";
+
+    my $plugin = PVE::HA::Resources->lookup($scfg->{type});
+    my $opts = $plugin->check_config($sid, $param, 0, 1);
+
+    foreach my $k (%$opts) {
+        $scfg->{$k} = $opts->{$k};
+    }
+
+    if ($delete) {
+        my $options = $plugin->private()->{options}->{$type};
+        foreach my $k (PVE::Tools::split_list($delete)) {
+            my $d = $options->{$k}
+                || die "no such option '$k'\n";
+            die "unable to delete required option '$k'\n"
+                if !$d->{optional};
+            die "unable to delete fixed option '$k'\n"
+                if $d->{fixed};
+            delete $scfg->{$k};
+        }
+    }
+}
+
 sub update_resources_config {
-    my ($sid, $param, $delete, $digest) = @_;
+    my ($changes, $digest) = @_;
 
     lock_ha_domain(
         sub {
             my $cfg = read_resources_config();
-            ($sid, my $type, my $name) = parse_sid($sid);
-
             PVE::SectionConfig::assert_if_modified($cfg, $digest);
 
-            my $scfg = $cfg->{ids}->{$sid}
-                || die "no such resource '$sid'\n";
+            for my $sid (sort keys %$changes) {
+                my $param = $changes->{$sid}->{param} // {};
+                my $delete = $changes->{$sid}->{delete};
 
-            my $plugin = PVE::HA::Resources->lookup($scfg->{type});
-            my $opts = $plugin->check_config($sid, $param, 0, 1);
-
-            foreach my $k (%$opts) {
-                $scfg->{$k} = $opts->{$k};
-            }
-
-            if ($delete) {
-                my $options = $plugin->private()->{options}->{$type};
-                foreach my $k (PVE::Tools::split_list($delete)) {
-                    my $d = $options->{$k}
-                        || die "no such option '$k'\n";
-                    die "unable to delete required option '$k'\n"
-                        if !$d->{optional};
-                    die "unable to delete fixed option '$k'\n"
-                        if $d->{fixed};
-                    delete $scfg->{$k};
-                }
+                update_single_resource_config_inplace($cfg, $sid, $param, $delete);
             }
 
             write_resources_config($cfg);

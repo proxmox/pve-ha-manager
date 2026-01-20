@@ -140,9 +140,9 @@ sub read_service_config {
 }
 
 sub update_service_config {
-    my ($self, $sid, $param, $delete) = @_;
+    my ($self, $changes) = @_;
 
-    return PVE::HA::Config::update_resources_config($sid, $param, $delete);
+    return PVE::HA::Config::update_resources_config($changes);
 }
 
 sub write_service_config {

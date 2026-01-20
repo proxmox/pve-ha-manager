@@ -266,7 +266,13 @@ __PACKAGE__->register_method({
 
         check_service_state($sid, $param->{state});
 
-        PVE::HA::Config::update_resources_config($sid, $param, $delete, $digest);
+        my $changes = {
+            $sid => {
+                param => $param,
+                delete => $delete,
+            },
+        };
+        PVE::HA::Config::update_resources_config($changes, $digest);
 
         return undef;
     },
