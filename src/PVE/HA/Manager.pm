@@ -580,6 +580,9 @@ my $migrate_group_persistently = sub {
 
         PVE::HA::Groups::migrate_groups_to_resources($groups, $resources);
         for my $sid (keys %$resources) {
+            # prevent unnecessary updates for HA resources that do not change
+            next if !defined($resources->{$sid}->{group});
+
             my $param = { failback => $resources->{$sid}->{failback} };
 
             $haenv->update_service_config($sid, $param, 'group');
