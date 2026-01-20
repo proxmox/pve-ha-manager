@@ -579,16 +579,15 @@ my $migrate_group_persistently = sub {
         $haenv->log('notice', "ha groups migration: migration to rules config successful");
 
         PVE::HA::Groups::migrate_groups_to_resources($groups, $resources);
+        my $changes = {};
         for my $sid (keys %$resources) {
             # prevent unnecessary updates for HA resources that do not change
             next if !defined($resources->{$sid}->{group});
 
-            my $changes = {};
             $changes->{$sid} = { param => {}, delete => 'group' };
             $changes->{$sid}->{param}->{failback} = 0 if !$resources->{$sid}->{failback};
-
-            $haenv->update_service_config($changes);
         }
+        $haenv->update_service_config($changes);
         $haenv->log('notice', "ha groups migration: migration to resources config successful");
 
         $haenv->delete_group_config();
