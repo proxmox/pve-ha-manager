@@ -121,7 +121,7 @@ as for registering checks. Following up on the example from that section, the
 following example shows a possible rule plugin's transform, which removes the
 I<comment> property from each rule:
 
-    __PACKAGE__->register_transformer(
+    __PACKAGE__->register_transform(
         sub {
             my ($rules, $args) = @_;
 
