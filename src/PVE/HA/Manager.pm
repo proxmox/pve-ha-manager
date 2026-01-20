@@ -583,7 +583,8 @@ my $migrate_group_persistently = sub {
             # prevent unnecessary updates for HA resources that do not change
             next if !defined($resources->{$sid}->{group});
 
-            my $param = { failback => $resources->{$sid}->{failback} };
+            my $param = {};
+            $param->{failback} = 0 if !$resources->{$sid}->{failback};
 
             $haenv->update_service_config($sid, $param, 'group');
         }
