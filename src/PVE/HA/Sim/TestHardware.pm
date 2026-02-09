@@ -121,7 +121,7 @@ sub run {
         my $looptime = scalar(@nodes) * 2; # twice the node count
         $looptime = 20 if $looptime < 20;
 
-        die "unable to simulate so many nodes. You need to increate watchdog/lock timeouts.\n"
+        die "unable to simulate so many nodes. You need to increase watchdog/lock timeouts.\n"
             if $looptime >= 60;
 
         my $first_loop = 1;
