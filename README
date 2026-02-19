@@ -63,7 +63,7 @@ HA resources.
 This makes sure that the node holds the 'ha_agent_${node}_lock' as
 long as there are running services on that node.
 
-The HA manger can assume that the watchdog triggered a reboot when he
+The HA manager can assume that the watchdog triggered a reboot when he
 is able to acquire the 'ha_agent_${node}_lock' for that node.
 
 ==== Problems with "two_node" Clusters ====
