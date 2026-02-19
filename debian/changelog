@@ -1,3 +1,22 @@
+pve-ha-manager (5.1.1) trixie; urgency=medium
+
+  * assert ha resource has correct guest type as otherwise a HA resource with
+    the wrong guest type can be added to the HA resources configuration, which
+    will make its methods (start, shutdown, migrate, ...) fail.
+
+  * fix #7133: manager: skip update on group to affinity rules migration for
+    resources that have no group configured anyway.
+
+  * manager: group migration: bulk update changes to resource config to reduce
+    the total time required for a migration.
+
+  * ensure node is known to cluster config before committing a new node
+    status. While we pruned such unknown entries, that was only done after an
+    hour and thus showed any wrongly spelled node until that happened in the
+    status.
+
+ -- Proxmox Support Team <support@proxmox.com>  Thu, 19 Feb 2026 18:15:40 +0100
+
 pve-ha-manager (5.1.0) trixie; urgency=medium
 
   * fix #6801: fix an issue where resources with positive affinity could
