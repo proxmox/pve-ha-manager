@@ -207,6 +207,10 @@ sub can_get_active {
                 if ($haenv->any_pending_crm_command()) {
                     return 1; # process pending CRM commands
                 }
+                my $ss = $manager_status->{service_status} // {};
+                if (scalar($ss->%*)) {
+                    return 1; # need to get active to clean up stale service status entries
+                }
             }
             return 0; # no services, no node in maintenance mode, and no crm cmds -> can stay idle
         }
@@ -233,7 +237,12 @@ sub allowed_to_get_idle {
         $haenv->log('err', "could not read service config: $err");
         return undef;
     }
-    return 1 if !scalar(%{$conf});
+    if (!scalar(%{$conf})) {
+        # don't go idle while there are stale service status entries to clean up
+        my $ss = $manager_status->{service_status} // {};
+        return 0 if scalar(%{$ss});
+        return 1;
+    }
 
     # TODO: an exception might be if all services are requested to be ignored? Would need LRM
     # adaption too though.
