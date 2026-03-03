@@ -12,7 +12,7 @@ use PVE::HA::Tools;
 
 use PVE::HA::Manager;
 
-# Server can have several state:
+# Server can have several states:
 
 my $valid_states = {
     wait_for_quorum => "cluster is not quorate, waiting",
@@ -21,10 +21,10 @@ my $valid_states = {
     slave => "quorate, but we do not own the ha_manager lock",
 };
 
-# The CRM takes ~10s per 'active' round, so if no services is available for >= 15 min we'd go in
+# The CRM takes ~10s per 'active' round, so if no service is available for >= 15 min we'd go in
 # wait state giving up the watchdog and the CRM lock voluntary, ensuring the WD can do no harm and
-# another CRM can be come active faster, if HA services get configured again.
-# This is explictily 30 rounds (5 min) longer than LRM waits to avoid that LRM gets stuck due to no
+# another CRM can become active faster, if HA services get configured again.
+# This is explicitly 30 rounds (5 min) longer than LRM waits to avoid that LRM gets stuck due to no
 # CRM being active.
 my $max_active_idle_rounds = 90;
 
@@ -70,7 +70,7 @@ sub set_local_status {
 
     my $old = $self->{status};
 
-    # important: only update if if really changed
+    # important: only update if really changed
     return if $old->{state} eq $new->{state};
 
     $haenv->log('info', "status change $old->{state} => $new->{state}");
@@ -111,7 +111,7 @@ sub get_protected_ha_manager_lock {
             return 1;
         }
 
-        last if ++$count > 5; # try max 5 time
+        last if ++$count > 5; # try max 5 times
 
         my $delay = $haenv->get_time() - $starttime;
         last if $delay > 5; # for max 5 seconds
@@ -123,16 +123,16 @@ sub get_protected_ha_manager_lock {
 }
 
 # NOTE: This is disabling the self-fence mechanism for the CRM, which has almost *no* safety or
-# intergrity implications for the HA stack. The reason for this is that fencing is protecting
+# integrity implications for the HA stack. The reason for this is that fencing is protecting
 # against running the same services multiple times in a cluster, e.g. due to split brain, which then
 # can cause corruption, especially of shared resources. But as the CRM itself does not run any
 # resources, but only handles delegation and orchestration of them, disabling fencing in the CRM is
-# fine as long as we do not touch the manager HA state anymore, which normaly means transition out
+# fine as long as we do not touch the manager HA state anymore, which normally means transition out
 # of the "master" (= active manager) state in our FSM.
 #
 # If we would actually always fence we might reset a node that currently has no active HA service
 # and thus an idle LRM that does not need fencing. This then could make a partial outage even worse,
-# as one nodes less is available in such a situation.
+# as one node less is available in such a situation.
 my sub give_up_watchdog_protection {
     my ($self) = @_;
 
@@ -158,7 +158,7 @@ sub is_cluster_and_ha_healthy {
 
     return 0 if !$haenv->quorate();
 
-    # we may not do any active work with an incosistent cluster state
+    # we may not do any active work with an inconsistent cluster state
     return 0 if !$self->{cluster_state_update};
 
     return 0 if !defined($manager_status);

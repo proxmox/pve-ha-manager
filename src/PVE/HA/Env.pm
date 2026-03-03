@@ -61,7 +61,7 @@ sub write_lrm_status {
 }
 
 # check if we do node shutdown
-# we used this to decide if services should be stopped or freezed
+# we used this to decide if services should be stopped or frozen
 sub is_node_shutdown {
     my ($self) = @_;
 

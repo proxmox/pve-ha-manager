@@ -119,7 +119,7 @@ sub migrate_groups_to_resources {
     }
 }
 
-# Migrate groups from groups from $groups and $resources to node affinity rules in $rules
+# Migrate groups from $groups and $resources to node affinity rules in $rules
 sub migrate_groups_to_rules {
     my ($rules, $groups, $resources) = @_;
 
@@ -133,7 +133,7 @@ sub migrate_groups_to_rules {
     }
 
     while (my ($group, $resources) = each %$group_resources) {
-        next if !$groups->{ids}->{$group}; # skip non-existant groups
+        next if !$groups->{ids}->{$group}; # skip non-existent groups
 
         my $nodes = {};
         for my $entry (keys $groups->{ids}->{$group}->{nodes}->%*) {

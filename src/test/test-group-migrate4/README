@@ -1,5 +1,5 @@
 Test whether a cluster, where all nodes have the same version from the previous
-major release, can be properly upgraded to the neede major release version and
+major release, can be properly upgraded to the needed major release version and
 then the CRM correctly migrates the HA group config only after all nodes have
 the minimum major release version.
 

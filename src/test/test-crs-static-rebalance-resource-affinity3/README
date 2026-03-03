@@ -19,4 +19,4 @@ The expected outcome is:
 - As node1, node2, node3, node4, and node5 fail consecutively with each node
   coming back online, vm:200, vm:100, vm:400, vm:300, and vm:500 will be put in
   recovery during the failover respectively, as there is no other node left to
-  accomodate them without violating the resource affinity rule.
+  accommodate them without violating the resource affinity rule.

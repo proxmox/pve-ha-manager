@@ -20,7 +20,7 @@ my $valid_states = {
     lost_agent_lock => "lost agent_lock",
 };
 
-# we sleep ~10s per 'active' round, so if no services is available for >= 10 min we'd go in wait
+# we sleep ~10s per 'active' round, so if no service is available for >= 10 min we'd go in wait
 # state giving up the watchdog and the LRM lock voluntary, ensuring the WD can do no harm
 my $max_active_idle_rounds = 60;
 
@@ -82,7 +82,7 @@ sub shutdown_request {
     }
 
     if ($maintenance) {
-        # we get marked as unaivalable by the manager, then all services will
+        # we get marked as unavailable by the manager, then all services will
         # be migrated away, we'll still have the same "can we exit" clause than
         # a normal shutdown -> no running service on this node
         # FIXME: after X minutes, add shutdown command for remaining services,
@@ -160,7 +160,7 @@ sub set_local_status {
 
     my $old = $self->{status};
 
-    # important: only update if if really changed
+    # important: only update if really changed
     return if $old->{state} eq $new->{state};
 
     $haenv->log('info', "status change $old->{state} => $new->{state}");
@@ -241,7 +241,7 @@ sub get_protected_ha_agent_lock {
             return 1;
         }
 
-        last if ++$count > 5; # try max 5 time
+        last if ++$count > 5; # try max 5 times
 
         my $delay = $haenv->get_time() - $starttime;
         last if $delay > 5; # for max 5 seconds
@@ -465,7 +465,7 @@ sub work {
                         give_up_watchdog_protection($self);
                         $shutdown = 1;
 
-                        # restart with no or freezed services, release the lock
+                        # restart with no or frozen services, release the lock
                         $haenv->release_ha_agent_lock();
                     }
                 } else {
@@ -509,7 +509,7 @@ sub work {
 
     } elsif ($state eq 'lost_agent_lock') {
 
-        # NOTE: watchdog is active an will trigger soon!
+        # NOTE: watchdog is active and will trigger soon!
         # so we hope to get the lock back soon!
         if ($self->{shutdown_request}) {
 
@@ -527,8 +527,8 @@ sub work {
 
                     # watchdog should have already triggered, so either it's set
                     # set to noboot or it failed. As we are in restart mode, and
-                    # have infinity stoptimeout -> exit now - we don't touch  services
-                    # or change state, so this is save, relatively speaking
+                    # have infinity stoptimeout -> exit now - we don't touch services
+                    # or change state, so this is safe, relatively speaking
                     if (($haenv->get_time() - $state_mt) > 90) {
                         $haenv->log(
                             'err',
@@ -593,7 +593,7 @@ sub run_workers {
 
     my $starttime = $haenv->get_time();
 
-    # number of workers to start, if 0 we exec the command directly witouth forking
+    # number of workers to start, if 0 we exec the command directly without forking
     my $max_workers = $haenv->get_max_workers();
     my $sc = $haenv->read_service_config();
 
@@ -686,7 +686,7 @@ sub manage_resources {
         my $request_state = $sd->{state};
         next if !defined($request_state);
         # can only happen for restricted groups where the failed node itself needs to be the
-        # reocvery target. Always let the master first do so, it will then marked as 'stopped' and
+        # recovery target. Always let the master first do so, it will then be marked as 'stopped' and
         # we can just continue normally. But we must NOT do anything with it while still in recovery
         next if $request_state eq 'recovery';
         next if $request_state eq 'freeze';
@@ -960,7 +960,7 @@ sub exec_resource_agent {
             $haenv->log("info", "service status $sid stopped");
             return SUCCESS;
         } else {
-            $haenv->log("info", "unable to stop stop service $sid (still running)");
+            $haenv->log("info", "unable to stop service $sid (still running)");
             return ERROR;
         }
 

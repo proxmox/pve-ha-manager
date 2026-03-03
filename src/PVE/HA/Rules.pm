@@ -28,7 +28,7 @@ behavior for how it handles HA resources handling.
 
 Since rules can interfere with each other, i.e., rules can make other rules
 invalid or infeasible, this package also provides the capability to check for
-the feasibility between rules of the same type and and between rules of
+the feasibility between rules of the same type and between rules of
 different types, and prune the rule set in such a way, that it becomes feasible
 again, while minimizing the amount of rules that need to be pruned.
 
@@ -571,7 +571,7 @@ sub foreach_rule {
 =head3 get_next_ordinal($rules)
 
 Returns the next available ordinal number in the C<$rules> order hash that can
-be used a newly introduced rule afterwards.
+be used for a newly introduced rule afterwards.
 
 =cut
 

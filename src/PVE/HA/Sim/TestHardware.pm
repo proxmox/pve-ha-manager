@@ -85,7 +85,7 @@ sub crm_control {
     if ($action eq 'start') {
         return PVE::HA::CRM->new($data->{crm_env});
     } elsif ($action eq 'stop') {
-        # nothing todo sim_hardware_cmd sets us to undef, thats enough
+        # nothing to do, sim_hardware_cmd sets us to undef, that's enough
     } elsif ($action eq 'shutdown') {
         $data->{crm}->shutdown_request();
     } else {
@@ -99,7 +99,7 @@ sub lrm_control {
     if ($action eq 'start') {
         return PVE::HA::LRM->new($data->{lrm_env});
     } elsif ($action eq 'stop') {
-        # nothing todo sim_hardware_cmd sets us to undef, thats enough
+        # nothing to do, sim_hardware_cmd sets us to undef, that's enough
     } elsif ($action eq 'shutdown') {
         $data->{lrm}->shutdown_request();
     } else {

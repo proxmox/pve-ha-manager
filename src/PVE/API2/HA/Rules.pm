@@ -59,19 +59,19 @@ my $assert_resources_are_configured = sub {
 my $assert_nodes_do_exist = sub {
     my ($nodes) = @_;
 
-    my $nonexistant_nodes = [];
+    my $nonexistent_nodes = [];
     my $localnode = PVE::INotify::nodename();
 
     for my $node (sort keys %$nodes) {
         # check_node_exists(...) does not account for single-node setups
         next if $node eq $localnode;
 
-        push @$nonexistant_nodes, $node
+        push @$nonexistent_nodes, $node
             if !PVE::Cluster::check_node_exists($node, 1);
     }
 
-    die "cannot use non-existant node(s) " . join(', ', @$nonexistant_nodes) . ".\n"
-        if @$nonexistant_nodes;
+    die "cannot use non-existent node(s) " . join(', ', @$nonexistent_nodes) . ".\n"
+        if @$nonexistent_nodes;
 };
 
 my $get_full_rules_config = sub {

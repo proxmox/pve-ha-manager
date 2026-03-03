@@ -63,7 +63,7 @@ __PACKAGE__->register_method({
     name => 'status',
     path => 'current',
     method => 'GET',
-    description => "Get HA manger status.",
+    description => "Get HA manager status.",
     permissions => {
         check => ['perm', '/', ['Sys.Audit']],
     },
@@ -250,7 +250,7 @@ __PACKAGE__->register_method({
             } elsif ($sc) {
                 $data->{node} = $sc->{node};
             }
-            my $node = $data->{node} // '---'; # to be save against manual tinkering
+            my $node = $data->{node} // '---'; # to be safe against manual tinkering
 
             $data->{state} = PVE::HA::Tools::get_verbose_service_state($ss, $sc);
             $data->{status} = "$sid ($node, $data->{state})"; # backward compat. and CLI
@@ -287,7 +287,7 @@ __PACKAGE__->register_method({
     name => 'manager_status',
     path => 'manager_status',
     method => 'GET',
-    description => "Get full HA manger status, including LRM status.",
+    description => "Get full HA manager status, including LRM status.",
     permissions => {
         check => ['perm', '/', ['Sys.Audit']],
     },

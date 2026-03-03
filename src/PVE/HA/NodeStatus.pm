@@ -138,7 +138,7 @@ sub update {
 
     foreach my $node (sort keys %$node_info) {
         my $d = $node_info->{$node};
-        my $lrm_mode = $lrm_modes->{$node} // 'unkown';
+        my $lrm_mode = $lrm_modes->{$node} // 'unknown';
         next if !$d->{online};
 
         # record last time the node was online (required to implement fence delay)
@@ -175,7 +175,7 @@ sub update {
         if ($state eq 'online') {
             $set_node_state->($self, $node, 'unknown');
         } elsif ($state eq 'maintenance') {
-            my $lrm_mode = $lrm_modes->{$node} // 'unkown';
+            my $lrm_mode = $lrm_modes->{$node} // 'unknown';
             if ($lrm_mode ne 'maintenance') {
                 $set_node_state->($self, $node, 'unknown');
             }
@@ -197,7 +197,7 @@ sub update {
     }
 }
 
-# assembles a commont text for fence emails
+# assembles a common text for fence emails
 my $send_fence_state_email = sub {
     my ($self, $subject_prefix, $subject, $node) = @_;
 

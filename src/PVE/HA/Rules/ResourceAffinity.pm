@@ -33,7 +33,7 @@ HA resource affinity rules have one of the two types:
 
 =item C<'positive'>
 
-Positive resource affinity rules specify that HA resources need to be be kept
+Positive resource affinity rules specify that HA resources need to be kept
 together.
 
 =item C<'negative'>
@@ -481,7 +481,7 @@ each element represents a node, where the resource must be.
 
 For the negative resource affinity of a resource C<$sid>, each element in the
 hash represents an online node, where other resources, which C<$sid> is in
-negative affinity with, are alreaddy running. That is, each element represents
+negative affinity with, are already running. That is, each element represents
 a node, where the resource must not be.
 
 For example, if there are already three resources running, which the resource

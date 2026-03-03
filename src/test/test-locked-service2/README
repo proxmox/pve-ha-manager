@@ -1,4 +1,4 @@
-Test failover after single node network failure and a interrupted snapshot,
+Test failover after single node network failure and an interrupted snapshot,
 simulated by a left over lock. The lock should not be deleted automatically,
 as snapshot are mostly a manual triggered activity and need in general a manual
 cleanup, thus the service gets placed into error state.

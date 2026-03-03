@@ -109,7 +109,7 @@ static void sync_journal_unsafe(void) {
 
     pid_t child = fork();
 
-    // do not care about fork error or collecting the childs exit status,
+    // do not care about fork error or collecting the child's exit status,
     // we are resetting soon anyway and just want to sync out the journal
     if (child == 0) {
         execl(JOURNALCTL_BIN, JOURNALCTL_BIN, "--sync", NULL);

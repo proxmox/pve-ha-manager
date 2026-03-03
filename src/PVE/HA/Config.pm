@@ -70,7 +70,7 @@ sub read_lrm_status {
         # ENOENT -> possible deleted node, don't die here as it breaks our node
         # 'gone' logic
         warn "unable to read file '/etc/pve/$cfs_path'\n";
-        # unkown mode set explicitly as 'active' is assumed as default..
+        # unknown mode set explicitly as 'active' is assumed as default..
         return { mode => 'unknown' } if !-e "/etc/pve/$cfs_path";
     }
 
@@ -206,7 +206,7 @@ sub parse_sid {
             }
             $sid = "$type:$name";
         } else {
-            die "unable do detect SID from VMID - VM/CT $1 does not exist\n";
+            die "unable to detect SID from VMID - VM/CT $1 does not exist\n";
         }
     } elsif ($sid =~ m/^(\S+):(\S+)$/) {
         $name = $2;

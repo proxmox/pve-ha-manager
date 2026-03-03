@@ -28,7 +28,7 @@ my $watchdog_timeout = 60;
 # $testdir/cmdlist                    Command list for simulation
 # $testdir/hardware_status            Hardware description (number of nodes, ...)
 # $testdir/manager_status             CRM status (start with {})
-# $testdir/rules_config               Contraints / Rules configuration
+# $testdir/rules_config               Constraints / Rules configuration
 # $testdir/service_config             Service configuration
 # $testdir/static_service_stats       Static service usage information (cpu, memory)
 # $testdir/groups                     HA groups configuration
@@ -458,7 +458,7 @@ sub new {
     remove_tree($statusdir);
     mkdir $statusdir;
 
-    # copy initial configuartion
+    # copy initial configuration
     copy("$testdir/manager_status", "$statusdir/manager_status"); # optional
 
     if (-f "$testdir/rules_config") {

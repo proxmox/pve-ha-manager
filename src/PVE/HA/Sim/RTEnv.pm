@@ -71,7 +71,7 @@ sub loop_end_hook {
 
     my $delay = $self->get_time() - $self->{loop_start};
 
-    die "loop take too long ($delay seconds)\n" if $delay > 30;
+    die "loop took too long ($delay seconds)\n" if $delay > 30;
 }
 
 1;

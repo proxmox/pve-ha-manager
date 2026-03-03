@@ -6,7 +6,7 @@ use warnings;
 use base qw(PVE::HA::Resources);
 
 # provides some base methods for virtual resources (used in simulation/testing).
-# reduces code reuse and it's targeted for the main PVE service types, namely
+# reduces code duplication and it's targeted for the main PVE service types, namely
 # virtual machines (VM) and container (CT)
 
 sub verify_name {
@@ -114,7 +114,7 @@ sub migrate {
 
     $hardware->change_service_location($sid, $nodename, $target);
     $haenv->log("info", "service $sid - end $cmd to node '$target'");
-    # ensure that the old node doesn't has the service anymore
+    # ensure that the old node doesn't have the service anymore
     delete $ss->{$sid};
     $hardware->write_service_status($nodename, $ss);
 

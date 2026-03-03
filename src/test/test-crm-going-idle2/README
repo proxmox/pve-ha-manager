@@ -1,4 +1,4 @@
-Test an user triggered service removal from a previously active HA stack, which
+Test a user triggered service removal from a previously active HA stack, which
 should make the LRM and the CRM go idle and dropping the lock once enough
 cycles passed without any new service.
 

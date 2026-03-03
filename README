@@ -55,7 +55,7 @@ provides that service to several other daemons using a local socket.
 
 A node needs to acquire a special 'ha_agent_${node}_lock' (one separate
 lock for each node) before starting HA resources, and the node updates
-the watchdog device once it get that lock. If the node loose quorum,
+the watchdog device once it get that lock. If the node loses quorum,
 or is unable to get the 'ha_agent_${node}_lock', the watchdog is no
 longer updated. The node can release the lock if there are no running
 HA resources.
@@ -105,7 +105,7 @@ changing the service configuration).
 
 ==== Service Ordering and Co-location Constraints ====
 
-There are no to implement this for the initial version but although it would be
+There are no plans to implement this for the initial version but although it would be
 possible and probably should be done for later versions.
 
 ==== Possible CRM Service States ====
@@ -115,7 +115,7 @@ stopped:      Service is stopped (confirmed by LRM)
 request_stop: Service should be stopped. Waiting for 
               confirmation from LRM.
 
-started:      Service is active an LRM should start it asap.
+started:      Service is active and LRM should start it asap.
 
 fence:        Wait for node fencing (service node is not inside
               quorate cluster partition).

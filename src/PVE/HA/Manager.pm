@@ -1128,8 +1128,8 @@ sub next_state_started {
                 } else {
                     $self->record_service_failed_on_node($sid, $sd->{node});
 
-                    $haenv->log('err', "service '$sid' got unrecoverable error (exit code $ec))");
-                    # we have no save way out (yet) for other errors
+                    $haenv->log('err', "service '$sid' got unrecoverable error (exit code $ec)");
+                    # we have no safe way out (yet) for other errors
                     &$change_service_state($self, $sid, 'error');
                     return;
                 }
@@ -1205,7 +1205,7 @@ sub next_state_started {
                     }
                 }
 
-                # ensure service get started again if it went unexpected down
+                # ensure service gets started again if it went unexpected down
                 # but ensure also no LRM result gets lost
                 $sd->{uid} = compute_new_uuid($sd->{state}) if defined($lrm_res);
             }
@@ -1261,7 +1261,7 @@ sub next_state_recovery {
     if ($recovery_node) {
         my $msg = "recover service '$sid' from fenced node '$fenced_node' to node '$recovery_node'";
         if ($recovery_node eq $fenced_node) {
-            # can happen if restriced groups and the node came up again OK
+            # can happen if restricted groups and the node came up again OK
             $msg = "recover service '$sid' to previous failed and fenced node '$fenced_node' again";
         }
         $haenv->log('info', "$msg");

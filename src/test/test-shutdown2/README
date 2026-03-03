@@ -1,5 +1,5 @@
-Test failback senario.
+Test failback scenario.
 
 All nodes has quorum and one vm per node3 is running.
-Then we shutdown node3,  and the vm will be migraded.
+Then we shutdown node3, and the vm will be migrated.
 When the node come back, the VM will move back to node3.

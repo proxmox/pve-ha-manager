@@ -10,6 +10,6 @@ The test scenario is:
 
 The expected outcome is:
 - As vm:102 is on node3, which contradicts its node affinity rule, vm:102 is
-  migrated to node1 to fullfill its node affinity rule
+  migrated to node1 to fulfill its node affinity rule
 - As vm:102 is in a positive resource affinity rule with vm:101 and vm:103, all
   of them are migrated to node1 as these are inferred for all of them

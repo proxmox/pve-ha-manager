@@ -32,7 +32,7 @@ sub _log {
 
 sub get_nodes {
     # three node should be enough for testing
-    # don't make it to complicate for now
+    # don't make it too complicated for now
     return ('node1', 'node2', 'node3');
 }
 

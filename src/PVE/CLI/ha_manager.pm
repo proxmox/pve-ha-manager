@@ -45,7 +45,7 @@ __PACKAGE__->register_method({
     name => 'status',
     path => 'status',
     method => 'GET',
-    description => "Display HA manger status.",
+    description => "Display HA manager status.",
     parameters => {
         additionalProperties => 0,
         properties => {

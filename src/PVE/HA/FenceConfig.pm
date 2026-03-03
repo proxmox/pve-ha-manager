@@ -142,7 +142,7 @@ sub gen_arg_str {
 
 # returns command list to execute,
 # can be more than one command if parallel devices are configured
-# 'try' denotes the number of devices we should skip and normaly equals to
+# 'try' denotes the number of devices we should skip and normally equals to
 # failed fencing tries
 sub get_commands {
     my ($node, $try, $config) = @_;

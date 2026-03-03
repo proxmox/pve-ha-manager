@@ -423,7 +423,7 @@ __PACKAGE__->register_method({
     path => '{sid}/relocate',
     method => 'POST',
     description =>
-        "Request resource relocatzion to another node. This stops the service on the old node, and restarts it on the target node.",
+        "Request resource relocation to another node. This stops the service on the old node, and restarts it on the target node.",
     permissions => {
         check => ['perm', '/', ['Sys.Console']],
     },
