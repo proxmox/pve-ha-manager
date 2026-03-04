@@ -72,7 +72,7 @@ EODESC
             default => 1,
         },
         max_restart => {
-            description => "Maximal number of tries to restart the service on"
+            description => "Maximal number of tries to restart the resource on"
                 . " a node after its start failed.",
             type => 'integer',
             optional => 1,
@@ -80,8 +80,8 @@ EODESC
             minimum => 0,
         },
         max_relocate => {
-            description => "Maximal number of service relocate tries when a"
-                . " service fails to start.",
+            description => "Maximal number of resource relocate tries when a"
+                . " resource fails to start.",
             type => 'integer',
             optional => 1,
             default => 1,
