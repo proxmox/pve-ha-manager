@@ -73,7 +73,8 @@ EODESC
         },
         max_restart => {
             description => "Maximal number of tries to restart the resource on"
-                . " a node after its start failed.",
+                . " a node after its start failed. When reached, the HA manager will try to"
+                . " relocate the resource to an eligible node.",
             type => 'integer',
             optional => 1,
             default => 1,
