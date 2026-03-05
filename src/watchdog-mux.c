@@ -351,7 +351,7 @@ int main(void) {
 
                 if ((rv = read(sigfd, &si, sizeof(si))) && rv >= 0) {
                     if (si.ssi_signo == SIGHUP) {
-                        perror("got SIGHUP - ignored");
+                        fprintf(stderr, "got SIGHUP - ignored\n");
                     } else {
                         terminate = 1;
                         fprintf(stderr, "got terminate request\n");
