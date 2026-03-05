@@ -283,19 +283,28 @@ int main(void) {
                     if (client_list[i].warning_state == WARNING_ISSUED &&
                         (ctime - client_list[i].time) <= CLIENT_WATCHDOG_TIMEOUT_WARNING) {
                         client_list[i].warning_state = FENCE_AVERTED;
-                        fprintf(stderr, "client watchdog was updated before expiring\n");
+                        fprintf(
+                            stderr, "client (PID %d) watchdog was updated before expiring\n",
+                            client_list[i].pid
+                        );
                     }
 
                     if (client_list[i].warning_state != WARNING_ISSUED &&
                         (ctime - client_list[i].time) > CLIENT_WATCHDOG_TIMEOUT_WARNING) {
                         client_list[i].warning_state = WARNING_ISSUED;
-                        fprintf(stderr, "client watchdog is about to expire\n");
-                        sync_journal_in_fork ();
+                        fprintf(
+                            stderr, "client (PID %d) watchdog is about to expire\n",
+                            client_list[i].pid
+                        );
+                        sync_journal_in_fork();
                     }
 
                     if ((ctime - client_list[i].time) > CLIENT_WATCHDOG_TIMEOUT) {
                         update_watchdog = 0;
-                        fprintf(stderr, "client watchdog expired - disable watchdog updates\n");
+                        fprintf(
+                            stderr, "client (PID %d) watchdog expired - disable watchdog updates\n",
+                            client_list[i].pid
+                        );
                     }
                 }
             }
@@ -352,7 +361,7 @@ int main(void) {
                     goto err; // fixme
                 }
 
-                fprintf(stderr, "added new client to watch\n");
+                fprintf(stderr, "added new client (PID %d) to watch\n", new_client->pid);
             } else if (wd_client->fd == sigfd) {
 
                 /* signal handling */
@@ -401,7 +410,10 @@ int main(void) {
 
                         if (!wd_client->magic_close) {
                             fprintf(
-                                stderr, "client did not stop watchdog - disable watchdog updates\n"
+                                stderr,
+                                "client (PID %d) did not stop watchdog - disable watchdog "
+                                "updates\n",
+                                wd_client->pid
                             );
                             sync_journal_unsafe();
                             update_watchdog = 0;
