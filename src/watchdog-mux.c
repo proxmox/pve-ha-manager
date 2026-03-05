@@ -48,6 +48,7 @@ typedef struct {
     time_t time;
     int magic_close;
     enum warning_state_t warning_state;
+    pid_t pid;
 } wd_client_t;
 
 #define MAX_CLIENTS 100
@@ -63,6 +64,7 @@ static wd_client_t *alloc_client(int fd, time_t time) {
             client_list[i].time = time;
             client_list[i].magic_close = 0;
             client_list[i].warning_state = NONE;
+            client_list[i].pid = 0;
             return &client_list[i];
         }
     }
@@ -78,6 +80,7 @@ static void free_client(wd_client_t *wd_client) {
     wd_client->time = 0;
     wd_client->fd = 0;
     wd_client->magic_close = 0;
+    wd_client->pid = 0;
 }
 
 static int active_client_count(void) {
@@ -330,6 +333,14 @@ int main(void) {
                 if (new_client == NULL) {
                     fprintf(stderr, "unable to alloc wd_client structure\n");
                     goto err; // fixme;
+                }
+
+                struct ucred cred;
+                socklen_t cred_len = sizeof(cred);
+                if (getsockopt(conn_sock, SOL_SOCKET, SO_PEERCRED, &cred, &cred_len) == -1) {
+                    perror("get peer credentials");
+                } else {
+                    new_client->pid = cred.pid;
                 }
 
                 mkdir(WD_ACTIVE_MARKER, 0600);
