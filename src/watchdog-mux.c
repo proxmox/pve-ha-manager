@@ -340,6 +340,8 @@ int main(void) {
                     perror("epoll_ctl: add conn_sock");
                     goto err; // fixme
                 }
+
+                fprintf(stderr, "added new client to watch\n");
             } else if (wd_client->fd == sigfd) {
 
                 /* signal handling */
@@ -397,6 +399,10 @@ int main(void) {
                         }
 
                         if (!active_client_count()) {
+                            fprintf(
+                                stderr,
+                                "all watchdog client connections to the multiplexer closed\n"
+                            );
                             rmdir(WD_ACTIVE_MARKER);
                         }
                     }
