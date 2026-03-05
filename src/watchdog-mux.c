@@ -19,6 +19,23 @@
 #include <linux/types.h>
 #include <linux/watchdog.h>
 
+// Note about why we do not release /dev/watchdog when all clients disconnect:
+//
+//  It would be possible to magic-close /dev/watchdog when the last client
+//  gracefully disconnects (active_client_count drops to zero) and re-open it
+//  when a new client connects. However, this creates a window where another
+//  process could open /dev/watchdog (the kernel only allows one opener at a
+//  time, returning EBUSY for subsequent opens). If that happens, the re-open
+//  on new client connect fails and HA loses its watchdog protection silently.
+//
+//  Additionally, not all hardware watchdog drivers support magic close
+//  (WDIOF_MAGICCLOSE). On those, closing the fd triggers a reset regardless of
+//  writing 'V' first.
+//
+//  The current design keeps /dev/watchdog open for the entire lifetime of
+//  watchdog-mux, which prevents interference from other processes and avoids
+//  driver compatibility issues.
+
 #define WD_SOCK_PATH "/run/watchdog-mux.sock"
 #define WD_ACTIVE_MARKER "/run/watchdog-mux.active"
 
