@@ -418,6 +418,12 @@ int main(void) {
                             sync_journal_unsafe();
                             update_watchdog = 0;
                         } else {
+                            fprintf(
+                                stderr,
+                                "client (PID %d) has disconnected cleanly. Removing it gracefully "
+                                "from the watch\n",
+                                wd_client->pid
+                            );
                             free_client(wd_client);
                         }
 
