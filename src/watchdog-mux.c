@@ -98,7 +98,7 @@ static void watchdog_close(void) {
             perror("write magic watchdog close");
         }
         if (close(watchdog_fd) == -1) {
-            perror("write magic watchdog close");
+            perror("close watchdog fd");
         }
     }
 
