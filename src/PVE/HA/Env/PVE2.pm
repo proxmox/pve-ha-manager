@@ -348,6 +348,8 @@ sub get_ha_manager_lock {
 sub release_ha_manager_lock {
     my ($self) = @_;
 
+    delete $last_lock_status_hash->{"ha_manager_lock"};
+
     return rmdir("$lockdir/ha_manager_lock");
 }
 
@@ -366,8 +368,11 @@ sub release_ha_agent_lock {
     my ($self) = @_;
 
     my $node = $self->nodename();
+    my $lockid = "ha_agent_${node}_lock";
 
-    return rmdir("$lockdir/ha_agent_${node}_lock");
+    delete $last_lock_status_hash->{$lockid};
+
+    return rmdir("$lockdir/$lockid");
 }
 
 sub quorate {
