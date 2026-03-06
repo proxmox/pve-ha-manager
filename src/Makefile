@@ -81,8 +81,8 @@ test:
 
 .PHONY: clean
 clean:
-	rm -f *.xml.tmp *.1 *.5 *.8 *{synopsis,opts}.adoc docinfo.xml
-	make -C test clean
+	$(MAKE) cleanup-docgen
+	$(MAKE) -C test clean
 	rm -rf watchdog-mux *.1.pod *.1.gz *.bash-completion *.zsh-completion *.tmp
 
 .PHONY: distclean
