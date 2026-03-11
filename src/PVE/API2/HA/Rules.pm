@@ -42,8 +42,10 @@ my $get_api_ha_rule = sub {
     return $cfg;
 };
 
-my $assert_resources_are_configured = sub {
+my $assert_valid_resources_param = sub {
     my ($resources) = @_;
+
+    die "no resources were specified\n" if !%$resources;
 
     my $unconfigured_resources = [];
 
@@ -56,8 +58,10 @@ my $assert_resources_are_configured = sub {
         if @$unconfigured_resources;
 };
 
-my $assert_nodes_do_exist = sub {
+my $assert_valid_nodes_param = sub {
     my ($nodes) = @_;
+
+    die "no nodes were specified\n" if !%$nodes;
 
     my $nonexistent_nodes = [];
     my $localnode = PVE::INotify::nodename();
@@ -281,8 +285,8 @@ __PACKAGE__->register_method({
 
                 die "HA rule '$ruleid' already defined\n" if $rules->{ids}->{$ruleid};
 
-                $assert_resources_are_configured->($opts->{resources});
-                $assert_nodes_do_exist->($opts->{nodes}) if $opts->{nodes};
+                $assert_valid_resources_param->($opts->{resources});
+                $assert_valid_nodes_param->($opts->{nodes}) if $opts->{nodes};
 
                 $rules->{order}->{$ruleid} = PVE::HA::Rules::get_next_ordinal($rules);
                 $rules->{ids}->{$ruleid} = $opts;
@@ -339,8 +343,8 @@ __PACKAGE__->register_method({
                 my $plugin = PVE::HA::Rules->lookup($type);
                 my $opts = $plugin->check_config($ruleid, $param, 0, 1);
 
-                $assert_resources_are_configured->($opts->{resources});
-                $assert_nodes_do_exist->($opts->{nodes}) if $opts->{nodes};
+                $assert_valid_resources_param->($opts->{resources});
+                $assert_valid_nodes_param->($opts->{nodes}) if $opts->{nodes};
 
                 my $options = $plugin->private()->{options}->{$type};
                 PVE::SectionConfig::delete_from_config($rule, $options, $opts, $delete);
