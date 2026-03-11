@@ -274,7 +274,8 @@ haven't been explicitly set yet.
 sub set_rule_defaults {
     my ($class, $rule) = @_;
 
-    if (my $plugin = $class->lookup($rule->{type})) {
+    if ($rule && $rule->{type}) {
+        my $plugin = $class->lookup($rule->{type});
         my $properties = $plugin->properties();
 
         for my $prop (keys %$properties) {
