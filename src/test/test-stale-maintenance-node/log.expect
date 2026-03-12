@@ -47,9 +47,9 @@ info    144     shutdown: execute power node3 off
 info    160    node1/crm: status change master => lost_manager_lock
 info    160    node1/crm: status change lost_manager_lock => wait_for_quorum
 info    161    node1/lrm: status change maintenance => lost_agent_lock
-err     161    node1/lrm: get shutdown request in state 'lost_agent_lock' - detected 1 running services
-err     181    node1/lrm: get shutdown request in state 'lost_agent_lock' - detected 1 running services
-err     201    node1/lrm: get shutdown request in state 'lost_agent_lock' - detected 1 running services
+err     161    node1/lrm: got shutdown request in state 'lost_agent_lock' - detected 1 running services
+err     181    node1/lrm: got shutdown request in state 'lost_agent_lock' - detected 1 running services
+err     201    node1/lrm: got shutdown request in state 'lost_agent_lock' - detected 1 running services
 info    202     watchdog: execute power node1 off
 info    201    node1/crm: killed by poweroff
 info    202    node1/lrm: killed by poweroff

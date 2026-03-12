@@ -376,7 +376,7 @@ sub work {
     } elsif ($state eq 'active') {
 
         if ($fence_request) {
-            $haenv->log('err', "node need to be fenced - releasing agent_lock\n");
+            $haenv->log('err', "node needs to be fenced - releasing agent_lock\n");
             $self->set_local_status({ state => 'lost_agent_lock' });
         } elsif (!$self->get_protected_ha_agent_lock()) {
             $self->set_local_status({ state => 'lost_agent_lock' });
@@ -406,7 +406,7 @@ sub work {
         if ($fence_request) {
             $haenv->log(
                 'err',
-                "node need to be fenced during maintenance mode - releasing agent_lock\n",
+                "node needs to be fenced during maintenance mode - releasing agent_lock\n",
             );
             $self->set_local_status({ state => 'lost_agent_lock' });
         } elsif ($self->active_service_count() || $self->run_workers()) {
@@ -518,7 +518,7 @@ sub work {
             if ($service_count > 0) {
                 $haenv->log(
                     'err',
-                    "get shutdown request in state 'lost_agent_lock' - "
+                    "got shutdown request in state 'lost_agent_lock' - "
                         . "detected $service_count running services",
                 );
 
