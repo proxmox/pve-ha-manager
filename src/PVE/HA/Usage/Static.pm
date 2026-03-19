@@ -66,7 +66,7 @@ sub contains_node {
 my sub get_service_usage {
     my ($self, $sid) = @_;
 
-    my $service_stats = $self->{'service-stats'}->{$sid}
+    my $service_stats = $self->{'service-stats'}->{$sid}->{usage}
         or die "did not get static service usage information for '$sid'\n";
 
     return $service_stats;

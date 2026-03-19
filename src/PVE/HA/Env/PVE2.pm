@@ -38,6 +38,12 @@ PVE::HA::Rules->init(property_isolation => 1);
 
 my $lockdir = "/etc/pve/priv/lock";
 
+# rrd entry indices for VM and CT guests
+# taken from PVE::Service::pvestatd::update_{lxc,qemu}_status()
+use constant {
+    RRD_VM_INDEX_STATUS => 2,
+};
+
 sub new {
     my ($this, $nodename) = @_;
 
@@ -507,24 +513,51 @@ sub get_datacenter_settings {
     };
 }
 
-sub get_static_service_stats {
-    my ($self) = @_;
-
-    my $properties = ['cores', 'cpulimit', 'memory', 'sockets', 'vcpus'];
-    my $stats = {};
-    my $confs = PVE::Cluster::get_guest_config_properties($properties);
-
+my sub get_cluster_service_stats {
     my $vmlist = PVE::Cluster::get_vmlist();
     my $idlist = $vmlist->{ids} // {};
+
+    my $rrd = PVE::Cluster::rrd_dump();
+
+    my $stats = {};
     for my $id (keys %$idlist) {
         my $type = eval { PVE::HA::Tools::get_ha_resource_type($idlist->{$id}->{type}) };
         next if $@; # silently ignore unknown pve types
 
         my $sid = "$type:$id";
+        my $nodename = $idlist->{$id}->{node};
+
+        my $rrdentry = $rrd->{"pve-vm-9.0/$id"} // [];
+        # can be any QMP RunState, but 'running' is the only active VM state
+        my $status = $rrdentry->[RRD_VM_INDEX_STATUS] // "stopped";
+        my $state = $status eq "running" ? "started" : "stopped";
+
+        $stats->{$sid} = {
+            id => $id,
+            node => $nodename,
+            state => $state,
+            type => $type,
+            usage => {},
+        };
+    }
+
+    return $stats;
+}
+
+sub get_static_service_stats {
+    my ($self) = @_;
+
+    my $properties = ['cores', 'cpulimit', 'memory', 'sockets', 'vcpus'];
+    my $stats = get_cluster_service_stats();
+    my $confs = PVE::Cluster::get_guest_config_properties($properties);
+
+    for my $sid (keys %$stats) {
+        my ($id, $type) = $stats->{$sid}->@{qw(id type)};
+
         my $conf = $confs->{$id} // {};
         my $plugin = PVE::HA::Resources->lookup($type);
 
-        $stats->{$sid} = $plugin->get_static_stats_from_config($conf);
+        $stats->{$sid}->{usage} = $plugin->get_static_stats_from_config($conf);
     }
 
     return $stats;

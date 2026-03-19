@@ -1060,12 +1060,37 @@ sub watchdog_update {
     return &$modify_watchog($self, $code);
 }
 
+my sub get_cluster_service_stats {
+    my ($self) = @_;
+
+    my $stats = {};
+    for my $sid (keys $self->{service_config}->%*) {
+        my $cfg = $self->{service_config}->{$sid};
+
+        $stats->{$sid} = {
+            node => $cfg->{node},
+            state => $cfg->{state},
+            usage => {},
+        };
+    }
+
+    return $stats;
+}
+
 sub get_static_service_stats {
     my ($self) = @_;
 
+    my $stats = get_cluster_service_stats($self);
+
     my $filename = "$self->{statusdir}/static_service_stats";
-    my $stats = eval { PVE::HA::Tools::read_json_from_file($filename) };
+    my $usage_stats = eval { PVE::HA::Tools::read_json_from_file($filename) };
     $self->log('warning', "unable to update static service stats cache - $@") if $@;
+
+    for my $sid (keys %$stats) {
+        next if !defined($usage_stats->{$sid});
+
+        $stats->{$sid}->{usage} = $usage_stats->{$sid};
+    }
 
     return $stats;
 }
