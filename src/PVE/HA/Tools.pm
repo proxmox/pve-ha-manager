@@ -289,6 +289,18 @@ sub has_min_version {
     return 1;
 }
 
+sub get_ha_resource_type {
+    my ($pve_resource_type) = @_;
+
+    if ($pve_resource_type eq 'lxc') {
+        return 'ct';
+    } elsif ($pve_resource_type eq 'qemu') {
+        return 'vm';
+    } else {
+        die "unknown PVE resource type '$pve_resource_type'";
+    }
+}
+
 # bash auto completion helper
 
 # NOTE: we use PVE::HA::Config here without declaring an 'use' clause above as
@@ -309,15 +321,10 @@ sub complete_sid {
 
         while (my ($vmid, $info) = each %{ $vmlist->{ids} }) {
 
-            my $sid;
+            my $type = eval { get_ha_resource_type($info->{type}) };
+            next if $@; # silently ignore unknown pve types
 
-            if ($info->{type} eq 'lxc') {
-                $sid = "ct:$vmid";
-            } elsif ($info->{type} eq 'qemu') {
-                $sid = "vm:$vmid";
-            } else {
-                next; # should not happen
-            }
+            my $sid = "$type:$vmid";
 
             next if $cfg->{ids}->{$sid};
 

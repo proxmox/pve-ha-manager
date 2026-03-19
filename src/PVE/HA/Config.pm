@@ -197,13 +197,7 @@ sub parse_sid {
         my $vmlist = PVE::Cluster::get_vmlist();
         if (defined($vmlist->{ids}->{$name})) {
             my $vm_type = $vmlist->{ids}->{$name}->{type};
-            if ($vm_type eq 'lxc') {
-                $type = 'ct';
-            } elsif ($vm_type eq 'qemu') {
-                $type = 'vm';
-            } else {
-                die "internal error";
-            }
+            $type = PVE::HA::Tools::get_ha_resource_type($vm_type);
             $sid = "$type:$name";
         } else {
             die "unable to detect SID from VMID - VM/CT $1 does not exist\n";
