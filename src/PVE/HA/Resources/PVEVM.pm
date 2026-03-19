@@ -180,15 +180,19 @@ sub remove_locks {
     return undef;
 }
 
-sub get_static_stats {
-    my ($class, $haenv, $id) = @_;
-
-    my $conf = $haenv->get_static_service_stats($id);
+sub get_static_stats_from_config {
+    my ($class, $conf) = @_;
 
     return {
         maxcpu => PVE::QemuConfig->get_derived_property($conf, 'max-cpu'),
         maxmem => PVE::QemuConfig->get_derived_property($conf, 'max-memory'),
     };
+}
+
+sub get_static_stats {
+    my ($class, $haenv, $id) = @_;
+
+    return $haenv->get_static_service_stats($id);
 }
 
 1;

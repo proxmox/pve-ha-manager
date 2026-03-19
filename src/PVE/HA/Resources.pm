@@ -177,6 +177,12 @@ sub remove_locks {
     die "implement in subclass";
 }
 
+sub get_static_stats_from_config {
+    my ($class, $conf) = @_;
+
+    die "implement in subclass";
+}
+
 sub get_static_stats {
     my ($class, $haenv, $id) = @_;
 

@@ -523,17 +523,19 @@ sub update_static_service_stats {
 
     my $properties = ['cores', 'cpulimit', 'memory', 'sockets', 'vcpus'];
     my $service_stats = eval {
-        my $stats = PVE::Cluster::get_guest_config_properties($properties);
+        my $stats = {};
+        my $confs = PVE::Cluster::get_guest_config_properties($properties);
 
-        # get_guest_config_properties(...) doesn't add guests which do not
-        # specify any of the given properties, but we need to make a distinction
-        # between "not cached" and "not specified" here
         my $vmlist = PVE::Cluster::get_vmlist();
         my $idlist = $vmlist->{ids} // {};
         for my $id (keys %$idlist) {
-            next if defined($stats->{$id});
+            my $type = eval { PVE::HA::Tools::get_ha_resource_type($idlist->{$id}->{type}) };
+            next if $@; # silently ignore unknown pve types
 
-            $stats->{$id} = {};
+            my $conf = $confs->{$id} // {};
+            my $plugin = PVE::HA::Resources->lookup($type);
+
+            $stats->{$id} = $plugin->get_static_stats_from_config($conf);
         }
 
         return $stats;
