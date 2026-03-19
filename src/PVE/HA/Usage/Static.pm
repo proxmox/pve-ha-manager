@@ -65,10 +65,10 @@ my sub get_service_usage {
 
     return $self->{'service-stats'}->{$sid} if $self->{'service-stats'}->{$sid};
 
-    my (undef, $type, $id) = $self->{haenv}->parse_sid($sid);
+    my (undef, $type, undef) = $self->{haenv}->parse_sid($sid);
     my $plugin = PVE::HA::Resources->lookup($type);
 
-    my $stats = eval { $plugin->get_static_stats($self->{haenv}, $id) };
+    my $stats = eval { $plugin->get_static_stats($self->{haenv}, $sid) };
     die "did not get static service usage information for '$sid'\n" if !$stats;
 
     my $service_stats = {

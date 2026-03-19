@@ -532,10 +532,11 @@ sub update_static_service_stats {
             my $type = eval { PVE::HA::Tools::get_ha_resource_type($idlist->{$id}->{type}) };
             next if $@; # silently ignore unknown pve types
 
+            my $sid = "$type:$id";
             my $conf = $confs->{$id} // {};
             my $plugin = PVE::HA::Resources->lookup($type);
 
-            $stats->{$id} = $plugin->get_static_stats_from_config($conf);
+            $stats->{$sid} = $plugin->get_static_stats_from_config($conf);
         }
 
         return $stats;

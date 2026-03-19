@@ -184,7 +184,7 @@ sub get_static_stats_from_config {
 }
 
 sub get_static_stats {
-    my ($class, $haenv, $id) = @_;
+    my ($class, $haenv, $sid) = @_;
 
     die "implement in subclass";
 }
