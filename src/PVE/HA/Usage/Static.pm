@@ -61,20 +61,15 @@ sub contains_node {
 }
 
 my sub get_service_usage {
-    my ($self, $sid, $service_node, $migration_target) = @_;
+    my ($self, $sid) = @_;
 
     return $self->{'service-stats'}->{$sid} if $self->{'service-stats'}->{$sid};
 
     my (undef, $type, $id) = $self->{haenv}->parse_sid($sid);
     my $plugin = PVE::HA::Resources->lookup($type);
 
-    my $stats = eval { $plugin->get_static_stats($self->{haenv}, $id, $service_node) };
-    if (my $err = $@) {
-        # config might've already moved during a migration
-        $stats = eval { $plugin->get_static_stats($self->{haenv}, $id, $migration_target); }
-            if $migration_target;
-        die "did not get static service usage information for '$sid' - $err\n" if !$stats;
-    }
+    my $stats = eval { $plugin->get_static_stats($self->{haenv}, $id) };
+    die "did not get static service usage information for '$sid'\n" if !$stats;
 
     my $service_stats = {
         maxcpu => $stats->{maxcpu} + 0.0, # containers allow non-integer cpulimit
@@ -87,12 +82,12 @@ my sub get_service_usage {
 }
 
 sub add_service_usage_to_node {
-    my ($self, $nodename, $sid, $service_node, $migration_target) = @_;
+    my ($self, $nodename, $sid) = @_;
 
     $self->{'node-services'}->{$nodename}->{$sid} = 1;
 
     eval {
-        my $service_usage = get_service_usage($self, $sid, $service_node, $migration_target);
+        my $service_usage = get_service_usage($self, $sid);
         $self->{scheduler}->add_service_usage_to_node($nodename, $sid, $service_usage);
     };
     $self->{haenv}->log('warning', "unable to add service '$sid' usage to node '$nodename' - $@")
@@ -111,10 +106,10 @@ sub remove_service_usage {
 }
 
 sub score_nodes_to_start_service {
-    my ($self, $sid, $service_node) = @_;
+    my ($self, $sid) = @_;
 
     my $score_list = eval {
-        my $service_usage = get_service_usage($self, $sid, $service_node);
+        my $service_usage = get_service_usage($self, $sid);
         $self->{scheduler}->score_nodes_to_start_service($service_usage);
     };
     if (my $err = $@) {

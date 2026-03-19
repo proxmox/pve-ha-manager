@@ -178,7 +178,7 @@ sub remove_locks {
 }
 
 sub get_static_stats {
-    my ($class, $haenv, $id, $service_node) = @_;
+    my ($class, $haenv, $id) = @_;
 
     die "implement in subclass";
 }

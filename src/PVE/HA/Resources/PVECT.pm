@@ -160,7 +160,7 @@ sub remove_locks {
 }
 
 sub get_static_stats {
-    my ($class, $haenv, $id, $service_node) = @_;
+    my ($class, $haenv, $id) = @_;
 
     my $conf = $haenv->get_static_service_stats($id);
 

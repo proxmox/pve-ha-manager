@@ -39,7 +39,7 @@ sub contains_node {
 }
 
 sub add_service_usage_to_node {
-    my ($self, $nodename, $sid, $service_node, $migration_target) = @_;
+    my ($self, $nodename, $sid) = @_;
 
     if ($self->contains_node($nodename)) {
         $self->{nodes}->{$nodename}->{$sid} = 1;
@@ -60,7 +60,7 @@ sub remove_service_usage {
 }
 
 sub score_nodes_to_start_service {
-    my ($self, $sid, $service_node) = @_;
+    my ($self, $sid) = @_;
 
     my $nodes = $self->{nodes};
 

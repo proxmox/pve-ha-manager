@@ -35,7 +35,7 @@ sub contains_node {
 
 # Logs a warning to $haenv upon failure, but does not die.
 sub add_service_usage_to_node {
-    my ($self, $nodename, $sid, $service_node, $migration_target) = @_;
+    my ($self, $nodename, $sid) = @_;
 
     die "implement in subclass";
 }
@@ -49,10 +49,8 @@ sub add_service_usage {
     my ($current_node, $target_node) =
         get_used_service_nodes($online_nodes, $service_state, $service_node, $migration_target);
 
-    $self->add_service_usage_to_node($current_node, $sid, $service_node, $migration_target)
-        if $current_node;
-    $self->add_service_usage_to_node($target_node, $sid, $service_node, $migration_target)
-        if $target_node;
+    $self->add_service_usage_to_node($current_node, $sid) if $current_node;
+    $self->add_service_usage_to_node($target_node, $sid) if $target_node;
 }
 
 sub remove_service_usage {
@@ -63,7 +61,7 @@ sub remove_service_usage {
 
 # Returns a hash with $nodename => $score pairs. A lower $score is better.
 sub score_nodes_to_start_service {
-    my ($self, $sid, $service_node) = @_;
+    my ($self, $sid) = @_;
 
     die "implement in subclass";
 }
