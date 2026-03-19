@@ -143,15 +143,7 @@ sub get_static_stats {
     my $sid = $class->type() . ":$id";
     my $hardware = $haenv->hardware();
 
-    if (my $service_stats = $hardware->get_static_service_stats($sid)) {
-        return $service_stats;
-    } elsif ($id =~ /^(\d)(\d\d)/) {
-        # auto assign usage calculated from ID for convenience
-        my ($maxcpu, $maxmeory) = (int($1) + 1, (int($2) + 1) * 1 << 29);
-        return { maxcpu => $maxcpu, maxmem => $maxmeory };
-    } else {
-        return {};
-    }
+    return $hardware->get_static_service_stats($sid);
 }
 
 1;
