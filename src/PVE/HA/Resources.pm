@@ -183,12 +183,6 @@ sub get_static_stats_from_config {
     die "implement in subclass";
 }
 
-sub get_static_stats {
-    my ($class, $haenv, $sid) = @_;
-
-    die "implement in subclass";
-}
-
 # package PVE::HA::Resources::IPAddr;
 
 # use strict;

@@ -14,12 +14,15 @@ sub new {
     my $node_stats = eval { $haenv->get_static_node_stats() };
     die "did not get static node usage information - $@" if $@;
 
+    my $service_stats = eval { $haenv->get_static_service_stats() };
+    die "did not get static service usage information - $@" if $@;
+
     my $scheduler = eval { PVE::RS::ResourceScheduling::Static->new(); };
     die "unable to initialize static scheduling - $@" if $@;
 
     return bless {
         'node-stats' => $node_stats,
-        'service-stats' => {},
+        'service-stats' => $service_stats,
         haenv => $haenv,
         scheduler => $scheduler,
         'node-services' => {}, # Services on each node. Fallback if scoring calculation fails.
@@ -63,20 +66,8 @@ sub contains_node {
 my sub get_service_usage {
     my ($self, $sid) = @_;
 
-    return $self->{'service-stats'}->{$sid} if $self->{'service-stats'}->{$sid};
-
-    my (undef, $type, undef) = $self->{haenv}->parse_sid($sid);
-    my $plugin = PVE::HA::Resources->lookup($type);
-
-    my $stats = eval { $plugin->get_static_stats($self->{haenv}, $sid) };
-    die "did not get static service usage information for '$sid'\n" if !$stats;
-
-    my $service_stats = {
-        maxcpu => $stats->{maxcpu} + 0.0, # containers allow non-integer cpulimit
-        maxmem => int($stats->{maxmem}),
-    };
-
-    $self->{'service-stats'}->{$sid} = $service_stats;
+    my $service_stats = $self->{'service-stats'}->{$sid}
+        or die "did not get static service usage information for '$sid'\n";
 
     return $service_stats;
 }
@@ -101,8 +92,6 @@ sub remove_service_usage {
 
     eval { $self->{scheduler}->remove_service_usage($sid) };
     $self->{haenv}->log('warning', "unable to remove service '$sid' usage - $@") if $@;
-
-    delete $self->{'service-stats'}->{$sid}; # Invalidate old service stats
 }
 
 sub score_nodes_to_start_service {

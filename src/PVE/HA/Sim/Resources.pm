@@ -137,12 +137,4 @@ sub remove_locks {
     return undef;
 }
 
-sub get_static_stats {
-    my ($class, $haenv, $sid) = @_;
-
-    my $hardware = $haenv->hardware();
-
-    return $hardware->get_static_service_stats($sid);
-}
-
 1;

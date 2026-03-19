@@ -168,10 +168,4 @@ sub get_static_stats_from_config {
     };
 }
 
-sub get_static_stats {
-    my ($class, $haenv, $sid) = @_;
-
-    return $haenv->get_static_service_stats($sid);
-}
-
 1;

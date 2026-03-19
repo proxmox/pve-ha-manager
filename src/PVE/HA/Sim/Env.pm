@@ -489,15 +489,9 @@ sub get_datacenter_settings {
 }
 
 sub get_static_service_stats {
-    my ($self, $id) = @_;
-
-    return $self->{hardware}->get_static_service_stats($id);
-}
-
-sub update_static_service_stats {
     my ($self) = @_;
 
-    return $self->{hardware}->update_static_service_stats();
+    return $self->{hardware}->get_static_service_stats();
 }
 
 sub get_static_node_stats {
