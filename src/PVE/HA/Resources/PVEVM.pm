@@ -184,7 +184,6 @@ sub get_static_stats {
     my ($class, $haenv, $id, $service_node) = @_;
 
     my $conf = $haenv->get_static_service_stats($id);
-    $conf = PVE::QemuConfig->load_config($id, $service_node) if !defined($conf);
 
     return {
         maxcpu => PVE::QemuConfig->get_derived_property($conf, 'max-cpu'),
