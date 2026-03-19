@@ -33,10 +33,10 @@ sub add_node {
 
     my $stats = $self->{'node-stats'}->{$nodename}
         or die "did not get static node usage information for '$nodename'\n";
-    die "static node usage information for '$nodename' missing cpu count\n" if !$stats->{cpus};
-    die "static node usage information for '$nodename' missing memory\n" if !$stats->{memory};
+    die "static node usage information for '$nodename' missing cpu count\n" if !defined($stats->{maxcpu});
+    die "static node usage information for '$nodename' missing memory\n" if !defined($stats->{maxmem});
 
-    eval { $self->{scheduler}->add_node($nodename, int($stats->{cpus}), int($stats->{memory})); };
+    eval { $self->{scheduler}->add_node($nodename, int($stats->{maxcpu}), int($stats->{maxmem})); };
     die "initializing static node usage for '$nodename' failed - $@" if $@;
 }
 

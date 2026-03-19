@@ -548,7 +548,14 @@ sub get_static_node_stats {
 
     my $stats = PVE::Cluster::get_node_kv('static-info');
     for my $node (keys $stats->%*) {
-        $stats->{$node} = eval { decode_json($stats->{$node}) };
+        $stats->{$node} = eval {
+            my $node_stats = decode_json($stats->{$node});
+
+            return {
+                maxcpu => $node_stats->{cpus},
+                maxmem => $node_stats->{memory},
+            };
+        };
         $self->log('err', "unable to decode static node info for '$node' - $@") if $@;
     }
 

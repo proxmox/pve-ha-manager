@@ -488,9 +488,9 @@ sub new {
             || die "Copy failed: $!\n";
     } else {
         my $cstatus = {
-            node1 => { power => 'off', network => 'off', cpus => 24, memory => 131072 },
-            node2 => { power => 'off', network => 'off', cpus => 24, memory => 131072 },
-            node3 => { power => 'off', network => 'off', cpus => 24, memory => 131072 },
+            node1 => { power => 'off', network => 'off', maxcpu => 24, maxmem => 131072 },
+            node2 => { power => 'off', network => 'off', maxcpu => 24, maxmem => 131072 },
+            node3 => { power => 'off', network => 'off', maxcpu => 24, maxmem => 131072 },
         };
         $self->write_hardware_status_nolock($cstatus);
     }
@@ -1088,7 +1088,7 @@ sub get_static_node_stats {
 
     my $stats = {};
     for my $node (keys $cstatus->%*) {
-        $stats->{$node} = { $cstatus->{$node}->%{qw(cpus memory)} };
+        $stats->{$node} = { $cstatus->{$node}->%{qw(maxcpu maxmem)} };
     }
 
     return $stats;
