@@ -245,13 +245,15 @@ sub recompute_online_node_usage {
 
     my $online_nodes = $self->{ns}->list_online_nodes();
 
+    my $service_stats;
     my $online_node_usage;
 
     if (my $mode = $self->{crs}->{scheduler}) {
         if ($mode eq 'static') {
             if ($have_static_scheduling) {
                 $online_node_usage = eval {
-                    my $scheduler = PVE::HA::Usage::Static->new($haenv);
+                    $service_stats = $haenv->get_static_service_stats();
+                    my $scheduler = PVE::HA::Usage::Static->new($haenv, $service_stats);
                     $scheduler->add_node($_) for $online_nodes->@*;
                     return $scheduler;
                 };
@@ -271,6 +273,7 @@ sub recompute_online_node_usage {
 
     # fallback to the basic algorithm in any case
     if (!$online_node_usage) {
+        $service_stats = $haenv->get_basic_service_stats();
         $online_node_usage = PVE::HA::Usage::Basic->new($haenv);
         $online_node_usage->add_node($_) for $online_nodes->@*;
     }
@@ -279,6 +282,16 @@ sub recompute_online_node_usage {
         my $sd = $self->{ss}->{$sid};
 
         $online_node_usage->add_service_usage($sid, $sd->{state}, $sd->{node}, $sd->{target});
+    }
+
+    # add remaining non-HA resources to online node usage
+    for my $sid (sort keys %$service_stats) {
+        next if $self->{ss}->{$sid};
+
+        my ($node, $state) = $service_stats->{$sid}->@{qw(node state)};
+
+        # the migration target is not known for non-HA resources
+        $online_node_usage->add_service_usage($sid, $state, $node, undef);
     }
 
     $self->{online_node_usage} = $online_node_usage;

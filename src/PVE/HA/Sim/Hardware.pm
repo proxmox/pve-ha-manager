@@ -1077,6 +1077,12 @@ my sub get_cluster_service_stats {
     return $stats;
 }
 
+sub get_basic_service_stats {
+    my ($self) = @_;
+
+    return get_cluster_service_stats($self);
+}
+
 sub get_static_service_stats {
     my ($self) = @_;
 

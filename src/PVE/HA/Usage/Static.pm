@@ -9,13 +9,10 @@ use PVE::RS::ResourceScheduling::Static;
 use base qw(PVE::HA::Usage);
 
 sub new {
-    my ($class, $haenv) = @_;
+    my ($class, $haenv, $service_stats) = @_;
 
     my $node_stats = eval { $haenv->get_static_node_stats() };
     die "did not get static node usage information - $@" if $@;
-
-    my $service_stats = eval { $haenv->get_static_service_stats() };
-    die "did not get static service usage information - $@" if $@;
 
     my $scheduler = eval { PVE::RS::ResourceScheduling::Static->new(); };
     die "unable to initialize static scheduling - $@" if $@;

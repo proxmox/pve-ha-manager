@@ -300,6 +300,12 @@ sub get_datacenter_settings {
     return $self->{plug}->get_datacenter_settings();
 }
 
+sub get_basic_service_stats {
+    my ($self) = @_;
+
+    return $self->{plug}->get_basic_service_stats();
+}
+
 sub get_static_service_stats {
     my ($self) = @_;
 

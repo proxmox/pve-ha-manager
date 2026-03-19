@@ -488,6 +488,12 @@ sub get_datacenter_settings {
     };
 }
 
+sub get_basic_service_stats {
+    my ($self) = @_;
+
+    return $self->{hardware}->get_basic_service_stats();
+}
+
 sub get_static_service_stats {
     my ($self) = @_;
 

@@ -6,7 +6,7 @@ use warnings;
 use base qw(PVE::HA::Usage);
 
 sub new {
-    my ($class, $haenv) = @_;
+    my ($class, $haenv, $service_stats) = @_;
 
     return bless {
         nodes => {},

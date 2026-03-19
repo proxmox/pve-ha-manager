@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 sub new {
-    my ($class, $haenv) = @_;
+    my ($class, $haenv, $service_stats) = @_;
 
     die "implement in subclass";
 }
