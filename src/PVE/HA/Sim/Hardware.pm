@@ -877,6 +877,26 @@ sub sim_hardware_cmd {
                     { maxcpu => $params[0], maxmem => $params[1] },
                 );
 
+            } elsif ($action eq 'manual-migrate') {
+
+                die "sim_hardware_cmd: missing target node for '$action' command"
+                    if !$param;
+
+                my $conf = $self->read_service_config();
+
+                die "sim_hardware_cmd: service '$sid' not configured\n"
+                    if !$conf->{$sid};
+
+                my $current_node = $conf->{$sid}->{node}
+                    || die "sim_hardware_cmd: service '$sid' has no node\n";
+
+                die "sim_hardware_cmd: manual-migrate requires service"
+                    . " in 'ignored' state\n"
+                    if !defined($conf->{$sid}->{state})
+                    || $conf->{$sid}->{state} ne 'ignored';
+
+                $self->change_service_location($sid, $current_node, $param);
+
             } elsif ($action eq 'delete') {
 
                 $self->delete_service($sid);
