@@ -91,7 +91,7 @@ __PACKAGE__->register_method({
                 },
                 type => {
                     description => "Type of status entry.",
-                    enum => ["quorum", "master", "lrm", "service"],
+                    enum => ["quorum", "master", "lrm", "service", "fencing"],
                 },
                 quorate => {
                     description => "For type 'quorum'. Whether the cluster is quorate or not.",
@@ -141,6 +141,13 @@ __PACKAGE__->register_method({
                 state => {
                     description => "For type 'service'. Verbose service state.",
                     type => "string",
+                    optional => 1,
+                },
+                'armed-state' => {
+                    description => "For type 'fencing'. Whether HA fencing is armed"
+                        . " or on standby.",
+                    type => "string",
+                    enum => ['armed', 'standby'],
                     optional => 1,
                 },
             },
@@ -193,6 +200,23 @@ __PACKAGE__->register_method({
                 };
         }
 
+        # the CRM only opens the watchdog when actively running as master
+        my $crm_active =
+            defined($status->{master_node})
+            && defined($status->{timestamp})
+            && $timestamp_to_status->($ctime, $status->{timestamp}) eq 'active';
+
+        my $armed_state = $crm_active ? 'armed' : 'standby';
+        my $crm_wd = $crm_active ? "CRM watchdog active" : "CRM watchdog standby";
+        push @$res,
+            {
+                id => 'fencing',
+                type => 'fencing',
+                node => $status->{master_node} // $nodename,
+                status => "$armed_state ($crm_wd)",
+                'armed-state' => $armed_state,
+            };
+
         foreach my $node (sort keys %{ $status->{node_status} }) {
             my $active_count =
                 PVE::HA::Tools::count_active_services($status->{service_status}, $node);
@@ -209,10 +233,17 @@ __PACKAGE__->register_method({
             } else {
                 my $status_str = &$timestamp_to_status($ctime, $lrm_status->{timestamp});
                 my $lrm_mode = $lrm_status->{mode};
+                my $lrm_state = $lrm_status->{state} || 'unknown';
+
+                # LRM holds its watchdog while it has the agent lock
+                my $lrm_wd =
+                    ($status_str eq 'active'
+                        && ($lrm_state eq 'active' || $lrm_state eq 'maintenance'))
+                    ? 'watchdog active'
+                    : 'watchdog standby';
 
                 if ($status_str eq 'active') {
                     $lrm_mode ||= 'active';
-                    my $lrm_state = $lrm_status->{state} || 'unknown';
                     if ($lrm_mode ne 'active') {
                         $status_str = "$lrm_mode mode";
                     } else {
@@ -227,7 +258,7 @@ __PACKAGE__->register_method({
                 }
 
                 my $time_str = localtime($lrm_status->{timestamp});
-                my $status_text = "$node ($status_str, $time_str)";
+                my $status_text = "$node ($status_str, $lrm_wd, $time_str)";
                 push @$res,
                     {
                         id => $id,
