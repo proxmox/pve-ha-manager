@@ -52,7 +52,10 @@ __PACKAGE__->register_method({
         my ($param) = @_;
 
         my $result = [
-            { name => 'current' }, { name => 'manager_status' },
+            { name => 'current' },
+            { name => 'manager_status' },
+            { name => 'disarm-ha' },
+            { name => 'arm-ha' },
         ];
 
         return $result;
@@ -144,10 +147,17 @@ __PACKAGE__->register_method({
                     optional => 1,
                 },
                 'armed-state' => {
-                    description => "For type 'fencing'. Whether HA fencing is armed"
-                        . " or on standby.",
+                    description => "For type 'fencing'. Whether HA is armed, on standby,"
+                        . " disarming or disarmed.",
                     type => "string",
-                    enum => ['armed', 'standby'],
+                    enum => ['armed', 'standby', 'disarming', 'disarmed'],
+                    optional => 1,
+                },
+                resource_mode => {
+                    description =>
+                        "For type 'fencing'. How resources are handled while disarmed.",
+                    type => "string",
+                    enum => ['freeze', 'ignore'],
                     optional => 1,
                 },
             },
@@ -184,9 +194,13 @@ __PACKAGE__->register_method({
 
             my $extra_status = '';
 
+            if (my $disarm = $status->{disarm}) {
+                $extra_status .= " - $disarm->{state}, resource mode: $disarm->{mode}";
+            }
             my $datacenter_config = eval { cfs_read_file('datacenter.cfg') } // {};
             if (my $crs = $datacenter_config->{crs}) {
-                $extra_status = " - $crs->{ha} load CRS" if $crs->{ha} && $crs->{ha} ne 'basic';
+                $extra_status .= " - $crs->{ha} load CRS"
+                    if $crs->{ha} && $crs->{ha} ne 'basic';
             }
             my $time_str = localtime($status->{timestamp});
             my $status_text = "$master ($status_str, $time_str)$extra_status";
@@ -206,16 +220,32 @@ __PACKAGE__->register_method({
             && defined($status->{timestamp})
             && $timestamp_to_status->($ctime, $status->{timestamp}) eq 'active';
 
-        my $armed_state = $crm_active ? 'armed' : 'standby';
-        my $crm_wd = $crm_active ? "CRM watchdog active" : "CRM watchdog standby";
-        push @$res,
-            {
-                id => 'fencing',
-                type => 'fencing',
-                node => $status->{master_node} // $nodename,
-                status => "$armed_state ($crm_wd)",
-                'armed-state' => $armed_state,
-            };
+        if (my $disarm = $status->{disarm}) {
+            my $mode = $disarm->{mode} // 'unknown';
+            my $disarm_state = $disarm->{state} // 'unknown';
+            my $wd_released = $disarm_state eq 'disarmed';
+            my $crm_wd = $wd_released ? "CRM watchdog released" : "CRM watchdog active";
+            push @$res,
+                {
+                    id => 'fencing',
+                    type => 'fencing',
+                    node => $status->{master_node} // $nodename,
+                    status => "$disarm_state, resource mode: $mode ($crm_wd)",
+                    'armed-state' => $disarm_state,
+                    resource_mode => $mode,
+                };
+        } else {
+            my $armed_state = $crm_active ? 'armed' : 'standby';
+            my $crm_wd = $crm_active ? "CRM watchdog active" : "CRM watchdog standby";
+            push @$res,
+                {
+                    id => 'fencing',
+                    type => 'fencing',
+                    node => $status->{master_node} // $nodename,
+                    status => "$armed_state ($crm_wd)",
+                    'armed-state' => $armed_state,
+                };
+        }
 
         foreach my $node (sort keys %{ $status->{node_status} }) {
             my $active_count =
@@ -236,11 +266,17 @@ __PACKAGE__->register_method({
                 my $lrm_state = $lrm_status->{state} || 'unknown';
 
                 # LRM holds its watchdog while it has the agent lock
-                my $lrm_wd =
-                    ($status_str eq 'active'
-                        && ($lrm_state eq 'active' || $lrm_state eq 'maintenance'))
-                    ? 'watchdog active'
-                    : 'watchdog standby';
+                my $lrm_wd;
+                if (
+                    $status_str eq 'active'
+                    && ($lrm_state eq 'active' || $lrm_state eq 'maintenance')
+                ) {
+                    $lrm_wd = 'watchdog active';
+                } elsif ($lrm_mode && $lrm_mode eq 'disarm') {
+                    $lrm_wd = 'watchdog released';
+                } else {
+                    $lrm_wd = 'watchdog standby';
+                }
 
                 if ($status_str eq 'active') {
                     $lrm_mode ||= 'active';
@@ -253,7 +289,7 @@ __PACKAGE__->register_method({
                             $status_str = $lrm_state;
                         }
                     }
-                } elsif ($lrm_mode && $lrm_mode eq 'maintenance') {
+                } elsif ($lrm_mode && ($lrm_mode eq 'maintenance' || $lrm_mode eq 'disarm')) {
                     $status_str = "$lrm_mode mode";
                 }
 
@@ -284,6 +320,14 @@ __PACKAGE__->register_method({
             my $node = $data->{node} // '---'; # to be safe against manual tinkering
 
             $data->{state} = PVE::HA::Tools::get_verbose_service_state($ss, $sc);
+
+            # show disarm resource mode instead of internal service state
+            if (my $disarm = $status->{disarm}) {
+                if ($disarm->{mode} eq 'ignore') {
+                    $data->{state} = 'ignore';
+                }
+            }
+
             $data->{status} = "$sid ($node, $data->{state})"; # backward compat. and CLI
 
             # also return common resource attributes
@@ -345,6 +389,62 @@ __PACKAGE__->register_method({
         }
 
         return $data;
+    },
+});
+
+__PACKAGE__->register_method({
+    name => 'disarm-ha',
+    path => 'disarm-ha',
+    method => 'POST',
+    protected => 1,
+    description => "Request disarming the HA stack, releasing all watchdogs cluster-wide.",
+    permissions => {
+        check => ['perm', '/', ['Sys.Console']],
+    },
+    parameters => {
+        additionalProperties => 0,
+        properties => {
+            'resource-mode' => {
+                description => "Controls how HA managed resources are handled while disarmed."
+                    . " The current state of resources is not affected."
+                    . " 'freeze': new commands and state changes are not applied."
+                    . " 'ignore': resources are removed from HA tracking and can be"
+                    . " managed as if they were not HA managed.",
+                type => 'string',
+                enum => ['freeze', 'ignore'],
+            },
+        },
+    },
+    returns => { type => 'null' },
+    code => sub {
+        my ($param) = @_;
+
+        PVE::HA::Config::queue_crm_commands("disarm-ha $param->{'resource-mode'}");
+
+        return undef;
+    },
+});
+
+__PACKAGE__->register_method({
+    name => 'arm-ha',
+    path => 'arm-ha',
+    method => 'POST',
+    protected => 1,
+    description => "Request re-arming the HA stack after it was disarmed.",
+    permissions => {
+        check => ['perm', '/', ['Sys.Console']],
+    },
+    parameters => {
+        additionalProperties => 0,
+        properties => {},
+    },
+    returns => { type => 'null' },
+    code => sub {
+        my ($param) = @_;
+
+        PVE::HA::Config::queue_crm_commands("arm-ha");
+
+        return undef;
     },
 });
 

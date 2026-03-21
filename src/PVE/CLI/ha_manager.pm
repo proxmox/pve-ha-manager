@@ -298,6 +298,8 @@ our $cmddef = {
             enable => [__PACKAGE__, 'node-maintenance-set', ['node'], { disable => 0 }],
             disable => [__PACKAGE__, 'node-maintenance-set', ['node'], { disable => 1 }],
         },
+        'disarm-ha' => ['PVE::API2::HA::Status', 'disarm-ha', ['resource-mode']],
+        'arm-ha' => ['PVE::API2::HA::Status', 'arm-ha', []],
     },
 
 };
