@@ -104,9 +104,17 @@ sub get_protected_ha_manager_lock {
         if ($haenv->get_ha_manager_lock()) {
             if ($self->{ha_manager_wd}) {
                 $haenv->watchdog_update($self->{ha_manager_wd});
-            } else {
-                my $wfh = $haenv->watchdog_open();
-                $self->{ha_manager_wd} = $wfh;
+            } elsif (!$self->{disarmed}) {
+                # check on-disk disarm state to avoid briefly opening a watchdog when taking
+                # over as new master while the stack is already fully disarmed
+                my $ms = eval { $haenv->read_manager_status() };
+                if ($ms && $ms->{disarm} && $ms->{disarm}->{state} eq 'disarmed') {
+                    $haenv->log('info', "taking over as disarmed master, skipping watchdog");
+                    $self->{disarmed} = 1;
+                } else {
+                    my $wfh = $haenv->watchdog_open();
+                    $self->{ha_manager_wd} = $wfh;
+                }
             }
             return 1;
         }
@@ -211,6 +219,10 @@ sub can_get_active {
                 if (scalar($ss->%*)) {
                     return 1; # need to get active to clean up stale service status entries
                 }
+
+                if ($manager_status->{disarm}) {
+                    return 1; # stay active while HA stack is disarmed
+                }
             }
             return 0; # no services, no node in maintenance mode, and no crm cmds -> can stay idle
         }
@@ -231,6 +243,9 @@ sub allowed_to_get_idle {
 
     my $manager_status = get_manager_status_guarded($haenv);
     return 0 if !$self->is_cluster_and_ha_healthy($manager_status);
+
+    # don't go idle while HA stack is disarmed - need to stay active to process arm-ha
+    return 0 if $manager_status->{disarm};
 
     my $conf = eval { $haenv->read_service_config() };
     if (my $err = $@) {
@@ -379,6 +394,18 @@ sub work {
                 }
 
                 $manager->manage();
+
+                if ($manager->is_fully_disarmed()) {
+                    if (!$self->{disarmed}) {
+                        $haenv->log('info', "HA stack fully disarmed, releasing CRM watchdog");
+                        give_up_watchdog_protection($self);
+                        $self->{disarmed} = 1;
+                    }
+                } elsif ($self->{disarmed}) {
+                    $haenv->log('info', "re-arming HA stack");
+                    $self->{disarmed} = 0;
+                    # watchdog will be re-opened by get_protected_ha_manager_lock next iteration
+                }
             }
         };
         if (my $err = $@) {

@@ -1,0 +1,7 @@
+[
+    [ "power node1 on", "power node2 on", "power node3 on"],
+    [ "service vm:101 relocate node2", "crm node1 disarm-ha freeze" ],
+    [],
+    [],
+    [ "crm node1 arm-ha" ]
+]

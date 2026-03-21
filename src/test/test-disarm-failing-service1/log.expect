@@ -1,0 +1,125 @@
+info      0     hardware: starting simulation
+info     20      cmdlist: execute power node1 on
+info     20    node1/crm: status change startup => wait_for_quorum
+info     20    node1/lrm: status change startup => wait_for_agent_lock
+info     20      cmdlist: execute power node2 on
+info     20    node2/crm: status change startup => wait_for_quorum
+info     20    node2/lrm: status change startup => wait_for_agent_lock
+info     20      cmdlist: execute power node3 on
+info     20    node3/crm: status change startup => wait_for_quorum
+info     20    node3/lrm: status change startup => wait_for_agent_lock
+info     20    node1/crm: got lock 'ha_manager_lock'
+info     20    node1/crm: status change wait_for_quorum => master
+info     20    node1/crm: node 'node1': state changed from 'unknown' => 'online'
+info     20    node1/crm: node 'node2': state changed from 'unknown' => 'online'
+info     20    node1/crm: node 'node3': state changed from 'unknown' => 'online'
+info     20    node1/crm: adding new service 'fa:1001' on node 'node2'
+info     20    node1/crm: adding new service 'vm:101' on node 'node1'
+info     20    node1/crm: service 'fa:1001': state changed from 'request_start' to 'started'  (node = node2)
+info     20    node1/crm: service 'vm:101': state changed from 'request_start' to 'started'  (node = node1)
+info     21    node1/lrm: got lock 'ha_agent_node1_lock'
+info     21    node1/lrm: status change wait_for_agent_lock => active
+info     21    node1/lrm: starting service vm:101
+info     21    node1/lrm: service status vm:101 started
+info     22    node2/crm: status change wait_for_quorum => slave
+info     23    node2/lrm: got lock 'ha_agent_node2_lock'
+info     23    node2/lrm: status change wait_for_agent_lock => active
+info     23    node2/lrm: starting service fa:1001
+info     23    node2/lrm: service status fa:1001 started
+info     24    node3/crm: status change wait_for_quorum => slave
+info    120      cmdlist: execute service fa:1001 disabled
+info    120    node1/crm: service 'fa:1001': state changed from 'started' to 'request_stop'
+info    123    node2/lrm: stopping service fa:1001
+info    123    node2/lrm: unable to stop service fa:1001 (still running)
+err     140    node1/crm: service 'fa:1001' stop failed (exit code 1)
+info    140    node1/crm: service 'fa:1001': state changed from 'request_stop' to 'error'
+info    140    node1/crm: service 'fa:1001': state changed from 'error' to 'stopped'
+info    143    node2/lrm: stopping service fa:1001
+info    143    node2/lrm: unable to stop service fa:1001 (still running)
+info    163    node2/lrm: stopping service fa:1001
+info    163    node2/lrm: unable to stop service fa:1001 (still running)
+info    183    node2/lrm: stopping service fa:1001
+info    183    node2/lrm: unable to stop service fa:1001 (still running)
+info    203    node2/lrm: stopping service fa:1001
+info    203    node2/lrm: unable to stop service fa:1001 (still running)
+info    220      cmdlist: execute crm node1 disarm-ha freeze
+info    220    node1/crm: got crm command: disarm-ha freeze
+info    220    node1/crm: disarm: freezing service 'fa:1001' (was 'stopped')
+info    220    node1/crm: disarm: freezing service 'vm:101' (was 'started')
+info    221    node1/lrm: HA disarm requested, releasing agent lock and watchdog
+info    221    node1/lrm: status change active => wait_for_agent_lock
+info    223    node2/lrm: HA disarm requested, releasing agent lock and watchdog
+info    223    node2/lrm: status change active => wait_for_agent_lock
+info    240    node1/crm: all LRMs disarmed, HA stack is now fully disarmed
+info    240    node1/crm: HA stack fully disarmed, releasing CRM watchdog
+info    320      cmdlist: execute crm node1 arm-ha
+info    320    node1/crm: got crm command: arm-ha
+info    320    node1/crm: re-arming HA stack
+info    340    node1/crm: service 'fa:1001': state changed from 'freeze' to 'request_stop'
+info    340    node1/crm: service 'vm:101': state changed from 'freeze' to 'started'
+info    341    node1/lrm: got lock 'ha_agent_node1_lock'
+info    341    node1/lrm: status change wait_for_agent_lock => active
+info    343    node2/lrm: got lock 'ha_agent_node2_lock'
+info    343    node2/lrm: status change wait_for_agent_lock => active
+info    343    node2/lrm: stopping service fa:1001
+info    343    node2/lrm: unable to stop service fa:1001 (still running)
+err     360    node1/crm: service 'fa:1001' stop failed (exit code 1)
+info    360    node1/crm: service 'fa:1001': state changed from 'request_stop' to 'error'
+info    360    node1/crm: service 'fa:1001': state changed from 'error' to 'stopped'
+info    363    node2/lrm: stopping service fa:1001
+info    363    node2/lrm: unable to stop service fa:1001 (still running)
+info    383    node2/lrm: stopping service fa:1001
+info    383    node2/lrm: unable to stop service fa:1001 (still running)
+info    403    node2/lrm: stopping service fa:1001
+info    403    node2/lrm: unable to stop service fa:1001 (still running)
+info    423    node2/lrm: stopping service fa:1001
+info    423    node2/lrm: unable to stop service fa:1001 (still running)
+info    443    node2/lrm: stopping service fa:1001
+info    443    node2/lrm: unable to stop service fa:1001 (still running)
+info    463    node2/lrm: stopping service fa:1001
+info    463    node2/lrm: unable to stop service fa:1001 (still running)
+info    483    node2/lrm: stopping service fa:1001
+info    483    node2/lrm: unable to stop service fa:1001 (still running)
+info    503    node2/lrm: stopping service fa:1001
+info    503    node2/lrm: unable to stop service fa:1001 (still running)
+info    523    node2/lrm: stopping service fa:1001
+info    523    node2/lrm: unable to stop service fa:1001 (still running)
+info    543    node2/lrm: stopping service fa:1001
+info    543    node2/lrm: unable to stop service fa:1001 (still running)
+info    563    node2/lrm: stopping service fa:1001
+info    563    node2/lrm: unable to stop service fa:1001 (still running)
+info    583    node2/lrm: stopping service fa:1001
+info    583    node2/lrm: unable to stop service fa:1001 (still running)
+info    603    node2/lrm: stopping service fa:1001
+info    603    node2/lrm: unable to stop service fa:1001 (still running)
+info    623    node2/lrm: stopping service fa:1001
+info    623    node2/lrm: unable to stop service fa:1001 (still running)
+info    643    node2/lrm: stopping service fa:1001
+info    643    node2/lrm: unable to stop service fa:1001 (still running)
+info    663    node2/lrm: stopping service fa:1001
+info    663    node2/lrm: unable to stop service fa:1001 (still running)
+info    683    node2/lrm: stopping service fa:1001
+info    683    node2/lrm: unable to stop service fa:1001 (still running)
+info    703    node2/lrm: stopping service fa:1001
+info    703    node2/lrm: unable to stop service fa:1001 (still running)
+info    723    node2/lrm: stopping service fa:1001
+info    723    node2/lrm: unable to stop service fa:1001 (still running)
+info    743    node2/lrm: stopping service fa:1001
+info    743    node2/lrm: unable to stop service fa:1001 (still running)
+info    763    node2/lrm: stopping service fa:1001
+info    763    node2/lrm: unable to stop service fa:1001 (still running)
+info    783    node2/lrm: stopping service fa:1001
+info    783    node2/lrm: unable to stop service fa:1001 (still running)
+info    803    node2/lrm: stopping service fa:1001
+info    803    node2/lrm: unable to stop service fa:1001 (still running)
+info    823    node2/lrm: stopping service fa:1001
+info    823    node2/lrm: unable to stop service fa:1001 (still running)
+info    843    node2/lrm: stopping service fa:1001
+info    843    node2/lrm: unable to stop service fa:1001 (still running)
+info    863    node2/lrm: stopping service fa:1001
+info    863    node2/lrm: unable to stop service fa:1001 (still running)
+info    883    node2/lrm: stopping service fa:1001
+info    883    node2/lrm: unable to stop service fa:1001 (still running)
+info    903    node2/lrm: stopping service fa:1001
+info    903    node2/lrm: unable to stop service fa:1001 (still running)
+info    920     hardware: exit simulation - done

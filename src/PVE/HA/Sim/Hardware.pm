@@ -833,6 +833,15 @@ sub sim_hardware_cmd {
                 || $action eq 'disable-node-maintenance'
             ) {
                 $self->queue_crm_commands_nolock("$action $node");
+            } elsif ($action eq 'disarm-ha') {
+                my $mode = $params[0];
+
+                die "sim_hardware_cmd: unknown resource mode '$mode'\n"
+                    if $mode !~ m/^(freeze|ignore)$/;
+
+                $self->queue_crm_commands_nolock("$action $mode");
+            } elsif ($action eq 'arm-ha') {
+                $self->queue_crm_commands_nolock("$action");
             } else {
                 die "sim_hardware_cmd: unknown action '$action'";
             }
@@ -890,10 +899,17 @@ sub sim_hardware_cmd {
                 my $current_node = $conf->{$sid}->{node}
                     || die "sim_hardware_cmd: service '$sid' has no node\n";
 
-                die "sim_hardware_cmd: manual-migrate requires service"
-                    . " in 'ignored' state\n"
-                    if !defined($conf->{$sid}->{state})
-                    || $conf->{$sid}->{state} ne 'ignored';
+                my $svc_ignored = defined($conf->{$sid}->{state})
+                    && $conf->{$sid}->{state} eq 'ignored';
+
+                my $ms = PVE::HA::Tools::read_json_from_file(
+                    "$self->{statusdir}/manager_status", {},
+                );
+                my $disarm_ignored = $ms->{disarm} && $ms->{disarm}->{mode} eq 'ignore';
+
+                die "sim_hardware_cmd: manual-migrate requires service in"
+                    . " 'ignored' state or disarm-ha ignore mode\n"
+                    if !$svc_ignored && !$disarm_ignored;
 
                 $self->change_service_location($sid, $current_node, $param);
 

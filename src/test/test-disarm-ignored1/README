@@ -1,0 +1,10 @@
+Test disarm-ha with ignore resource mode.
+
+Verify the full disarm cycle with ignore resource mode:
+1. Start 3 nodes with services
+2. Disarm HA with ignore resource mode
+3. Services are suspended from HA tracking but kept in service status
+4. LRMs should release locks and watchdogs (disarm mode)
+5. CRM should release watchdog once all LRMs disarmed
+6. Arm HA again
+7. Services resume normal HA tracking with their preserved states

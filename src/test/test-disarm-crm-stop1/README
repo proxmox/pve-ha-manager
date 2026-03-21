@@ -1,0 +1,13 @@
+Test CRM master takeover while HA stack is fully disarmed.
+
+Verify that when the CRM master is stopped during full disarm, a slave
+takes over cleanly without briefly opening a watchdog, and that arming
+via the new master works correctly.
+
+1. Start 3 nodes with services
+2. Disarm HA with freeze resource mode
+3. Wait for full disarm (all LRMs disarmed, CRM watchdog released)
+4. Stop CRM on master node (node1)
+5. Slave on node2 takes over as new master, preserving disarm state
+6. Arm HA via new master
+7. Services unfreeze and resume normal operation

@@ -37,7 +37,7 @@ sub new {
         restart_tries => {},
         shutdown_request => 0,
         shutdown_errors => 0,
-        # mode can be: active, reboot, shutdown, restart, maintenance
+        # mode can be: active, reboot, shutdown, restart, maintenance, disarm
         mode => 'active',
         cluster_state_update => 0,
         active_idle_rounds => 0,
@@ -212,7 +212,9 @@ sub update_service_status {
             my $request = $ms->{node_request}->{$nodename} // {};
             if ($request->{maintenance}) {
                 $self->{mode} = 'maintenance';
-            } elsif ($self->{mode} eq 'maintenance') {
+            } elsif ($ms->{disarm}) {
+                $self->{mode} = 'disarm';
+            } elsif ($self->{mode} eq 'maintenance' || $self->{mode} eq 'disarm') {
                 $self->{mode} = 'active';
             }
         }
@@ -359,7 +361,9 @@ sub work {
 
         my $service_count = $self->active_service_count();
 
-        if (!$fence_request && $service_count && $haenv->quorate()) {
+        if ($self->{mode} eq 'disarm') {
+            # stay idle while disarmed, don't acquire lock
+        } elsif (!$fence_request && $service_count && $haenv->quorate()) {
             if ($self->get_protected_ha_agent_lock()) {
                 $self->set_local_status({ state => 'active' });
             }
@@ -382,6 +386,13 @@ sub work {
             $self->set_local_status({ state => 'lost_agent_lock' });
         } elsif ($self->is_maintenance_requested()) {
             $self->set_local_status({ state => 'maintenance' });
+        } elsif ($self->{mode} eq 'disarm' && !$self->run_workers()) {
+            $haenv->log('info', "HA disarm requested, releasing agent lock and watchdog");
+            # safety: disarming requested, no fence request (handled in earlier if-branch) and no
+            # running workers anymore, so safe to go idle.
+            $haenv->release_ha_agent_lock();
+            give_up_watchdog_protection($self);
+            $self->set_local_status({ state => 'wait_for_agent_lock' });
         } else {
             if (!$self->has_configured_service_on_local_node() && !$self->run_workers()) {
                 # no active service configured for this node and all (old) workers are done
@@ -409,6 +420,20 @@ sub work {
                 "node needs to be fenced during maintenance mode - releasing agent_lock\n",
             );
             $self->set_local_status({ state => 'lost_agent_lock' });
+        } elsif (
+            $self->{mode} eq 'disarm'
+            && !$self->active_service_count()
+            && !$self->run_workers()
+        ) {
+            # disarm takes priority - release lock and watchdog, go idle
+            $haenv->log(
+                'info',
+                "HA disarm requested during maintenance, releasing agent lock and watchdog",
+            );
+            # safety: no active services and no running workers, so safe to go idle.
+            $haenv->release_ha_agent_lock();
+            give_up_watchdog_protection($self);
+            $self->set_local_status({ state => 'wait_for_agent_lock' });
         } elsif ($self->active_service_count() || $self->run_workers()) {
             # keep the lock and watchdog as long as not all services cleared the node
             if (!$self->get_protected_ha_agent_lock()) {

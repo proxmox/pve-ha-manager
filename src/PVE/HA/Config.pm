@@ -356,6 +356,11 @@ my $service_check_ha_state = sub {
         if (!defined($has_state)) {
             # ignored service behave as if they were not managed by HA
             return 0 if defined($d->{state}) && $d->{state} eq 'ignored';
+            # cluster-wide disarm with ignore mode - resources can be managed directly
+            my $ms = cfs_read_file($manager_status_filename);
+            if (my $disarm = $ms->{disarm}) {
+                return 0 if $disarm->{mode} eq 'ignore';
+            }
             return 1;
         }
 

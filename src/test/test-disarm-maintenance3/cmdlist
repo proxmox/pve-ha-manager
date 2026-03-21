@@ -1,0 +1,8 @@
+[
+    [ "power node1 on", "power node2 on", "power node3 on"],
+    [ "crm node3 enable-node-maintenance" ],
+    [ "crm node1 disarm-ha ignore" ],
+    [ "service vm:103 manual-migrate node2" ],
+    [ "crm node3 disable-node-maintenance" ],
+    [ "crm node1 arm-ha" ]
+]

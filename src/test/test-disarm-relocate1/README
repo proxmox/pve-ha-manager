@@ -1,0 +1,3 @@
+Test disarm-ha freeze when a relocate command arrives in the same CRM cycle.
+The disarm takes priority: the relocate command is pre-empted and the service
+is frozen directly. After arm-ha, both services resume normally.

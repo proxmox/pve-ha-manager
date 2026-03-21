@@ -75,6 +75,9 @@ sub new {
     # on change of active master.
     $self->{ms}->{node_request} = $old_ms->{node_request} if defined($old_ms->{node_request});
 
+    # preserve disarm state across CRM master changes
+    $self->{ms}->{disarm} = $old_ms->{disarm} if defined($old_ms->{disarm});
+
     $self->update_crs_scheduler_mode(); # initial set, we update it once every loop
 
     return $self;
@@ -484,7 +487,12 @@ sub update_crm_commands {
             my $node = $1;
 
             my $state = $ns->get_node_state($node);
-            if ($state eq 'online') {
+            if ($ms->{disarm}) {
+                $haenv->log(
+                    'warn',
+                    "ignoring maintenance command for node $node - HA stack is disarmed",
+                );
+            } elsif ($state eq 'online') {
                 $ms->{node_request}->{$node}->{maintenance} = 1;
             } elsif ($state eq 'maintenance') {
                 $haenv->log(
@@ -505,6 +513,51 @@ sub update_crm_commands {
                 );
             }
             delete $ms->{node_request}->{$node}->{maintenance}; # gets flushed out at the end of the CRM loop
+        } elsif ($cmd =~ m/^disarm-ha\s+(freeze|ignore)$/) {
+            my $mode = $1;
+
+            if ($ms->{disarm}) {
+                $haenv->log(
+                    'notice',
+                    "ignoring disarm-ha command - already in disarm state ($ms->{disarm}->{state})",
+                );
+            } else {
+                $haenv->log('info', "got crm command: disarm-ha $mode");
+                if ($mode eq 'ignore') {
+                    for my $sid (sort keys %$ss) {
+                        $haenv->log(
+                            'info', "disarm: suspending HA tracking for service '$sid'",
+                        );
+                    }
+                }
+                $ms->{disarm} = { mode => $mode, state => 'disarming' };
+            }
+        } elsif ($cmd =~ m/^arm-ha$/) {
+            if ($ms->{disarm}) {
+                $haenv->log('info', "got crm command: arm-ha");
+
+                # recheck node info after ignore mode, as services may have been manually
+                # migrated while HA tracking was suspended
+                if ($ms->{disarm}->{mode} eq 'ignore') {
+                    my $sc = $haenv->read_service_config();
+                    for my $sid (sort keys %$ss) {
+                        my $cd = $sc->{$sid};
+                        next if !$cd;
+                        next if $cd->{node} eq $ss->{$sid}->{node};
+                        $haenv->log(
+                            'info',
+                            "service '$sid': updating node"
+                                . " '$ss->{$sid}->{node}' => '$cd->{node}'"
+                                . " (changed while disarmed)",
+                        );
+                        $ss->{$sid}->{node} = $cd->{node};
+                    }
+                }
+
+                delete $ms->{disarm};
+            } else {
+                $haenv->log('notice', "ignoring arm-ha command - HA stack is not disarmed");
+            }
         } else {
             $haenv->log('err', "unable to parse crm command: $cmd");
         }
@@ -643,6 +696,94 @@ sub try_persistent_group_migration {
     }
 }
 
+sub handle_disarm {
+    my ($self, $disarm, $ss, $lrm_modes) = @_;
+
+    my $haenv = $self->{haenv};
+    my $ns = $self->{ns};
+
+    # defer disarm if any services are in a transient state that needs the state machine to resolve
+    for my $sid (sort keys %$ss) {
+        my $state = $ss->{$sid}->{state};
+        if ($state eq 'fence' || $state eq 'recovery') {
+            $haenv->log(
+                'warn', "deferring disarm - service '$sid' is in '$state' state",
+            );
+            return 0; # let manage() continue so fence/recovery can progress
+        }
+        if ($state eq 'migrate' || $state eq 'relocate') {
+            $haenv->log(
+                'info', "deferring disarm - service '$sid' is in '$state' state",
+            );
+            return 0; # let manage() continue so migration can complete
+        }
+    }
+
+    my $mode = $disarm->{mode};
+
+    # prune stale runtime data (failed_nodes, cmd, target, ...) so the state machine starts
+    # fresh on re-arm; preserve maintenance_node for correct return behavior
+    my %keep_keys = map { $_ => 1 } qw(state node uid maintenance_node);
+
+    if ($mode eq 'freeze') {
+        for my $sid (sort keys %$ss) {
+            my $sd = $ss->{$sid};
+            my $state = $sd->{state};
+            next if $state eq 'freeze'; # already frozen
+            if (
+                $state eq 'started'
+                || $state eq 'stopped'
+                || $state eq 'request_stop'
+                || $state eq 'request_start'
+                || $state eq 'request_start_balance'
+                || $state eq 'error'
+            ) {
+                $haenv->log('info', "disarm: freezing service '$sid' (was '$state')");
+                delete $sd->{$_} for grep { !$keep_keys{$_} } keys %$sd;
+                $sd->{state} = 'freeze';
+                $sd->{uid} = compute_new_uuid('freeze');
+            }
+        }
+    } elsif ($mode eq 'ignore') {
+        # keep $ss intact; the disarm flag in $ms causes service loops and vm_is_ha_managed()
+        # to skip these services while disarmed
+        for my $sid (sort keys %$ss) {
+            my $sd = $ss->{$sid};
+            delete $sd->{$_} for grep { !$keep_keys{$_} } keys %$sd;
+        }
+    }
+
+    # check if all online LRMs have entered disarm mode
+    my $all_disarmed = 1;
+    my $online_nodes = $ns->list_online_nodes();
+
+    for my $node (@$online_nodes) {
+        my $lrm_mode = $lrm_modes->{$node} // 'unknown';
+        if ($lrm_mode ne 'disarm') {
+            $all_disarmed = 0;
+            last;
+        }
+    }
+
+    if ($all_disarmed && $disarm->{state} ne 'disarmed') {
+        $haenv->log('info', "all LRMs disarmed, HA stack is now fully disarmed");
+        $disarm->{state} = 'disarmed';
+    }
+
+    # once disarmed, stay disarmed - a returning node's LRM will catch up within one cycle
+    $self->{all_lrms_disarmed} = $disarm->{state} eq 'disarmed';
+
+    $self->flush_master_status();
+
+    return 1;
+}
+
+sub is_fully_disarmed {
+    my ($self) = @_;
+
+    return $self->{all_lrms_disarmed};
+}
+
 sub manage {
     my ($self) = @_;
 
@@ -669,31 +810,34 @@ sub manage {
 
     # compute new service status
 
-    # add new service
-    foreach my $sid (sort keys %$sc) {
-        next if $ss->{$sid}; # already there
-        my $cd = $sc->{$sid};
-        next if $cd->{state} eq 'ignored';
+    # skip service add/remove when disarmed - handle_disarm manages service status
+    if (!$ms->{disarm}) {
+        # add new service
+        foreach my $sid (sort keys %$sc) {
+            next if $ss->{$sid}; # already there
+            my $cd = $sc->{$sid};
+            next if $cd->{state} eq 'ignored';
 
-        $haenv->log('info', "adding new service '$sid' on node '$cd->{node}'");
-        # assume we are running to avoid relocate running service at add
-        my $state = ($cd->{state} eq 'started') ? 'request_start' : 'request_stop';
-        $ss->{$sid} = {
-            state => $state,
-            node => $cd->{node},
-            uid => compute_new_uuid('started'),
-        };
-    }
+            $haenv->log('info', "adding new service '$sid' on node '$cd->{node}'");
+            # assume we are running to avoid relocate running service at add
+            my $state = ($cd->{state} eq 'started') ? 'request_start' : 'request_stop';
+            $ss->{$sid} = {
+                state => $state,
+                node => $cd->{node},
+                uid => compute_new_uuid('started'),
+            };
+        }
 
-    # remove stale or ignored services from manager state
-    foreach my $sid (keys %$ss) {
-        next if $sc->{$sid} && $sc->{$sid}->{state} ne 'ignored';
+        # remove stale or ignored services from manager state
+        foreach my $sid (keys %$ss) {
+            next if $sc->{$sid} && $sc->{$sid}->{state} ne 'ignored';
 
-        my $reason = defined($sc->{$sid}) ? 'ignored state requested' : 'no config';
-        $haenv->log('info', "removing stale service '$sid' ($reason)");
+            my $reason = defined($sc->{$sid}) ? 'ignored state requested' : 'no config';
+            $haenv->log('info', "removing stale service '$sid' ($reason)");
 
-        # remove all service related state information
-        delete $ss->{$sid};
+            # remove all service related state information
+            delete $ss->{$sid};
+        }
     }
 
     $self->recompute_online_node_usage();
@@ -724,6 +868,15 @@ sub manage {
     }
 
     $self->update_crm_commands();
+
+    if (my $disarm = $ms->{disarm}) {
+        if ($self->handle_disarm($disarm, $ss, $lrm_modes)) {
+            return; # disarm active and progressing, skip normal service state machine
+        }
+        # disarm deferred (e.g. due to active fencing) - fall through to let it complete
+    }
+
+    $self->{all_lrms_disarmed} = 0;
 
     for (;;) {
         my $repeat = 0;
