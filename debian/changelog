@@ -1,3 +1,20 @@
+pve-ha-manager (5.1.2) trixie; urgency=medium
+
+  * fix #7399: api: rules: reject empty nodes and resources properties, which
+    could result in invalid rule sections being written to the config.
+
+  * crm: become active to clean up stale service status entries that persist
+    when services are removed from the HA config while the CRM is stopped,
+    which previously showed as stuck in "deleting" state.
+
+  * resource placement scheduler: include running non-HA resources in load
+    accounting for more accurate placement decisions.
+
+  * resources: expand 'max_restart' option description to clarify behavior
+    relative to 'max_relocate'.
+
+ -- Proxmox Support Team <support@proxmox.com>  Sun, 22 Mar 2026 17:14:34 +0100
+
 pve-ha-manager (5.1.1) trixie; urgency=medium
 
   * assert ha resource has correct guest type as otherwise a HA resource with
