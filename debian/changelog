@@ -13,6 +13,17 @@ pve-ha-manager (5.1.2) trixie; urgency=medium
   * resources: expand 'max_restart' option description to clarify behavior
     relative to 'max_relocate'.
 
+  * watchdog-mux: improve logging by tracking the client PID and including it
+    in all client-specific messages, and log on new client connect, graceful
+    disconnect, and when all watchdog-mux connections are closed (underlying
+    /dev/watchdog still needs to be active).
+
+  * clear lock status cache on lock release to avoid spurious "lost lock"
+    error when a lock is released and re-acquired within the same process
+    lifetime. This was harmless but might have caused confusion.
+
+  * various fixes for typos and misleading error messages across the tree.
+
  -- Proxmox Support Team <support@proxmox.com>  Sun, 22 Mar 2026 17:14:34 +0100
 
 pve-ha-manager (5.1.1) trixie; urgency=medium
