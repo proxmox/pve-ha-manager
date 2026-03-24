@@ -343,7 +343,7 @@ __PACKAGE__->register_method({
                 my $plugin = PVE::HA::Rules->lookup($type);
                 my $opts = $plugin->check_config($ruleid, $param, 0, 1);
 
-                $assert_valid_resources_param->($opts->{resources});
+                $assert_valid_resources_param->($opts->{resources}) if $opts->{resources};
                 $assert_valid_nodes_param->($opts->{nodes}) if $opts->{nodes};
 
                 my $options = $plugin->private()->{options}->{$type};
