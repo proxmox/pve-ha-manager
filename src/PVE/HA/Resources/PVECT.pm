@@ -162,9 +162,11 @@ sub remove_locks {
 sub get_static_stats_from_config {
     my ($class, $conf) = @_;
 
+    # Ensure types are compatible with what Rust expects: f64 for maxcpu and usize for maxmem.
+    # Note that there might be a non-integer 'cpulimit'.
     return {
-        maxcpu => PVE::LXC::Config->get_derived_property($conf, 'max-cpu'),
-        maxmem => PVE::LXC::Config->get_derived_property($conf, 'max-memory'),
+        maxcpu => 0.0 + PVE::LXC::Config->get_derived_property($conf, 'max-cpu'),
+        maxmem => int(PVE::LXC::Config->get_derived_property($conf, 'max-memory')),
     };
 }
 

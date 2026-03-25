@@ -183,9 +183,10 @@ sub remove_locks {
 sub get_static_stats_from_config {
     my ($class, $conf) = @_;
 
+    # Ensure types are compatible with what Rust expects: f64 for maxcpu and usize for maxmem.
     return {
-        maxcpu => PVE::QemuConfig->get_derived_property($conf, 'max-cpu'),
-        maxmem => PVE::QemuConfig->get_derived_property($conf, 'max-memory'),
+        maxcpu => 0.0 + PVE::QemuConfig->get_derived_property($conf, 'max-cpu'),
+        maxmem => int(PVE::QemuConfig->get_derived_property($conf, 'max-memory')),
     };
 }
 
