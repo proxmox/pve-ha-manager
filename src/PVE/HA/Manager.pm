@@ -703,20 +703,22 @@ sub handle_disarm {
     my $ns = $self->{ns};
 
     # defer disarm if any services are in a transient state that needs the state machine to resolve
+    my $deferred_sids = {};
     for my $sid (sort keys %$ss) {
         my $state = $ss->{$sid}->{state};
         if ($state eq 'fence' || $state eq 'recovery') {
-            $haenv->log(
-                'warn', "deferring disarm - service '$sid' is in '$state' state",
-            );
-            return 0; # let manage() continue so fence/recovery can progress
+            $haenv->log('warn', "deferring disarm - service '$sid' is in '$state' state");
+            $deferred_sids->{$sid} = 1;
+        } elsif ($state eq 'migrate' || $state eq 'relocate') {
+            $haenv->log('info', "deferring disarm - service '$sid' is in '$state' state");
+            $deferred_sids->{$sid} = 1;
         }
-        if ($state eq 'migrate' || $state eq 'relocate') {
-            $haenv->log(
-                'info', "deferring disarm - service '$sid' is in '$state' state",
-            );
-            return 0; # let manage() continue so migration can complete
-        }
+    }
+
+    if (%$deferred_sids) {
+        # let manage() continue with only these services so their transitions can complete, but
+        # don't process non-transient services to avoid new migrations during deferral
+        return $deferred_sids;
     }
 
     my $mode = $disarm->{mode};
@@ -775,7 +777,7 @@ sub handle_disarm {
 
     $self->flush_master_status();
 
-    return 1;
+    return; # undef signals disarm is handled, skip normal FSM
 }
 
 sub is_fully_disarmed {
@@ -869,11 +871,13 @@ sub manage {
 
     $self->update_crm_commands();
 
+    my $deferred_sids;
     if (my $disarm = $ms->{disarm}) {
-        if ($self->handle_disarm($disarm, $ss, $lrm_modes)) {
+        $deferred_sids = $self->handle_disarm($disarm, $ss, $lrm_modes);
+        if (!$deferred_sids) {
             return; # disarm active and progressing, skip normal service state machine
         }
-        # disarm deferred (e.g. due to active fencing) - fall through to let it complete
+        # disarm deferred - fall through but only process services in transient states
     }
 
     $self->{all_lrms_disarmed} = 0;
@@ -882,6 +886,7 @@ sub manage {
         my $repeat = 0;
 
         foreach my $sid (sort keys %$ss) {
+            next if $deferred_sids && !$deferred_sids->{$sid};
             my $sd = $ss->{$sid};
             my $cd = $sc->{$sid} || { state => 'disabled' };
 
