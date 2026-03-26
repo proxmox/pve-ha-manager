@@ -1,3 +1,21 @@
+pve-ha-manager (5.1.3) trixie; urgency=medium
+
+  * fix #2751: add disarm-ha and arm-ha commands for safe cluster-wide
+    maintenance, allowing the admin to temporarily disable automatic fencing
+    and recovery. Two resource modes are available: 'freeze' locks all
+    services in place, 'ignore' suspends HA tracking so services can be
+    managed manually. All HA service watchdogs are released when fully
+    disarmed, the underlying watchdog-mux must still keep the /dev/watchdog
+    device open as not all watchdog types support a graceful deactivate.
+
+  * api: status: add fencing entry showing the HA stack's armed state and CRM
+    watchdog status.
+
+  * scheduler: fix type confusion regression for container resource stats that
+    could cause adding a container with explicit 'cores' to fail.
+
+ -- Proxmox Support Team <support@proxmox.com>  Fri, 27 Mar 2026 00:10:12 +0100
+
 pve-ha-manager (5.1.2) trixie; urgency=medium
 
   * fix #7399: api: rules: reject empty nodes and resources properties, which
