@@ -702,6 +702,12 @@ sub handle_disarm {
     my $haenv = $self->{haenv};
     my $ns = $self->{ns};
 
+    my $mode = $disarm->{mode};
+    if ($mode !~ /^(freeze|ignore)$/) {
+        $haenv->log('err', "unknown disarm-mode '$mode', ignoring");
+        return;
+    }
+
     # defer disarm if any services are in a transient state that needs the state machine to resolve
     my $deferred_sids = {};
     for my $sid (sort keys %$ss) {
@@ -720,8 +726,6 @@ sub handle_disarm {
         # don't process non-transient services to avoid new migrations during deferral
         return $deferred_sids;
     }
-
-    my $mode = $disarm->{mode};
 
     # prune stale runtime data (failed_nodes, cmd, target, ...) so the state machine starts
     # fresh on re-arm; preserve maintenance_node for correct return behavior
