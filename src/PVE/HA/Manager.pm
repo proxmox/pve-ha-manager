@@ -738,7 +738,6 @@ sub handle_disarm {
                 || $state eq 'request_stop'
                 || $state eq 'request_start'
                 || $state eq 'request_start_balance'
-                || $state eq 'error'
             ) {
                 $haenv->log('info', "disarm: freezing service '$sid' (was '$state')");
                 delete $sd->{$_} for grep { !$keep_keys{$_} } keys %$sd;

@@ -1,0 +1,54 @@
+info      0     hardware: starting simulation
+info     20      cmdlist: execute power node1 on
+info     20    node1/crm: status change startup => wait_for_quorum
+info     20    node1/lrm: status change startup => wait_for_agent_lock
+info     20      cmdlist: execute power node2 on
+info     20    node2/crm: status change startup => wait_for_quorum
+info     20    node2/lrm: status change startup => wait_for_agent_lock
+info     20      cmdlist: execute power node3 on
+info     20    node3/crm: status change startup => wait_for_quorum
+info     20    node3/lrm: status change startup => wait_for_agent_lock
+info     20    node1/crm: got lock 'ha_manager_lock'
+info     20    node1/crm: status change wait_for_quorum => master
+info     20    node1/crm: node 'node1': state changed from 'unknown' => 'online'
+info     20    node1/crm: node 'node2': state changed from 'unknown' => 'online'
+info     20    node1/crm: node 'node3': state changed from 'unknown' => 'online'
+info     20    node1/crm: adding new service 'fa:1900' on node 'node2'
+info     20    node1/crm: adding new service 'vm:101' on node 'node1'
+info     20    node1/crm: service 'fa:1900': state changed from 'request_start' to 'started'  (node = node2)
+info     20    node1/crm: service 'vm:101': state changed from 'request_start' to 'started'  (node = node1)
+info     21    node1/lrm: got lock 'ha_agent_node1_lock'
+info     21    node1/lrm: status change wait_for_agent_lock => active
+info     21    node1/lrm: starting service vm:101
+info     21    node1/lrm: service status vm:101 started
+info     22    node2/crm: status change wait_for_quorum => slave
+info     23    node2/lrm: got lock 'ha_agent_node2_lock'
+info     23    node2/lrm: status change wait_for_agent_lock => active
+info     23    node2/lrm: starting service fa:1900
+warn     23    node2/lrm: unable to start service fa:1900
+warn     23    node2/lrm: restart policy: retry number 1 for service 'fa:1900'
+info     24    node3/crm: status change wait_for_quorum => slave
+info     43    node2/lrm: starting service fa:1900
+warn     43    node2/lrm: unable to start service fa:1900
+err      43    node2/lrm: unable to start service fa:1900 on local node after 1 retries
+err      60    node1/crm: recovery policy for service fa:1900 failed, entering error state. Failed nodes: node2
+info     60    node1/crm: service 'fa:1900': state changed from 'started' to 'error'
+err      63    node2/lrm: service fa:1900 is in an error state and needs manual intervention. Look up 'ERROR RECOVERY' in the documentation.
+info    220      cmdlist: execute crm node1 disarm-ha freeze
+info    220    node1/crm: got crm command: disarm-ha freeze
+info    220    node1/crm: disarm: freezing service 'vm:101' (was 'started')
+info    221    node1/lrm: HA disarm requested, releasing agent lock and watchdog
+info    221    node1/lrm: status change active => wait_for_agent_lock
+info    223    node2/lrm: HA disarm requested, releasing agent lock and watchdog
+info    223    node2/lrm: status change active => wait_for_agent_lock
+info    240    node1/crm: all LRMs disarmed, HA stack is now fully disarmed
+info    240    node1/crm: HA stack fully disarmed, releasing CRM watchdog
+info    520      cmdlist: execute crm node1 arm-ha
+info    520    node1/crm: got crm command: arm-ha
+info    520    node1/crm: re-arming HA stack
+info    540    node1/crm: service 'vm:101': state changed from 'freeze' to 'started'
+info    541    node1/lrm: got lock 'ha_agent_node1_lock'
+info    541    node1/lrm: status change wait_for_agent_lock => active
+info    620      cmdlist: execute service fa:1900 disabled
+info    620    node1/crm: service 'fa:1900': state changed from 'error' to 'stopped'
+info   1220     hardware: exit simulation - done
