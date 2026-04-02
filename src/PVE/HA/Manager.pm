@@ -59,10 +59,17 @@ sub new {
 
     my $self = bless {
         haenv => $haenv,
-        crs => {},
+        crs => {
+            auto_rebalance => {},
+        },
         last_rules_digest => '',
         last_groups_digest => '',
         last_services_digest => '',
+        # used to track how many HA rounds the imbalance threshold has been exceeded
+        #
+        # this is not persisted for a CRM failover as in the mean time
+        # the usage statistics might have change quite a bit already
+        sustained_imbalance_round => 0,
         group_migration_round => 3, # wait a little bit
     }, $class;
 
@@ -97,6 +104,13 @@ sub update_crs_scheduler_mode {
     my $crs_cfg = $dc_cfg->{crs};
 
     $self->{crs}->{rebalance_on_request_start} = !!$crs_cfg->{'ha-rebalance-on-start'};
+    $self->{crs}->{auto_rebalance}->{enable} = !!$crs_cfg->{'ha-auto-rebalance'};
+    $self->{crs}->{auto_rebalance}->{threshold} = $crs_cfg->{'ha-auto-rebalance-threshold'} // 0.3;
+    $self->{crs}->{auto_rebalance}->{method} = $crs_cfg->{'ha-auto-rebalance-method'}
+        // 'bruteforce';
+    $self->{crs}->{auto_rebalance}->{hold_duration} = $crs_cfg->{'ha-auto-rebalance-hold-duration'}
+        // 3;
+    $self->{crs}->{auto_rebalance}->{margin} = $crs_cfg->{'ha-auto-rebalance-margin'} // 0.1;
 
     my $old_mode = $self->{crs}->{scheduler};
     my $new_mode = $crs_cfg->{ha} || 'basic';
@@ -112,6 +126,149 @@ sub update_crs_scheduler_mode {
     $self->{crs}->{scheduler} = $new_mode;
 
     return;
+}
+
+# Returns a hash of lists, which contain the running, non-moving HA resource
+# bundles, which are on the same node, implied by the strict positive resource
+# affinity rules.
+#
+# Each resource bundle has a leader, which is the alphabetically first running
+# HA resource in the resource bundle and also the key of each resource bundle
+# in the returned hash.
+sub get_active_stationary_resource_bundles {
+    my ($ss, $resource_affinity) = @_;
+
+    my $resource_bundles = {};
+OUTER: for my $sid (sort keys %$ss) {
+        # do not consider non-started resource as 'active' leading resource
+        next if $ss->{$sid}->{state} ne 'started';
+
+        my @resources = ($sid);
+        my $nodes = { $ss->{$sid}->{node} => 1 };
+
+        my ($dependent_resources) = get_affinitive_resources($resource_affinity, $sid);
+        if (%$dependent_resources) {
+            for my $csid (keys %$dependent_resources) {
+                next if !defined($ss->{$csid});
+                my ($state, $node) = $ss->{$csid}->@{qw(state node)};
+
+                # do not consider stationary bundle if a dependent resource moves
+                next OUTER if $state eq 'migrate' || $state eq 'relocate';
+                # do not add non-started resource to active bundle
+                next if $state ne 'started';
+
+                $nodes->{$node} = 1;
+
+                push @resources, $csid;
+            }
+
+            @resources = sort @resources;
+        }
+
+        # skip resource bundles, which are not on the same node yet
+        next if keys %$nodes > 1;
+
+        my $leader_sid = $resources[0];
+
+        $resource_bundles->{$leader_sid} = \@resources;
+    }
+
+    return $resource_bundles;
+}
+
+# Returns a hash of hashes, where each item contains the resource bundle's
+# leader, the list of HA resources in the resource bundle, and the list of
+# possible nodes to migrate to.
+sub get_resource_migration_candidates {
+    my ($self) = @_;
+
+    my ($ss, $compiled_rules, $online_node_usage) =
+        $self->@{qw(ss compiled_rules online_node_usage)};
+    my ($node_affinity, $resource_affinity) =
+        $compiled_rules->@{qw(node-affinity resource-affinity)};
+
+    my $resource_bundles = get_active_stationary_resource_bundles($ss, $resource_affinity);
+
+    my @compact_migration_candidates = ();
+    for my $leader_sid (sort keys %$resource_bundles) {
+        my $current_leader_node = $ss->{$leader_sid}->{node};
+        my $online_nodes = { map { $_ => 1 } $online_node_usage->list_nodes() };
+
+        my (undef, $target_nodes) = get_node_affinity($node_affinity, $leader_sid, $online_nodes);
+        my ($together, $separate) =
+            get_resource_affinity($resource_affinity, $leader_sid, $ss, $online_nodes);
+        apply_negative_resource_affinity($separate, $target_nodes);
+
+        delete $target_nodes->{$current_leader_node};
+
+        next if !%$target_nodes;
+
+        push @compact_migration_candidates,
+            {
+                leader => $leader_sid,
+                nodes => [sort keys %$target_nodes],
+                resources => $resource_bundles->{$leader_sid},
+            };
+    }
+
+    return \@compact_migration_candidates;
+}
+
+sub load_balance {
+    my ($self) = @_;
+
+    my ($crs, $haenv, $online_node_usage) = $self->@{qw(crs haenv online_node_usage)};
+    my ($auto_rebalance_opts) = $crs->{auto_rebalance};
+
+    return if !$auto_rebalance_opts->{enable};
+    return if $crs->{scheduler} ne 'static' && $crs->{scheduler} ne 'dynamic';
+    return if $self->any_resource_motion_queued_or_running();
+
+    my ($threshold, $method, $hold_duration, $margin) =
+        $auto_rebalance_opts->@{qw(threshold method hold_duration margin)};
+
+    my $imbalance = $online_node_usage->calculate_node_imbalance();
+
+    # do not load balance unless imbalance threshold has been exceeded
+    # consecutively for $hold_duration calls to load_balance();
+    # the <= relation prevents load balancing from triggering for $imbalance = 0.0
+    if ($imbalance <= $threshold) {
+        $self->{sustained_imbalance_round} = 0;
+        return;
+    } else {
+        $self->{sustained_imbalance_round}++;
+        return if $self->{sustained_imbalance_round} < $hold_duration;
+        $self->{sustained_imbalance_round} = 0;
+    }
+
+    my $candidates = $self->get_resource_migration_candidates();
+
+    my $result;
+    if ($method eq 'bruteforce') {
+        $result = $online_node_usage->select_best_balancing_migration($candidates);
+    } elsif ($method eq 'topsis') {
+        $result = $online_node_usage->select_best_balancing_migration_topsis($candidates);
+    }
+
+    # happens if $candidates is empty or $method isn't handled above
+    return if !$result;
+
+    my ($migration, $target_imbalance) = $result->@{qw(migration imbalance)};
+
+    my $relative_change = ($imbalance - $target_imbalance) / $imbalance;
+    return if $relative_change < $margin;
+
+    my ($sid, $source, $target) = $migration->@{qw(sid source-node target-node)};
+
+    my (undef, $type, $id) = $haenv->parse_sid($sid);
+    my $task = $type eq 'vm' ? "migrate" : "relocate";
+    my $cmd = "$task $sid $target";
+
+    my $imbalance_change_str =
+        sprintf("expected change for imbalance from %.2f to %.2f", $imbalance, $target_imbalance);
+    $haenv->log('info', "auto rebalance - $task $sid to $target ($imbalance_change_str)");
+
+    $self->queue_resource_motion($cmd, $task, $sid, $target);
 }
 
 sub cleanup {
@@ -464,6 +621,21 @@ sub queue_resource_motion {
         );
         $ss->{$csid}->{cmd} = [$task, $target];
     }
+}
+
+sub any_resource_motion_queued_or_running {
+    my ($self) = @_;
+
+    my ($ss) = $self->@{qw(ss)};
+
+    for my $sid (keys %$ss) {
+        my ($cmd, $state) = $ss->{$sid}->@{qw(cmd state)};
+
+        return 1 if $state eq 'migrate' || $state eq 'relocate';
+        return 1 if defined($cmd) && ($cmd->[0] eq 'migrate' || $cmd->[0] eq 'relocate');
+    }
+
+    return 0;
 }
 
 # read new crm commands and save them into crm master status
@@ -902,6 +1074,10 @@ sub manage {
             return; # disarm active and progressing, skip normal service state machine
         }
         # disarm deferred - fall through but only process services in transient states
+    } else {
+        # load balance only if disarm is disabled as during a deferred disarm
+        # the HA Manager should not introduce any new migrations
+        $self->load_balance();
     }
 
     $self->{all_lrms_disarmed} = 0;

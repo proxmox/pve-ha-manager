@@ -66,6 +66,24 @@ sub remove_service_usage {
     }
 }
 
+sub calculate_node_imbalance {
+    my ($self) = @_;
+
+    return 0.0;
+}
+
+sub score_best_balancing_migrations {
+    my ($self, $migration_candidates, $limit) = @_;
+
+    return [];
+}
+
+sub score_best_balancing_migrations_topsis {
+    my ($self, $migration_candidates, $limit) = @_;
+
+    return [];
+}
+
 sub score_nodes_to_start_service {
     my ($self, $sid) = @_;
 

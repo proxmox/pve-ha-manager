@@ -60,6 +60,40 @@ sub remove_service_usage {
     die "implement in subclass";
 }
 
+sub calculate_node_imbalance {
+    my ($self) = @_;
+
+    die "implement in subclass";
+}
+
+sub score_best_balancing_migrations {
+    my ($self, $migration_candidates, $limit) = @_;
+
+    die "implement in subclass";
+}
+
+sub select_best_balancing_migration {
+    my ($self, $migration_candidates) = @_;
+
+    my $migrations = $self->score_best_balancing_migrations($migration_candidates, 1);
+
+    return $migrations->[0];
+}
+
+sub score_best_balancing_migrations_topsis {
+    my ($self, $migration_candidates, $limit) = @_;
+
+    die "implement in subclass";
+}
+
+sub select_best_balancing_migration_topsis {
+    my ($self, $migration_candidates) = @_;
+
+    my $migrations = $self->score_best_balancing_migrations_topsis($migration_candidates, 1);
+
+    return $migrations->[0];
+}
+
 # Returns a hash with $nodename => $score pairs. A lower $score is better.
 sub score_nodes_to_start_service {
     my ($self, $sid) = @_;

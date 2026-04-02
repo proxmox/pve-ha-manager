@@ -111,6 +111,39 @@ sub remove_service_usage {
     $self->{haenv}->log('warning', "unable to remove service '$sid' usage - $@") if $@;
 }
 
+sub calculate_node_imbalance {
+    my ($self) = @_;
+
+    my $node_imbalance = eval { $self->{scheduler}->calculate_node_imbalance() };
+    $self->{haenv}->log('warning', "unable to calculate static node imbalance - $@") if $@;
+
+    return $node_imbalance // 0.0;
+}
+
+sub score_best_balancing_migrations {
+    my ($self, $migration_candidates, $limit) = @_;
+
+    my $migrations = eval {
+        $self->{scheduler}
+            ->score_best_balancing_migration_candidates($migration_candidates, $limit);
+    };
+    $self->{haenv}->log('warning', "unable to score best balancing migration - $@") if $@;
+
+    return $migrations;
+}
+
+sub score_best_balancing_migrations_topsis {
+    my ($self, $migration_candidates, $limit) = @_;
+
+    my $migrations = eval {
+        $self->{scheduler}
+            ->score_best_balancing_migration_candidates_topsis($migration_candidates, $limit);
+    };
+    $self->{haenv}->log('warning', "unable to score best balancing migration - $@") if $@;
+
+    return $migrations;
+}
+
 sub score_nodes_to_start_service {
     my ($self, $sid) = @_;
 
