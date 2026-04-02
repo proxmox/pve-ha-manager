@@ -38,7 +38,7 @@ sub contains_node {
     return defined($self->{nodes}->{$nodename});
 }
 
-sub add_service_usage_to_node {
+my sub add_service_usage_to_node {
     my ($self, $nodename, $sid) = @_;
 
     if ($self->contains_node($nodename)) {
@@ -49,6 +49,13 @@ sub add_service_usage_to_node {
             "unable to add service '$sid' usage to node '$nodename' - node not in usage hash",
         );
     }
+}
+
+sub add_service {
+    my ($self, $sid, $current_node, $target_node, $running) = @_;
+
+    add_service_usage_to_node($self, $current_node, $sid) if defined($current_node);
+    add_service_usage_to_node($self, $target_node, $sid) if defined($target_node);
 }
 
 sub remove_service_usage {

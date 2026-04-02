@@ -33,9 +33,8 @@ sub contains_node {
     die "implement in subclass";
 }
 
-# Logs a warning to $haenv upon failure, but does not die.
-sub add_service_usage_to_node {
-    my ($self, $nodename, $sid) = @_;
+sub add_service {
+    my ($self, $sid, $current_node, $target_node, $running) = @_;
 
     die "implement in subclass";
 }
@@ -47,8 +46,12 @@ sub add_service_usage {
     my $online_nodes = { map { $_ => 1 } $self->list_nodes() };
     my ($current_node, $target_node) = get_used_service_nodes($online_nodes, $sd);
 
-    $self->add_service_usage_to_node($current_node, $sid) if $current_node;
-    $self->add_service_usage_to_node($target_node, $sid) if $target_node;
+    # some usage implementations need to discern whether a service is truly running;
+    # a service does only have the 'running' flag in 'started' state
+    my $running = ($sd->{state} eq 'started' && $sd->{running})
+        || ($sd->{state} ne 'started' && defined($current_node));
+
+    $self->add_service($sid, $current_node, $target_node, $running);
 }
 
 sub remove_service_usage {

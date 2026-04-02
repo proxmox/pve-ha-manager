@@ -71,17 +71,35 @@ my sub get_service_usage {
     return $service_stats;
 }
 
-sub add_service_usage_to_node {
-    my ($self, $nodename, $sid) = @_;
+sub add_service {
+    my ($self, $sid, $current_node, $target_node, $running) = @_;
 
-    $self->{'node-services'}->{$nodename}->{$sid} = 1;
+    # do not add service which do not put any usage on the nodes
+    return if !defined($current_node) && !defined($target_node);
+
+    # PVE::RS::ResourceScheduling::Static::add_service() expects $current_node
+    # to be set, so consider $target_node as $current_node for unset $current_node;
+    #
+    # currently, this happens for the request_start_balance service state and if
+    # node maintenance causes services to migrate to other nodes
+    if (!defined($current_node)) {
+        $current_node = $target_node;
+        undef $target_node;
+    }
 
     eval {
         my $service_usage = get_service_usage($self, $sid);
-        $self->{scheduler}->add_service_usage_to_node($nodename, $sid, $service_usage);
+
+        my $service = {
+            stats => $service_usage,
+            running => $running,
+            'current-node' => $current_node,
+            'target-node' => $target_node,
+        };
+
+        $self->{scheduler}->add_service($sid, $service);
     };
-    $self->{haenv}->log('warning', "unable to add service '$sid' usage to node '$nodename' - $@")
-        if $@;
+    $self->{haenv}->log('warning', "unable to add service '$sid' - $@") if $@;
 }
 
 sub remove_service_usage {
