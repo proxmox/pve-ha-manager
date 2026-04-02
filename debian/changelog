@@ -1,3 +1,22 @@
+pve-ha-manager (5.2.0) trixie; urgency=medium
+
+  * add dynamic load scheduler that uses current resource usage stats (CPU
+    load, memory) from pvestatd for scheduling decisions, complementing the
+    existing static scheduler that only considers maximum configured capacity.
+
+  * implement automatic rebalancing for HA resources. When enabled, the CRM
+    monitors cluster node imbalance and automatically migrates services to
+    restore balance. Resources in strict positive affinity rules are treated
+    as bundles and moved together. Rebalancing is configurable through the new
+    datacenter config options for imbalance threshold, hold duration, and
+    improvement margin.
+
+  * fix api: rules: allow updating a rule without setting the resources
+    parameter, which previously failed with an assertion error due to
+    validating an undefined value.
+
+ -- Proxmox Support Team <support@proxmox.com>  Thu, 02 Apr 2026 17:58:13 +0200
+
 pve-ha-manager (5.1.3) trixie; urgency=medium
 
   * fix #2751: add disarm-ha and arm-ha commands for safe cluster-wide
