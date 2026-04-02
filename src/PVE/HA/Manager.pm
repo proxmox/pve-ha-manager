@@ -284,17 +284,17 @@ sub recompute_online_node_usage {
     foreach my $sid (sort keys %{ $self->{ss} }) {
         my $sd = $self->{ss}->{$sid};
 
-        $online_node_usage->add_service_usage($sid, $sd->{state}, $sd->{node}, $sd->{target});
+        $online_node_usage->add_service_usage($sid, $sd);
     }
 
     # add remaining non-HA resources to online node usage
     for my $sid (sort keys %$service_stats) {
         next if $self->{ss}->{$sid};
 
-        my ($node, $state) = $service_stats->{$sid}->@{qw(node state)};
-
         # the migration target is not known for non-HA resources
-        $online_node_usage->add_service_usage($sid, $state, $node, undef);
+        my $sd = { $service_stats->{$sid}->%{qw(node state)} };
+
+        $online_node_usage->add_service_usage($sid, $sd);
     }
 
     $self->{online_node_usage} = $online_node_usage;
@@ -332,8 +332,7 @@ my $change_service_state = sub {
     }
 
     $self->{online_node_usage}->remove_service_usage($sid);
-    $self->{online_node_usage}
-        ->add_service_usage($sid, $sd->{state}, $sd->{node}, $sd->{target});
+    $self->{online_node_usage}->add_service_usage($sid, $sd);
 
     $sd->{uid} = compute_new_uuid($new_state);
 

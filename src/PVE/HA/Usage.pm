@@ -40,12 +40,12 @@ sub add_service_usage_to_node {
     die "implement in subclass";
 }
 
-# Adds service $sid's usage to the online nodes according to their $state,
-# $service_node and $migration_target.
+# Adds service $sid's usage to the online nodes according to their service data $sd.
 sub add_service_usage {
-    my ($self, $sid, $service_state, $service_node, $migration_target) = @_;
+    my ($self, $sid, $sd) = @_;
 
     my $online_nodes = { map { $_ => 1 } $self->list_nodes() };
+    my ($service_state, $service_node, $migration_target) = $sd->@{qw(state node target)};
     my ($current_node, $target_node) =
         get_used_service_nodes($online_nodes, $service_state, $service_node, $migration_target);
 
