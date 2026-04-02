@@ -1,0 +1,2 @@
+Test that the auto rebalance system with dynamic usage information does not
+trigger if no HA resources are configured in a homogeneous node cluster.

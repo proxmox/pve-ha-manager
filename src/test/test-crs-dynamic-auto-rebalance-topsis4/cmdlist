@@ -1,0 +1,13 @@
+[
+    [ "power node1 on", "power node2 on", "power node3 on" ],
+    [
+        "service vm:105 set-dynamic-stats cpu 7.8 mem 7912",
+        "service vm:106 set-dynamic-stats cpu 5.7 mem 8192",
+        "service vm:107 set-dynamic-stats cpu 6.0 mem 8011"
+    ],
+    [
+        "service vm:105 set-dynamic-stats cpu 3.0 mem 768",
+        "service vm:106 set-dynamic-stats cpu 2.9 mem 1538",
+        "service vm:107 set-dynamic-stats cpu 2.1 mem 1538"
+    ]
+]
