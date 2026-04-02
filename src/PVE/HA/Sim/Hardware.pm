@@ -21,6 +21,11 @@ use PVE::HA::Groups;
 
 my $watchdog_timeout = 60;
 
+my $default_service_maxcpu = 4.0;
+my $default_service_maxmem = 4096 * 1024**2;
+my $default_node_maxcpu = 24.0;
+my $default_node_maxmem = 131072 * 1024**2;
+
 # Status directory layout
 #
 # configuration
@@ -488,9 +493,24 @@ sub new {
             || die "Copy failed: $!\n";
     } else {
         my $cstatus = {
-            node1 => { power => 'off', network => 'off', maxcpu => 24.0, maxmem => 131072 },
-            node2 => { power => 'off', network => 'off', maxcpu => 24.0, maxmem => 131072 },
-            node3 => { power => 'off', network => 'off', maxcpu => 24.0, maxmem => 131072 },
+            node1 => {
+                power => 'off',
+                network => 'off',
+                maxcpu => $default_node_maxcpu,
+                maxmem => $default_node_maxmem,
+            },
+            node2 => {
+                power => 'off',
+                network => 'off',
+                maxcpu => $default_node_maxcpu,
+                maxmem => $default_node_maxmem,
+            },
+            node3 => {
+                power => 'off',
+                network => 'off',
+                maxcpu => $default_node_maxcpu,
+                maxmem => $default_node_maxmem,
+            },
         };
         $self->write_hardware_status_nolock($cstatus);
     }
@@ -507,7 +527,12 @@ sub new {
         copy("$testdir/static_service_stats", "$statusdir/static_service_stats");
     } else {
         my $services = $self->read_service_config();
-        my $stats = { map { $_ => { maxcpu => 4.0, maxmem => 4096 } } keys %$services };
+        my $stats = {
+            map {
+                $_ => { maxcpu => $default_service_maxcpu, maxmem => $default_service_maxmem }
+                }
+                keys %$services
+        };
         $self->write_static_service_stats($stats);
     }
 
