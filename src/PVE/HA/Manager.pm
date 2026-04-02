@@ -21,6 +21,12 @@ eval {
     $have_static_scheduling = 1;
 };
 
+my $have_dynamic_scheduling;
+eval {
+    require PVE::HA::Usage::Dynamic;
+    $have_dynamic_scheduling = 1;
+};
+
 ## Variable Name & Abbreviations Convention
 #
 # The HA stack has some variables it uses frequently and thus abbreviates it such that it may be
@@ -266,6 +272,21 @@ sub recompute_online_node_usage {
             $haenv->log(
                 'warning',
                 "fallback to 'basic' scheduler mode, init for 'static' failed - $@",
+            ) if $@;
+        } elsif ($mode eq 'dynamic') {
+            if ($have_dynamic_scheduling) {
+                $online_node_usage = eval {
+                    $service_stats = $haenv->get_dynamic_service_stats();
+                    my $scheduler = PVE::HA::Usage::Dynamic->new($haenv, $service_stats);
+                    $scheduler->add_node($_) for $online_nodes->@*;
+                    return $scheduler;
+                };
+            } else {
+                $@ = "dynamic scheduling not available\n";
+            }
+            $haenv->log(
+                'warning',
+                "fallback to 'basic' scheduler mode, init for 'dynamic' failed - $@",
             ) if $@;
         } elsif ($mode eq 'basic') {
             # handled below in the general fall-back case

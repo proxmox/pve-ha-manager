@@ -312,10 +312,22 @@ sub get_static_service_stats {
     return $self->{plug}->get_static_service_stats();
 }
 
+sub get_dynamic_service_stats {
+    my ($self) = @_;
+
+    return $self->{plug}->get_dynamic_service_stats();
+}
+
 sub get_static_node_stats {
     my ($self) = @_;
 
     return $self->{plug}->get_static_node_stats();
+}
+
+sub get_dynamic_node_stats {
+    my ($self) = @_;
+
+    return $self->{plug}->get_dynamic_node_stats();
 }
 
 sub get_node_version {

@@ -1,5 +1,5 @@
 SIM_SOURCES=Basic.pm
-SOURCES=${SIM_SOURCES} Static.pm
+SOURCES=${SIM_SOURCES} Static.pm Dynamic.pm
 
 .PHONY: install
 install:
