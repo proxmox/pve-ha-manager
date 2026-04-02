@@ -795,7 +795,8 @@ sub get_cfs_state {
 #   service <sid> stop <timeout>
 #   service <sid> lock/unlock [lockname]
 #   service <sid> add <node> [<request-state=started>] [<running=0>]
-#   service <sid> set-static-stats <maxcpu> <maxmem>
+#   service <sid> set-static-stats  [maxcpu <cores>] [maxmem <MiB>]
+#   service <sid> set-dynamic-stats [cpu <cores>] [mem <MiB>]
 #   service <sid> delete
 sub sim_hardware_cmd {
     my ($self, $cmdstr, $logid) = @_;
@@ -954,15 +955,32 @@ sub sim_hardware_cmd {
                     $params[2] || 0,
                 );
 
-            } elsif ($action eq 'set-static-stats') {
-                die "sim_hardware_cmd: missing maxcpu for '$action' command" if !$params[0];
-                die "sim_hardware_cmd: missing maxmem for '$action' command" if !$params[1];
+            } elsif ($action eq 'set-static-stats' || $action eq 'set-dynamic-stats') {
+                die "sim_hardware_cmd: missing target stat for '$action' command"
+                    if !@params;
 
-                $self->set_static_service_stats(
-                    $sid,
-                    { maxcpu => 0.0 + $params[0], maxmem => int($params[1]) },
-                );
+                my $conversions =
+                    $action eq 'set-static-stats'
+                    ? { maxcpu => sub { 0.0 + $_[0] }, maxmem => sub { $_[0] * 1024**2 } }
+                    : { cpu => sub { 0.0 + $_[0] }, mem => sub { $_[0] * 1024**2 } };
 
+                my %new_stats;
+                for my ($target, $val) (@params) {
+                    die "sim_hardware_cmd: missing value for '$action $target' command"
+                        if !defined($val);
+
+                    my $convert = $conversions->{$target}
+                        or die
+                        "sim_hardware_cmd: unknown target stat '$target' for '$action' command";
+
+                    $new_stats{$target} = $convert->($val);
+                }
+
+                if ($action eq 'set-static-stats') {
+                    $self->set_static_service_stats($sid, \%new_stats);
+                } else {
+                    $self->set_dynamic_service_stats($sid, \%new_stats);
+                }
             } elsif ($action eq 'manual-migrate') {
 
                 die "sim_hardware_cmd: missing target node for '$action' command"

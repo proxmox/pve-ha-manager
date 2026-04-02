@@ -532,7 +532,9 @@ sub show_service_add_dialog {
 
         my $maxcpu = $cpu_count_spin->get_value();
         my $maxmem = $memory_spin->get_value();
-        $self->sim_hardware_cmd("service $sid set-static-stats $maxcpu $maxmem", 'command');
+        $self->sim_hardware_cmd(
+            "service $sid set-static-stats maxcpu $maxcpu maxmem $maxmem", 'command',
+        );
 
         $self->add_service_to_gui($sid);
     }
