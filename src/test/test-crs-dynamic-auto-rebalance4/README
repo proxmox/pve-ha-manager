@@ -1,0 +1,11 @@
+Test that the auto rebalance system with dynamic usage information will not
+trigger any rebalancing migrations for running HA resources, which cause a
+transient spike in their dynamic usage that makes the nodes exceed the
+imbalance threshold, but falls below the threshold before the hold duration
+expires.
+
+This test relies on the fact that every command batch in the `cmdlist` file is
+issued every 5 HA rounds. Therefore, for a hold duration set to 6 HA rounds and
+setting the dynamic usage back to usage values so the current imbalance is
+lower than the threshold right after simulating the spike will undercut the
+hold duration by one HA round to prevent triggering a rebalancing migration.

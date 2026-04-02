@@ -1,0 +1,4 @@
+Test that the auto rebalance system with dynamic usage information will auto
+rebalance multiple running HA resources with different dynamic usages, where
+the dynamic usage stats of some HA resources change over time, to reach minimum
+cluster node imbalance.

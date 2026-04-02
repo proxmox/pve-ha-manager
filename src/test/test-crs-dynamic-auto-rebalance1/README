@@ -1,0 +1,7 @@
+Test that the auto rebalance system with dynamic usage information does not
+trigger for a single running HA resource in a homogeneous cluster.
+
+Even though the single running HA resource will create a high node imbalance,
+which would trigger a reblancing migration, there is no such migration that can
+exceed the minimum imbalance improvement threshold, i.e., improve the imbalance
+enough.
