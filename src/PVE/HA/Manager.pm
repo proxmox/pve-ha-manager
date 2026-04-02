@@ -419,7 +419,7 @@ sub read_lrm_status {
     return ($results, $modes);
 }
 
-sub execute_migration {
+sub queue_resource_motion {
     my ($self, $cmd, $task, $sid, $target) = @_;
 
     my ($haenv, $ss) = $self->@{qw(haenv ss)};
@@ -488,7 +488,7 @@ sub update_crm_commands {
                             "ignore crm command - service already on target node: $cmd",
                         );
                     } else {
-                        $self->execute_migration($cmd, $task, $sid, $node);
+                        $self->queue_resource_motion($cmd, $task, $sid, $node);
                     }
                 }
             } else {
