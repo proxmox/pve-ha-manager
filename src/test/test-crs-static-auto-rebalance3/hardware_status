@@ -1,0 +1,5 @@
+{
+  "node1": { "power": "off", "network": "off", "maxcpu": 24, "maxmem": 51539607552 },
+  "node2": { "power": "off", "network": "off", "maxcpu": 24, "maxmem": 51539607552 },
+  "node3": { "power": "off", "network": "off", "maxcpu": 24, "maxmem": 51539607552 }
+}

@@ -1,0 +1,15 @@
+[
+    [ "power node1 on", "power node2 on", "power node3 on" ],
+    [
+        "service vm:105 set-static-stats maxcpu 8.0 maxmem 8192",
+        "service vm:106 set-static-stats maxcpu 8.0 maxmem 8192",
+        "service vm:107 set-static-stats maxcpu 8.0 maxmem 8192"
+    ],
+    [
+        "service vm:101 set-static-stats maxcpu 1.0 maxmem 1024",
+        "service vm:102 set-static-stats maxcpu 1.0 maxmem 1024",
+        "service vm:103 set-static-stats maxcpu 1.0 maxmem 1024",
+        "service vm:104 set-static-stats maxcpu 1.0 maxmem 1024",
+        "service vm:105 set-static-stats maxcpu 1.0 maxmem 1024"
+    ]
+]

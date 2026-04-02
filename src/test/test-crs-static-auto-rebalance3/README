@@ -1,0 +1,3 @@
+Test that the auto rebalance system with static usage information will auto
+rebalance multiple running HA resources, where the static usage stats of some
+HA resources change over time, to reach minimum cluster node imbalance.
