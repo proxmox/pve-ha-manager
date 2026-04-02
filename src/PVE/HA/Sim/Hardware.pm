@@ -1232,6 +1232,27 @@ sub get_static_service_stats {
     return $stats;
 }
 
+sub get_dynamic_service_stats {
+    my ($self) = @_;
+
+    my $stats = get_cluster_service_stats($self);
+    my $static_stats = $self->read_static_service_stats();
+    my $dynamic_stats = $self->read_dynamic_service_stats();
+
+    for my $sid (keys %$stats) {
+        $stats->{$sid}->{usage} = {
+            $static_stats->{$sid}->%*, $dynamic_stats->{$sid}->%*,
+        };
+
+        $self->log('warning', "overcommitted cpu on '$sid'")
+            if $stats->{$sid}->{usage}->{cpu} > $stats->{$sid}->{usage}->{maxcpu};
+        $self->log('warning', "overcommitted mem on '$sid'")
+            if $stats->{$sid}->{usage}->{mem} > $stats->{$sid}->{usage}->{maxmem};
+    }
+
+    return $stats;
+}
+
 sub get_static_node_stats {
     my ($self) = @_;
 
@@ -1240,6 +1261,46 @@ sub get_static_node_stats {
     my $stats = {};
     for my $node (keys $cstatus->%*) {
         $stats->{$node} = { $cstatus->{$node}->%{qw(maxcpu maxmem)} };
+    }
+
+    return $stats;
+}
+
+sub get_dynamic_node_stats {
+    my ($self) = @_;
+
+    my $stats = $self->get_static_node_stats();
+    for my $node (keys %$stats) {
+        $stats->{$node}->{maxcpu} = $stats->{$node}->{maxcpu} // $default_node_maxcpu;
+        $stats->{$node}->{cpu} = $stats->{$node}->{cpu} // 0.0;
+        $stats->{$node}->{maxmem} = $stats->{$node}->{maxmem} // $default_node_maxmem;
+        $stats->{$node}->{mem} = $stats->{$node}->{mem} // 0;
+    }
+
+    my $service_conf = $self->read_service_config();
+    my $dynamic_service_stats = $self->get_dynamic_service_stats();
+
+    my $cstatus = $self->read_hardware_status_nolock();
+    my $node_service_status = { map { $_ => $self->read_service_status($_) } keys %$cstatus };
+
+    for my $sid (keys %$service_conf) {
+        my $node = $service_conf->{$sid}->{node};
+
+        # only add the dynamic load usage to node if service is actually marked
+        # as running by the node service status written by the LRM
+        if ($node_service_status->{$node}->{$sid}) {
+            my ($cpu, $mem) = $dynamic_service_stats->{$sid}->{usage}->@{qw(cpu mem)};
+
+            die "unknown cpu load for '$sid'" if !defined($cpu);
+            $stats->{$node}->{cpu} += $cpu;
+            $self->log('warning', "overcommitted cpu on '$node'")
+                if $stats->{$node}->{cpu} > $stats->{$node}->{maxcpu};
+
+            die "unknown memory usage for '$sid'" if !defined($mem);
+            $stats->{$node}->{mem} += $mem;
+            $self->log('warning', "overcommitted mem on '$node'")
+                if $stats->{$node}->{mem} > $stats->{$node}->{maxmem};
+        }
     }
 
     return $stats;
