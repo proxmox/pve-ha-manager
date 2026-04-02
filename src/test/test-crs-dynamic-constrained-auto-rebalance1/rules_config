@@ -1,0 +1,4 @@
+node-affinity: vm101-stays-on-node1
+	nodes node1
+	resources vm:101,vm:102,vm:103
+	strict 1

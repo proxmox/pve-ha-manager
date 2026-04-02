@@ -1,0 +1,7 @@
+Test that the auto rebalance system with dynamic usage information will not
+auto rebalance running HA resources, which cause a node imbalance exceeding the
+threshold, because their HA node affinity rules require them to strictly be
+kept on specific nodes.
+
+As a sanity check, the added HA resource, which is not part of the node
+affinity rule, is rebalanced to another node to lower the imbalance.

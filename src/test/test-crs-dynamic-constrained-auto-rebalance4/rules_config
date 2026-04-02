@@ -1,0 +1,7 @@
+resource-affinity: vms-stay-apart1
+	resources vm:101,vm:103
+	affinity negative
+
+resource-affinity: vms-stay-apart2
+	resources vm:102,vm:103
+	affinity negative

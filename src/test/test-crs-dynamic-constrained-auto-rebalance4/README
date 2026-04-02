@@ -1,0 +1,14 @@
+Test that the auto rebalance system with dynamic usage information will not
+rebalance a HA resource on the same node as another HA resource, which are in a
+strict negative resource affinity rule.
+
+There is a high node imbalance since vm:101 and vm:102 on node1 cause a higher
+usage than node2 and node3 have. Even though it would be ideal to move one of
+these to node2, because it has a very low usage, these cannot be moved there as
+both vm:101 and vm:102 are in a strict negative resource affinity rule with a
+HA resource on node2 respectively.
+
+To minimize the imbalance in the cluster, one of the HA resources from node1 is
+migrated to node3 first, and afterwards the HA resource on node3, which is not
+in a strict negative resource affinity rule with a HA resource on node2, will
+be migrated to node2.

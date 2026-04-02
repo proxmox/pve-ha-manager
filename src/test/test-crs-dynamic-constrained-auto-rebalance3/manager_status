@@ -1,0 +1,31 @@
+{
+    "master_node": "node1",
+    "node_status": {
+	"node1":"online",
+	"node2":"online",
+	"node3":"online"
+    },
+    "service_status": {
+	"vm:101": {
+	    "node": "node2",
+	    "state": "migrate",
+	    "target": "node1",
+	    "uid": "RoPGTlvNYq/oZFokv9fgWw"
+	},
+        "vm:102": {
+            "node": "node1",
+            "state": "started",
+	    "uid": "fR3i18EHk6DhF8Zd2jddNX"
+        },
+	"vm:103": {
+	    "node": "node1",
+	    "state": "started",
+	    "uid": "JVDARwmsXoVTF8Zd0BY2Mg"
+	},
+        "vm:104": {
+            "node": "node1",
+            "state": "started",
+	    "uid": "23hk23EHk6DhF8Zd0218DD"
+        }
+    }
+}

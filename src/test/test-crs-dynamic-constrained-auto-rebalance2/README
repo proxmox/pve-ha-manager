@@ -1,0 +1,12 @@
+Test that the auto rebalance system with dynamic usage information will
+consider running HA resources in strict positive resource affinity rules as
+bundles, which can only be moved to other nodes as a single unit.
+
+Therefore, even though the two initial HA resources would be split apart,
+because these cause a node imbalance in the cluster, the auto rebalance system
+does not issue a rebalancing migration, because they must stay together.
+
+As a sanity check, adding another HA resource, which is not part of the strict
+positive resource affinity rule, will cause a rebalancing migration: in this
+case the resource bundle itself, because the leading node 'vm:101' is
+alphabetically first.

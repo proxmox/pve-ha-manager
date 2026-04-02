@@ -1,0 +1,14 @@
+Test that the auto rebalance system with dynamic usage information will wait on
+a resource motion being finished, because a strict positive resource affinity
+rule is not correctly enforced yet.
+
+This test case manipulates the manager status in such a way, so that the HA
+Manager will assume that the not-yet-migrated HA resource in the strict
+positive resource affinity rule is still migrating as currently the integration
+tests do not support prolonged migrations.
+
+Furthermore, auto rebalancing migrations are forced to be issued as soon as
+possible with the hold duration being set to 0. This ensures that if the auto
+rebalance system would not wait on the ongoing migration, the auto rebalancing
+migration would be done right away in the same round as the HA resources being
+acknowledged as running.
