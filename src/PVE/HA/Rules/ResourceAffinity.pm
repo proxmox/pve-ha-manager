@@ -511,8 +511,7 @@ sub get_resource_affinity {
     my $get_used_service_nodes = sub {
         my ($sid) = @_;
         return (undef, undef) if !defined($ss->{$sid});
-        my ($state, $node, $target) = $ss->{$sid}->@{qw(state node target)};
-        return PVE::HA::Usage::get_used_service_nodes($online_nodes, $state, $node, $target);
+        return PVE::HA::Usage::get_used_service_nodes($online_nodes, $ss->{$sid});
     };
 
     for my $csid (keys $positive->%*) {

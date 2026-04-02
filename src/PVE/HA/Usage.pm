@@ -45,9 +45,7 @@ sub add_service_usage {
     my ($self, $sid, $sd) = @_;
 
     my $online_nodes = { map { $_ => 1 } $self->list_nodes() };
-    my ($service_state, $service_node, $migration_target) = $sd->@{qw(state node target)};
-    my ($current_node, $target_node) =
-        get_used_service_nodes($online_nodes, $service_state, $service_node, $migration_target);
+    my ($current_node, $target_node) = get_used_service_nodes($online_nodes, $sd);
 
     $self->add_service_usage_to_node($current_node, $sid) if $current_node;
     $self->add_service_usage_to_node($target_node, $sid) if $target_node;
@@ -66,11 +64,12 @@ sub score_nodes_to_start_service {
     die "implement in subclass";
 }
 
-# Returns the current and target node as a two-element array, that a service
-# puts load on according to the $online_nodes and the service's $state, $node
-# and $target.
+# Returns a two-element array of the nodes a service puts load on
+# (current and target), given $online_nodes and service data $sd.
 sub get_used_service_nodes {
-    my ($online_nodes, $state, $node, $target) = @_;
+    my ($online_nodes, $sd) = @_;
+
+    my ($state, $node, $target) = $sd->@{qw(state node target)};
 
     return (undef, undef) if $state eq 'stopped' || $state eq 'request_start';
 
