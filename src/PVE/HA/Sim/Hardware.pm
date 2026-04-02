@@ -1201,6 +1201,7 @@ my sub get_cluster_service_stats {
         $stats->{$sid} = {
             node => $cfg->{node},
             state => $cfg->{state},
+            running => $cfg->{state} eq 'started',
             usage => {},
         };
     }

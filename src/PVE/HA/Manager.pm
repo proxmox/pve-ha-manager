@@ -292,7 +292,7 @@ sub recompute_online_node_usage {
         next if $self->{ss}->{$sid};
 
         # the migration target is not known for non-HA resources
-        my $sd = { $service_stats->{$sid}->%{qw(node state)} };
+        my $sd = { $service_stats->{$sid}->%{qw(node state running)} };
 
         $online_node_usage->add_service_usage($sid, $sd);
     }

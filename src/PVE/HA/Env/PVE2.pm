@@ -551,6 +551,7 @@ my sub get_cluster_service_stats {
             id => $id,
             node => $nodename,
             state => $state,
+            running => $state eq 'started',
             type => $type,
             usage => {},
         };
