@@ -1,0 +1,7 @@
+{
+    "vm:101": { "maxcpu": 8, "maxmem": 4294967296 },
+    "vm:102": { "maxcpu": 8, "maxmem": 4294967296 },
+    "vm:103": { "maxcpu": 8, "maxmem": 4294967296 },
+    "vm:104": { "maxcpu": 8, "maxmem": 4294967296 },
+    "vm:105": { "maxcpu": 8, "maxmem": 4294967296 }
+}

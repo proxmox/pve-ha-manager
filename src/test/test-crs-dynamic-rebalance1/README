@@ -1,0 +1,3 @@
+Test rebalancing on start and how after a failed node the recovery gets
+balanced out for a small batch of HA resources with the dynamic usage
+information.
