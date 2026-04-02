@@ -488,9 +488,9 @@ sub new {
             || die "Copy failed: $!\n";
     } else {
         my $cstatus = {
-            node1 => { power => 'off', network => 'off', maxcpu => 24, maxmem => 131072 },
-            node2 => { power => 'off', network => 'off', maxcpu => 24, maxmem => 131072 },
-            node3 => { power => 'off', network => 'off', maxcpu => 24, maxmem => 131072 },
+            node1 => { power => 'off', network => 'off', maxcpu => 24.0, maxmem => 131072 },
+            node2 => { power => 'off', network => 'off', maxcpu => 24.0, maxmem => 131072 },
+            node3 => { power => 'off', network => 'off', maxcpu => 24.0, maxmem => 131072 },
         };
         $self->write_hardware_status_nolock($cstatus);
     }
@@ -507,7 +507,7 @@ sub new {
         copy("$testdir/static_service_stats", "$statusdir/static_service_stats");
     } else {
         my $services = $self->read_service_config();
-        my $stats = { map { $_ => { maxcpu => 4, maxmem => 4096 } } keys %$services };
+        my $stats = { map { $_ => { maxcpu => 4.0, maxmem => 4096 } } keys %$services };
         $self->write_static_service_stats($stats);
     }
 
@@ -883,7 +883,7 @@ sub sim_hardware_cmd {
 
                 $self->set_static_service_stats(
                     $sid,
-                    { maxcpu => $params[0], maxmem => $params[1] },
+                    { maxcpu => 0.0 + $params[0], maxmem => int($params[1]) },
                 );
 
             } elsif ($action eq 'manual-migrate') {
