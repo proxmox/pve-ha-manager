@@ -42,7 +42,22 @@ my $lockdir = "/etc/pve/priv/lock";
 # taken from PVE::Service::pvestatd::update_{lxc,qemu}_status()
 use constant {
     RRD_VM_INDEX_STATUS => 2,
+    RRD_VM_INDEX_MAXCPU => 5,
+    RRD_VM_INDEX_CPU => 6,
+    RRD_VM_INDEX_MAXMEM => 7,
+    RRD_VM_INDEX_MEM => 8,
 };
+
+# rrd entry indices for PVE nodes
+# taken from PVE::Service::pvestatd::update_node_status()
+use constant {
+    RRD_NODE_INDEX_MAXCPU => 4,
+    RRD_NODE_INDEX_CPU => 5,
+    RRD_NODE_INDEX_MAXMEM => 7,
+    RRD_NODE_INDEX_MEM => 8,
+};
+
+my $HOSTNAME_RE = qr/(?:[a-zA-Z0-9](?:[a-zA-Z0-9\-]{,61}?[a-zA-Z0-9])?)/;
 
 sub new {
     my ($this, $nodename) = @_;
@@ -569,6 +584,30 @@ sub get_static_service_stats {
     return $stats;
 }
 
+sub get_dynamic_service_stats {
+    my ($self) = @_;
+
+    my $rrd = PVE::Cluster::rrd_dump();
+
+    my $stats = get_cluster_service_stats();
+    for my $sid (keys %$stats) {
+        my $id = $stats->{$sid}->{id};
+        my $rrdentry = $rrd->{"pve-vm-9.0/$id"} // [];
+
+        # NOTE the guests' broadcasted vmstatus() caps maxcpu at the node's maxcpu
+        my $maxcpu = ($rrdentry->[RRD_VM_INDEX_MAXCPU] || 0.0) + 0.0;
+
+        $stats->{$sid}->{usage} = {
+            maxcpu => $maxcpu,
+            cpu => (($rrdentry->[RRD_VM_INDEX_CPU] || 0.0) + 0.0) * $maxcpu,
+            maxmem => int($rrdentry->[RRD_VM_INDEX_MAXMEM] || 0),
+            mem => int($rrdentry->[RRD_VM_INDEX_MEM] || 0),
+        };
+    }
+
+    return $stats;
+}
+
 sub get_static_node_stats {
     my ($self) = @_;
 
@@ -583,6 +622,32 @@ sub get_static_node_stats {
             };
         };
         $self->log('err', "unable to decode static node info for '$node' - $@") if $@;
+    }
+
+    return $stats;
+}
+
+sub get_dynamic_node_stats {
+    my ($self) = @_;
+
+    my $rrd = PVE::Cluster::rrd_dump();
+
+    my $stats = {};
+    for my $key (keys %$rrd) {
+        my ($nodename) = $key =~ m/^pve-node-9.0\/($HOSTNAME_RE)$/;
+
+        next if !$nodename;
+
+        my $rrdentry = $rrd->{$key} // [];
+
+        my $maxcpu = int($rrdentry->[RRD_NODE_INDEX_MAXCPU] || 0);
+
+        $stats->{$nodename} = {
+            maxcpu => $maxcpu,
+            cpu => (($rrdentry->[RRD_NODE_INDEX_CPU] || 0.0) + 0.0) * $maxcpu,
+            maxmem => int($rrdentry->[RRD_NODE_INDEX_MAXMEM] || 0),
+            mem => int($rrdentry->[RRD_NODE_INDEX_MEM] || 0),
+        };
     }
 
     return $stats;
