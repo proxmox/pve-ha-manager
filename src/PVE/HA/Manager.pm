@@ -94,11 +94,12 @@ sub update_crs_scheduler_mode {
 
     my $haenv = $self->{haenv};
     my $dc_cfg = $haenv->get_datacenter_settings();
+    my $crs_cfg = $dc_cfg->{crs};
 
-    $self->{crs}->{rebalance_on_request_start} = !!$dc_cfg->{crs}->{'ha-rebalance-on-start'};
+    $self->{crs}->{rebalance_on_request_start} = !!$crs_cfg->{'ha-rebalance-on-start'};
 
     my $old_mode = $self->{crs}->{scheduler};
-    my $new_mode = $dc_cfg->{crs}->{ha} || 'basic';
+    my $new_mode = $crs_cfg->{ha} || 'basic';
 
     if (!defined($old_mode)) {
         $haenv->log('info', "using scheduler mode '$new_mode'") if $new_mode ne 'basic';
