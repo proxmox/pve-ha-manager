@@ -21,8 +21,11 @@ use PVE::HA::Groups;
 
 my $watchdog_timeout = 60;
 
+my $default_service_cpu = 2.0;
 my $default_service_maxcpu = 4.0;
+my $default_service_mem = 2048 * 1024**2;
 my $default_service_maxmem = 4096 * 1024**2;
+
 my $default_node_maxcpu = 24.0;
 my $default_node_maxmem = 131072 * 1024**2;
 
@@ -211,6 +214,25 @@ sub set_static_service_stats {
     }
 
     $self->write_static_service_stats($stats);
+}
+
+sub set_dynamic_service_stats {
+    my ($self, $sid, $new_stats) = @_;
+
+    my $conf = $self->read_service_config();
+    die "no such service '$sid'" if !$conf->{$sid};
+
+    my $stats = $self->read_dynamic_service_stats();
+
+    if (defined(my $memory = $new_stats->{mem})) {
+        $stats->{$sid}->{mem} = $memory;
+    }
+
+    if (defined(my $cpu = $new_stats->{cpu})) {
+        $stats->{$sid}->{cpu} = $cpu;
+    }
+
+    $self->write_dynamic_service_stats($stats);
 }
 
 sub add_service {
@@ -438,12 +460,30 @@ sub read_static_service_stats {
     return $stats;
 }
 
+sub read_dynamic_service_stats {
+    my ($self) = @_;
+
+    my $filename = "$self->{statusdir}/dynamic_service_stats";
+    my $stats = eval { PVE::HA::Tools::read_json_from_file($filename) };
+    $self->log('error', "loading dynamic service stats failed - $@") if $@;
+
+    return $stats;
+}
+
 sub write_static_service_stats {
     my ($self, $stats) = @_;
 
     my $filename = "$self->{statusdir}/static_service_stats";
     eval { PVE::HA::Tools::write_json_to_file($filename, $stats) };
     $self->log('error', "writing static service stats failed - $@") if $@;
+}
+
+sub write_dynamic_service_stats {
+    my ($self, $stats) = @_;
+
+    my $filename = "$self->{statusdir}/dynamic_service_stats";
+    eval { PVE::HA::Tools::write_json_to_file($filename, $stats) };
+    $self->log('error', "writing dynamic service stats failed - $@") if $@;
 }
 
 sub new {
@@ -534,6 +574,18 @@ sub new {
                 keys %$services
         };
         $self->write_static_service_stats($stats);
+    }
+
+    if (-f "$testdir/dynamic_service_stats") {
+        copy("$testdir/dynamic_service_stats", "$statusdir/dynamic_service_stats");
+    } else {
+        my $services = $self->read_static_service_stats();
+        my $stats = {
+            map { $_ => { cpu => $default_service_cpu, mem => $default_service_mem } }
+                keys %$services
+        };
+
+        $self->write_dynamic_service_stats($stats);
     }
 
     my $cstatus = $self->read_hardware_status_nolock();
