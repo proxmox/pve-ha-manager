@@ -319,12 +319,14 @@ sub unlock_service {
 
     die "no such service '$sid'\n" if !$conf->{$sid};
 
-    if (!defined($conf->{$sid}->{lock})) {
+    my $service_lock = $conf->{$sid}->{lock};
+
+    if (!defined($service_lock)) {
         return undef;
     }
 
-    if (defined($lock) && $conf->{$sid}->{lock} ne $lock) {
-        warn "found lock '$conf->{$sid}->{lock}' trying to remove '$lock' lock\n";
+    if (defined($lock) && $service_lock ne $lock) {
+        warn "found lock '$service_lock' trying to remove '$lock' lock\n";
         return undef;
     }
 
