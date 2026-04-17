@@ -687,7 +687,7 @@ sub update_crm_commands {
             my $state = $ns->get_node_state($node);
             if ($ms->{disarm}) {
                 $haenv->log(
-                    'warn',
+                    'warning',
                     "ignoring maintenance command for node $node - HA stack is disarmed",
                 );
             } elsif ($state eq 'online') {
@@ -706,7 +706,7 @@ sub update_crm_commands {
             my $state = $ns->get_node_state($node);
             if ($state ne 'maintenance') {
                 $haenv->log(
-                    'warn',
+                    'warning',
                     "clearing maintenance of node $node requested, but it's in state $state",
                 );
             }
@@ -910,7 +910,7 @@ sub handle_disarm {
     for my $sid (sort keys %$ss) {
         my $state = $ss->{$sid}->{state};
         if ($state eq 'fence' || $state eq 'recovery') {
-            $haenv->log('warn', "deferring disarm - service '$sid' is in '$state' state");
+            $haenv->log('warning', "deferring disarm - service '$sid' is in '$state' state");
             $deferred_sids->{$sid} = 1;
         } elsif ($state eq 'migrate' || $state eq 'relocate') {
             $haenv->log('info', "deferring disarm - service '$sid' is in '$state' state");

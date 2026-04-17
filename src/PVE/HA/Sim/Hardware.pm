@@ -455,7 +455,7 @@ sub read_static_service_stats {
 
     my $filename = "$self->{statusdir}/static_service_stats";
     my $stats = eval { PVE::HA::Tools::read_json_from_file($filename) };
-    $self->log('error', "loading static service stats failed - $@") if $@;
+    $self->log('err', "loading static service stats failed - $@") if $@;
 
     return $stats;
 }
@@ -465,7 +465,7 @@ sub read_dynamic_service_stats {
 
     my $filename = "$self->{statusdir}/dynamic_service_stats";
     my $stats = eval { PVE::HA::Tools::read_json_from_file($filename) };
-    $self->log('error', "loading dynamic service stats failed - $@") if $@;
+    $self->log('err', "loading dynamic service stats failed - $@") if $@;
 
     return $stats;
 }
@@ -475,7 +475,7 @@ sub write_static_service_stats {
 
     my $filename = "$self->{statusdir}/static_service_stats";
     eval { PVE::HA::Tools::write_json_to_file($filename, $stats) };
-    $self->log('error', "writing static service stats failed - $@") if $@;
+    $self->log('err', "writing static service stats failed - $@") if $@;
 }
 
 sub write_dynamic_service_stats {
@@ -483,7 +483,7 @@ sub write_dynamic_service_stats {
 
     my $filename = "$self->{statusdir}/dynamic_service_stats";
     eval { PVE::HA::Tools::write_json_to_file($filename, $stats) };
-    $self->log('error', "writing dynamic service stats failed - $@") if $@;
+    $self->log('err', "writing dynamic service stats failed - $@") if $@;
 }
 
 sub new {

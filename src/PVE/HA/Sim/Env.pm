@@ -348,6 +348,7 @@ sub send_notification {
     $subject = $subject =~ s/\{\{fence-status}}/$properties->{"fence-status"}/r;
 
     # only log subject, do not spam the logs
+    # allow invalid 'email' priority level here as it's only for test log output
     $self->log('email', $subject);
 }
 

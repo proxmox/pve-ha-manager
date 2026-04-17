@@ -191,7 +191,7 @@ sub process_fencing {
             $tried_device_count++; # try next available device
             return if run_fence_jobs($node, $tried_device_count);
 
-            $haenv->log('warn', "could not start fence job at try '$tried_device_count'");
+            $haenv->log('warning', "could not start fence job at try '$tried_device_count'");
         }
 
         $results->{$node}->{failure} = 1;

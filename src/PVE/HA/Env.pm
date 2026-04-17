@@ -169,6 +169,8 @@ sub get_node_info {
     return $self->{plug}->get_node_info();
 }
 
+# $level must match a valid value as the priority levels in Sys::Syslog, which are:
+# 'emerg', 'alert', 'crit', 'err', 'warning', 'notice', 'info', and 'debug'.
 sub log {
     my ($self, $level, @args) = @_;
 

@@ -447,7 +447,7 @@ sub cluster_state_update {
 
     eval { PVE::Cluster::cfs_update(1) };
     if (my $err = $@) {
-        $self->log('warn', "cluster file system update failed - $err");
+        $self->log('warning', "cluster file system update failed - $err");
         return 0;
     }
 

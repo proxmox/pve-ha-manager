@@ -25,7 +25,7 @@ sub migrate {
     my $ss = $hardware->read_service_status($nodename);
 
     if ($online && $ss->{$sid}) {
-        $haenv->log('warn', "unable to live migrate running container, fallback to relocate");
+        $haenv->log('warning', "unable to live migrate running container, fallback to relocate");
         $online = 0;
     }
 
