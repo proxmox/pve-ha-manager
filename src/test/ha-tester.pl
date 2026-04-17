@@ -48,10 +48,10 @@ sub do_run_test {
     if (-f $logexpect) {
         my $cmd = ['diff', '-u', $logexpect, $logfile];
         $res = system(@$cmd);
-        return "test '$dir' failed\n" if $res != 0;
+        return "Test '$dir' failed\n" if $res != 0;
     } else {
         $res = system('cp', $logfile, $logexpect);
-        return "test '$dir' failed\n" if $res != 0;
+        return "Test '$dir' failed\n" if $res != 0;
     }
     print "end: $dir (success)\n";
 
