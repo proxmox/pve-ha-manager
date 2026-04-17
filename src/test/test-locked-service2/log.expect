@@ -39,6 +39,15 @@ info    340    node1/crm: node 'node3': state changed from 'fence' => 'unknown'
 emai    340    node1/crm: SUCCEED: fencing: acknowledged - got agent lock for node 'node3'
 info    340    node1/crm: service 'vm:103': state changed from 'fence' to 'recovery'
 info    340    node1/crm: recover service 'vm:103' from fenced node 'node3' to node 'node1'
+warn    340     hardware: found lock 'create' trying to remove 'backup' lock
+warn    340     hardware: found lock 'create' trying to remove 'mounted' lock
+warn    340     hardware: found lock 'create' trying to remove 'migrate' lock
+warn    340     hardware: found lock 'create' trying to remove 'clone' lock
+warn    340     hardware: found lock 'create' trying to remove 'rollback' lock
+warn    340     hardware: found lock 'create' trying to remove 'snapshot' lock
+warn    340     hardware: found lock 'create' trying to remove 'snapshot-delete' lock
+warn    340     hardware: found lock 'create' trying to remove 'suspending' lock
+warn    340     hardware: found lock 'create' trying to remove 'suspended' lock
 info    340    node1/crm: service 'vm:103': state changed from 'recovery' to 'started'  (node = node1)
 info    341    node1/lrm: got lock 'ha_agent_node1_lock'
 info    341    node1/lrm: status change wait_for_agent_lock => active

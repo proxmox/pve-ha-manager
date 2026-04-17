@@ -439,7 +439,7 @@ sub loop_end_hook {
 
     my $delay = $self->get_time() - $self->{loop_start};
 
-    warn "loop took too long ($delay seconds)\n" if $delay > 30;
+    $self->log('warning', "loop took too long ($delay seconds)") if $delay > 30;
 }
 
 sub cluster_state_update {

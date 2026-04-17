@@ -146,7 +146,7 @@ sub check_running {
         my $conf = PVE::QemuConfig->load_config($vmid, $nodename);
         if (defined($conf->{lock}) && $conf->{lock} eq 'backup') {
             my $qmpstatus = eval { PVE::QemuServer::Monitor::mon_cmd($vmid, 'query-status') };
-            warn "$@\n" if $@;
+            $haenv->log('warning', "$@") if $@;
 
             return 0 if defined($qmpstatus) && $qmpstatus->{status} eq 'prelaunch';
         }

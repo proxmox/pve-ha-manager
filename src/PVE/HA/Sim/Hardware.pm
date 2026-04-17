@@ -326,7 +326,7 @@ sub unlock_service {
     }
 
     if (defined($lock) && $service_lock ne $lock) {
-        warn "found lock '$service_lock' trying to remove '$lock' lock\n";
+        $self->log('warning', "found lock '$service_lock' trying to remove '$lock' lock");
         return undef;
     }
 
