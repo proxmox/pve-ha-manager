@@ -46,7 +46,7 @@ sub do_run_test {
     my $logexpect = "$dir/log.expect";
 
     if (-f $logexpect) {
-        my $cmd = ['diff', '-u', $logexpect, $logfile];
+        my $cmd = ['diff', '--color', '-u', $logexpect, $logfile];
         $res = system(@$cmd);
         return "Test '$dir' failed\n" if $res != 0;
     } else {
