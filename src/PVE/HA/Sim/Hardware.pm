@@ -669,6 +669,7 @@ sub log {
     chomp $msg;
 
     my $time = $self->get_time();
+    $level = substr($level, 0, 4);
 
     $id = 'hardware' if !$id;
 

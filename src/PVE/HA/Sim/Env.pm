@@ -332,6 +332,7 @@ sub log {
     chomp $msg;
 
     my $time = $self->get_time();
+    $level = substr($level, 0, 4);
 
     printf("%-5s %5d %12s: $msg\n", $level, $time, "$self->{nodename}/$self->{log_id}");
 }

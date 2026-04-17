@@ -31,6 +31,7 @@ sub log {
     my ($self, $level, $msg) = @_;
 
     chomp $msg;
+    $level = substr($level, 0, 4);
 
     my $time = $self->get_time();
 
