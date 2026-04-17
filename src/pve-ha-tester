@@ -19,6 +19,14 @@ sub show_usage {
 my $testdir = shift || show_usage();
 my $hardware = PVE::HA::Sim::TestHardware->new($testdir);
 
+$SIG{'__WARN__'} = sub {
+    my $err = $@;
+    my $message = $_[0];
+    chomp $message;
+    $hardware->log('warn', $message, 'perl');
+    $@ = $err;
+};
+
 $hardware->log('info', "starting simulation");
 
 eval { $hardware->run(); };
