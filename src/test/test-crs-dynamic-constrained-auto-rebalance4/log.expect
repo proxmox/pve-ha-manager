@@ -38,7 +38,7 @@ info     25    node3/lrm: got lock 'ha_agent_node3_lock'
 info     25    node3/lrm: status change wait_for_agent_lock => active
 info     25    node3/lrm: starting service vm:104
 info     25    node3/lrm: service status vm:104 started
-info     80    node1/crm: auto rebalance - migrate vm:101 to node3 (expected change for imbalance from 1.04 to 0.72)
+info     80    node1/crm: auto rebalance - migrate vm:101 to node3 (expected change for imbalance from 0.74 to 0.51)
 info     80    node1/crm: got crm command: migrate vm:101 node3
 info     80    node1/crm: migrate service 'vm:101' to node 'node3'
 info     80    node1/crm: service 'vm:101': state changed from 'started' to 'migrate'  (node = node1, target = node3)
@@ -47,7 +47,7 @@ info     81    node1/lrm: service vm:101 - end migrate to node 'node3'
 info    100    node1/crm: service 'vm:101': state changed from 'migrate' to 'started'  (node = node3)
 info    105    node3/lrm: starting service vm:101
 info    105    node3/lrm: service status vm:101 started
-info    160    node1/crm: auto rebalance - migrate vm:104 to node2 (expected change for imbalance from 0.72 to 0.33)
+info    160    node1/crm: auto rebalance - migrate vm:104 to node2 (expected change for imbalance from 0.51 to 0.23)
 info    160    node1/crm: got crm command: migrate vm:104 node2
 info    160    node1/crm: migrate service 'vm:104' to node 'node2'
 info    160    node1/crm: service 'vm:104': state changed from 'started' to 'migrate'  (node = node3, target = node2)

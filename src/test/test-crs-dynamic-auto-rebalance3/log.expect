@@ -53,7 +53,7 @@ info     25    node3/lrm: service status vm:107 started
 info    120      cmdlist: execute service vm:105 set-dynamic-stats cpu 7.8 mem 7912
 info    120      cmdlist: execute service vm:106 set-dynamic-stats cpu 5.7 mem 8192
 info    120      cmdlist: execute service vm:107 set-dynamic-stats cpu 6.0 mem 8011
-info    160    node1/crm: auto rebalance - migrate vm:105 to node2 (expected change for imbalance from 0.85 to 0.42)
+info    160    node1/crm: auto rebalance - migrate vm:105 to node2 (expected change for imbalance from 0.60 to 0.30)
 info    160    node1/crm: got crm command: migrate vm:105 node2
 info    160    node1/crm: migrate service 'vm:105' to node 'node2'
 info    160    node1/crm: service 'vm:105': state changed from 'started' to 'migrate'  (node = node3, target = node2)
@@ -68,22 +68,13 @@ info    220      cmdlist: execute service vm:104 set-dynamic-stats cpu 6.7 mem 8
 info    220      cmdlist: execute service vm:105 set-dynamic-stats cpu 1.8 mem 1201
 info    220      cmdlist: execute service vm:106 set-dynamic-stats cpu 2.1 mem 1211
 info    220      cmdlist: execute service vm:107 set-dynamic-stats cpu 0.9 mem 1191
-info    240    node1/crm: auto rebalance - migrate vm:103 to node1 (expected change for imbalance from 0.81 to 0.40)
-info    240    node1/crm: got crm command: migrate vm:103 node1
-info    240    node1/crm: migrate service 'vm:103' to node 'node1'
-info    240    node1/crm: service 'vm:103': state changed from 'started' to 'migrate'  (node = node2, target = node1)
-info    243    node2/lrm: service vm:103 - start migrate to node 'node1'
-info    243    node2/lrm: service vm:103 - end migrate to node 'node1'
-info    260    node1/crm: service 'vm:103': state changed from 'migrate' to 'started'  (node = node1)
-info    261    node1/lrm: starting service vm:103
-info    261    node1/lrm: service status vm:103 started
-info    320    node1/crm: auto rebalance - migrate vm:105 to node3 (expected change for imbalance from 0.40 to 0.21)
-info    320    node1/crm: got crm command: migrate vm:105 node3
-info    320    node1/crm: migrate service 'vm:105' to node 'node3'
-info    320    node1/crm: service 'vm:105': state changed from 'started' to 'migrate'  (node = node2, target = node3)
-info    323    node2/lrm: service vm:105 - start migrate to node 'node3'
-info    323    node2/lrm: service vm:105 - end migrate to node 'node3'
-info    340    node1/crm: service 'vm:105': state changed from 'migrate' to 'started'  (node = node3)
-info    345    node3/lrm: starting service vm:105
-info    345    node3/lrm: service status vm:105 started
+info    260    node1/crm: auto rebalance - migrate vm:103 to node1 (expected change for imbalance from 0.57 to 0.28)
+info    260    node1/crm: got crm command: migrate vm:103 node1
+info    260    node1/crm: migrate service 'vm:103' to node 'node1'
+info    260    node1/crm: service 'vm:103': state changed from 'started' to 'migrate'  (node = node2, target = node1)
+info    263    node2/lrm: service vm:103 - start migrate to node 'node1'
+info    263    node2/lrm: service vm:103 - end migrate to node 'node1'
+info    280    node1/crm: service 'vm:103': state changed from 'migrate' to 'started'  (node = node1)
+info    281    node1/lrm: starting service vm:103
+info    281    node1/lrm: service status vm:103 started
 info    820     hardware: exit simulation - done

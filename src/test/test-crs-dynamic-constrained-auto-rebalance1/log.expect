@@ -35,7 +35,7 @@ info    120      cmdlist: execute service vm:104 set-static-stats maxcpu 8.0 max
 info    120      cmdlist: execute service vm:104 set-dynamic-stats cpu 4.0 mem 4096
 info    120    node1/crm: adding new service 'vm:104' on node 'node1'
 info    120    node1/crm: service 'vm:104': state changed from 'request_start' to 'started'  (node = node1)
-info    140    node1/crm: auto rebalance - migrate vm:104 to node2 (expected change for imbalance from 1.41 to 0.98)
+info    140    node1/crm: auto rebalance - migrate vm:104 to node2 (expected change for imbalance from 1.00 to 0.70)
 info    140    node1/crm: got crm command: migrate vm:104 node2
 info    140    node1/crm: migrate service 'vm:104' to node 'node2'
 info    140    node1/crm: service 'vm:104': state changed from 'started' to 'migrate'  (node = node1, target = node2)
