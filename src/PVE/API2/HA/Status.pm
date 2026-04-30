@@ -199,8 +199,15 @@ __PACKAGE__->register_method({
             }
             my $datacenter_config = eval { cfs_read_file('datacenter.cfg') } // {};
             if (my $crs = $datacenter_config->{crs}) {
-                $extra_status .= " - $crs->{ha} load CRS"
-                    if $crs->{ha} && $crs->{ha} ne 'basic';
+                my $mode = $crs->{ha};
+
+                if ($mode && $mode ne 'basic') {
+                    $extra_status .= " - $mode load CRS";
+
+                    my $imbalance = $status->{imbalance};
+                    $extra_status .= sprintf(" (load imbalance: %.2f%%)", 100 * $imbalance)
+                        if $crs->{'ha-auto-rebalance'} && defined($imbalance);
+                }
             }
             my $time_str = localtime($status->{timestamp});
             my $status_text = "$master ($status_str, $time_str)$extra_status";
