@@ -285,6 +285,7 @@ sub flush_master_status {
     $ms->{node_status} = $ns->{status};
     $ms->{service_status} = $ss;
     $ms->{timestamp} = $haenv->get_time();
+    $ms->{imbalance} = $self->{online_node_usage}->calculate_node_imbalance();
 
     $haenv->write_manager_status($ms);
 }
