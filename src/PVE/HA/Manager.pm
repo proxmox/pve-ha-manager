@@ -6,13 +6,14 @@ use warnings;
 use Digest::MD5 qw(md5_base64);
 
 use PVE::Tools;
+
 use PVE::HA::Groups;
-use PVE::HA::Tools ':exit_codes';
 use PVE::HA::NodeStatus;
 use PVE::HA::Rules;
 use PVE::HA::Rules::NodeAffinity qw(get_node_affinity);
 use PVE::HA::Rules::ResourceAffinity
     qw(get_affinitive_resources get_resource_affinity apply_positive_resource_affinity apply_negative_resource_affinity);
+use PVE::HA::Tools ':exit_codes';
 use PVE::HA::Usage::Basic;
 
 my $have_static_scheduling;
