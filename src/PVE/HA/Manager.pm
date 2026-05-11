@@ -592,9 +592,12 @@ sub queue_resource_motion {
     if (my $blocking_resources = $blocking_resources_by_node->{$target}) {
         for my $blocking_resource (@$blocking_resources) {
             my $err_msg = "unknown migration blocker reason";
-            my ($csid, $cause) = $blocking_resource->@{qw(sid cause)};
+            my $cause = $blocking_resource->{cause};
 
-            if ($cause eq 'resource-affinity') {
+            if ($cause eq 'node-affinity') {
+                $err_msg = "service '$sid' is not allowed on node '$target'";
+            } elsif ($cause eq 'resource-affinity') {
+                my $csid = $blocking_resource->{sid};
                 $err_msg = "service '$csid' on node '$target' in negative"
                     . " affinity with service '$sid'";
             }

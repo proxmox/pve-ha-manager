@@ -160,15 +160,15 @@ my $print_resource_motion_output = sub {
             my $err_msg = "cannot $cmd resource '$sid' to node '$req_node':\n\n";
 
             for my $blocking_resource (@$blocking_resources) {
-                my ($csid, $cause) = $blocking_resource->@{qw(sid cause)};
+                my $cause = $blocking_resource->{cause};
 
-                $err_msg .= "- resource '$csid' on target node '$req_node'";
-
-                if ($cause eq 'resource-affinity') {
-                    $err_msg .= " in negative affinity with resource '$sid'";
+                if ($cause eq 'node-affinity') {
+                    $err_msg .= "- resource '$sid' not allowed on target node '$req_node'\n";
+                } elsif ($cause eq 'resource-affinity') {
+                    my $csid = $blocking_resource->{sid};
+                    $err_msg .= "- resource '$csid' on target node '$req_node'"
+                        . " in negative affinity with resource '$sid'\n";
                 }
-
-                $err_msg .= "\n";
             }
 
             die $err_msg;

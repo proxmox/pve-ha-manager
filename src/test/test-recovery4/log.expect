@@ -43,7 +43,7 @@ err     260    node1/crm: recovering service 'vm:102' from fenced node 'node2' f
 err     280    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 err     300    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 info    320      cmdlist: execute service vm:102 migrate node3
-info    320    node1/crm: got crm command: migrate vm:102 node3
+err     320    node1/crm: crm command 'migrate vm:102 node3' error - service 'vm:102' is not allowed on node 'node3'
 err     320    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 err     340    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found
 err     360    node1/crm: recovering service 'vm:102' from fenced node 'node2' failed, no recovery node found

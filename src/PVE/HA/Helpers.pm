@@ -2,6 +2,7 @@ package PVE::HA::Helpers;
 
 use v5.36;
 
+use PVE::HA::Rules::NodeAffinity qw(get_node_affinity);
 use PVE::HA::Rules::ResourceAffinity qw(get_affinitive_resources);
 
 =head3 get_resource_motion_info
@@ -21,7 +22,9 @@ sub get_resource_motion_info($ss, $sid, $online_nodes, $compiled_rules) {
     my $dependent_resources = [];
     my $blocking_resources_by_node = {};
 
-    my $resource_affinity = $compiled_rules->{'resource-affinity'};
+    my ($node_affinity, $resource_affinity) =
+        $compiled_rules->@{qw(node-affinity resource-affinity)};
+    my ($allowed_nodes) = get_node_affinity($node_affinity, $sid, $online_nodes);
     my ($together, $separate) = get_affinitive_resources($resource_affinity, $sid);
 
     for my $csid (sort keys %$together) {
@@ -32,6 +35,14 @@ sub get_resource_motion_info($ss, $sid, $online_nodes, $compiled_rules) {
     }
 
     for my $node (keys %$online_nodes) {
+        if (!$allowed_nodes->{$node}) {
+            push $blocking_resources_by_node->{$node}->@*,
+                {
+                    sid => $sid,
+                    cause => 'node-affinity',
+                };
+        }
+
         for my $csid (sort keys %$separate) {
             next if !defined($ss->{$csid});
             next if $ss->{$csid}->{state} eq 'ignored';
