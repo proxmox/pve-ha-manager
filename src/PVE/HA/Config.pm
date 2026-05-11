@@ -5,12 +5,13 @@ use warnings;
 
 use JSON;
 
-use PVE::HA::Tools;
+use PVE::Cluster qw(cfs_register_file cfs_read_file cfs_write_file cfs_lock_file);
+
 use PVE::HA::Groups;
+use PVE::HA::Resources;
 use PVE::HA::Rules;
 use PVE::HA::Rules::ResourceAffinity qw(get_affinitive_resources);
-use PVE::Cluster qw(cfs_register_file cfs_read_file cfs_write_file cfs_lock_file);
-use PVE::HA::Resources;
+use PVE::HA::Tools;
 
 my $manager_status_filename = "ha/manager_status";
 my $ha_groups_config = "ha/groups.cfg";
