@@ -108,13 +108,13 @@ sub read_resources_config {
 # checks if resource exists and sets defaults for unset values
 sub read_and_check_resources_config {
 
-    my $res = cfs_read_file($ha_resources_config);
+    my $cfg = cfs_read_file($ha_resources_config);
 
     my $vmlist = PVE::Cluster::get_vmlist();
-    my $conf = {};
+    my $resources = {};
 
-    foreach my $sid (keys %{ $res->{ids} }) {
-        my $d = $res->{ids}->{$sid};
+    foreach my $sid (keys %{ $cfg->{ids} }) {
+        my $d = $cfg->{ids}->{$sid};
         my (undef, undef, $name) = parse_sid($sid);
         $d->{state} = 'started' if !defined($d->{state});
         $d->{state} = 'started' if $d->{state} eq 'enabled'; # backward compatibility
@@ -124,17 +124,17 @@ sub read_and_check_resources_config {
         if (PVE::HA::Resources->lookup($d->{type})) {
             if (my $vmd = $vmlist->{ids}->{$name}) {
                 $d->{node} = $vmd->{node};
-                $conf->{$sid} = $d;
+                $resources->{$sid} = $d;
             } else {
                 # undef $d->{node} is handled in get_verbose_service_state and
                 # status API, don't spam logs or ignore it; allow to delete it!
-                $conf->{$sid} = $d;
+                $resources->{$sid} = $d;
             }
         }
     }
 
     # TODO PVE 10: Remove digest when HA groups have been fully migrated to rules
-    return wantarray ? ($conf, $res->{digest}) : $conf;
+    return wantarray ? ($resources, $cfg->{digest}) : $resources;
 }
 
 my sub update_single_resource_config_inplace {
