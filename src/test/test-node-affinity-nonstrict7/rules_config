@@ -1,0 +1,7 @@
+node-affinity: vm101-should-be-on-node1-node3
+	nodes node1:1,node3:2
+	resources vm:101
+
+node-affinity: vm102-should-be-on-node1-node2
+	nodes node1:1,node2:2
+	resources vm:102

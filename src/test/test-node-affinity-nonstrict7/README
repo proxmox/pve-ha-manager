@@ -1,0 +1,9 @@
+Test whether services in a non-strict node affinity rule handle manual
+migrations to nodes as expected with respect to whether these are part of the
+node affinity rule or not.
+
+The test scenario is:
+- vm:101 should be kept on node1 or node3 (preferred)
+- vm:102 should be kept on node1 or node2 (preferred)
+- vm:101 is running on node3 with failback enabled
+- vm:102 is running on node2 with failback disabled
