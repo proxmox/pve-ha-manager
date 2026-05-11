@@ -21,7 +21,6 @@
 /usr/share/perl5/PVE/CLI/ha_manager.pm
 /usr/share/perl5/PVE/HA/CRM.pm
 /usr/share/perl5/PVE/HA/Config.pm
-/usr/share/perl5/PVE/HA/Config.pm
 /usr/share/perl5/PVE/HA/Env.pm
 /usr/share/perl5/PVE/HA/Env/PVE2.pm
 /usr/share/perl5/PVE/HA/Fence.pm
