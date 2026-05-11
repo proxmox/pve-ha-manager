@@ -8,6 +8,7 @@ use Digest::MD5 qw(md5_base64);
 use PVE::Tools;
 
 use PVE::HA::Groups;
+use PVE::HA::Helpers;
 use PVE::HA::NodeStatus;
 use PVE::HA::Rules;
 use PVE::HA::Rules::NodeAffinity qw(get_node_affinity);
@@ -582,43 +583,35 @@ sub read_lrm_status {
 sub queue_resource_motion {
     my ($self, $cmd, $task, $sid, $target) = @_;
 
-    my ($haenv, $ss) = $self->@{qw(haenv ss)};
+    my ($haenv, $ss, $ns, $compiled_rules) = $self->@{qw(haenv ss ns compiled_rules)};
+    my $online_nodes = { map { $_ => 1 } $self->{ns}->list_online_nodes()->@* };
 
-    my $resource_affinity = $self->{compiled_rules}->{'resource-affinity'};
-    my ($together, $separate) = get_affinitive_resources($resource_affinity, $sid);
+    my ($dependent_resources, $blocking_resources_by_node) =
+        PVE::HA::Helpers::get_resource_motion_info($ss, $sid, $online_nodes, $compiled_rules);
 
-    my $blocked_from_migration;
-    for my $csid (sort keys %$separate) {
-        next if !defined($ss->{$csid});
-        next if $ss->{$csid}->{state} eq 'ignored';
-        next if $ss->{$csid}->{node} && $ss->{$csid}->{node} ne $target;
-        next if $ss->{$csid}->{target} && $ss->{$csid}->{target} ne $target;
+    if (my $blocking_resources = $blocking_resources_by_node->{$target}) {
+        for my $blocking_resource (@$blocking_resources) {
+            my $err_msg = "unknown migration blocker reason";
+            my ($csid, $cause) = $blocking_resource->@{qw(sid cause)};
 
-        $haenv->log(
-            'err',
-            "crm command '$cmd' error - service '$csid' on node '$target' in"
-                . " negative affinity with service '$sid'",
-        );
+            if ($cause eq 'resource-affinity') {
+                $err_msg = "service '$csid' on node '$target' in negative"
+                    . " affinity with service '$sid'";
+            }
 
-        $blocked_from_migration = 1;
+            $haenv->log('err', "crm command '$cmd' error - $err_msg");
+        }
+
+        return; # do not queue migration if there are blockers
     }
-
-    return if $blocked_from_migration;
 
     $haenv->log('info', "got crm command: $cmd");
     $ss->{$sid}->{cmd} = [$task, $target];
 
-    my $resources_to_migrate = [];
-    for my $csid (sort keys %$together) {
-        next if !defined($ss->{$csid});
-        next if $ss->{$csid}->{state} eq 'ignored';
+    for my $csid (@$dependent_resources) {
         next if $ss->{$csid}->{node} && $ss->{$csid}->{node} eq $target;
         next if $ss->{$csid}->{target} && $ss->{$csid}->{target} eq $target;
 
-        push @$resources_to_migrate, $csid;
-    }
-
-    for my $csid (@$resources_to_migrate) {
         $haenv->log(
             'info',
             "crm command '$cmd' - $task service '$csid' to node '$target'"

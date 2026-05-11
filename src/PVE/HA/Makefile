@@ -2,6 +2,7 @@ SIM_SOURCES=CRM.pm \
 	    Env.pm \
 	    Groups.pm \
 	    HashTools.pm \
+	    Helpers.pm \
 	    Rules.pm \
 	    Resources.pm \
 	    LRM.pm \

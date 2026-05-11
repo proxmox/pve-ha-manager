@@ -8,9 +8,9 @@ use JSON;
 use PVE::Cluster qw(cfs_register_file cfs_read_file cfs_write_file cfs_lock_file);
 
 use PVE::HA::Groups;
+use PVE::HA::Helpers;
 use PVE::HA::Resources;
 use PVE::HA::Rules;
-use PVE::HA::Rules::ResourceAffinity qw(get_affinitive_resources);
 use PVE::HA::Tools;
 
 my $manager_status_filename = "ha/manager_status";
@@ -401,34 +401,13 @@ sub get_resource_motion_info {
         my $manager_status = read_manager_status();
         my $ss = $manager_status->{service_status};
         my $ns = $manager_status->{node_status};
+        # get_resource_motion_info expects a hashset of all nodes with status 'online'
+        my $online_nodes = { map { $ns->{$_} eq 'online' ? ($_ => 1) : () } keys %$ns };
 
         my $compiled_rules = read_and_compile_rules_config();
-        my $resource_affinity = $compiled_rules->{'resource-affinity'};
-        my ($together, $separate) = get_affinitive_resources($resource_affinity, $sid);
 
-        for my $csid (sort keys %$together) {
-            next if !defined($ss->{$csid});
-            next if $ss->{$csid}->{state} eq 'ignored';
-
-            push @$dependent_resources, $csid;
-        }
-
-        for my $node (keys %$ns) {
-            next if $ns->{$node} ne 'online';
-
-            for my $csid (sort keys %$separate) {
-                next if !defined($ss->{$csid});
-                next if $ss->{$csid}->{state} eq 'ignored';
-                next if $ss->{$csid}->{node} && $ss->{$csid}->{node} ne $node;
-                next if $ss->{$csid}->{target} && $ss->{$csid}->{target} ne $node;
-
-                push $blocking_resources_by_node->{$node}->@*,
-                    {
-                        sid => $csid,
-                        cause => 'resource-affinity',
-                    };
-            }
-        }
+        ($dependent_resources, $blocking_resources_by_node) =
+            PVE::HA::Helpers::get_resource_motion_info($ss, $sid, $online_nodes, $compiled_rules);
     }
 
     return ($dependent_resources, $blocking_resources_by_node);
