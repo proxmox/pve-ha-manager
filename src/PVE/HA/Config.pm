@@ -398,22 +398,27 @@ sub service_is_configured {
 sub get_resource_motion_info {
     my ($sid) = @_;
 
-    my $resources = read_resources_config();
+    my $cfg = read_resources_config();
 
     my $dependent_resources = [];
     my $blocking_resources_by_node = {};
 
-    if (&$service_check_ha_state($resources, $sid)) {
+    if (&$service_check_ha_state($cfg, $sid)) {
         my $manager_status = read_manager_status();
         my $ss = $manager_status->{service_status};
         my $ns = $manager_status->{node_status};
         # get_resource_motion_info expects a hashset of all nodes with status 'online'
         my $online_nodes = { map { $ns->{$_} eq 'online' ? ($_ => 1) : () } keys %$ns };
+        # get_resource_motion_info expects a resource config with defaults set
+        my $resources = checked_resources_config($cfg);
 
         my $compiled_rules = read_and_compile_rules_config();
 
+        my $cd = $resources->{$sid} // {};
         ($dependent_resources, $blocking_resources_by_node) =
-            PVE::HA::Helpers::get_resource_motion_info($ss, $sid, $online_nodes, $compiled_rules);
+            PVE::HA::Helpers::get_resource_motion_info(
+                $ss, $sid, $cd, $online_nodes, $compiled_rules,
+            );
     }
 
     return ($dependent_resources, $blocking_resources_by_node);

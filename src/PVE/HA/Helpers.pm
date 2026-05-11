@@ -18,13 +18,13 @@ causes that make the node unavailable to C<$sid>.
 
 =cut
 
-sub get_resource_motion_info($ss, $sid, $online_nodes, $compiled_rules) {
+sub get_resource_motion_info($ss, $sid, $cd, $online_nodes, $compiled_rules) {
     my $dependent_resources = [];
     my $blocking_resources_by_node = {};
 
     my ($node_affinity, $resource_affinity) =
         $compiled_rules->@{qw(node-affinity resource-affinity)};
-    my ($allowed_nodes) = get_node_affinity($node_affinity, $sid, $online_nodes);
+    my ($allowed_nodes, $pri_nodes) = get_node_affinity($node_affinity, $sid, $online_nodes);
     my ($together, $separate) = get_affinitive_resources($resource_affinity, $sid);
 
     for my $csid (sort keys %$together) {
@@ -35,7 +35,7 @@ sub get_resource_motion_info($ss, $sid, $online_nodes, $compiled_rules) {
     }
 
     for my $node (keys %$online_nodes) {
-        if (!$allowed_nodes->{$node}) {
+        if (!$allowed_nodes->{$node} || ($cd->{failback} && !$pri_nodes->{$node})) {
             push $blocking_resources_by_node->{$node}->@*,
                 {
                     sid => $sid,

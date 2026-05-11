@@ -584,11 +584,14 @@ sub read_lrm_status {
 sub queue_resource_motion {
     my ($self, $cmd, $task, $sid, $target) = @_;
 
-    my ($haenv, $ss, $ns, $compiled_rules) = $self->@{qw(haenv ss ns compiled_rules)};
+    my ($haenv, $sc, $ss, $ns, $compiled_rules) = $self->@{qw(haenv sc ss ns compiled_rules)};
     my $online_nodes = { map { $_ => 1 } $self->{ns}->list_online_nodes()->@* };
+    my $cd = $sc->{$sid};
 
     my ($dependent_resources, $blocking_resources_by_node) =
-        PVE::HA::Helpers::get_resource_motion_info($ss, $sid, $online_nodes, $compiled_rules);
+        PVE::HA::Helpers::get_resource_motion_info(
+            $ss, $sid, $cd, $online_nodes, $compiled_rules,
+        );
 
     if (my $blocking_resources = $blocking_resources_by_node->{$target}) {
         for my $blocking_resource (@$blocking_resources) {
