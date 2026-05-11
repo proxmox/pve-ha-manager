@@ -587,6 +587,7 @@ sub queue_resource_motion {
     my $resource_affinity = $self->{compiled_rules}->{'resource-affinity'};
     my ($together, $separate) = get_affinitive_resources($resource_affinity, $sid);
 
+    my $blocked_from_migration;
     for my $csid (sort keys %$separate) {
         next if !defined($ss->{$csid});
         next if $ss->{$csid}->{state} eq 'ignored';
@@ -599,8 +600,10 @@ sub queue_resource_motion {
                 . " negative affinity with service '$sid'",
         );
 
-        return; # one negative resource affinity is enough to not execute migration
+        $blocked_from_migration = 1;
     }
+
+    return if $blocked_from_migration;
 
     $haenv->log('info', "got crm command: $cmd");
     $ss->{$sid}->{cmd} = [$task, $target];
