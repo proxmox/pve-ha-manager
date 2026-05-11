@@ -105,10 +105,9 @@ sub read_resources_config {
     return cfs_read_file($ha_resources_config);
 }
 
-# checks if resource exists and sets defaults for unset values
-sub read_and_check_resources_config {
-
-    my $cfg = cfs_read_file($ha_resources_config);
+# returns resources config with defaults and node placement set
+my sub checked_resources_config {
+    my ($cfg) = @_;
 
     my $vmlist = PVE::Cluster::get_vmlist();
     my $resources = {};
@@ -135,6 +134,13 @@ sub read_and_check_resources_config {
 
     # TODO PVE 10: Remove digest when HA groups have been fully migrated to rules
     return wantarray ? ($resources, $cfg->{digest}) : $resources;
+}
+
+# checks if resource exists and sets defaults for unset values
+sub read_and_check_resources_config {
+    my $cfg = cfs_read_file($ha_resources_config);
+
+    return checked_resources_config($cfg);
 }
 
 my sub update_single_resource_config_inplace {
