@@ -236,16 +236,10 @@ sub read_and_check_rules_config {
     return $rules;
 }
 
-sub read_and_compile_rules_config {
+my sub compile_rules_config {
+    my ($rules, $groups, $resources, $manager_status) = @_;
 
-    my $rules = read_and_check_rules_config();
-
-    my $manager_status = read_manager_status();
     my $nodes = [keys $manager_status->{node_status}->%*];
-
-    # TODO PVE 10: Remove group migration when HA groups have been fully migrated to location rules
-    my $groups = read_group_config();
-    my $resources = read_and_check_resources_config();
 
     PVE::HA::Groups::migrate_groups_to_rules($rules, $groups, $resources);
 
@@ -412,7 +406,10 @@ sub get_resource_motion_info {
         # get_resource_motion_info expects a resource config with defaults set
         my $resources = checked_resources_config($cfg);
 
-        my $compiled_rules = read_and_compile_rules_config();
+        my $rules = read_and_check_rules_config();
+        # TODO PVE 10: Remove group migration when HA groups have been fully migrated to rules
+        my $groups = read_group_config();
+        my $compiled_rules = compile_rules_config($rules, $groups, $resources, $manager_status);
 
         my $cd = $resources->{$sid} // {};
         ($dependent_resources, $blocking_resources_by_node) =
