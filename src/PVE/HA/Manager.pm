@@ -82,6 +82,7 @@ sub new {
     $self->{ns} = PVE::HA::NodeStatus->new($haenv, $old_ms->{node_status} || {});
 
     # fixme: use separate class  PVE::HA::ServiceStatus
+    $self->{sc} = {};
     $self->{ss} = $old_ms->{service_status} || {};
 
     $self->{ms} = { master_node => $haenv->nodename() };
@@ -1003,7 +1004,7 @@ sub manage {
 
     $self->try_persistent_group_migration();
 
-    my ($sc, $services_digest) = $haenv->read_service_config();
+    ($self->{sc}, my $services_digest) = $haenv->read_service_config();
 
     $self->{groups} = $haenv->read_group_config(); # update
 
@@ -1012,9 +1013,9 @@ sub manage {
     # skip service add/remove when disarmed - handle_disarm manages service status
     if (!$ms->{disarm}) {
         # add new service
-        foreach my $sid (sort keys %$sc) {
+        foreach my $sid (sort keys $self->{sc}->%*) {
             next if $ss->{$sid}; # already there
-            my $cd = $sc->{$sid};
+            my $cd = $self->{sc}->{$sid};
             next if $cd->{state} eq 'ignored';
 
             $haenv->log('info', "adding new service '$sid' on node '$cd->{node}'");
@@ -1029,9 +1030,10 @@ sub manage {
 
         # remove stale or ignored services from manager state
         foreach my $sid (keys %$ss) {
-            next if $sc->{$sid} && $sc->{$sid}->{state} ne 'ignored';
+            my $cd = $self->{sc}->{$sid};
+            next if $cd && $cd->{state} ne 'ignored';
 
-            my $reason = defined($sc->{$sid}) ? 'ignored state requested' : 'no config';
+            my $reason = defined($cd) ? 'ignored state requested' : 'no config';
             $haenv->log('info', "removing stale service '$sid' ($reason)");
 
             # remove all service related state information
@@ -1044,7 +1046,7 @@ sub manage {
     my $new_rules = $haenv->read_rules_config();
 
     # TODO PVE 10: Remove group migration when HA groups have been fully migrated to rules
-    PVE::HA::Groups::migrate_groups_to_resources($self->{groups}, $sc);
+    PVE::HA::Groups::migrate_groups_to_resources($self->{groups}, $self->{sc});
 
     if (
         !$self->{compiled_rules}
@@ -1053,7 +1055,7 @@ sub manage {
         || $self->{groups}->{digest} ne $self->{last_groups_digest}
         || $services_digest && $services_digest ne $self->{last_services_digest}
     ) {
-        PVE::HA::Groups::migrate_groups_to_rules($new_rules, $self->{groups}, $sc);
+        PVE::HA::Groups::migrate_groups_to_rules($new_rules, $self->{groups}, $self->{sc});
 
         my $nodes = $self->{ns}->list_nodes();
         my $messages = PVE::HA::Rules->transform($new_rules, $nodes);
@@ -1089,7 +1091,7 @@ sub manage {
         foreach my $sid (sort keys %$ss) {
             next if $deferred_sids && !$deferred_sids->{$sid};
             my $sd = $ss->{$sid};
-            my $cd = $sc->{$sid} || { state => 'disabled' };
+            my $cd = $self->{sc}->{$sid} || { state => 'disabled' };
 
             my $lrm_res = $sd->{uid} ? $lrm_results->{ $sd->{uid} } : undef;
 
