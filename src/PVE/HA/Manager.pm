@@ -644,7 +644,7 @@ sub any_resource_motion_queued_or_running {
 sub update_crm_commands {
     my ($self) = @_;
 
-    my ($haenv, $ms, $ns, $ss) = ($self->{haenv}, $self->{ms}, $self->{ns}, $self->{ss});
+    my ($haenv, $ms, $ns, $sc, $ss) = $self->@{qw(haenv ms ns sc ss)};
 
     my $cmdlist = $haenv->read_crm_commands();
 
@@ -734,7 +734,6 @@ sub update_crm_commands {
                 # recheck node info after ignore mode, as services may have been manually
                 # migrated while HA tracking was suspended
                 if ($ms->{disarm}->{mode} eq 'ignore') {
-                    my $sc = $haenv->read_service_config();
                     for my $sid (sort keys %$ss) {
                         my $cd = $sc->{$sid};
                         next if !$cd;
