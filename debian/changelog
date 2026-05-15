@@ -1,3 +1,11 @@
+pve-ha-manager (5.2.2) trixie; urgency=medium
+
+  * fix #7557: introduce 'auto-rebalance' property to allow users opting some
+    HA resources out from getting moved by dynamic CRS during automatic
+    rebalancing.
+
+ -- Proxmox Support Team <support@proxmox.com>  Fri, 15 May 2026 11:37:08 +0200
+
 pve-ha-manager (5.2.1) trixie; urgency=medium
 
   * fix #1497: prevent manual migrations of HA resources to nodes where they
