@@ -1,3 +1,24 @@
+pve-ha-manager (5.2.1) trixie; urgency=medium
+
+  * fix #1497: prevent manual migrations of HA resources to nodes where they
+    are not allowed by their node affinity rules, including the case where
+    failback would immediately move them back to a higher priority node.
+
+  * report all blockers when a manual HA resource migration cannot be queued,
+    instead of stopping at the first reason found.
+
+  * api: status: show the current load imbalance value when an automatic
+    load-rebalancing CRS mode is active, giving users a basic indicator in the
+    UI.
+
+  * with the bumped libpve-rs dependency, the load-imbalance metric used by
+    the automatic rebalancer is now normalized to [0, 1], so the value can be
+    interpreted on its own (and as a percentage in the UI) rather than only by
+    comparison. The default rebalance threshold may now trigger fewer
+    migrations than before for the same workload.
+
+ -- Proxmox Support Team <support@proxmox.com>  Fri, 15 May 2026 06:43:31 +0200
+
 pve-ha-manager (5.2.0) trixie; urgency=medium
 
   * add dynamic load scheduler that uses current resource usage stats (CPU
