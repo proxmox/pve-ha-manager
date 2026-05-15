@@ -118,8 +118,10 @@ my sub checked_resources_config {
         $d->{state} = 'started' if !defined($d->{state});
         $d->{state} = 'started' if $d->{state} eq 'enabled'; # backward compatibility
         $d->{failback} = 1 if !defined($d->{failback});
+        $d->{'auto-rebalance'} = 1 if !defined($d->{'auto-rebalance'});
         $d->{max_restart} = 1 if !defined($d->{max_restart});
         $d->{max_relocate} = 1 if !defined($d->{max_relocate});
+
         if (PVE::HA::Resources->lookup($d->{type})) {
             if (my $vmd = $vmlist->{ids}->{$name}) {
                 $d->{node} = $vmd->{node};

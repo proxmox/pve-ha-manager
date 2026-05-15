@@ -38,6 +38,7 @@ sub options {
         group => { optional => 1 },
         comment => { optional => 1 },
         failback => { optional => 1 },
+        'auto-rebalance' => { optional => 1 },
         max_restart => { optional => 1 },
         max_relocate => { optional => 1 },
     };

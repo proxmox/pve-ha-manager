@@ -131,20 +131,22 @@ sub update_crs_scheduler_mode {
     return;
 }
 
-# Returns a hash of lists, which contain the running, non-moving HA resource
+# Returns a hash of lists, which contain the running, movable, non-moving HA resource
 # bundles, which are on the same node, implied by the strict positive resource
 # affinity rules.
 #
 # Each resource bundle has a leader, which is the alphabetically first running
 # HA resource in the resource bundle and also the key of each resource bundle
 # in the returned hash.
-sub get_active_stationary_resource_bundles {
-    my ($ss, $resource_affinity) = @_;
+sub get_active_stationary_movable_resource_bundles {
+    my ($ss, $sc, $resource_affinity) = @_;
 
     my $resource_bundles = {};
 OUTER: for my $sid (sort keys %$ss) {
         # do not consider non-started resource as 'active' leading resource
         next if $ss->{$sid}->{state} ne 'started';
+        # do not consider resource if it is not movable
+        next if !$sc->{$sid}->{'auto-rebalance'};
 
         my @resources = ($sid);
         my $nodes = { $ss->{$sid}->{node} => 1 };
@@ -159,6 +161,8 @@ OUTER: for my $sid (sort keys %$ss) {
                 next OUTER if $state eq 'migrate' || $state eq 'relocate';
                 # do not add non-started resource to active bundle
                 next if $state ne 'started';
+                # do not consider stationary bundle if a dependent resource is not movable
+                next OUTER if !$sc->{$csid}->{'auto-rebalance'};
 
                 $nodes->{$node} = 1;
 
@@ -185,12 +189,13 @@ OUTER: for my $sid (sort keys %$ss) {
 sub get_resource_migration_candidates {
     my ($self) = @_;
 
-    my ($ss, $compiled_rules, $online_node_usage) =
-        $self->@{qw(ss compiled_rules online_node_usage)};
+    my ($ss, $sc, $compiled_rules, $online_node_usage) =
+        $self->@{qw(ss sc compiled_rules online_node_usage)};
     my ($node_affinity, $resource_affinity) =
         $compiled_rules->@{qw(node-affinity resource-affinity)};
 
-    my $resource_bundles = get_active_stationary_resource_bundles($ss, $resource_affinity);
+    my $resource_bundles =
+        get_active_stationary_movable_resource_bundles($ss, $sc, $resource_affinity);
 
     my @compact_migration_candidates = ();
     for my $leader_sid (sort keys %$resource_bundles) {

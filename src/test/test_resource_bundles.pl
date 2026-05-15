@@ -8,7 +8,7 @@ use Test::More;
 
 use PVE::HA::Manager;
 
-my $get_active_stationary_resource_bundle_tests = [
+my $get_active_stationary_movable_resource_bundle_tests = [
     {
         description => "trivial resource bundles",
         services => {
@@ -20,6 +20,10 @@ my $get_active_stationary_resource_bundle_tests = [
                 state => 'started',
                 node => 'node1',
             },
+        },
+        service_config => {
+            'vm:101' => { 'auto-rebalance' => 1 },
+            'vm:102' => { 'auto-rebalance' => 1 },
         },
         resource_affinity => {
             positive => {},
@@ -45,6 +49,10 @@ my $get_active_stationary_resource_bundle_tests = [
                 state => 'started',
                 node => 'node1',
             },
+        },
+        service_config => {
+            'vm:101' => { 'auto-rebalance' => 1 },
+            'vm:102' => { 'auto-rebalance' => 1 },
         },
         resource_affinity => {
             positive => {
@@ -78,6 +86,11 @@ my $get_active_stationary_resource_bundle_tests = [
                 state => 'started',
                 node => 'node1',
             },
+        },
+        service_config => {
+            'vm:101' => { 'auto-rebalance' => 1 },
+            'vm:102' => { 'auto-rebalance' => 1 },
+            'vm:103' => { 'auto-rebalance' => 1 },
         },
         resource_affinity => {
             positive => {
@@ -117,6 +130,11 @@ my $get_active_stationary_resource_bundle_tests = [
                 state => 'started',
                 node => 'node1',
             },
+        },
+        service_config => {
+            'vm:101' => { 'auto-rebalance' => 1 },
+            'vm:102' => { 'auto-rebalance' => 1 },
+            'vm:103' => { 'auto-rebalance' => 1 },
         },
         resource_affinity => {
             positive => {
@@ -159,6 +177,11 @@ my $get_active_stationary_resource_bundle_tests = [
                 target => 'node1',
             },
         },
+        service_config => {
+            'vm:101' => { 'auto-rebalance' => 1 },
+            'vm:102' => { 'auto-rebalance' => 1 },
+            'vm:103' => { 'auto-rebalance' => 1 },
+        },
         resource_affinity => {
             positive => {
                 'vm:101' => {
@@ -196,6 +219,11 @@ my $get_active_stationary_resource_bundle_tests = [
                 node => 'node3',
             },
         },
+        service_config => {
+            'vm:101' => { 'auto-rebalance' => 1 },
+            'vm:102' => { 'auto-rebalance' => 1 },
+            'vm:103' => { 'auto-rebalance' => 1 },
+        },
         resource_affinity => {
             positive => {
                 'vm:101' => {
@@ -215,18 +243,122 @@ my $get_active_stationary_resource_bundle_tests = [
         },
         resource_bundles => {},
     },
+    {
+        description => "singleton resource bundle with disabled auto-rebalance",
+        services => {
+            'vm:101' => {
+                state => 'started',
+                node => 'node1',
+            },
+            'vm:102' => {
+                state => 'started',
+                node => 'node1',
+            },
+        },
+        service_config => {
+            'vm:101' => { 'auto-rebalance' => 0 },
+            'vm:102' => { 'auto-rebalance' => 1 },
+        },
+        resource_affinity => {
+            positive => {},
+            negative => {},
+        },
+        resource_bundles => {
+            'vm:102' => [
+                'vm:102',
+            ],
+        },
+    },
+    {
+        description => "resource bundle leader with disabled auto-rebalance",
+        services => {
+            'vm:101' => {
+                state => 'started',
+                node => 'node1',
+            },
+            'vm:102' => {
+                state => 'started',
+                node => 'node1',
+            },
+            'ct:103' => {
+                state => 'started',
+                node => 'node2',
+            },
+        },
+        service_config => {
+            'vm:101' => { 'auto-rebalance' => 0 },
+            'vm:102' => { 'auto-rebalance' => 1 },
+            'ct:103' => { 'auto-rebalance' => 1 },
+        },
+        resource_affinity => {
+            positive => {
+                'vm:101' => {
+                    'vm:102' => 1,
+                },
+                'vm:102' => {
+                    'vm:101' => 1,
+                },
+            },
+            negative => {},
+        },
+        resource_bundles => {
+            'ct:103' => [
+                'ct:103',
+            ],
+        },
+    },
+    {
+        description => "some member of resource bundle with disabled auto-rebalance",
+        services => {
+            'vm:101' => {
+                state => 'started',
+                node => 'node1',
+            },
+            'vm:102' => {
+                state => 'started',
+                node => 'node1',
+            },
+            'ct:103' => {
+                state => 'started',
+                node => 'node2',
+            },
+        },
+        service_config => {
+            'vm:101' => { 'auto-rebalance' => 1 },
+            'vm:102' => { 'auto-rebalance' => 0 },
+            'ct:103' => { 'auto-rebalance' => 1 },
+        },
+        resource_affinity => {
+            positive => {
+                'vm:101' => {
+                    'vm:102' => 1,
+                },
+                'vm:102' => {
+                    'vm:101' => 1,
+                },
+            },
+            negative => {},
+        },
+        resource_bundles => {
+            'ct:103' => [
+                'ct:103',
+            ],
+        },
+    },
 ];
 
 my $tests = [
-    @$get_active_stationary_resource_bundle_tests,
+    @$get_active_stationary_movable_resource_bundle_tests,
 ];
 
 plan(tests => scalar($tests->@*));
 
-for my $case ($get_active_stationary_resource_bundle_tests->@*) {
-    my ($ss, $resource_affinity) = $case->@{qw(services resource_affinity)};
+for my $case ($get_active_stationary_movable_resource_bundle_tests->@*) {
+    my ($ss, $sc, $resource_affinity) = $case->@{qw(services service_config resource_affinity)};
 
-    my $result = PVE::HA::Manager::get_active_stationary_resource_bundles($ss, $resource_affinity);
+    my $result = PVE::HA::Manager::get_active_stationary_movable_resource_bundles(
+        $ss, $sc, $resource_affinity,
+    );
 
     is_deeply($result, $case->{resource_bundles}, $case->{description});
 }

@@ -121,6 +121,12 @@ __PACKAGE__->register_method({
                     optional => 1,
                     default => 1,
                 },
+                'auto-rebalance' => {
+                    description => "HA resource may be migrated during automatic rebalancing.",
+                    type => 'boolean',
+                    optional => 1,
+                    default => 1,
+                },
                 max_relocate => {
                     description => "For type 'service'.",
                     type => "integer",
@@ -340,7 +346,10 @@ __PACKAGE__->register_method({
             # also return common resource attributes
             if (defined($sc)) {
                 $data->{request_state} = $sc->{state};
-                foreach my $key (qw(group max_restart max_relocate failback comment)) {
+
+                my @exported_service_properties =
+                    qw(group max_restart max_relocate failback comment auto-rebalance);
+                for my $key (@exported_service_properties) {
                     $data->{$key} = $sc->{$key} if defined($sc->{$key});
                 }
             }
