@@ -48,7 +48,7 @@ info    140    node1/crm: all LRMs disarmed, HA stack is now fully disarmed
 info    140    node1/crm: HA stack fully disarmed, releasing CRM watchdog
 info    220      cmdlist: execute delay 100
 info    400      cmdlist: execute restart-lrm node3
-info    400    node3/lrm: restart LRM, freeze all services
+info    400    node3/lrm: got shutdown request while HA stack is disarmed - safely exiting
 info    406    node3/lrm: exit (loop end)
 info    406    node3/lrm: status change startup => wait_for_agent_lock
 info   1000     hardware: exit simulation - done

@@ -55,6 +55,16 @@ sub shutdown_request {
 
     my $haenv = $self->{haenv};
 
+    # While disarmed we hold neither lock nor watchdog, so flipping to 'restart' here would
+    # re-acquire both and then block waiting for a freeze that the disarmed master never issues.
+    # Just record the request and keep mode 'disarm' so the next work-loop iteration exits
+    # cleanly from 'wait_for_agent_lock'; a fresh LRM picks up the disarm state on startup.
+    if ($self->{mode} eq 'disarm') {
+        $haenv->log('info', "got shutdown request while HA stack is disarmed - safely exiting");
+        $self->{shutdown_request} = $haenv->get_time();
+        return;
+    }
+
     my $nodename = $haenv->nodename();
 
     my ($shutdown, $reboot) = $haenv->is_node_shutdown();
