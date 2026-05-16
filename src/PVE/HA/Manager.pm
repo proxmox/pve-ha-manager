@@ -235,6 +235,17 @@ sub load_balance {
     my ($threshold, $method, $hold_duration, $margin) =
         $auto_rebalance_opts->@{qw(threshold method hold_duration margin)};
 
+    # with threshold and margin both at 0 any non-zero imbalance triggers a non-improving
+    # migration, churning the cluster forever - skip and warn instead of silently looping.
+    if ($threshold <= 0 && $margin <= 0) {
+        $haenv->log(
+            'warning',
+            "auto-rebalance threshold and margin both <= 0, skipping load balancing -"
+                . " set at least one to a positive value to avoid migration churn",
+        );
+        return;
+    }
+
     my $imbalance = $online_node_usage->calculate_node_imbalance();
 
     # do not load balance unless imbalance threshold has been exceeded
