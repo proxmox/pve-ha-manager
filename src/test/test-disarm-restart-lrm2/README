@@ -1,0 +1,7 @@
+Variant of test-disarm-restart-lrm1 with 'freeze' as disarm mode (services are
+frozen on disarm) instead of 'ignore'.
+
+The bug surfaces less visibly here because count_active_services skips frozen
+services, so the LRM does not re-acquire the lock - it does however still mark
+itself as 'restart' rather than preserving 'disarm'. With the fix both modes
+follow the same clean exit path.

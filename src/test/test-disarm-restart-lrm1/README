@@ -1,0 +1,8 @@
+Restart the LRM on a node with a started HA resource while the stack is disarmed
+in 'ignore' mode (services keep their previous state).
+
+Without the fix this hangs forever: shutdown_request flips the mode to 'restart',
+the work loop re-acquires the agent lock and reopens the watchdog, then waits in
+'active' for the disarmed master to freeze services - which it never does.
+
+With the fix the LRM exits in one tick without touching lock or watchdog.
