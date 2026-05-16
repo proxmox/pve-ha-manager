@@ -1,3 +1,25 @@
+pve-ha-manager (5.2.3) trixie; urgency=medium
+
+  * lrm: exit cleanly on shutdown request while the HA stack is disarmed,
+    avoiding a hang on any LRM restart (package upgrade, manual service
+    restart) or node shutdown until HA gets re-armed again. As a side
+    effect, a node shutdown while disarmed no longer queues stop jobs for
+    HA services, which matches the disarm semantics.
+
+  * manager: load-balance: skip with a warning if both the imbalance
+    threshold and the minimum improvement margin are set to zero, as that
+    degenerate config would otherwise cause perpetual migration churn.
+
+  * manager: scale the HA auto-rebalance threshold and minimum improvement
+    margin from a 0.0-1.0 fraction to 0-100 percent, matching the percent
+    representation in the HA panel and configuration UI. This is a breaking
+    change for existing alpha-test configs.
+
+  * sim: log: stop interpreting messages as a sprintf format string, which
+    mangled output for any message containing a literal percent character.
+
+ -- Proxmox Support Team <support@proxmox.com>  Sun, 17 May 2026 00:23:30 +0200
+
 pve-ha-manager (5.2.2) trixie; urgency=medium
 
   * fix #7557: introduce 'auto-rebalance' property to allow users opting some
