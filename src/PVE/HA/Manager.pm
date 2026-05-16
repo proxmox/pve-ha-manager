@@ -108,12 +108,16 @@ sub update_crs_scheduler_mode {
 
     $self->{crs}->{rebalance_on_request_start} = !!$crs_cfg->{'ha-rebalance-on-start'};
     $self->{crs}->{auto_rebalance}->{enable} = !!$crs_cfg->{'ha-auto-rebalance'};
-    $self->{crs}->{auto_rebalance}->{threshold} = $crs_cfg->{'ha-auto-rebalance-threshold'} // 0.3;
+    # configured as percent for UI/config consistency, scaled to [0, 1] to match the
+    # internal imbalance value that the comparison gates against.
+    $self->{crs}->{auto_rebalance}->{threshold} =
+        ($crs_cfg->{'ha-auto-rebalance-threshold'} // 30) / 100.0;
     $self->{crs}->{auto_rebalance}->{method} = $crs_cfg->{'ha-auto-rebalance-method'}
         // 'bruteforce';
     $self->{crs}->{auto_rebalance}->{hold_duration} = $crs_cfg->{'ha-auto-rebalance-hold-duration'}
         // 3;
-    $self->{crs}->{auto_rebalance}->{margin} = $crs_cfg->{'ha-auto-rebalance-margin'} // 0.1;
+    $self->{crs}->{auto_rebalance}->{margin} =
+        ($crs_cfg->{'ha-auto-rebalance-margin'} // 10) / 100.0;
 
     my $old_mode = $self->{crs}->{scheduler};
     my $new_mode = $crs_cfg->{ha} || 'basic';
@@ -235,12 +239,12 @@ sub load_balance {
     my ($threshold, $method, $hold_duration, $margin) =
         $auto_rebalance_opts->@{qw(threshold method hold_duration margin)};
 
-    # with threshold and margin both at 0 any non-zero imbalance triggers a non-improving
+    # with threshold and margin both at 0% any non-zero imbalance triggers a non-improving
     # migration, churning the cluster forever - skip and warn instead of silently looping.
     if ($threshold <= 0 && $margin <= 0) {
         $haenv->log(
             'warning',
-            "auto-rebalance threshold and margin both <= 0, skipping load balancing -"
+            "auto-rebalance threshold and margin both 0%, skipping load balancing -"
                 . " set at least one to a positive value to avoid migration churn",
         );
         return;
@@ -283,8 +287,11 @@ sub load_balance {
     my $task = $type eq 'vm' ? "migrate" : "relocate";
     my $cmd = "$task $sid $target";
 
-    my $imbalance_change_str =
-        sprintf("expected change for imbalance from %.2f to %.2f", $imbalance, $target_imbalance);
+    my $imbalance_change_str = sprintf(
+        "expected change for imbalance from %.1f%% to %.1f%%",
+        $imbalance * 100,
+        $target_imbalance * 100,
+    );
     $haenv->log('info', "auto rebalance - $task $sid to $target ($imbalance_change_str)");
 
     $self->queue_resource_motion($cmd, $task, $sid, $target);

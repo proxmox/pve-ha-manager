@@ -211,7 +211,7 @@ __PACKAGE__->register_method({
                     $extra_status .= " - $mode load CRS";
 
                     my $imbalance = $status->{imbalance};
-                    $extra_status .= sprintf(" (load imbalance: %.2f%%)", 100 * $imbalance)
+                    $extra_status .= sprintf(" (load imbalance: %.1f%%)", 100 * $imbalance)
                         if $crs->{'ha-auto-rebalance'} && defined($imbalance);
                 }
             }
