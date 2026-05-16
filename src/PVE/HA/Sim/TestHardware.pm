@@ -72,7 +72,7 @@ sub log {
 
     $id = 'hardware' if !$id;
 
-    my $line = sprintf("%-5s %5d %12s: $msg\n", $level, $time, $id);
+    my $line = sprintf("%-5s %5d %12s: %s\n", $level, $time, $id, $msg);
     print $line;
 
     $self->{logfh}->print($line);

@@ -45,7 +45,8 @@ sub log {
     my $time = $self->get_time();
     $level = substr($level, 0, 4);
 
-    my $line = sprintf("%-5s %5d %12s: $msg\n", $level, $time, "$self->{nodename}/$self->{log_id}");
+    my $line =
+        sprintf("%-5s %5d %12s: %s\n", $level, $time, "$self->{nodename}/$self->{log_id}", $msg);
     print $line;
 
     $self->{logfh}->print($line);

@@ -70,7 +70,7 @@ sub log {
     $id = 'hardware' if !$id;
 
     my $text =
-        sprintf("%-5s %10s %12s: $msg\n", $level, strftime("%H:%M:%S", localtime($time)), $id);
+        sprintf("%-5s %10s %12s: %s\n", $level, strftime("%H:%M:%S", localtime($time)), $id, $msg);
 
     $self->append_text($text);
 }
