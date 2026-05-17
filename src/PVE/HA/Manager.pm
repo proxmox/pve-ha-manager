@@ -104,7 +104,7 @@ sub update_crs_scheduler_mode {
 
     my $haenv = $self->{haenv};
     my $dc_cfg = $haenv->get_datacenter_settings();
-    my $crs_cfg = $dc_cfg->{crs};
+    my $crs_cfg = $dc_cfg->{crs} // {};
 
     $self->{crs}->{rebalance_on_request_start} = !!$crs_cfg->{'ha-rebalance-on-start'};
     $self->{crs}->{auto_rebalance}->{enable} = !!$crs_cfg->{'ha-auto-rebalance'};
