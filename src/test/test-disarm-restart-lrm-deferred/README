@@ -1,0 +1,15 @@
+Restart the LRM on a node while the CRM defers the disarm because another
+service is in a transient state (fence here, in production typically migrate
+or relocate).
+
+The LRM enters 'restart' mode and must release its lock and watchdog before
+the new LRM instance can come up. That requires active_service_count to drop
+to zero, which in turn requires the CRM to freeze the LRM's services. If the
+CRM defers the freeze until the transient transition resolves, the LRM has
+to wait too. In production the deferred transition often never resolves (a
+migrate worker whose LRM was killed mid-flight leaves manager_status stuck
+in 'migrate' with no result), so the LRM hangs forever in systemd's
+'deactivating (stop)' until SIGKILL, which orphans more workers.
+
+The simulator's fence flow always resolves, so the LRM does eventually exit
+even without the fix - just much later than it should.
