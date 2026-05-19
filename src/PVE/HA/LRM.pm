@@ -312,6 +312,18 @@ sub active_service_count {
     return PVE::HA::Tools::count_active_services($ss, $nodename);
 }
 
+# returns a truthy value if there are HA resources in transient states, which
+# need to be resolved, e.g. to complete the disarm procedure.
+sub has_disarm_deferring_services {
+    my ($self) = @_;
+
+    my $ss = $self->{service_status};
+    my $nodename = $self->{haenv}->nodename();
+    my $disarm_deferring_sids = PVE::HA::Tools::get_disarm_deferring_services($ss, $nodename);
+
+    return %$disarm_deferring_sids;
+}
+
 my $wrote_lrm_status_at_startup = 0;
 
 sub do_one_iteration {
@@ -371,7 +383,7 @@ sub work {
 
         my $service_count = $self->active_service_count();
 
-        if ($self->{mode} eq 'disarm') {
+        if ($self->{mode} eq 'disarm' && !$self->has_disarm_deferring_services()) {
             # stay idle while disarmed, don't acquire lock
         } elsif (!$fence_request && $service_count && $haenv->quorate()) {
             if ($self->get_protected_ha_agent_lock()) {
@@ -709,12 +721,17 @@ sub manage_resources {
     my $nodename = $haenv->nodename();
 
     my $ss = $self->{service_status};
+    my $disarm_deferring_sids;
+    $disarm_deferring_sids = PVE::HA::Tools::get_disarm_deferring_services($ss, $nodename)
+        if $self->{mode} eq 'disarm';
 
     foreach my $sid (keys %{ $self->{restart_tries} }) {
         delete $self->{restart_tries}->{$sid} if !$ss->{$sid};
     }
 
     foreach my $sid (keys %$ss) {
+        next if $disarm_deferring_sids && !$disarm_deferring_sids->{$sid};
+
         my $sd = $ss->{$sid};
         next if !$sd->{node} || !$sd->{uid};
         next if $sd->{node} ne $nodename;

@@ -929,15 +929,13 @@ sub handle_disarm {
     }
 
     # defer disarm if any services are in a transient state that needs the state machine to resolve
-    my $deferred_sids = {};
-    for my $sid (sort keys %$ss) {
+    my $deferred_sids = PVE::HA::Tools::get_disarm_deferring_services($ss);
+    for my $sid (sort keys %$deferred_sids) {
         my $state = $ss->{$sid}->{state};
         if ($state eq 'fence' || $state eq 'recovery') {
             $haenv->log('warning', "deferring disarm - service '$sid' is in '$state' state");
-            $deferred_sids->{$sid} = 1;
-        } elsif ($state eq 'migrate' || $state eq 'relocate') {
+        } else {
             $haenv->log('info', "deferring disarm - service '$sid' is in '$state' state");
-            $deferred_sids->{$sid} = 1;
         }
     }
 

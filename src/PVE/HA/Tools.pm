@@ -213,6 +213,28 @@ sub count_active_services {
     return $active_count;
 }
 
+# Returns the set of services that need their transient state machine transition
+# completed before a disarm-ha command can finish. With $node set, restricts to
+# services owned by that node (used by the LRM to decide whether to stay active
+# despite mode=disarm); without $node, returns the cluster-wide set (used by the
+# CRM in handle_disarm to decide whether to defer).
+sub get_disarm_deferring_services {
+    my ($ss, $node) = @_;
+
+    my $disarm_deferring_sids = {};
+    my @disarm_deferring_states = qw(fence recovery migrate relocate);
+
+    for my $sid (keys %$ss) {
+        my ($state, $current_node) = $ss->{$sid}->@{qw(state node)};
+
+        next if $node && $current_node ne $node;
+
+        $disarm_deferring_sids->{$sid} = 1 if grep { $state eq $_ } @disarm_deferring_states;
+    }
+
+    return $disarm_deferring_sids;
+}
+
 sub get_verbose_service_state {
     my ($service_state, $service_conf) = @_;
 
