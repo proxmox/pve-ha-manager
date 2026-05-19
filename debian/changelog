@@ -1,3 +1,25 @@
+pve-ha-manager (5.2.4) trixie; urgency=medium
+
+  * lrm: become active again while disarmed if a HA resource on this node is
+    still in a transient state (migrate, relocate, fence, recovery), drive it
+    through the transition, then go back to idle. Without this, an idle LRM
+    that started up into disarm mode (or restarted into it) never publishes a
+    result for the in-flight transition, so the CRM keeps deferring the disarm
+    forever.
+
+  * manager: disarm: freeze non-deferred services on the deferred disarm
+    cycle, instead of waiting until all transient transitions have completed.
+    Otherwise an LRM restart during deferred disarm hangs in 'restart' mode
+    waiting for the active-service count to drop to zero, which only happens
+    once the CRM has frozen the LRM's services.
+
+  * manager: default the CRS section in datacenter.cfg to an empty hash to
+    keep the CRM from crashing on misformatted entries. Together with the fix
+    in libpve-cluster-perl 9.1.5 to drop such entries on read, existing
+    affected configs are handled gracefully.
+
+ -- Proxmox Support Team <support@proxmox.com>  Tue, 19 May 2026 19:28:52 +0200
+
 pve-ha-manager (5.2.3) trixie; urgency=medium
 
   * lrm: exit cleanly on shutdown request while the HA stack is disarmed,
