@@ -1,0 +1,15 @@
+Pin down a side effect of freezing non-deferred services on the deferred disarm
+cycle: services frozen in that pass continue to count for placement scoring, so
+fence recovery during deferred disarm prefers nodes with fewer frozen services.
+
+Setup is minimal to make the score difference visible:
+- vm:101 is stopped on node1 (a stopped service does not count for placement,
+  but the freeze-on-disarm flips it to 'freeze' which does count)
+- vm:102 is started on node2 and will fence
+- node3 has no services
+
+Without the deferred-cycle freeze, vm:101 would still be 'stopped' at fence
+resolution time, node1 and node3 would tie at score 0, and alphabetical
+ordering would pick node1. With the deferred-cycle freeze, node1's score is 1
+and node3 wins. Both targets satisfy the (no-)affinity rules; the test asserts
+the current scoring rule rather than the choice.

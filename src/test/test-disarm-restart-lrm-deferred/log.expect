@@ -49,8 +49,12 @@ info    220      cmdlist: execute restart-lrm node3
 info    220    node3/lrm: restart LRM, freeze all services
 info    220    node1/crm: got crm command: disarm-ha freeze
 warn    220    node1/crm: deferring disarm - service 'vm:102' is in 'fence' state
+info    220    node1/crm: disarm: freezing service 'vm:101' (was 'started')
+info    220    node1/crm: disarm: freezing service 'vm:103' (was 'started')
 info    221    node1/lrm: HA disarm requested, releasing agent lock and watchdog
 info    221    node1/lrm: status change active => wait_for_agent_lock
+info    224    node3/lrm: exit (loop end)
+info    224    node3/lrm: status change startup => wait_for_agent_lock
 warn    240    node1/crm: deferring disarm - service 'vm:102' is in 'fence' state
 info    240    node1/crm: got lock 'ha_agent_node2_lock'
 info    240    node1/crm: fencing: acknowledged - got agent lock for node 'node2'
@@ -59,13 +63,9 @@ emai    240    node1/crm: SUCCEED: fencing: acknowledged - got agent lock for no
 info    240    node1/crm: service 'vm:102': state changed from 'fence' to 'recovery'
 info    240    node1/crm: recover service 'vm:102' from fenced node 'node2' to node 'node1'
 info    240    node1/crm: service 'vm:102': state changed from 'recovery' to 'started'  (node = node1)
-info    260    node1/crm: disarm: freezing service 'vm:101' (was 'started')
 info    260    node1/crm: disarm: freezing service 'vm:102' (was 'started')
-info    260    node1/crm: disarm: freezing service 'vm:103' (was 'started')
-info    264    node3/lrm: exit (loop end)
-info    264    node3/lrm: status change startup => wait_for_agent_lock
-info    300    node1/crm: all LRMs disarmed, HA stack is now fully disarmed
-info    300    node1/crm: HA stack fully disarmed, releasing CRM watchdog
+info    260    node1/crm: all LRMs disarmed, HA stack is now fully disarmed
+info    260    node1/crm: HA stack fully disarmed, releasing CRM watchdog
 info    620      cmdlist: execute crm node1 arm-ha
 info    620    node1/crm: got crm command: arm-ha
 info    620    node1/crm: re-arming HA stack

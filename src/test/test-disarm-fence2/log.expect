@@ -47,6 +47,8 @@ info    220      cmdlist: execute crm node1 disarm-ha freeze
 info    220    node1/crm: got crm command: relocate vm:101 node3
 info    220    node1/crm: got crm command: disarm-ha freeze
 warn    220    node1/crm: deferring disarm - service 'vm:102' is in 'fence' state
+info    220    node1/crm: disarm: freezing service 'vm:101' (was 'started')
+info    220    node1/crm: disarm: freezing service 'vm:103' (was 'stopped')
 info    221    node1/lrm: HA disarm requested, releasing agent lock and watchdog
 info    221    node1/lrm: status change active => wait_for_agent_lock
 info    223    node3/lrm: HA disarm requested, releasing agent lock and watchdog
@@ -57,11 +59,9 @@ info    240    node1/crm: fencing: acknowledged - got agent lock for node 'node2
 info    240    node1/crm: node 'node2': state changed from 'fence' => 'unknown'
 emai    240    node1/crm: SUCCEED: fencing: acknowledged - got agent lock for node 'node2'
 info    240    node1/crm: service 'vm:102': state changed from 'fence' to 'recovery'
-info    240    node1/crm: recover service 'vm:102' from fenced node 'node2' to node 'node3'
-info    240    node1/crm: service 'vm:102': state changed from 'recovery' to 'started'  (node = node3)
-info    260    node1/crm: disarm: freezing service 'vm:101' (was 'started')
+info    240    node1/crm: recover service 'vm:102' from fenced node 'node2' to node 'node1'
+info    240    node1/crm: service 'vm:102': state changed from 'recovery' to 'started'  (node = node1)
 info    260    node1/crm: disarm: freezing service 'vm:102' (was 'started')
-info    260    node1/crm: disarm: freezing service 'vm:103' (was 'stopped')
 info    260    node1/crm: all LRMs disarmed, HA stack is now fully disarmed
 info    260    node1/crm: HA stack fully disarmed, releasing CRM watchdog
 info    620      cmdlist: execute crm node1 arm-ha
@@ -72,9 +72,9 @@ info    640    node1/crm: service 'vm:102': state changed from 'freeze' to 'star
 info    640    node1/crm: service 'vm:103': state changed from 'freeze' to 'request_stop'
 info    641    node1/lrm: got lock 'ha_agent_node1_lock'
 info    641    node1/lrm: status change wait_for_agent_lock => active
+info    641    node1/lrm: starting service vm:102
+info    641    node1/lrm: service status vm:102 started
 info    643    node3/lrm: got lock 'ha_agent_node3_lock'
 info    643    node3/lrm: status change wait_for_agent_lock => active
-info    643    node3/lrm: starting service vm:102
-info    643    node3/lrm: service status vm:102 started
 info    660    node1/crm: service 'vm:103': state changed from 'request_stop' to 'stopped'
 info   1220     hardware: exit simulation - done

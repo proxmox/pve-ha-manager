@@ -939,18 +939,17 @@ sub handle_disarm {
         }
     }
 
-    if (%$deferred_sids) {
-        # let manage() continue with only these services so their transitions can complete, but
-        # don't process non-transient services to avoid new migrations during deferral
-        return $deferred_sids;
-    }
-
     # prune stale runtime data (failed_nodes, cmd, target, ...) so the state machine starts
     # fresh on re-arm; preserve maintenance_node for correct return behavior
     my %keep_keys = map { $_ => 1 } qw(state node uid maintenance_node);
 
+    # apply disarm to non-deferred services right away. leaving them started would block any
+    # concurrent LRM restart: its active_service_count would never drop to zero, so it cannot
+    # release the agent lock to exit cleanly, and the migration in flight ends up orphaned if
+    # the LRM is then killed.
     if ($mode eq 'freeze') {
         for my $sid (sort keys %$ss) {
+            next if $deferred_sids->{$sid};
             my $sd = $ss->{$sid};
             my $state = $sd->{state};
             next if $state eq 'freeze'; # already frozen
@@ -971,9 +970,15 @@ sub handle_disarm {
         # keep $ss intact; the disarm flag in $ms causes service loops and vm_is_ha_managed()
         # to skip these services while disarmed
         for my $sid (sort keys %$ss) {
+            next if $deferred_sids->{$sid};
             my $sd = $ss->{$sid};
             delete $sd->{$_} for grep { !$keep_keys{$_} } keys %$sd;
         }
+    }
+
+    if (%$deferred_sids) {
+        # let manage() continue with only these services so their transitions can complete
+        return $deferred_sids;
     }
 
     # check if all online LRMs have entered disarm mode
