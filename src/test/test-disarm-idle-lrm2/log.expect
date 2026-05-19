@@ -1,0 +1,56 @@
+info      0     hardware: starting simulation
+info     20      cmdlist: execute power node1 on
+info     20    node1/crm: status change startup => wait_for_quorum
+info     20    node1/lrm: status change startup => wait_for_agent_lock
+info     20      cmdlist: execute power node2 on
+info     20    node2/crm: status change startup => wait_for_quorum
+info     20    node2/lrm: status change startup => wait_for_agent_lock
+info     20      cmdlist: execute power node3 on
+info     20    node3/crm: status change startup => wait_for_quorum
+info     20    node3/lrm: status change startup => wait_for_agent_lock
+info     20      cmdlist: execute crm node1 disarm-ha freeze
+info     20    node1/crm: got lock 'ha_manager_lock'
+info     20    node1/crm: status change wait_for_quorum => master
+info     20    node1/crm: got crm command: disarm-ha freeze
+warn     20    node1/crm: deferring disarm - service 'vm:102' is in 'fence' state
+info     20    node1/crm: deferring disarm - service 'vm:103' is in 'migrate' state
+info     20    node1/crm: got lock 'ha_agent_node2_lock'
+info     20    node1/crm: fencing: acknowledged - got agent lock for node 'node2'
+info     20    node1/crm: node 'node2': state changed from 'fence' => 'unknown'
+emai     20    node1/crm: SUCCEED: fencing: acknowledged - got agent lock for node 'node2'
+info     20    node1/crm: service 'vm:102': state changed from 'fence' to 'recovery'
+info     20    node1/crm: recover service 'vm:102' from fenced node 'node2' to node 'node1'
+info     20    node1/crm: service 'vm:102': state changed from 'recovery' to 'started'  (node = node1)
+info     22    node2/crm: status change wait_for_quorum => slave
+info     24    node3/crm: status change wait_for_quorum => slave
+info     40    node1/crm: node 'node2': state changed from 'unknown' => 'online'
+info     40    node1/crm: deferring disarm - service 'vm:103' is in 'migrate' state
+info     60    node1/crm: deferring disarm - service 'vm:103' is in 'migrate' state
+info     80    node1/crm: deferring disarm - service 'vm:103' is in 'migrate' state
+info    100    node1/crm: deferring disarm - service 'vm:103' is in 'migrate' state
+info    120    node1/crm: deferring disarm - service 'vm:103' is in 'migrate' state
+info    140    node1/crm: deferring disarm - service 'vm:103' is in 'migrate' state
+info    160    node1/crm: deferring disarm - service 'vm:103' is in 'migrate' state
+info    180    node1/crm: deferring disarm - service 'vm:103' is in 'migrate' state
+info    200    node1/crm: deferring disarm - service 'vm:103' is in 'migrate' state
+info    220    node1/crm: deferring disarm - service 'vm:103' is in 'migrate' state
+info    240    node1/crm: deferring disarm - service 'vm:103' is in 'migrate' state
+info    260    node1/crm: deferring disarm - service 'vm:103' is in 'migrate' state
+info    280    node1/crm: deferring disarm - service 'vm:103' is in 'migrate' state
+info    300    node1/crm: deferring disarm - service 'vm:103' is in 'migrate' state
+info    320    node1/crm: deferring disarm - service 'vm:103' is in 'migrate' state
+info    340    node1/crm: deferring disarm - service 'vm:103' is in 'migrate' state
+info    360    node1/crm: deferring disarm - service 'vm:103' is in 'migrate' state
+info    380    node1/crm: deferring disarm - service 'vm:103' is in 'migrate' state
+info    400    node1/crm: deferring disarm - service 'vm:103' is in 'migrate' state
+info    420    node1/crm: deferring disarm - service 'vm:103' is in 'migrate' state
+info    440    node1/crm: deferring disarm - service 'vm:103' is in 'migrate' state
+info    460    node1/crm: deferring disarm - service 'vm:103' is in 'migrate' state
+info    480    node1/crm: deferring disarm - service 'vm:103' is in 'migrate' state
+info    500    node1/crm: deferring disarm - service 'vm:103' is in 'migrate' state
+info    520    node1/crm: deferring disarm - service 'vm:103' is in 'migrate' state
+info    540    node1/crm: deferring disarm - service 'vm:103' is in 'migrate' state
+info    560    node1/crm: deferring disarm - service 'vm:103' is in 'migrate' state
+info    580    node1/crm: deferring disarm - service 'vm:103' is in 'migrate' state
+info    600    node1/crm: deferring disarm - service 'vm:103' is in 'migrate' state
+info    620     hardware: exit simulation - done

@@ -1,0 +1,8 @@
+Disarm the HA stack in 'freeze' mode (keep HA resources frozen while disarmed)
+while there is an HA resource in a transient state on a node, whose LRM is
+idle.
+
+Fenced HA resources are already handled by the HA Manager itself, so this works
+as expected. Though as the LRM for the moving HA resource is idle, the HA
+Manager doesn't get any LRM response for the HA resource, for which the
+disarming is deferred, and therefore the HA Manager is stuck in a loop.

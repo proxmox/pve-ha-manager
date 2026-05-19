@@ -1,0 +1,26 @@
+{
+    "master_node": "node1",
+    "node_status": {
+	"node1":"online",
+	"node2":"fence",
+	"node3":"online"
+    },
+    "service_status": {
+	"vm:101": {
+	    "node": "node1",
+	    "state": "online",
+	    "uid": "lavE3c7vLnotUBGT9whswg"
+	},
+	"vm:102": {
+	    "node": "node2",
+	    "state": "fence",
+	    "uid": "lavE3c7vLnotUBGT9whswh"
+	},
+	"vm:103": {
+	    "node": "node3",
+	    "state": "migrate",
+	    "target": "node2",
+	    "uid": "lavE3c7vLnotUBGT9whswj"
+	}
+    }
+}
