@@ -49,6 +49,7 @@ err     220    node1/crm: service 'fa:109' - migration failed (exit code 1)
 info    220    node1/crm: service 'fa:109': state changed from 'relocate' to 'started'  (node = node1)
 info    220    node1/crm: relocate service 'fa:109' to node 'node2'
 info    220    node1/crm: service 'fa:109': state changed from 'started' to 'relocate'  (node = node1, target = node2)
+info    221    node1/lrm: status change maintenance => active
 err     221    node1/lrm: service fa:109 not moved (migration error)
 info    240    node1/crm: node 'node1': state changed from 'maintenance' => 'online'
 err     240    node1/crm: service 'fa:109' - migration failed (exit code 1)

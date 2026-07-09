@@ -456,13 +456,17 @@ sub work {
             $haenv->release_ha_agent_lock();
             give_up_watchdog_protection($self);
             $self->set_local_status({ state => 'wait_for_agent_lock' });
-        } elsif ($self->active_service_count() || $self->run_workers()) {
-            # keep the lock and watchdog as long as not all services cleared the node
+        } elsif (
+            ($self->active_service_count() || $self->run_workers())
+            && $self->is_maintenance_requested()
+        ) {
+            # keep the lock and watchdog as long as not all active services
+            # cleared the node and the maintenance request is upheld
             if (!$self->get_protected_ha_agent_lock()) {
                 $self->set_local_status({ state => 'lost_agent_lock' });
             }
         } elsif (!$self->is_maintenance_requested()) {
-            # empty && no maintenance mode && not exited -> need to switch active again
+            # no node maintenance request && not exited -> need to switch active again
             if ($self->get_protected_ha_agent_lock()) {
                 $self->set_local_status({ state => 'active' });
             } else {

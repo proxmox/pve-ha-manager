@@ -2,6 +2,5 @@ Test setting the maintenance mode for a node where an HA resource cannot be
 moved to any other node because of migration errors and moving it out of
 maintenance mode again.
 
-Currently, the node will move out of the maintenance mode, but is left stuck in
-maintenance state as it never reached the required state to be empty to be able
-to move to active state again after the maintenance request is lifted.
+The node's LRM is expected to move out of maintenance mode and state again
+after the maintenance request is lifted from the node.
