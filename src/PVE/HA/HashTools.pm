@@ -1,7 +1,6 @@
 package PVE::HA::HashTools;
 
-use strict;
-use warnings;
+use v5.36;
 
 use base qw(Exporter);
 
@@ -39,9 +38,7 @@ key-value pairs are always set to C<1> or another truthy value.
 
 =cut
 
-sub set_intersect {
-    my ($hash1, $hash2) = @_;
-
+sub set_intersect($hash1, $hash2) {
     my $result = { map { $hash1->{$_} && $hash2->{$_} ? ($_ => 1) : () } keys %$hash1 };
 
     return $result;
@@ -57,9 +54,7 @@ key-value pairs are always set to C<1> or another truthy value.
 
 =cut
 
-sub set_union {
-    my ($hash1, $hash2) = @_;
-
+sub set_union($hash1, $hash2) {
     my $result = { map { $_ => 1 } keys %$hash1, keys %$hash2 };
 
     return $result;
@@ -77,9 +72,7 @@ Returns C<1> if they are disjoint, C<0> otherwise.
 
 =cut
 
-sub sets_are_disjoint {
-    my ($hash1, $hash2) = @_;
-
+sub sets_are_disjoint($hash1, $hash2) {
     for my $key (keys %$hash1) {
         return 0 if $hash2->{$key};
     }
