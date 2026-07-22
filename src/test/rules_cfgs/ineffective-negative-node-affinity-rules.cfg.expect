@@ -1,0 +1,17 @@
+--- Log ---
+Drop rule 'nonstrict-negative-node-affinity-with-all-cluster-nodes', because negative node affinity rule must not specify all cluster nodes.
+Drop rule 'strict-negative-node-affinity-with-all-cluster-nodes', because negative node affinity rule must not specify all cluster nodes.
+--- Config ---
+{
+   "digest" : "7a68821f23f0b5b110bfac64a66fd7a01564dd74",
+   "ids" : {},
+   "order" : {}
+}
+--- Compiled Config ---
+{
+   "node-affinity" : {},
+   "resource-affinity" : {
+      "negative" : {},
+      "positive" : {}
+   }
+}

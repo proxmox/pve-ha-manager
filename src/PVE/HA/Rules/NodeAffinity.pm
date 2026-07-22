@@ -9,6 +9,7 @@ use PVE::Cluster;
 use PVE::JSONSchema qw(get_standard_option);
 use PVE::Tools;
 
+use PVE::HA::HashTools qw(set_difference);
 use PVE::HA::Rules;
 use PVE::HA::Tools;
 
@@ -27,6 +28,22 @@ PVE::HA::Rules::NodeAffinity
 
 This package provides the capability to specify and apply rules, which put
 affinity constraints between a set of HA resources and a set of nodes.
+
+HA Node Affinity rules can be one of two types:
+
+=over
+
+=item C<'positive'>
+
+Positive node affinity rules specify the nodes, which SHOULD/MUST be preferred
+by the given HA resources.
+
+=item C<'negative'>
+
+Negative node affinity rules specify the nodes, which SHOULD/MUST be avoided by
+the given HA resources.
+
+=back
 
 HA Node Affinity rules can be either C<'non-strict'> or C<'strict'>:
 
@@ -66,9 +83,10 @@ sub properties {
         ),
         affinity => {
             description => "Describes whether the HA resources are supposed to"
-                . " be placed on the given nodes ('positive').",
+                . " be placed on the given nodes ('positive'), or are supposed"
+                . " to be placed on any but the given nodes ('negative').",
             type => 'string',
-            enum => ['positive'],
+            enum => ['positive', 'negative'],
             default => 'positive',
             optional => 1,
         },
@@ -255,6 +273,146 @@ __PACKAGE__->register_check(
         }
     },
 );
+
+=head3 check_nonempty_negative_nodes_complement($node_affinity_rules, $cluster_nodes)
+
+Returns a list of negative node affinity rule ids in C<$node_affinity_rules>,
+where the complement of the negative node set is an empty node set according to
+the currently configured cluster node list C<$cluster_nodes>, i.e., the
+negative node set specifies all cluster nodes.
+
+Even though this is only relevant for strict negative node affinity rules, this
+check also includes non-strict negative node affinity rules as their effective
+node set would be equivalent to setting no rule at all.
+
+If there are none, the returned list is empty.
+
+=cut
+
+sub check_nonempty_negative_nodes_complement {
+    my ($node_affinity_rules, $cluster_nodes) = @_;
+
+    my @conflicts = ();
+
+    my $total_node_count = @$cluster_nodes;
+
+    while (my ($ruleid, $rule) = each %$node_affinity_rules) {
+        next if $rule->{affinity} ne 'negative';
+
+        push @conflicts, $ruleid if keys $rule->{nodes}->%* >= $total_node_count;
+    }
+
+    @conflicts = sort @conflicts;
+    return \@conflicts;
+}
+
+__PACKAGE__->register_check(
+    sub {
+        my ($args) = @_;
+
+        return check_nonempty_negative_nodes_complement(
+            $args->{node_affinity_rules},
+            $args->{'cluster-nodes'},
+        );
+    },
+    sub {
+        my ($ruleids, $errors) = @_;
+
+        for my $ruleid (@$ruleids) {
+            push $errors->{$ruleid}->{nodes}->@*,
+                "negative node affinity rule must not specify all cluster nodes";
+        }
+    },
+);
+
+=head3 check_unprioritized_negative_nodes($node_affinity_rules)
+
+Returns a list of negative node affinity rule ids in C<$node_affinity_rules>,
+where at least one node has a priority set. A node priority does not have any
+meaningful semantic value for negative node affinity rules.
+
+If there are none, the returned list is empty.
+
+=cut
+
+sub check_unprioritized_negative_nodes {
+    my ($node_affinity_rules) = @_;
+
+    my @conflicts = ();
+
+    while (my ($ruleid, $rule) = each %$node_affinity_rules) {
+        next if $rule->{affinity} ne 'negative';
+
+        for my $node (keys $rule->{nodes}->%*) {
+            if ($rule->{nodes}->{$node}->{priority}) {
+                push @conflicts, $ruleid;
+                last; # one non-zero priority is enough to invalidate rule
+            }
+        }
+    }
+
+    @conflicts = sort @conflicts;
+    return \@conflicts;
+}
+
+__PACKAGE__->register_check(
+    sub {
+        my ($args) = @_;
+
+        return check_unprioritized_negative_nodes($args->{node_affinity_rules});
+    },
+    sub {
+        my ($ruleids, $errors) = @_;
+
+        for my $ruleid (@$ruleids) {
+            push $errors->{$ruleid}->{nodes}->@*,
+                "negative node affinity rule must not specify node priorities";
+        }
+    },
+);
+
+=head1 NODE AFFINITY RULE TRANSFORMATION HELPERS
+
+=cut
+
+=head3 invert_negative_node_affinity_rules($rules, $node_affinity_rules, $cluster_nodes)
+
+Modifies C<$rules> such that all negative node affinity rules, defined in
+C<$node_affinity_rules>, are transformed to positive node affinity rules, where
+the nodes set is the complement of the negative node affinity rules' nodes set.
+
+C<$cluster_nodes> is a list of the configured cluster nodes, which is used as
+the universal set to build the complement node set.
+
+=cut
+
+sub invert_negative_node_affinity_rules {
+    my ($rules, $node_affinity_rules, $cluster_nodes) = @_;
+
+    # set_difference(...) requires a hash set instead of a list
+    my $cluster_nodes_hash = { map { $_ => 1 } @$cluster_nodes };
+
+    while (my ($node_affinity_id, $node_affinity_rule) = each %$node_affinity_rules) {
+        next if $node_affinity_rule->{affinity} ne 'negative';
+
+        my $negative_nodes = { map { $_ => 1 } keys $node_affinity_rule->{nodes}->%* };
+        my $positive_nodes = set_difference($cluster_nodes_hash, $negative_nodes);
+        $positive_nodes->{$_} = { priority => 0 } for keys %$positive_nodes;
+
+        $rules->{ids}->{$node_affinity_id}->{affinity} = 'positive';
+        $rules->{ids}->{$node_affinity_id}->{nodes} = $positive_nodes;
+    }
+}
+
+__PACKAGE__->register_transform(sub {
+    my ($rules, $args) = @_;
+
+    invert_negative_node_affinity_rules(
+        $rules,
+        $args->{node_affinity_rules},
+        $args->{'cluster-nodes'},
+    );
+});
 
 =head1 NODE AFFINITY RULE HELPERS
 

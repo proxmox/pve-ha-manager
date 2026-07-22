@@ -1,8 +1,39 @@
 --- Log ---
 --- Config ---
 {
-   "digest" : "fcad82def12abc4422061b79cfd0399967053d93",
+   "digest" : "308a8b704d8b4dc3fb83d8c97c86133caf735755",
    "ids" : {
+      "negative-node-affinity-defaults" : {
+         "affinity" : "positive",
+         "nodes" : {
+            "node1" : {
+               "priority" : 0
+            },
+            "node3" : {
+               "priority" : 0
+            }
+         },
+         "resources" : {
+            "vm:105" : 1
+         },
+         "type" : "node-affinity"
+      },
+      "negative-node-affinity-strict" : {
+         "affinity" : "positive",
+         "nodes" : {
+            "node1" : {
+               "priority" : 0
+            },
+            "node2" : {
+               "priority" : 0
+            }
+         },
+         "resources" : {
+            "vm:106" : 1
+         },
+         "strict" : 1,
+         "type" : "node-affinity"
+      },
       "node-affinity-defaults" : {
          "affinity" : "positive",
          "nodes" : {
@@ -56,6 +87,8 @@
       }
    },
    "order" : {
+      "negative-node-affinity-defaults" : 5,
+      "negative-node-affinity-strict" : 6,
       "node-affinity-defaults" : 1,
       "node-affinity-disabled" : 2,
       "node-affinity-disabled-explicit" : 3,
@@ -81,6 +114,29 @@
       "vm:104" : {
          "nodes" : {
             "node3" : {
+               "priority" : 0
+            }
+         }
+      },
+      "vm:105" : {
+         "nodes" : {
+            "node1" : {
+               "priority" : 0
+            },
+            "node2" : {
+               "priority" : -1
+            },
+            "node3" : {
+               "priority" : 0
+            }
+         }
+      },
+      "vm:106" : {
+         "nodes" : {
+            "node1" : {
+               "priority" : 0
+            },
+            "node2" : {
                "priority" : 0
             }
          }

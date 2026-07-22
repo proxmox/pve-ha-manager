@@ -5,6 +5,7 @@ use v5.36;
 use base qw(Exporter);
 
 our @EXPORT_OK = qw(
+    set_difference
     set_intersect
     set_union
     sets_are_disjoint
@@ -27,6 +28,23 @@ more verbose implementation.
 =head1 FUNCTIONS
 
 =cut
+
+=head3 set_difference($hash1, $hash2)
+
+Returns a hash set of the set difference between the hash sets C<$hash1> and
+C<$hash2>, i.e. the elements that are in C<$hash1> without the elements that
+are in C<$hash2>.
+
+The hashes C<$hash1> and C<$hash2> are expected to be hash sets, i.e.
+key-value pairs are always set to C<1> or another truthy value.
+
+=cut
+
+sub set_difference($hash1, $hash2) {
+    my $result = { map { $hash2->{$_} ? () : ($_ => 1) } keys %$hash1 };
+
+    return $result;
+}
 
 =head3 set_intersect($hash1, $hash2)
 

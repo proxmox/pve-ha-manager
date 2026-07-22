@@ -461,6 +461,8 @@ sub transform {
         for my $transform ($transformdef->{$type}->@*) {
             my $global_args = $class->get_check_arguments($rules);
 
+            $global_args->{'cluster-nodes'} = $cluster_nodes;
+
             $transform->($rules, $global_args);
         }
     }

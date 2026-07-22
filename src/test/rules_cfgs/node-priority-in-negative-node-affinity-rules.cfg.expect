@@ -1,0 +1,45 @@
+--- Log ---
+Drop rule 'negative-node-affinity-with-non-zero-node-priorities', because negative node affinity rule must not specify node priorities.
+--- Config ---
+{
+   "digest" : "d95cf03b7f6c8078854506cc79127fd942b868bd",
+   "ids" : {
+      "negative-node-affinity-with-default-node-priorities" : {
+         "affinity" : "positive",
+         "nodes" : {
+            "node3" : {
+               "priority" : 0
+            }
+         },
+         "resources" : {
+            "vm:101" : 1
+         },
+         "type" : "node-affinity"
+      }
+   },
+   "order" : {
+      "negative-node-affinity-with-default-node-priorities" : 1
+   }
+}
+--- Compiled Config ---
+{
+   "node-affinity" : {
+      "vm:101" : {
+         "nodes" : {
+            "node1" : {
+               "priority" : -1
+            },
+            "node2" : {
+               "priority" : -1
+            },
+            "node3" : {
+               "priority" : 0
+            }
+         }
+      }
+   },
+   "resource-affinity" : {
+      "negative" : {},
+      "positive" : {}
+   }
+}
