@@ -165,7 +165,7 @@ sub get_plugin_check_arguments {
 }
 
 sub plugin_compile {
-    my ($class, $rules, $nodes) = @_;
+    my ($class, $rules, $cluster_nodes) = @_;
 
     my $node_affinity = {};
 
@@ -178,7 +178,7 @@ sub plugin_compile {
 
             # add remaining nodes with low priority for non-strict node affinity
             if (!$rule->{strict}) {
-                for my $node (@$nodes) {
+                for my $node (@$cluster_nodes) {
                     next if defined($effective_nodes->{$node});
 
                     $effective_nodes->{$node} = { priority => -1 };

@@ -102,7 +102,7 @@ sub get_plugin_check_arguments {
 }
 
 sub plugin_compile {
-    my ($class, $rules, $nodes) = @_;
+    my ($class, $rules, $cluster_nodes) = @_;
 
     my $positive = {};
     my $negative = {};
@@ -173,23 +173,24 @@ __PACKAGE__->register_check(
     },
 );
 
-=head3 check_negative_resource_affinity_resources_count($negative_rules, $nodes)
+=head3 check_negative_resource_affinity_resources_count($negative_rules, $cluster_nodes)
 
 Returns a list of negative resource affinity rule ids, defined in
-C<$negative_rules>, which do have more resources defined than available according
-to the node list C<$nodes>, i.e., there are not enough nodes to separate the
-resources on, even if all nodes are available.
+C<$negative_rules>, which do have more resources defined than available
+according to the currently configured cluster node list C<$cluster_nodes>, i.e.,
+there are not enough nodes to separate the resources on, even if all nodes are
+available.
 
 If there are none, the returned list is empty.
 
 =cut
 
 sub check_negative_resource_affinity_resources_count {
-    my ($negative_rules, $nodes) = @_;
+    my ($negative_rules, $cluster_nodes) = @_;
 
     my @conflicts = ();
 
-    my $total_node_count = @$nodes;
+    my $total_node_count = @$cluster_nodes;
 
     while (my ($negativeid, $negative_rule) = each %$negative_rules) {
         push @conflicts, $negativeid if keys $negative_rule->{resources}->%* > $total_node_count;
@@ -205,7 +206,7 @@ __PACKAGE__->register_check(
 
         return check_negative_resource_affinity_resources_count(
             $args->{negative_rules},
-            $args->{nodes},
+            $args->{'cluster-nodes'},
         );
     },
     sub {

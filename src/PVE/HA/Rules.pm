@@ -385,13 +385,14 @@ sub get_check_arguments {
     return $global_args;
 }
 
-=head3 $class->check_feasibility($rules, $nodes)
+=head3 $class->check_feasibility($rules, $cluster_nodes)
 
 Checks whether the given C<$rules> are feasible by running all checks, which
 were registered with C<L<< register_check()|/$class->register_check(...) >>>,
 and returns a hash map of erroneous rules.
 
-C<$nodes> is a list of the configured cluster nodes.
+C<$cluster_nodes> is a list of the configured cluster nodes, which is added as
+an argument for the registered rule feasibility checkers.
 
 The checks are run in the order in which the rule plugins were registered,
 while global checks, i.e. checks between different rule types, are run at the
@@ -400,14 +401,14 @@ very last.
 =cut
 
 sub check_feasibility {
-    my ($class, $rules, $nodes) = @_;
+    my ($class, $rules, $cluster_nodes) = @_;
 
     my $global_errors = {};
     my $removable_ruleids = [];
 
     my $global_args = $class->get_check_arguments($rules);
 
-    $global_args->{nodes} = $nodes;
+    $global_args->{'cluster-nodes'} = $cluster_nodes;
 
     for my $type (@$types, 'global') {
         for my $entry (@{ $checkdef->{$type} }) {
@@ -421,11 +422,11 @@ sub check_feasibility {
     return $global_errors;
 }
 
-=head3 $class->transform($rules, $nodes)
+=head3 $class->transform($rules, $cluster_nodes)
 
 Modifies C<$rules> to contain only feasible rules.
 
-C<$nodes> is a list of the configured cluster nodes.
+C<$cluster_nodes> is a list of the configured cluster nodes.
 
 This is done by running all checks, which were registered with
 C<L<< register_check()|/$class->register_check(...) >>> and removing any
@@ -438,10 +439,10 @@ Returns a list of messages with the reasons why rules were removed.
 =cut
 
 sub transform {
-    my ($class, $rules, $nodes) = @_;
+    my ($class, $rules, $cluster_nodes) = @_;
 
     my $messages = [];
-    my $global_errors = $class->check_feasibility($rules, $nodes);
+    my $global_errors = $class->check_feasibility($rules, $cluster_nodes);
 
     for my $ruleid (keys %$global_errors) {
         delete $rules->{ids}->{$ruleid};
@@ -469,33 +470,33 @@ sub transform {
 
 =head3 $class->plugin_compile(...)
 
-=head3 $class->plugin_compile($rules, $nodes)
+=head3 $class->plugin_compile($rules, $cluster_nodes)
 
 B<MANDATORY:> Must be implemented in a I<rule plugin>.
 
-Called in C<$class->compile($rules, $nodes)> in order to get a more compact
-representation of the rule plugin's rules in C<$rules>, which holds only the
-relevant information for the scheduler and other users.
+Called in C<$class->compile($rules, $cluster_nodes)> in order to get a more
+compact representation of the rule plugin's rules in C<$rules>, which holds only
+the relevant information for the scheduler and other users.
 
-C<$nodes> is a list of the configured cluster nodes.
+C<$cluster_nodes> is a list of the configured cluster nodes.
 
 =cut
 
 sub plugin_compile {
-    my ($class, $rules, $nodes) = @_;
+    my ($class, $rules, $cluster_nodes) = @_;
 
     die "implement in subclass";
 }
 
 =head3 $class->compile(...)
 
-=head3 $class->compile($rules, $nodes)
+=head3 $class->compile($rules, $cluster_nodes)
 
 Compiles and returns a hash, where each key-value pair represents a rule
 plugin's more compact representation compiled from the more verbose rules
 defined in C<$rules>.
 
-C<$nodes> is a list of the configured cluster nodes.
+C<$cluster_nodes> is a list of the configured cluster nodes.
 
 The transformation to the compact representation for each rule plugin is
 implemented in C<L<< plugin_compile()|/$class->plugin_compile(...) >>>.
@@ -503,13 +504,13 @@ implemented in C<L<< plugin_compile()|/$class->plugin_compile(...) >>>.
 =cut
 
 sub compile {
-    my ($class, $rules, $nodes) = @_;
+    my ($class, $rules, $cluster_nodes) = @_;
 
     my $compiled_rules = {};
 
     for my $type (@$types) {
         my $plugin = $class->lookup($type);
-        my $compiled_plugin_rules = $plugin->plugin_compile($rules, $nodes);
+        my $compiled_plugin_rules = $plugin->plugin_compile($rules, $cluster_nodes);
 
         die "plugin_compile(...) of type '$type' must return hash reference\n"
             if ref($compiled_plugin_rules) ne 'HASH';
