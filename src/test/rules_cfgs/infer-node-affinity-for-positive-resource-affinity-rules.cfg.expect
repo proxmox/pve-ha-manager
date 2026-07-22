@@ -4,6 +4,7 @@
    "digest" : "32ae135ef2f8bd84cd12c18af6910dce9d6bc9fa",
    "ids" : {
       "do-not-infer-negative1" : {
+         "affinity" : "positive",
          "nodes" : {
             "node1" : {
                "priority" : 0
@@ -19,6 +20,7 @@
          "type" : "node-affinity"
       },
       "do-not-infer-negative2" : {
+         "affinity" : "positive",
          "nodes" : {
             "node3" : {
                "priority" : 0
@@ -47,6 +49,7 @@
          "type" : "resource-affinity"
       },
       "infer-multi-resources1" : {
+         "affinity" : "positive",
          "nodes" : {
             "node1" : {
                "priority" : 0
@@ -76,6 +79,7 @@
          "type" : "resource-affinity"
       },
       "infer-single-resource1" : {
+         "affinity" : "positive",
          "nodes" : {
             "node3" : {
                "priority" : 0

@@ -64,6 +64,14 @@ sub properties {
                 optional => 0,
             },
         ),
+        affinity => {
+            description => "Describes whether the HA resources are supposed to"
+                . " be placed on the given nodes ('positive').",
+            type => 'string',
+            enum => ['positive'],
+            default => 'positive',
+            optional => 1,
+        },
         strict => {
             description => "Describes whether the node affinity rule is strict or non-strict.",
             verbose_description => <<EODESC,
@@ -86,6 +94,7 @@ sub options {
     return {
         resources => { optional => 0 },
         nodes => { optional => 0 },
+        affinity => { optional => 1 },
         strict => { optional => 1 },
         disable => { optional => 1 },
         comment => { optional => 1 },

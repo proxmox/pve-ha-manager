@@ -8,6 +8,7 @@ Drop rule 'vm201-vm202-must-be-on-node1-or-node2', because resources are in a re
    "digest" : "722a98914555f296af0916c980a9d6c780f5f072",
    "ids" : {
       "vm301-must-be-on-node1-with-prio-1" : {
+         "affinity" : "positive",
          "nodes" : {
             "node1" : {
                "priority" : 1
@@ -28,6 +29,7 @@ Drop rule 'vm201-vm202-must-be-on-node1-or-node2', because resources are in a re
          "type" : "resource-affinity"
       },
       "vm302-must-be-on-node2-with-prio-2" : {
+         "affinity" : "positive",
          "nodes" : {
             "node2" : {
                "priority" : 2

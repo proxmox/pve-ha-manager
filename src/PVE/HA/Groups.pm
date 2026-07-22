@@ -147,6 +147,7 @@ sub migrate_groups_to_rules {
             type => 'node-affinity',
             resources => $resources,
             nodes => $nodes,
+            affinity => 'positive',
             strict => $groups->{ids}->{$group}->{restricted},
             comment => $groups->{ids}->{$group}->{comment},
         };

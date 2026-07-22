@@ -1,9 +1,10 @@
 --- Log ---
 --- Config ---
 {
-   "digest" : "c96c9de143221a82e44efa8bb4814b8248a8ea11",
+   "digest" : "fcad82def12abc4422061b79cfd0399967053d93",
    "ids" : {
       "node-affinity-defaults" : {
+         "affinity" : "positive",
          "nodes" : {
             "node1" : {
                "priority" : 0
@@ -15,6 +16,7 @@
          "type" : "node-affinity"
       },
       "node-affinity-disabled" : {
+         "affinity" : "positive",
          "disable" : 1,
          "nodes" : {
             "node2" : {
@@ -27,6 +29,7 @@
          "type" : "node-affinity"
       },
       "node-affinity-disabled-explicit" : {
+         "affinity" : "positive",
          "disable" : 1,
          "nodes" : {
             "node2" : {
@@ -39,6 +42,7 @@
          "type" : "node-affinity"
       },
       "node-affinity-strict" : {
+         "affinity" : "positive",
          "nodes" : {
             "node3" : {
                "priority" : 0

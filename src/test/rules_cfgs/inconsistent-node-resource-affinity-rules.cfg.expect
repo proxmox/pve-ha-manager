@@ -22,6 +22,7 @@ Drop rule 'vm503-must-be-on-node2', because at least one resource is in a positi
          "type" : "resource-affinity"
       },
       "vm101-vm102-must-be-on-node1" : {
+         "affinity" : "positive",
          "nodes" : {
             "node1" : {
                "priority" : 0
@@ -35,6 +36,7 @@ Drop rule 'vm503-must-be-on-node2', because at least one resource is in a positi
          "type" : "node-affinity"
       },
       "vm201-must-be-on-node1" : {
+         "affinity" : "positive",
          "nodes" : {
             "node1" : {
                "priority" : 0
@@ -55,6 +57,7 @@ Drop rule 'vm503-must-be-on-node2', because at least one resource is in a positi
          "type" : "resource-affinity"
       },
       "vm202-must-be-on-node2" : {
+         "affinity" : "positive",
          "nodes" : {
             "node2" : {
                "priority" : 0

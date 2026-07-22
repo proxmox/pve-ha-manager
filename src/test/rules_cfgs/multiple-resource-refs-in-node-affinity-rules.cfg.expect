@@ -7,6 +7,7 @@ Drop rule 'same-resource3', because resource 'vm:201' is already used in another
    "digest" : "5865d23b1a342e7f8cfa68bd0e1da556ca8d28a6",
    "ids" : {
       "no-same-resource1" : {
+         "affinity" : "positive",
          "nodes" : {
             "node1" : {
                "priority" : 0
@@ -24,6 +25,7 @@ Drop rule 'same-resource3', because resource 'vm:201' is already used in another
          "type" : "node-affinity"
       },
       "no-same-resource2" : {
+         "affinity" : "positive",
          "nodes" : {
             "node1" : {
                "priority" : 0
@@ -40,6 +42,7 @@ Drop rule 'same-resource3', because resource 'vm:201' is already used in another
          "type" : "node-affinity"
       },
       "no-same-resource3" : {
+         "affinity" : "positive",
          "nodes" : {
             "node1" : {
                "priority" : 0
