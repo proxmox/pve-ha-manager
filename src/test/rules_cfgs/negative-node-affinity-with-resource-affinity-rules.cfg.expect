@@ -1,0 +1,95 @@
+--- Log ---
+Drop rule 'vm3-not-on-node2-node3', because at least one resource is in a negative resource affinity rule and this rule would restrict these to less nodes than available to the resources.
+Drop rule 'vm3-vm4-must-be-kept-separate', because two or more resources are restricted to less nodes than available to the resources.
+Drop rule 'vm4-not-on-node2-node3', because at least one resource is in a negative resource affinity rule and this rule would restrict these to less nodes than available to the resources.
+--- Config ---
+{
+   "digest" : "3aa936c6791e9b00929c9105ea01906a1eb2d26b",
+   "ids" : {
+      "vm1-not-on-node1" : {
+         "affinity" : "positive",
+         "nodes" : {
+            "node2" : {
+               "priority" : 0
+            },
+            "node3" : {
+               "priority" : 0
+            }
+         },
+         "resources" : {
+            "vm:1" : 1
+         },
+         "type" : "node-affinity"
+      },
+      "vm1-vm2-must-be-kept-separate" : {
+         "affinity" : "negative",
+         "resources" : {
+            "vm:1" : 1,
+            "vm:2" : 1
+         },
+         "type" : "resource-affinity"
+      },
+      "vm2-not-on-node1" : {
+         "affinity" : "positive",
+         "nodes" : {
+            "node2" : {
+               "priority" : 0
+            },
+            "node3" : {
+               "priority" : 0
+            }
+         },
+         "resources" : {
+            "vm:2" : 1
+         },
+         "type" : "node-affinity"
+      }
+   },
+   "order" : {
+      "vm1-not-on-node1" : 1,
+      "vm1-vm2-must-be-kept-separate" : 3,
+      "vm2-not-on-node1" : 2
+   }
+}
+--- Compiled Config ---
+{
+   "node-affinity" : {
+      "vm:1" : {
+         "nodes" : {
+            "node1" : {
+               "priority" : -1
+            },
+            "node2" : {
+               "priority" : 0
+            },
+            "node3" : {
+               "priority" : 0
+            }
+         }
+      },
+      "vm:2" : {
+         "nodes" : {
+            "node1" : {
+               "priority" : -1
+            },
+            "node2" : {
+               "priority" : 0
+            },
+            "node3" : {
+               "priority" : 0
+            }
+         }
+      }
+   },
+   "resource-affinity" : {
+      "negative" : {
+         "vm:1" : {
+            "vm:2" : 1
+         },
+         "vm:2" : {
+            "vm:1" : 1
+         }
+      },
+      "positive" : {}
+   }
+}

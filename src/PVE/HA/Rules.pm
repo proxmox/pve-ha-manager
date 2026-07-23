@@ -6,7 +6,7 @@ use warnings;
 use PVE::JSONSchema qw(get_standard_option);
 use PVE::Tools;
 
-use PVE::HA::HashTools qw(set_intersect set_union sets_are_disjoint);
+use PVE::HA::HashTools qw(set_difference set_intersect set_union sets_are_disjoint);
 use PVE::HA::Tools;
 use PVE::HA::Rules::Helpers;
 
@@ -761,9 +761,11 @@ If there are none, the returned list is empty.
 =cut
 
 sub check_negative_resource_affinity_node_affinity_consistency {
-    my ($negative_rules, $node_affinity_rules) = @_;
+    my ($negative_rules, $node_affinity_rules, $cluster_nodes) = @_;
 
     my @conflicts = ();
+
+    my $cluster_nodes_hash = { map { $_ => 1 } @$cluster_nodes };
 
     while (my ($negativeid, $negative_rule) = each %$negative_rules) {
         my $allowed_nodes = {};
@@ -772,14 +774,21 @@ sub check_negative_resource_affinity_node_affinity_consistency {
         my @paired_node_affinity_rules = ();
 
         for my $node_affinity_id (keys %$node_affinity_rules) {
+            my $node_affinity_rule = $node_affinity_rules->{$node_affinity_id};
             my ($node_affinity_resources, $node_affinity_nodes) =
-                $node_affinity_rules->{$node_affinity_id}->@{qw(resources nodes)};
+                $node_affinity_rule->@{qw(resources nodes)};
             my $common_resources = set_intersect($resources, $node_affinity_resources);
 
             next if keys %$common_resources < 1;
 
+            # negative node affinity rules allow all but the specified nodes
+            my $effective_nodes =
+                $node_affinity_rule->{affinity} eq 'negative'
+                ? set_difference($cluster_nodes_hash, $node_affinity_nodes)
+                : $node_affinity_nodes;
+
             $located_resources = set_union($located_resources, $common_resources);
-            $allowed_nodes = set_union($allowed_nodes, $node_affinity_nodes);
+            $allowed_nodes = set_union($allowed_nodes, $effective_nodes);
 
             push @paired_node_affinity_rules, $node_affinity_id;
         }
@@ -800,6 +809,7 @@ __PACKAGE__->register_check(
         return check_negative_resource_affinity_node_affinity_consistency(
             $args->{negative_rules},
             $args->{node_affinity_rules},
+            $args->{'cluster-nodes'},
         );
     },
     sub {
