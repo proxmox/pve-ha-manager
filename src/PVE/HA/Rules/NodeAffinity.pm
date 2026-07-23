@@ -294,12 +294,13 @@ sub check_nonempty_negative_nodes_complement {
 
     my @conflicts = ();
 
-    my $total_node_count = @$cluster_nodes;
+    my $cluster_nodes_hash = { map { $_ => 1 } $cluster_nodes->@* };
 
     while (my ($ruleid, $rule) = each %$node_affinity_rules) {
         next if $rule->{affinity} ne 'negative';
 
-        push @conflicts, $ruleid if keys $rule->{nodes}->%* >= $total_node_count;
+        my $complement = set_difference($cluster_nodes_hash, $rule->{nodes});
+        push @conflicts, $ruleid if !keys $complement->%*;
     }
 
     @conflicts = sort @conflicts;
