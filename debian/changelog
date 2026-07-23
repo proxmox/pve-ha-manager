@@ -1,3 +1,18 @@
+pve-ha-manager (5.2.5) trixie; urgency=medium
+
+  * rules: node affinity: add support for negative node affinity rules through
+    a new 'affinity' property, letting users declare the nodes an HA resource
+    must not (strict) or should not (non-strict) run on. This is the inverse
+    of the existing positive node affinity and makes it easy to keep resources
+    away from specific nodes without enumerating every allowed one.
+
+  * fix #6084: lrm: leave maintenance mode again once the maintenance request
+    is lifted, even when an HA resource is stuck on the node because it could
+    not be moved elsewhere. Previously the LRM stayed in maintenance mode
+    indefinitely in that case.
+
+ -- Proxmox Support Team <support@proxmox.com>  Thu, 23 Jul 2026 23:15:02 +0200
+
 pve-ha-manager (5.2.4) trixie; urgency=medium
 
   * lrm: become active again while disarmed if a HA resource on this node is
