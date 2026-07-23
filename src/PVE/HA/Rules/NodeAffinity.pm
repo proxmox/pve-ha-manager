@@ -395,8 +395,7 @@ sub invert_negative_node_affinity_rules {
     while (my ($node_affinity_id, $node_affinity_rule) = each %$node_affinity_rules) {
         next if $node_affinity_rule->{affinity} ne 'negative';
 
-        my $negative_nodes = { map { $_ => 1 } keys $node_affinity_rule->{nodes}->%* };
-        my $positive_nodes = set_difference($cluster_nodes_hash, $negative_nodes);
+        my $positive_nodes = set_difference($cluster_nodes_hash, $node_affinity_rule->{nodes});
         $positive_nodes->{$_} = { priority => 0 } for keys %$positive_nodes;
 
         $rules->{ids}->{$node_affinity_id}->{affinity} = 'positive';
