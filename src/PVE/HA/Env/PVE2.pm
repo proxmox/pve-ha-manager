@@ -46,6 +46,7 @@ use constant {
     RRD_VM_INDEX_CPU => 6,
     RRD_VM_INDEX_MAXMEM => 7,
     RRD_VM_INDEX_MEM => 8,
+    RRD_VM_INDEX_MEMHOST => 15,
 };
 
 # rrd entry indices for PVE nodes
@@ -598,11 +599,14 @@ sub get_dynamic_service_stats {
         # NOTE the guests' broadcasted vmstatus() caps maxcpu at the node's maxcpu
         my $maxcpu = ($rrdentry->[RRD_VM_INDEX_MAXCPU] || 0.0) + 0.0;
 
+        # designated fallback for containers
+        my $mem = $rrdentry->[RRD_VM_INDEX_MEMHOST] // $rrdentry->[RRD_VM_INDEX_MEM];
+
         $stats->{$sid}->{usage} = {
             maxcpu => $maxcpu,
             cpu => (($rrdentry->[RRD_VM_INDEX_CPU] || 0.0) + 0.0) * $maxcpu,
             maxmem => int($rrdentry->[RRD_VM_INDEX_MAXMEM] || 0),
-            mem => int($rrdentry->[RRD_VM_INDEX_MEM] || 0),
+            mem => int($mem || 0),
         };
     }
 
