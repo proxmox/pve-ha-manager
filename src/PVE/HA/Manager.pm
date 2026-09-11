@@ -146,7 +146,7 @@ sub get_active_stationary_movable_resource_bundles {
     my ($ss, $sc, $resource_affinity) = @_;
 
     my $resource_bundles = {};
-OUTER: for my $sid (sort keys %$ss) {
+    OUTER: for my $sid (sort keys %$ss) {
         # do not consider non-started resource as 'active' leading resource
         next if $ss->{$sid}->{state} ne 'started';
         # do not consider resource if it is not movable
