@@ -297,7 +297,7 @@ my $transformdef;
 sub register {
     my ($class) = @_;
 
-    $class->SUPER::register($class);
+    $class->SUPER::register();
 
     # store order in which plugin types are registered
     push @$types, $class->type();
