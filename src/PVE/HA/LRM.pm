@@ -773,9 +773,12 @@ sub queue_resource_command {
     # with no active CRM)
     return if $state ne 'stopped' && $uid && defined($self->{results}->{$uid});
 
+    my $start_tries = 0;
     if (my $w = $self->{workers}->{$sid}) {
         return if $w->{pid}; # already started
-        # else, delete and overwrite queue entry with new command
+        # else, delete and overwrite queue entry with new command, but keep the try count, so
+        # that the fair scheduling in run_workers() still prefers it over newly queued jobs
+        $start_tries = $w->{start_tries} // 0;
         delete $self->{workers}->{$sid};
     }
 
@@ -783,7 +786,7 @@ sub queue_resource_command {
         sid => $sid,
         uid => $uid,
         state => $state,
-        start_tries => 0,
+        start_tries => $start_tries,
     };
 
     $self->{workers}->{$sid}->{params} = $params if $params;
