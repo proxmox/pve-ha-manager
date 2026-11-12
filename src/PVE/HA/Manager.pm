@@ -296,7 +296,7 @@ sub load_balance {
     );
     $haenv->log('info', "auto rebalance - $task $sid to $target ($imbalance_change_str)");
 
-    $self->queue_resource_motion($cmd, $task, $sid, $target);
+    $self->queue_resource_motion($cmd, $task, $sid, $target, {});
 }
 
 sub cleanup {
@@ -611,7 +611,7 @@ sub read_lrm_status {
 }
 
 sub queue_resource_motion {
-    my ($self, $cmd, $task, $sid, $target) = @_;
+    my ($self, $cmd, $task, $sid, $target, $migrate_options) = @_;
 
     my ($haenv, $sc, $ss, $ns, $compiled_rules) = $self->@{qw(haenv sc ss ns compiled_rules)};
     my $online_nodes = { map { $_ => 1 } $self->{ns}->list_online_nodes()->@* };
@@ -642,18 +642,40 @@ sub queue_resource_motion {
     }
 
     $haenv->log('info', "got crm command: $cmd");
-    $ss->{$sid}->{cmd} = [$task, $target];
+    $ss->{$sid}->{cmd} = [$task, $target, $migrate_options];
+
+    # For dependent resources of a different type, filter out inapplicable options.
+    my $_migrate_options_for_type = {};
+    my $migrate_options_for_type = sub {
+        my ($type) = @_;
+        return $_migrate_options_for_type->{$type}
+            if defined($_migrate_options_for_type->{$type});
+
+        my $plugin = PVE::HA::Resources->lookup($type);
+        my $applicable_properties = $plugin->migrate_json_properties();
+
+        $_migrate_options_for_type->{$type} = {};
+        for my $key (keys $migrate_options->%*) {
+            next if !exists($applicable_properties->{$key});
+            $_migrate_options_for_type->{$type}->{$key} = $migrate_options->{$key};
+        }
+
+        return $_migrate_options_for_type->{$type};
+    };
 
     for my $csid (@$dependent_resources) {
         next if $ss->{$csid}->{node} && $ss->{$csid}->{node} eq $target;
         next if $ss->{$csid}->{target} && $ss->{$csid}->{target} eq $target;
+
+        my $type = ($haenv->parse_sid($csid))[1];
+        my $applicable_migrate_options = $migrate_options_for_type->($type);
 
         $haenv->log(
             'info',
             "crm command '$cmd' - $task service '$csid' to node '$target'"
                 . " (service '$csid' in positive affinity with service '$sid')",
         );
-        $ss->{$csid}->{cmd} = [$task, $target];
+        $ss->{$csid}->{cmd} = [$task, $target, $applicable_migrate_options];
     }
 }
 
@@ -705,7 +727,7 @@ sub update_crm_commands {
             my ($task, $sid, $node) = ($1, $2, $3);
             if (my $sd = $ss->{$sid}) {
                 if (check_resource_motion_valid($self, $node, $sd, "ignore crm command '$cmd'")) {
-                    $self->queue_resource_motion($cmd, $task, $sid, $node);
+                    $self->queue_resource_motion($cmd, $task, $sid, $node, {});
                 }
             } else {
                 $haenv->log('err', "crm command error - no such service: $cmd");
