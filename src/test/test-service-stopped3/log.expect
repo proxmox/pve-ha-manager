@@ -21,6 +21,7 @@ info     25    node3/lrm: status change wait_for_agent_lock => active
 info     40    node1/crm: service 'fa:1501': state changed from 'request_stop' to 'stopped'
 info    120      cmdlist: execute service fa:1501 migrate node2
 info    120    node1/crm: got crm command: migrate fa:1501 node2
+info    120    node1/crm: migrate service 'fa:1501' to node 'node2'
 info    120    node1/crm: service 'fa:1501': state changed from 'stopped' to 'migrate'  (node = node3, target = node2)
 info    123    node2/lrm: got lock 'ha_agent_node2_lock'
 info    123    node2/lrm: status change wait_for_agent_lock => active

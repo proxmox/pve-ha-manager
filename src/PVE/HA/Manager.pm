@@ -1320,6 +1320,7 @@ sub next_state_stopped {
             my $target = shift @{ $sd->{cmd} };
             my $logprefix = "ignore service '$sid' $cmd request";
             if (check_resource_motion_valid($self, $target, $sd, $logprefix)) {
+                $haenv->log('info', "$cmd service '$sid' to node '$target'");
                 &$change_service_state($self, $sid, $cmd, node => $sd->{node}, target => $target);
                 return;
             }
