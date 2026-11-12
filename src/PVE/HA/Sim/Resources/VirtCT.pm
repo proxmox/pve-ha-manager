@@ -17,7 +17,7 @@ sub exists {
 }
 
 sub migrate {
-    my ($class, $haenv, $id, $target, $online) = @_;
+    my ($class, $haenv, $id, $target, $online, $migrate_options) = @_;
 
     my $sid = "ct:$id";
     my $nodename = $haenv->nodename();
@@ -29,8 +29,7 @@ sub migrate {
         $online = 0;
     }
 
-    return $class->SUPER::migrate($haenv, $id, $target, $online);
-
+    return $class->SUPER::migrate($haenv, $id, $target, $online, $migrate_options);
 }
 
 1;

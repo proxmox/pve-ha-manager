@@ -154,7 +154,7 @@ sub shutdown {
 }
 
 sub migrate {
-    my ($class, $haenv, $id, $target, $online) = @_;
+    my ($class, $haenv, $id, $target, $online, $migrate_options) = @_;
 
     die "implement in subclass";
 }

@@ -106,7 +106,7 @@ sub shutdown {
 }
 
 sub migrate {
-    my ($class, $haenv, $id, $target, $online) = @_;
+    my ($class, $haenv, $id, $target, $online, $migrate_options) = @_;
 
     my $nodename = $haenv->nodename();
 
@@ -116,6 +116,9 @@ sub migrate {
         target => $target,
         online => 0, # we cannot migrate CT (yet) online, only relocate
     };
+
+    $migrate_options //= {};
+    $params->{$_} = $migrate_options->{$_} for keys $migrate_options->%*;
 
     # always relocate container for now
     if ($class->check_running($haenv, $id)) {

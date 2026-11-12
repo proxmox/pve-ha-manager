@@ -88,7 +88,7 @@ sub check_running {
 }
 
 sub migrate {
-    my ($class, $haenv, $id, $target, $online) = @_;
+    my ($class, $haenv, $id, $target, $online, $migrate_options) = @_;
 
     my $sid = $class->type() . ":$id";
     my $nodename = $haenv->nodename();

@@ -84,7 +84,7 @@ sub shutdown {
 }
 
 sub migrate {
-    my ($class, $haenv, $id, $target, $online) = @_;
+    my ($class, $haenv, $id, $target, $online, $migrate_options) = @_;
 
     my ($migrate_failure_count, $limit_to_node) = ($decode_id->($id))[1, 4];
 
@@ -97,7 +97,7 @@ sub migrate {
 
     $tries->{migrate}->{$id} = 0; # reset counts
 
-    return $class->SUPER::migrate($haenv, $id, $target, $online);
-
+    return $class->SUPER::migrate($haenv, $id, $target, $online, $migrate_options);
 }
+
 1;

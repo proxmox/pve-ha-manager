@@ -107,7 +107,7 @@ sub shutdown {
 }
 
 sub migrate {
-    my ($class, $haenv, $id, $target, $online) = @_;
+    my ($class, $haenv, $id, $target, $online, $migrate_options) = @_;
 
     my $nodename = $haenv->nodename();
 
@@ -122,6 +122,9 @@ sub migrate {
         target => $target,
         online => $online,
     };
+
+    $migrate_options //= {};
+    $params->{$_} = $migrate_options->{$_} for keys $migrate_options->%*;
 
     # explicitly shutdown if $online isn't true (relocate)
     if (!$online && $class->check_running($haenv, $id)) {

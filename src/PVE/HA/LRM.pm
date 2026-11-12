@@ -749,14 +749,14 @@ sub manage_resources {
         # intermediate step for optional better node selection on stop -> start request state change
         next if $request_state eq 'request_start';
 
+        my $params = {
+            'migrate-options' => $sd->{'migrate-options'},
+            'target' => $sd->{target},
+            'timeout' => $sd->{timeout},
+        };
+
         $self->queue_resource_command(
-            $sid,
-            $sd->{uid},
-            $request_state,
-            {
-                'target' => $sd->{target},
-                'timeout' => $sd->{timeout},
-            },
+            $sid, $sd->{uid}, $request_state, $params,
         );
     }
 
@@ -1043,7 +1043,7 @@ sub exec_resource_agent {
 
         my $online = ($cmd eq 'migrate') ? 1 : 0;
 
-        my $res = $plugin->migrate($haenv, $id, $target, $online);
+        my $res = $plugin->migrate($haenv, $id, $target, $online, $params->{'migrate-options'});
 
         # something went wrong if service is still on this node
         if (!$res) {
