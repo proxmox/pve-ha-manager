@@ -103,6 +103,11 @@ sub migrate {
         return;
     }
 
+    for my $key (sort keys $migrate_options->%*) {
+        my $val = $migrate_options->{$key};
+        $haenv->log('info', "service $sid migration - got option $key=$val");
+    }
+
     # explicitly shutdown if $online isn't true (relocate)
     if (!$online && $class->check_running($haenv, $id)) {
         $haenv->log("info", "stopping service $sid (relocate)");
@@ -125,7 +130,13 @@ sub migrate {
 sub migrate_json_properties {
     my ($class) = @_;
 
-    return $PVE::HA::Resources::common_migrate_json_properties;
+    my $props = { $PVE::HA::Resources::common_migrate_json_properties->%* };
+    $props->{'common'} = {
+        type => 'string',
+        optional => 1,
+        description => 'A migration property common to resource types.',
+    };
+    return $props;
 }
 
 sub remove_locks {

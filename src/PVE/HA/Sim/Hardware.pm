@@ -795,7 +795,8 @@ sub get_cfs_state {
 #   shutdown <node>
 #   restart-lrm <node>
 #   service <sid> <started|disabled|stopped|ignored>
-#   service <sid> <migrate|relocate> <target>
+#   service <sid> migrate <target> [<key>=<value>[,<key>=<value>...]]
+#   service <sid> relocate <target>
 #   service <sid> stop <timeout>
 #   service <sid> lock/unlock [lockname]
 #   service <sid> add <node> [<request-state=started>] [<running=0>]
@@ -939,11 +940,30 @@ sub sim_hardware_cmd {
                 $self->set_service_state($sid, $action);
 
             } elsif ($action eq 'migrate' || $action eq 'relocate') {
+                my $target = $params[0];
+                my $migrate_options = $params[1];
 
                 die "sim_hardware_cmd: missing target node for '$action' command"
-                    if !$param;
+                    if !$target;
 
-                $self->queue_crm_commands_nolock("$action $sid $param");
+                my $crm_command_str;
+                if ($action eq 'migrate' && $migrate_options) {
+                    my $crm_command = {
+                        task => $action,
+                        sid => $sid,
+                        node => $target,
+                        options => {},
+                    };
+                    for my $migrate_option (split(',', $migrate_options)) {
+                        my ($key, $val) = split('=', $migrate_option);
+                        $crm_command->{options}->{$key} = $val;
+                    }
+                    $crm_command_str = JSON::to_json($crm_command, { canonical => 1 });
+                } else {
+                    $crm_command_str = "$action $sid $target";
+                }
+
+                $self->queue_crm_commands_nolock($crm_command_str);
 
             } elsif ($action eq 'stop') {
 

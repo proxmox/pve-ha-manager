@@ -1,0 +1,7 @@
+[
+    [ "power node1 on", "power node2 on", "power node3 on" ],
+    [ "service vm:101 migrate node2 vm-bar=one,common=first"],
+    [ "service ct:102 migrate node2 ct-foo=two,common=second"],
+    [ "service vm:103 migrate node2 vm-bar=three,common=third"],
+    [ "service ct:104 migrate node3 ct-foo=four,common=fourth"]
+]

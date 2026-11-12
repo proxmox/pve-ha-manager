@@ -16,4 +16,15 @@ sub exists {
     return 1;
 }
 
+sub migrate_json_properties {
+    my ($class) = @_;
+    my $props = { $class->SUPER::migrate_json_properties()->%* };
+    $props->{'vm-bar'} = {
+        type => 'string',
+        optional => 1,
+        description => 'A migration property specific to VMs.',
+    };
+    return $props;
+}
+
 1;

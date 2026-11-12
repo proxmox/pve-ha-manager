@@ -1,0 +1,3 @@
+resource-affinity: must-stick-together
+	resources vm:103,ct:104,vm:105,ct:106
+	affinity positive

@@ -32,4 +32,15 @@ sub migrate {
     return $class->SUPER::migrate($haenv, $id, $target, $online, $migrate_options);
 }
 
+sub migrate_json_properties {
+    my ($class) = @_;
+    my $props = { $class->SUPER::migrate_json_properties()->%* };
+    $props->{'ct-foo'} = {
+        type => 'string',
+        optional => 1,
+        description => 'A migration property specific to CTs.',
+    };
+    return $props;
+}
+
 1;

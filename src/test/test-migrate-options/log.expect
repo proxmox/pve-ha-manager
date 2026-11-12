@@ -1,0 +1,163 @@
+info      0     hardware: starting simulation
+info     20      cmdlist: execute power node1 on
+info     20    node1/crm: status change startup => wait_for_quorum
+info     20    node1/lrm: status change startup => wait_for_agent_lock
+info     20      cmdlist: execute power node2 on
+info     20    node2/crm: status change startup => wait_for_quorum
+info     20    node2/lrm: status change startup => wait_for_agent_lock
+info     20      cmdlist: execute power node3 on
+info     20    node3/crm: status change startup => wait_for_quorum
+info     20    node3/lrm: status change startup => wait_for_agent_lock
+info     20    node1/crm: got lock 'ha_manager_lock'
+info     20    node1/crm: status change wait_for_quorum => master
+info     20    node1/crm: node 'node1': state changed from 'unknown' => 'online'
+info     20    node1/crm: node 'node2': state changed from 'unknown' => 'online'
+info     20    node1/crm: node 'node3': state changed from 'unknown' => 'online'
+info     20    node1/crm: adding new service 'ct:102' on node 'node1'
+info     20    node1/crm: adding new service 'ct:104' on node 'node1'
+info     20    node1/crm: adding new service 'ct:106' on node 'node1'
+info     20    node1/crm: adding new service 'vm:101' on node 'node1'
+info     20    node1/crm: adding new service 'vm:103' on node 'node1'
+info     20    node1/crm: adding new service 'vm:105' on node 'node1'
+info     20    node1/crm: service 'ct:102': state changed from 'request_start' to 'started'  (node = node1)
+info     20    node1/crm: service 'ct:104': state changed from 'request_start' to 'started'  (node = node1)
+info     20    node1/crm: service 'ct:106': state changed from 'request_start' to 'started'  (node = node1)
+info     20    node1/crm: service 'vm:101': state changed from 'request_start' to 'started'  (node = node1)
+info     20    node1/crm: service 'vm:103': state changed from 'request_start' to 'started'  (node = node1)
+info     20    node1/crm: service 'vm:105': state changed from 'request_start' to 'started'  (node = node1)
+info     21    node1/lrm: got lock 'ha_agent_node1_lock'
+info     21    node1/lrm: status change wait_for_agent_lock => active
+info     21    node1/lrm: starting service ct:102
+info     21    node1/lrm: service status ct:102 started
+info     21    node1/lrm: starting service ct:104
+info     21    node1/lrm: service status ct:104 started
+info     21    node1/lrm: starting service ct:106
+info     21    node1/lrm: service status ct:106 started
+info     21    node1/lrm: starting service vm:101
+info     21    node1/lrm: service status vm:101 started
+info     21    node1/lrm: starting service vm:103
+info     21    node1/lrm: service status vm:103 started
+info     21    node1/lrm: starting service vm:105
+info     21    node1/lrm: service status vm:105 started
+info     22    node2/crm: status change wait_for_quorum => slave
+info     24    node3/crm: status change wait_for_quorum => slave
+info    120      cmdlist: execute service vm:101 migrate node2 vm-bar=one,common=first
+info    120    node1/crm: got crm command: migrate vm:101 node2 {"common":"first","vm-bar":"one"}
+info    120    node1/crm: migrate service 'vm:101' to node 'node2'
+info    120    node1/crm: service 'vm:101': state changed from 'started' to 'migrate'  (migrate-options = {"common":"first","vm-bar":"one"}, node = node1, target = node2)
+info    121    node1/lrm: service vm:101 - start migrate to node 'node2'
+info    121    node1/lrm: service vm:101 migration - got option common=first
+info    121    node1/lrm: service vm:101 migration - got option vm-bar=one
+info    121    node1/lrm: service vm:101 - end migrate to node 'node2'
+info    123    node2/lrm: got lock 'ha_agent_node2_lock'
+info    123    node2/lrm: status change wait_for_agent_lock => active
+info    140    node1/crm: service 'vm:101': state changed from 'migrate' to 'started'  (node = node2)
+info    143    node2/lrm: starting service vm:101
+info    143    node2/lrm: service status vm:101 started
+info    220      cmdlist: execute service ct:102 migrate node2 ct-foo=two,common=second
+info    220    node1/crm: got crm command: migrate ct:102 node2 {"common":"second","ct-foo":"two"}
+info    220    node1/crm: migrate service 'ct:102' to node 'node2'
+info    220    node1/crm: service 'ct:102': state changed from 'started' to 'migrate'  (migrate-options = {"common":"second","ct-foo":"two"}, node = node1, target = node2)
+warn    221    node1/lrm: unable to live migrate running container, fallback to relocate
+info    221    node1/lrm: service ct:102 - start relocate to node 'node2'
+info    221    node1/lrm: service ct:102 migration - got option common=second
+info    221    node1/lrm: service ct:102 migration - got option ct-foo=two
+info    221    node1/lrm: stopping service ct:102 (relocate)
+info    221    node1/lrm: service status ct:102 stopped
+info    221    node1/lrm: service ct:102 - end relocate to node 'node2'
+info    240    node1/crm: service 'ct:102': state changed from 'migrate' to 'started'  (node = node2)
+info    243    node2/lrm: starting service ct:102
+info    243    node2/lrm: service status ct:102 started
+info    320      cmdlist: execute service vm:103 migrate node2 vm-bar=three,common=third
+info    320    node1/crm: got crm command: migrate vm:103 node2 {"common":"third","vm-bar":"three"}
+info    320    node1/crm: crm command 'migrate vm:103 node2 {"common":"third","vm-bar":"three"}' - migrate service 'ct:104' to node 'node2' (service 'ct:104' in positive affinity with service 'vm:103')
+info    320    node1/crm: crm command 'migrate vm:103 node2 {"common":"third","vm-bar":"three"}' - migrate service 'ct:106' to node 'node2' (service 'ct:106' in positive affinity with service 'vm:103')
+info    320    node1/crm: crm command 'migrate vm:103 node2 {"common":"third","vm-bar":"three"}' - migrate service 'vm:105' to node 'node2' (service 'vm:105' in positive affinity with service 'vm:103')
+info    320    node1/crm: migrate service 'ct:104' to node 'node2'
+info    320    node1/crm: service 'ct:104': state changed from 'started' to 'migrate'  (migrate-options = {"common":"third"}, node = node1, target = node2)
+info    320    node1/crm: migrate service 'ct:106' to node 'node2'
+info    320    node1/crm: service 'ct:106': state changed from 'started' to 'migrate'  (migrate-options = {"common":"third"}, node = node1, target = node2)
+info    320    node1/crm: migrate service 'vm:103' to node 'node2'
+info    320    node1/crm: service 'vm:103': state changed from 'started' to 'migrate'  (migrate-options = {"common":"third","vm-bar":"three"}, node = node1, target = node2)
+info    320    node1/crm: migrate service 'vm:105' to node 'node2'
+info    320    node1/crm: service 'vm:105': state changed from 'started' to 'migrate'  (migrate-options = {"common":"third","vm-bar":"three"}, node = node1, target = node2)
+warn    321    node1/lrm: unable to live migrate running container, fallback to relocate
+info    321    node1/lrm: service ct:104 - start relocate to node 'node2'
+info    321    node1/lrm: service ct:104 migration - got option common=third
+info    321    node1/lrm: stopping service ct:104 (relocate)
+info    321    node1/lrm: service status ct:104 stopped
+info    321    node1/lrm: service ct:104 - end relocate to node 'node2'
+warn    321    node1/lrm: unable to live migrate running container, fallback to relocate
+info    321    node1/lrm: service ct:106 - start relocate to node 'node2'
+info    321    node1/lrm: service ct:106 migration - got option common=third
+info    321    node1/lrm: stopping service ct:106 (relocate)
+info    321    node1/lrm: service status ct:106 stopped
+info    321    node1/lrm: service ct:106 - end relocate to node 'node2'
+info    321    node1/lrm: service vm:103 - start migrate to node 'node2'
+info    321    node1/lrm: service vm:103 migration - got option common=third
+info    321    node1/lrm: service vm:103 migration - got option vm-bar=three
+info    321    node1/lrm: service vm:103 - end migrate to node 'node2'
+info    321    node1/lrm: service vm:105 - start migrate to node 'node2'
+info    321    node1/lrm: service vm:105 migration - got option common=third
+info    321    node1/lrm: service vm:105 migration - got option vm-bar=three
+info    321    node1/lrm: service vm:105 - end migrate to node 'node2'
+info    340    node1/crm: service 'ct:104': state changed from 'migrate' to 'started'  (node = node2)
+info    340    node1/crm: service 'ct:106': state changed from 'migrate' to 'started'  (node = node2)
+info    340    node1/crm: service 'vm:103': state changed from 'migrate' to 'started'  (node = node2)
+info    340    node1/crm: service 'vm:105': state changed from 'migrate' to 'started'  (node = node2)
+info    343    node2/lrm: starting service ct:104
+info    343    node2/lrm: service status ct:104 started
+info    343    node2/lrm: starting service ct:106
+info    343    node2/lrm: service status ct:106 started
+info    343    node2/lrm: starting service vm:103
+info    343    node2/lrm: service status vm:103 started
+info    343    node2/lrm: starting service vm:105
+info    343    node2/lrm: service status vm:105 started
+info    420      cmdlist: execute service ct:104 migrate node3 ct-foo=four,common=fourth
+info    420    node1/crm: got crm command: migrate ct:104 node3 {"common":"fourth","ct-foo":"four"}
+info    420    node1/crm: crm command 'migrate ct:104 node3 {"common":"fourth","ct-foo":"four"}' - migrate service 'ct:106' to node 'node3' (service 'ct:106' in positive affinity with service 'ct:104')
+info    420    node1/crm: crm command 'migrate ct:104 node3 {"common":"fourth","ct-foo":"four"}' - migrate service 'vm:103' to node 'node3' (service 'vm:103' in positive affinity with service 'ct:104')
+info    420    node1/crm: crm command 'migrate ct:104 node3 {"common":"fourth","ct-foo":"four"}' - migrate service 'vm:105' to node 'node3' (service 'vm:105' in positive affinity with service 'ct:104')
+info    420    node1/crm: migrate service 'ct:104' to node 'node3'
+info    420    node1/crm: service 'ct:104': state changed from 'started' to 'migrate'  (migrate-options = {"common":"fourth","ct-foo":"four"}, node = node2, target = node3)
+info    420    node1/crm: migrate service 'ct:106' to node 'node3'
+info    420    node1/crm: service 'ct:106': state changed from 'started' to 'migrate'  (migrate-options = {"common":"fourth","ct-foo":"four"}, node = node2, target = node3)
+info    420    node1/crm: migrate service 'vm:103' to node 'node3'
+info    420    node1/crm: service 'vm:103': state changed from 'started' to 'migrate'  (migrate-options = {"common":"fourth"}, node = node2, target = node3)
+info    420    node1/crm: migrate service 'vm:105' to node 'node3'
+info    420    node1/crm: service 'vm:105': state changed from 'started' to 'migrate'  (migrate-options = {"common":"fourth"}, node = node2, target = node3)
+warn    423    node2/lrm: unable to live migrate running container, fallback to relocate
+info    423    node2/lrm: service ct:104 - start relocate to node 'node3'
+info    423    node2/lrm: service ct:104 migration - got option common=fourth
+info    423    node2/lrm: service ct:104 migration - got option ct-foo=four
+info    423    node2/lrm: stopping service ct:104 (relocate)
+info    423    node2/lrm: service status ct:104 stopped
+info    423    node2/lrm: service ct:104 - end relocate to node 'node3'
+warn    423    node2/lrm: unable to live migrate running container, fallback to relocate
+info    423    node2/lrm: service ct:106 - start relocate to node 'node3'
+info    423    node2/lrm: service ct:106 migration - got option common=fourth
+info    423    node2/lrm: service ct:106 migration - got option ct-foo=four
+info    423    node2/lrm: stopping service ct:106 (relocate)
+info    423    node2/lrm: service status ct:106 stopped
+info    423    node2/lrm: service ct:106 - end relocate to node 'node3'
+info    423    node2/lrm: service vm:103 - start migrate to node 'node3'
+info    423    node2/lrm: service vm:103 migration - got option common=fourth
+info    423    node2/lrm: service vm:103 - end migrate to node 'node3'
+info    423    node2/lrm: service vm:105 - start migrate to node 'node3'
+info    423    node2/lrm: service vm:105 migration - got option common=fourth
+info    423    node2/lrm: service vm:105 - end migrate to node 'node3'
+info    425    node3/lrm: got lock 'ha_agent_node3_lock'
+info    425    node3/lrm: status change wait_for_agent_lock => active
+info    440    node1/crm: service 'ct:104': state changed from 'migrate' to 'started'  (node = node3)
+info    440    node1/crm: service 'ct:106': state changed from 'migrate' to 'started'  (node = node3)
+info    440    node1/crm: service 'vm:103': state changed from 'migrate' to 'started'  (node = node3)
+info    440    node1/crm: service 'vm:105': state changed from 'migrate' to 'started'  (node = node3)
+info    445    node3/lrm: starting service ct:104
+info    445    node3/lrm: service status ct:104 started
+info    445    node3/lrm: starting service ct:106
+info    445    node3/lrm: service status ct:106 started
+info    445    node3/lrm: starting service vm:103
+info    445    node3/lrm: service status vm:103 started
+info    445    node3/lrm: starting service vm:105
+info    445    node3/lrm: service status vm:105 started
+info   1020     hardware: exit simulation - done

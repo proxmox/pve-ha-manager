@@ -1,0 +1,19 @@
+Test that migrate options are correctly passed down, also when migrating
+dependent resources.
+
+The test scenario is:
+- vm:101, ct:102, vm:103, ct:104, vm:105 and ct:106 are all currently running on
+  node1.
+- vm:101 and ct:102 are migrated to node2 with a guest-type-specific
+  migration option and a common migration option.
+- vm:103, ct:104, vm:105 and ct:106 are kept together via a positive affinity
+  rule.
+- vm:103 is migrated to node2 with a vm-specific and a common migration option.
+- ct:104 is migrated to node3 with a ct-specific and a common migration option.
+
+The expected outcome is:
+- vm:101 and ct:102 end up on node2.
+- vm:103, ct:104, vm:105 and ct:106 all end up on node3.
+- The guest-type-specific migration option is passed down for the matching guest
+  type and the common migration option is always passed down, also when
+  migrating dependent resources.
