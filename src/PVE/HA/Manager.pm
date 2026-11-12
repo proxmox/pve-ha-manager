@@ -10,6 +10,7 @@ use PVE::Tools;
 use PVE::HA::Groups;
 use PVE::HA::Helpers;
 use PVE::HA::NodeStatus;
+use PVE::HA::Resources;
 use PVE::HA::Rules;
 use PVE::HA::Rules::NodeAffinity qw(get_node_affinity);
 use PVE::HA::Rules::ResourceAffinity
