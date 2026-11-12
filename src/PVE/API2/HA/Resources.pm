@@ -3,15 +3,20 @@ package PVE::API2::HA::Resources;
 use strict;
 use warnings;
 
+use JSON qw();
+
+use PVE::Exception qw(raise_param_exc);
 use PVE::SafeSyslog;
 use PVE::Tools qw(extract_param);
 use PVE::Cluster;
 use PVE::HA::Config;
+use PVE::HA::Env::PVE2; # The resource plugins are registered here.
 use PVE::HA::Resources;
 use HTTP::Status qw(:constants);
 use Storable qw(dclone);
 use PVE::JSONSchema qw(get_standard_option);
 use PVE::RPCEnvironment;
+use PVE::RESTEnvironment qw(log_warn);
 
 use PVE::RESTHandler;
 
@@ -33,6 +38,49 @@ my $api_copy_config = sub {
 
     return $scfg;
 };
+
+my sub migrate_json_properties {
+    my ($type) = @_;
+    my $plugin = PVE::HA::Resources->lookup($type);
+    return $plugin->migrate_json_properties();
+}
+
+my sub json_crm_motion_command_is_supported {
+    PVE::Cluster::cfs_update();
+    my $version_info = PVE::Cluster::get_node_kv('version-info');
+    for my $node (sort keys $version_info->%*) {
+        my $node_info = eval { JSON::decode_json($version_info->{$node}); };
+        if (my $err = $@) {
+            # Do not let a parse error for the version info of one node disable JSON commands on an
+            # otherwise updated cluster, which is the usual situation. A JSON CRM command only
+            # reaches a master that cannot handle it if that master is too old and also fails to
+            # report its version properly. Such a master logs an error and ignores the command.
+            # Migration without extra options still works, as it uses the old-style command.
+            log_warn("failed check for migration options support - cannot parse version info for"
+                . " node '$node' - $err");
+        } elsif (!PVE::Tools::pvecfg_min_version($node_info->{version}, 9, 2, 31)) {
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
+my sub json_crm_motion_command_is_applicable {
+    my ($sid, $req_node, $param) = @_;
+
+    # FIXME: MAJOR VERSION: use JSON variant even if there are no extra params.
+    if (scalar(keys $param->%*) > 0) {
+        if (json_crm_motion_command_is_supported()) {
+            return 1;
+        } else {
+            log_warn("$sid migration to $req_node: ignoring additional migration options - not"
+                . " supported by CRM on all nodes");
+        }
+    }
+
+    return 0;
+}
 
 sub check_service_state {
     my ($sid, $req_state) = @_;
@@ -336,20 +384,32 @@ __PACKAGE__->register_method({
         check => ['perm', '/', ['Sys.Console']],
     },
     parameters => {
-        additionalProperties => 0,
-        properties => {
-            sid => get_standard_option(
-                'pve-ha-resource-or-vm-id',
-                { completion => \&PVE::HA::Tools::complete_sid },
-            ),
-            node => get_standard_option(
-                'pve-node',
-                {
-                    completion => \&PVE::Cluster::complete_migration_target,
-                    description => "Target node.",
-                },
-            ),
+        'type-property' => 'resource-type',
+        'type-property-schema' => {
+            type => 'string',
+            description => 'The resource type. Automatically determined from the service ID.',
+            enum => $resource_type_enum,
         },
+        oneOf => [
+            {
+                'instance-type' => 'ct',
+                additionalProperties => 0,
+                properties => migrate_json_properties('ct'),
+            },
+            {
+                'instance-type' => 'vm',
+                additionalProperties => 0,
+                properties => migrate_json_properties('vm'),
+            },
+        ],
+    },
+    resolve_type => sub {
+        my ($param) = @_;
+        my $type = (PVE::HA::Config::parse_sid($param->{sid}))[1];
+        if (!($type eq 'ct' || $type eq 'vm')) {
+            die "Unknown service type '$type' for 'migrate' endpoint schema.\n";
+        }
+        return $type;
     },
     returns => {
         type => 'object',
@@ -403,12 +463,34 @@ __PACKAGE__->register_method({
 
         my ($sid, $type, $name) = PVE::HA::Config::parse_sid(extract_param($param, 'sid'));
         my $req_node = extract_param($param, 'node');
+        my $resource_type = extract_param($param, 'resource-type');
+        if ($resource_type ne $type) {
+            raise_param_exc({
+                'resource-type' => "value '$resource_type' does not match type of '$sid'" });
+        }
+
+        # The rest of the parameters in $param are migration options passed along to the plugin.
 
         PVE::HA::Config::service_is_ha_managed($sid);
 
         check_service_state($sid);
 
-        PVE::HA::Config::queue_crm_commands("migrate $sid $req_node");
+        my $crm_command;
+        if (json_crm_motion_command_is_applicable($sid, $req_node, $param)) {
+            $crm_command = JSON::to_json(
+                {
+                    task => 'migrate',
+                    sid => $sid,
+                    node => $req_node,
+                    options => $param,
+                },
+                { canonical => 1 },
+            );
+        } else {
+            $crm_command = "migrate $sid $req_node";
+        }
+
+        PVE::HA::Config::queue_crm_commands($crm_command);
         $result->{sid} = $sid;
         $result->{'requested-node'} = $req_node;
 
