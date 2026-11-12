@@ -3,6 +3,7 @@ package PVE::HA::Resources;
 use strict;
 use warnings;
 
+use PVE::Cluster;
 use PVE::JSONSchema qw(get_standard_option);
 use PVE::SectionConfig;
 use PVE::HA::Tools;
@@ -103,6 +104,20 @@ EODESC
     },
 };
 
+our $common_migrate_json_properties = {
+    sid => get_standard_option(
+        'pve-ha-resource-or-vm-id',
+        { completion => \&PVE::HA::Tools::complete_sid },
+    ),
+    node => get_standard_option(
+        'pve-node',
+        {
+            completion => \&PVE::Cluster::complete_migration_target,
+            description => "Target node.",
+        },
+    ),
+};
+
 sub verify_name {
     my ($class, $name) = @_;
 
@@ -155,6 +170,12 @@ sub shutdown {
 
 sub migrate {
     my ($class, $haenv, $id, $target, $online, $migrate_options) = @_;
+
+    die "implement in subclass";
+}
+
+sub migrate_json_properties {
+    my ($class) = @_;
 
     die "implement in subclass";
 }

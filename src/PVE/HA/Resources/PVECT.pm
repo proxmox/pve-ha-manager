@@ -22,6 +22,17 @@ BEGIN {
 
 use base qw(PVE::HA::Resources);
 
+my $ct_migrate_json_properties;
+# FIXME: the extra properties are missing from the docs, since the PVE::API2::LXC module can't be
+# loaded while generating the docs, because of cyclic dependencies.
+my sub init_migrate_json_properties {
+    my $combined = { $PVE::HA::Resources::common_migrate_json_properties->%* };
+    my $extra_migrate_props = eval { PVE::API2::LXC::ha_migrate_json_properties() } // {};
+    die $@ if $@ && !$ENV{PVE_GENERATING_DOCS};
+    $combined->{$_} = $extra_migrate_props->{$_} for keys $extra_migrate_props->%*;
+    $ct_migrate_json_properties = $combined;
+}
+
 sub type {
     return 'ct';
 }
@@ -172,6 +183,12 @@ sub get_static_stats_from_config {
         maxcpu => 0.0 + PVE::LXC::Config->get_derived_property($conf, 'max-cpu'),
         maxmem => int(PVE::LXC::Config->get_derived_property($conf, 'max-memory')),
     };
+}
+
+sub migrate_json_properties {
+    my ($class) = @_;
+    init_migrate_json_properties() if !defined($ct_migrate_json_properties);
+    return $ct_migrate_json_properties;
 }
 
 1;

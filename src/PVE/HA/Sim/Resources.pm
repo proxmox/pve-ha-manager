@@ -122,6 +122,12 @@ sub migrate {
     return defined($ss->{$sid}) ? 0 : 1;
 }
 
+sub migrate_json_properties {
+    my ($class) = @_;
+
+    return $PVE::HA::Resources::common_migrate_json_properties;
+}
+
 sub remove_locks {
     my ($self, $haenv, $id, $locks, $service_node) = @_;
 
