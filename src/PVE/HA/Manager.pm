@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use Digest::MD5 qw(md5_base64);
+use JSON qw();
 
 use PVE::Tools;
 
@@ -534,7 +535,11 @@ my $change_service_state = sub {
     foreach my $k (sort keys %params) {
         my $v = $params{$k};
         $text_state .= ", " if $text_state;
-        $text_state .= "$k = $v";
+        if (ref($v) eq 'HASH') {
+            $text_state .= "$k = " . JSON::to_json($v, { canonical => 1 });
+        } else {
+            $text_state .= "$k = $v";
+        }
         $sd->{$k} = $v;
     }
 
