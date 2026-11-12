@@ -1300,6 +1300,23 @@ sub next_state_migrate_relocate {
     }
 }
 
+# Calls change_service_state() with $state=$cmd if successful. Returns a boolean indicating success.
+my sub handle_resource_motion_command {
+    my ($self, $cmd, $sid, $sd) = @_;
+
+    my $haenv = $self->{haenv};
+
+    my $target = shift $sd->{cmd}->@*;
+    my $logprefix = "ignore service '$sid' $cmd request";
+    if (check_resource_motion_valid($self, $target, $sd, $logprefix)) {
+        $haenv->log('info', "$cmd service '$sid' to node '$target'");
+        $change_service_state->($self, $sid, $cmd, node => $sd->{node}, target => $target);
+        return 1;
+    }
+
+    return 0;
+}
+
 sub next_state_stopped {
     my ($self, $sid, $cd, $sd, $lrm_res) = @_;
 
@@ -1317,11 +1334,8 @@ sub next_state_stopped {
         my $cmd = shift @{ $sd->{cmd} };
 
         if ($cmd eq 'migrate' || $cmd eq 'relocate') {
-            my $target = shift @{ $sd->{cmd} };
-            my $logprefix = "ignore service '$sid' $cmd request";
-            if (check_resource_motion_valid($self, $target, $sd, $logprefix)) {
-                $haenv->log('info', "$cmd service '$sid' to node '$target'");
-                &$change_service_state($self, $sid, $cmd, node => $sd->{node}, target => $target);
+            # If the motion command is handled, calls change_service_state() with $state=$cmd.
+            if (handle_resource_motion_command($self, $cmd, $sid, $sd)) {
                 return;
             }
         } elsif ($cmd eq 'stop') {
@@ -1435,16 +1449,8 @@ sub next_state_started {
             my $cmd = shift @{ $sd->{cmd} };
 
             if ($cmd eq 'migrate' || $cmd eq 'relocate') {
-                my $target = shift @{ $sd->{cmd} };
-                my $logprefix = "ignore service '$sid' $cmd request";
-                if (check_resource_motion_valid($self, $target, $sd, $logprefix)) {
-                    $haenv->log('info', "$cmd service '$sid' to node '$target'");
-                    &$change_service_state(
-                        $self, $sid, $cmd,
-                        node => $sd->{node},
-                        target => $target,
-                    );
-                }
+                # If the motion command is handled, calls change_service_state() with $state=$cmd.
+                handle_resource_motion_command($self, $cmd, $sid, $sd);
             } elsif ($cmd eq 'stop') {
                 my $timeout = shift @{ $sd->{cmd} };
                 if ($timeout == 0) {
