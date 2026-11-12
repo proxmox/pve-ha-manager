@@ -682,12 +682,12 @@ sub update_crm_commands {
             my ($task, $sid, $node) = ($1, $2, $3);
             if (my $sd = $ss->{$sid}) {
                 if (!$ns->node_is_online($node)) {
-                    $haenv->log('err', "crm command error - node not online: $cmd");
+                    $haenv->log('err', "ignore crm command '$cmd' - node '$node' not online");
                 } else {
                     if ($node eq $sd->{node}) {
                         $haenv->log(
                             'info',
-                            "ignore crm command - service already on target node: $cmd",
+                            "ignore crm command '$cmd' - service already on node '$node'",
                         );
                     } else {
                         $self->queue_resource_motion($cmd, $task, $sid, $node);

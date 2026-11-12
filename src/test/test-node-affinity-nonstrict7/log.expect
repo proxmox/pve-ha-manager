@@ -32,7 +32,7 @@ err     120    node1/crm: crm command 'migrate vm:101 node1' error - service 'vm
 info    220      cmdlist: execute service vm:101 migrate node2
 err     220    node1/crm: crm command 'migrate vm:101 node2' error - service 'vm:101' is not allowed on node 'node2'
 info    320      cmdlist: execute service vm:101 migrate node3
-info    320    node1/crm: ignore crm command - service already on target node: migrate vm:101 node3
+info    320    node1/crm: ignore crm command 'migrate vm:101 node3' - service already on node 'node3'
 info    420      cmdlist: execute service vm:102 migrate node3
 info    420    node1/crm: got crm command: migrate vm:102 node3
 info    420    node1/crm: migrate service 'vm:102' to node 'node3'
