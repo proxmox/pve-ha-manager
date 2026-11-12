@@ -667,6 +667,24 @@ sub any_resource_motion_queued_or_running {
     return 0;
 }
 
+my sub check_resource_motion_valid {
+    my ($self, $target, $sd, $logprefix) = @_;
+
+    my ($haenv, $ns) = $self->@{qw(haenv ns)};
+
+    if (!$ns->node_is_online($target)) {
+        $haenv->log('err', "$logprefix - node '$target' not online");
+        return 0;
+    }
+
+    if ($target eq $sd->{node}) {
+        $haenv->log('info', "$logprefix - service already on node '$target'");
+        return 0;
+    }
+
+    return 1;
+}
+
 # read new crm commands and save them into crm master status
 sub update_crm_commands {
     my ($self) = @_;
@@ -681,17 +699,8 @@ sub update_crm_commands {
         if ($cmd =~ m/^(migrate|relocate)\s+(\S+)\s+(\S+)$/) {
             my ($task, $sid, $node) = ($1, $2, $3);
             if (my $sd = $ss->{$sid}) {
-                if (!$ns->node_is_online($node)) {
-                    $haenv->log('err', "ignore crm command '$cmd' - node '$node' not online");
-                } else {
-                    if ($node eq $sd->{node}) {
-                        $haenv->log(
-                            'info',
-                            "ignore crm command '$cmd' - service already on node '$node'",
-                        );
-                    } else {
-                        $self->queue_resource_motion($cmd, $task, $sid, $node);
-                    }
+                if (check_resource_motion_valid($self, $node, $sd, "ignore crm command '$cmd'")) {
+                    $self->queue_resource_motion($cmd, $task, $sid, $node);
                 }
             } else {
                 $haenv->log('err', "crm command error - no such service: $cmd");
@@ -1309,15 +1318,8 @@ sub next_state_stopped {
 
         if ($cmd eq 'migrate' || $cmd eq 'relocate') {
             my $target = shift @{ $sd->{cmd} };
-            if (!$ns->node_is_online($target)) {
-                $haenv->log('err',
-                    "ignore service '$sid' $cmd request - node '$target' not online");
-            } elsif ($sd->{node} eq $target) {
-                $haenv->log(
-                    'info',
-                    "ignore service '$sid' $cmd request - service already on node '$target'",
-                );
-            } else {
+            my $logprefix = "ignore service '$sid' $cmd request";
+            if (check_resource_motion_valid($self, $target, $sd, $logprefix)) {
                 &$change_service_state($self, $sid, $cmd, node => $sd->{node}, target => $target);
                 return;
             }
@@ -1433,17 +1435,8 @@ sub next_state_started {
 
             if ($cmd eq 'migrate' || $cmd eq 'relocate') {
                 my $target = shift @{ $sd->{cmd} };
-                if (!$ns->node_is_online($target)) {
-                    $haenv->log(
-                        'err',
-                        "ignore service '$sid' $cmd request - node '$target' not online",
-                    );
-                } elsif ($sd->{node} eq $target) {
-                    $haenv->log(
-                        'info',
-                        "ignore service '$sid' $cmd request - service already on node '$target'",
-                    );
-                } else {
+                my $logprefix = "ignore service '$sid' $cmd request";
+                if (check_resource_motion_valid($self, $target, $sd, $logprefix)) {
                     $haenv->log('info', "$cmd service '$sid' to node '$target'");
                     &$change_service_state(
                         $self, $sid, $cmd,
