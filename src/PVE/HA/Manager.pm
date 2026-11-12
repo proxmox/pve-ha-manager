@@ -1312,10 +1312,20 @@ my sub handle_resource_motion_command {
     my $haenv = $self->{haenv};
 
     my $target = shift $sd->{cmd}->@*;
+    my $migrate_options = shift $sd->{cmd}->@*;
     my $logprefix = "ignore service '$sid' $cmd request";
     if (check_resource_motion_valid($self, $target, $sd, $logprefix)) {
         $haenv->log('info', "$cmd service '$sid' to node '$target'");
-        $change_service_state->($self, $sid, $cmd, node => $sd->{node}, target => $target);
+
+        my $params = {
+            node => $sd->{node},
+            target => $target,
+        };
+        if ($migrate_options && scalar(keys $migrate_options->%*) > 0) {
+            $params->{'migrate-options'} = $migrate_options;
+        }
+
+        $change_service_state->($self, $sid, $cmd, $params->%*);
         return 1;
     }
 
