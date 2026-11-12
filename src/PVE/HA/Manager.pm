@@ -712,6 +712,56 @@ my sub check_resource_motion_valid {
     return 1;
 }
 
+my sub handle_crm_motion_command {
+    my ($self, $task, $sid, $node, $options) = @_;
+
+    my $cmd = "$task $sid $node";
+
+    if (defined($options) && scalar(keys($options->%*))) {
+        $cmd .= ' ' . JSON::to_json($options, { canonical => 1 });
+    }
+
+    my ($haenv, $ss) = $self->@{qw(haenv ss)};
+
+    if (my $sd = $ss->{$sid}) {
+        if (check_resource_motion_valid($self, $node, $sd, "ignore crm command '$cmd'")) {
+            $self->queue_resource_motion($cmd, $task, $sid, $node, $options);
+        }
+    } else {
+        $haenv->log('err', "crm command error - no such service: $cmd");
+    }
+
+    return;
+}
+
+my sub handle_crm_json_command {
+    my ($self, $cmd) = @_;
+
+    my $haenv = $self->{haenv};
+
+    my $command_info = eval { JSON::decode_json($cmd) };
+    if (my $err = $@) {
+        $haenv->log('err', "unable to decode JSON command: '$cmd' - $err");
+        return;
+    }
+
+    my $task = $command_info->{task};
+    if (!defined($task)) {
+        $haenv->log('err', "unable to handle JSON command without 'task': '$cmd'");
+    } elsif ($task eq 'migrate') {
+        my ($sid, $node, $options) = $command_info->@{qw(sid node options)};
+        if (!defined($sid) || !defined($node)) {
+            $haenv->log('err', "'migrate' JSON command without sid or node: '$cmd'");
+            return;
+        }
+        handle_crm_motion_command($self, $task, $sid, $node, $options);
+    } else {
+        $haenv->log('err', "unable to handle unknown JSON command: '$cmd'");
+    }
+
+    return;
+}
+
 # read new crm commands and save them into crm master status
 sub update_crm_commands {
     my ($self) = @_;
@@ -723,16 +773,12 @@ sub update_crm_commands {
     foreach my $cmd (split(/\n/, $cmdlist)) {
         chomp $cmd;
 
-        if ($cmd =~ m/^(migrate|relocate)\s+(\S+)\s+(\S+)$/) {
-            my ($task, $sid, $node) = ($1, $2, $3);
-            if (my $sd = $ss->{$sid}) {
-                if (check_resource_motion_valid($self, $node, $sd, "ignore crm command '$cmd'")) {
-                    $self->queue_resource_motion($cmd, $task, $sid, $node, {});
-                }
-            } else {
-                $haenv->log('err', "crm command error - no such service: $cmd");
-            }
-
+        if ($cmd =~ m/^{/) {
+            # New-style JSON-encoded command. Currently only 'migrate' is supported, allowing for
+            # additional options.
+            handle_crm_json_command($self, $cmd);
+        } elsif ($cmd =~ m/^(migrate|relocate)\s+(\S+)\s+(\S+)$/) {
+            handle_crm_motion_command($self, $1, $2, $3, {});
         } elsif ($cmd =~ m/^stop\s+(\S+)\s+(\S+)$/) {
             my ($sid, $timeout) = ($1, $2);
             if (my $sd = $ss->{$sid}) {
