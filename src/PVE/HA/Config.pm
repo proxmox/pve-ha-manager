@@ -200,25 +200,21 @@ sub parse_sid {
 
     my ($type, $vmid);
 
-    if ($sid =~ m/^(\d+)$/) {
-        $vmid = $1;
-
+    if (($vmid) = $sid =~ m/^(\d+)$/) {
         my $vmlist = PVE::Cluster::get_vmlist();
         if (defined($vmlist->{ids}->{$vmid})) {
             my $vm_type = $vmlist->{ids}->{$vmid}->{type};
             $type = PVE::HA::Tools::get_ha_resource_type($vm_type);
             $sid = "$type:$vmid";
+            return ($sid, $type, $vmid);
         } else {
-            die "unable to detect SID from VMID - VM/CT $1 does not exist\n";
+            die "unable to detect SID from VMID - VM/CT $vmid does not exist\n";
         }
-    } elsif ($sid =~ m/^(\S+):(\S+)$/) {
-        $vmid = $2;
-        $type = $1;
+    } elsif (($type, $vmid) = $sid =~ m/^(\S+):(\S+)$/) {
+        return ($sid, $type, $vmid);
     } else {
         die "unable to parse service id '$sid'\n";
     }
-
-    return ($sid, $type, $vmid);
 }
 
 sub read_rules_config {
