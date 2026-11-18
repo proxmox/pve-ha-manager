@@ -205,6 +205,7 @@ sub parse_sid {
     }
 }
 
+# Returns only the SID for the given VMID or SID; use parse_sid() on it to get its type and VMID.
 sub parse_vmid_or_sid {
     my ($sid) = @_;
 
@@ -213,13 +214,13 @@ sub parse_vmid_or_sid {
         if (defined($vmlist->{ids}->{$vmid})) {
             my $vm_type = $vmlist->{ids}->{$vmid}->{type};
             my $type = PVE::HA::Tools::get_ha_resource_type($vm_type);
-            $sid = "$type:$vmid";
-            return ($sid, $type, $vmid);
+            return "$type:$vmid";
         } else {
             die "unable to detect SID from VMID - VM/CT $vmid does not exist\n";
         }
     } else {
-        return ($sid, parse_sid($sid));
+        parse_sid($sid); # dies if $sid is not a valid SID either
+        return $sid;
     }
 }
 

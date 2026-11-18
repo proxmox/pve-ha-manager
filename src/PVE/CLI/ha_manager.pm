@@ -104,7 +104,7 @@ __PACKAGE__->register_method({
     code => sub {
         my ($param) = @_;
 
-        my ($sid) = PVE::HA::Config::parse_vmid_or_sid(extract_param($param, 'sid'));
+        my $sid = PVE::HA::Config::parse_vmid_or_sid(extract_param($param, 'sid'));
 
         PVE::HA::Config::service_is_ha_managed($sid);
 
