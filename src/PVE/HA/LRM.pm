@@ -601,26 +601,34 @@ sub work {
     } elsif ($state eq 'maintenance') {
 
         my $startime = $haenv->get_time();
-        return if !$self->update_service_status();
-
-        # wait until all active services moved away
-        my $service_count = $self->active_service_count();
 
         my $exit_lrm = 0;
 
-        if ($service_count == 0 && $self->run_workers() == 0) {
-            # safety: going into maintenance and all active services got moved -> OK
-            give_up_watchdog_protection($self);
+        eval {
+            # if we could not get the current service status there's no point
+            # in doing anything, try again next round.
+            return if !$self->update_service_status();
 
-            if ($self->{shutdown_request}) {
-                $exit_lrm = 1;
+            # wait until all active services moved away
+            my $service_count = $self->active_service_count();
+
+            if ($service_count == 0 && $self->run_workers() == 0) {
+                # safety: going into maintenance and all active services got moved -> OK
+                give_up_watchdog_protection($self);
+
+                if ($self->{shutdown_request}) {
+                    $exit_lrm = 1;
+                }
+
+                # maintenance mode with no or only frozen services anymore, release the lock
+                $haenv->release_ha_agent_lock();
             }
 
-            # maintenance mode with no or only frozen services anymore, release the lock
-            $haenv->release_ha_agent_lock();
+            $self->manage_resources() if !$exit_lrm;
+        };
+        if (my $err = $@) {
+            $haenv->log('err', "got unexpected error - $err");
         }
-
-        $self->manage_resources() if !$exit_lrm;
 
         $self->update_lrm_status();
 
