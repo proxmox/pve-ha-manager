@@ -41,6 +41,9 @@ sub new {
         mode => 'active',
         cluster_state_update => 0,
         active_idle_rounds => 0,
+        # HA resource config, cached for the current work() iteration; contains the HA resources
+        # of all nodes, not only those assigned to the local node
+        service_config => undef,
         # service_status from the manager status read in the current work() iteration; contains
         # the HA resources of all nodes, not only those assigned to the local node
         service_status => {},
@@ -247,6 +250,22 @@ sub update_lrm_status {
     }
 }
 
+sub read_service_config {
+    my ($self) = @_;
+
+    return $self->{service_config} if defined($self->{service_config});
+
+    $self->{service_config} = $self->{haenv}->read_service_config();
+
+    return $self->{service_config};
+}
+
+sub invalidate_service_config_cache {
+    my ($self) = @_;
+
+    undef $self->{service_config};
+}
+
 sub get_protected_ha_agent_lock {
     my ($self) = @_;
 
@@ -348,6 +367,8 @@ sub do_one_iteration {
     $haenv->loop_start_hook();
 
     $self->{cluster_state_update} = $haenv->cluster_state_update();
+
+    $self->invalidate_service_config_cache();
 
     my $res = $self->work();
 
@@ -668,7 +689,7 @@ sub run_workers {
 
     # number of workers to start, if 0 we exec the command directly without forking
     my $max_workers = $haenv->get_max_workers();
-    my $sc = $haenv->read_service_config();
+    my $sc = $self->read_service_config();
 
     my $worker = $self->{workers};
     # we only got limited time but want to ensure that every queued worker is scheduled
@@ -916,7 +937,7 @@ sub handle_service_exitcode {
     my $haenv = $self->{haenv};
     my $tries = $self->{restart_tries};
 
-    my $sc = $haenv->read_service_config();
+    my $sc = $self->read_service_config();
 
     my $max_restart = 0;
 
