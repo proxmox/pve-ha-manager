@@ -1,0 +1,4 @@
+node-affinity: vm103-pinned
+	nodes node3
+	resources vm:103
+	strict 1

@@ -1,0 +1,7 @@
+[
+    [ "power node1 on", "power node2 on", "power node3 on"],
+    [ "crm node3 enable-node-maintenance" ],
+    [ "cfs node3 rw fail" ],
+    [ "cfs node3 rw work" ],
+    [ "crm node3 disable-node-maintenance" ]
+]
