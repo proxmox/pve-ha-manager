@@ -222,7 +222,7 @@ __PACKAGE__->register_method({
         my $cfg = PVE::HA::Config::read_resources_config();
         my $exclude_group_property = PVE::HA::Config::have_groups_been_migrated();
 
-        my ($sid) = PVE::HA::Config::parse_sid($param->{sid});
+        my ($sid) = PVE::HA::Config::parse_vmid_or_sid($param->{sid});
 
         return &$api_copy_config($cfg, $sid, $exclude_group_property);
     },
@@ -246,7 +246,8 @@ __PACKAGE__->register_method({
         PVE::Cluster::check_cfs_quorum();
         mkdir("/etc/pve/ha");
 
-        my ($sid, $type, $vmid) = PVE::HA::Config::parse_sid(extract_param($param, 'sid'));
+        my ($sid, $type, $vmid) =
+            PVE::HA::Config::parse_vmid_or_sid(extract_param($param, 'sid'));
 
         if (my $param_type = extract_param($param, 'type')) {
             # useless, but do it anyway
@@ -301,7 +302,7 @@ __PACKAGE__->register_method({
         my $digest = extract_param($param, 'digest');
         my $delete = extract_param($param, 'delete');
 
-        my ($sid, $type) = PVE::HA::Config::parse_sid(extract_param($param, 'sid'));
+        my ($sid, $type) = PVE::HA::Config::parse_vmid_or_sid(extract_param($param, 'sid'));
 
         if (my $param_type = extract_param($param, 'type')) {
             # useless, but do it anyway
@@ -361,7 +362,7 @@ __PACKAGE__->register_method({
     code => sub {
         my ($param) = @_;
 
-        my ($sid) = PVE::HA::Config::parse_sid(extract_param($param, 'sid'));
+        my ($sid) = PVE::HA::Config::parse_vmid_or_sid(extract_param($param, 'sid'));
         my $purge = extract_param($param, 'purge') // 1;
 
         if (!PVE::HA::Config::service_is_configured($sid)) {
@@ -405,7 +406,7 @@ __PACKAGE__->register_method({
     },
     resolve_type => sub {
         my ($param) = @_;
-        my $type = (PVE::HA::Config::parse_sid($param->{sid}))[1];
+        my (undef, $type) = PVE::HA::Config::parse_vmid_or_sid($param->{sid});
         if (!($type eq 'ct' || $type eq 'vm')) {
             die "Unknown service type '$type' for 'migrate' endpoint schema.\n";
         }
@@ -461,7 +462,7 @@ __PACKAGE__->register_method({
 
         my $result = {};
 
-        my ($sid, $type) = PVE::HA::Config::parse_sid(extract_param($param, 'sid'));
+        my ($sid, $type) = PVE::HA::Config::parse_vmid_or_sid(extract_param($param, 'sid'));
         my $req_node = extract_param($param, 'node');
         my $resource_type = extract_param($param, 'resource-type');
         if ($resource_type ne $type) {
@@ -585,7 +586,7 @@ __PACKAGE__->register_method({
 
         my $result = {};
 
-        my ($sid) = PVE::HA::Config::parse_sid(extract_param($param, 'sid'));
+        my ($sid) = PVE::HA::Config::parse_vmid_or_sid(extract_param($param, 'sid'));
         my $req_node = extract_param($param, 'node');
 
         PVE::HA::Config::service_is_ha_managed($sid);

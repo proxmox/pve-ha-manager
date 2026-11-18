@@ -198,22 +198,28 @@ sub update_resources_config {
 sub parse_sid {
     my ($sid) = @_;
 
-    my ($type, $vmid);
+    if (my ($type, $vmid) = $sid =~ m/^(\S+):(\S+)$/) {
+        return ($sid, $type, $vmid);
+    } else {
+        die "unable to parse service id '$sid'\n";
+    }
+}
 
-    if (($vmid) = $sid =~ m/^(\d+)$/) {
+sub parse_vmid_or_sid {
+    my ($sid) = @_;
+
+    if (my ($vmid) = $sid =~ m/^(\d+)$/) {
         my $vmlist = PVE::Cluster::get_vmlist();
         if (defined($vmlist->{ids}->{$vmid})) {
             my $vm_type = $vmlist->{ids}->{$vmid}->{type};
-            $type = PVE::HA::Tools::get_ha_resource_type($vm_type);
+            my $type = PVE::HA::Tools::get_ha_resource_type($vm_type);
             $sid = "$type:$vmid";
             return ($sid, $type, $vmid);
         } else {
             die "unable to detect SID from VMID - VM/CT $vmid does not exist\n";
         }
-    } elsif (($type, $vmid) = $sid =~ m/^(\S+):(\S+)$/) {
-        return ($sid, $type, $vmid);
     } else {
-        die "unable to parse service id '$sid'\n";
+        return parse_sid($sid);
     }
 }
 
