@@ -240,6 +240,11 @@ sub update_lrm_status {
             $self->{service_status_uids}->{$uid} = 1;
         }
 
+        # prune results which became stale since the last update
+        for my $uid (keys $self->{results}->%*) {
+            delete $self->{results}->{$uid} if !$self->{service_status_uids}->{$uid};
+        }
+
         my $nodename = $haenv->nodename();
         $self->{node_status} = $ms->{node_status}->{$nodename} || 'unknown';
 
@@ -920,13 +925,6 @@ sub resource_command_finished {
         state => $w->{state},
         exit_code => $exit_code,
     };
-
-    my $results = {};
-    foreach my $id (keys %{ $self->{results} }) {
-        next if !$self->{service_status_uids}->{$id};
-        $results->{$id} = $self->{results}->{$id};
-    }
-    $self->{results} = $results;
 }
 
 # processes the exit code from a finished resource agent, so that the CRM knows
