@@ -148,7 +148,7 @@ sub read_and_check_resources_config {
 my sub update_single_resource_config_inplace {
     my ($cfg, $sid, $param, $delete) = @_;
 
-    ($sid, my $type) = parse_sid($sid);
+    (undef, my $type) = parse_sid($sid);
 
     my $scfg = $cfg->{ids}->{$sid}
         || die "no such resource '$sid'\n";
