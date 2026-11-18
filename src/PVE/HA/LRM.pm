@@ -47,6 +47,8 @@ sub new {
         # service_status from the manager status read in the current work() iteration; contains
         # the HA resources of all nodes, not only those assigned to the local node
         service_status => {},
+        # set of the valid HA resource command uids in service_status
+        service_status_uids => {},
         # the local node's node_status from the manager status read in the current work()
         # iteration, only used to check whether a fence for the node is requested; see
         # $valid_node_states in PVE::HA::NodeStatus for possible values
@@ -232,6 +234,12 @@ sub update_lrm_status {
         return undef;
     } else {
         $self->{service_status} = $ms->{service_status} || {};
+        $self->{service_status_uids} = {};
+        for my $sd (values $self->{service_status}->%*) {
+            my $uid = $sd->{uid} or next;
+            $self->{service_status_uids}->{$uid} = 1;
+        }
+
         my $nodename = $haenv->nodename();
         $self->{node_status} = $ms->{node_status}->{$nodename} || 'unknown';
 
@@ -910,19 +918,9 @@ sub resource_command_finished {
         exit_code => $exit_code,
     };
 
-    my $ss = $self->{service_status};
-
-    # compute hash of valid/existing uids
-    my $valid_uids = {};
-    foreach my $sid (keys %$ss) {
-        my $sd = $ss->{$sid};
-        next if !$sd->{uid};
-        $valid_uids->{ $sd->{uid} } = 1;
-    }
-
     my $results = {};
     foreach my $id (keys %{ $self->{results} }) {
-        next if !$valid_uids->{$id};
+        next if !$self->{service_status_uids}->{$id};
         $results->{$id} = $self->{results}->{$id};
     }
     $self->{results} = $results;
