@@ -210,30 +210,4 @@ sub get_static_stats_from_config {
     die "implement in subclass";
 }
 
-# package PVE::HA::Resources::IPAddr;
-
-# use strict;
-# use warnings;
-# use PVE::Tools qw($IPV4RE $IPV6RE);
-
-# use base qw(PVE::HA::Resources);
-
-# sub type {
-#     return 'ipaddr';
-# }
-
-# sub verify_name {
-#     my ($class, $name) = @_;
-
-#     die "invalid IP address\n" if $name !~ m!^$IPV6RE|$IPV4RE$!;
-# }
-
-# sub options {
-#     return {
-# 	state => { optional => 1 },
-# 	group => { optional => 1 },
-# 	comment => { optional => 1 },
-#     };
-# }
-
 1;
