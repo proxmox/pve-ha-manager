@@ -203,7 +203,7 @@ sub flush_lrm_status {
     return 1;
 }
 
-sub update_service_status {
+sub update_lrm_status {
     my ($self) = @_;
 
     my $haenv = $self->{haenv};
@@ -217,7 +217,6 @@ sub update_service_status {
         my $nodename = $haenv->nodename();
         $self->{node_status} = $ms->{node_status}->{$nodename} || 'unknown';
 
-        # FIXME: method name is a bit confusing for doing this, either rename or move
         if (!$self->{shutdown_request}) {
             my $request = $ms->{node_request}->{$nodename} // {};
             if ($request->{maintenance}) {
@@ -371,7 +370,7 @@ sub work {
     my $status = $self->get_local_status();
     my $state = $status->{state};
 
-    $self->update_service_status();
+    $self->update_lrm_status();
 
     my $fence_request = $self->is_fence_requested();
 
@@ -502,7 +501,7 @@ sub work {
 
             # if we could not get the current service status there's no point
             # in doing anything, try again next round.
-            return if !$self->update_service_status();
+            return if !$self->update_lrm_status();
 
             if ($self->{shutdown_request}) {
 
@@ -607,7 +606,7 @@ sub work {
         eval {
             # if we could not get the current service status there's no point
             # in doing anything, try again next round.
-            return if !$self->update_service_status();
+            return if !$self->update_lrm_status();
 
             # wait until all active services moved away
             my $service_count = $self->active_service_count();
