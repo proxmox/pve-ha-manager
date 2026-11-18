@@ -114,7 +114,7 @@ my sub checked_resources_config {
 
     foreach my $sid (keys %{ $cfg->{ids} }) {
         my $d = $cfg->{ids}->{$sid};
-        my (undef, undef, $name) = parse_sid($sid);
+        my (undef, undef, $vmid) = parse_sid($sid);
         $d->{state} = 'started' if !defined($d->{state});
         $d->{state} = 'started' if $d->{state} eq 'enabled'; # backward compatibility
         $d->{failback} = 1 if !defined($d->{failback});
@@ -123,7 +123,7 @@ my sub checked_resources_config {
         $d->{max_relocate} = 1 if !defined($d->{max_relocate});
 
         if (PVE::HA::Resources->lookup($d->{type})) {
-            if (my $vmd = $vmlist->{ids}->{$name}) {
+            if (my $vmd = $vmlist->{ids}->{$vmid}) {
                 $d->{node} = $vmd->{node};
                 $resources->{$sid} = $d;
             } else {
@@ -148,7 +148,7 @@ sub read_and_check_resources_config {
 my sub update_single_resource_config_inplace {
     my ($cfg, $sid, $param, $delete) = @_;
 
-    ($sid, my $type, my $name) = parse_sid($sid);
+    ($sid, my $type, my $vmid) = parse_sid($sid);
 
     my $scfg = $cfg->{ids}->{$sid}
         || die "no such resource '$sid'\n";
@@ -198,27 +198,27 @@ sub update_resources_config {
 sub parse_sid {
     my ($sid) = @_;
 
-    my ($type, $name);
+    my ($type, $vmid);
 
     if ($sid =~ m/^(\d+)$/) {
-        $name = $1;
+        $vmid = $1;
 
         my $vmlist = PVE::Cluster::get_vmlist();
-        if (defined($vmlist->{ids}->{$name})) {
-            my $vm_type = $vmlist->{ids}->{$name}->{type};
+        if (defined($vmlist->{ids}->{$vmid})) {
+            my $vm_type = $vmlist->{ids}->{$vmid}->{type};
             $type = PVE::HA::Tools::get_ha_resource_type($vm_type);
-            $sid = "$type:$name";
+            $sid = "$type:$vmid";
         } else {
             die "unable to detect SID from VMID - VM/CT $1 does not exist\n";
         }
     } elsif ($sid =~ m/^(\S+):(\S+)$/) {
-        $name = $2;
+        $vmid = $2;
         $type = $1;
     } else {
         die "unable to parse service id '$sid'\n";
     }
 
-    return wantarray ? ($sid, $type, $name) : $sid;
+    return wantarray ? ($sid, $type, $vmid) : $sid;
 }
 
 sub read_rules_config {

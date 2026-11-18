@@ -231,10 +231,10 @@ sub parse_sid {
     die "unable to parse service id '$sid'\n"
         if !($sid =~ m/^(\S+):(\S+)$/);
 
-    my $name = $2;
+    my $vmid = $2;
     my $type = $1;
 
-    return wantarray ? ($sid, $type, $name) : $sid;
+    return wantarray ? ($sid, $type, $vmid) : $sid;
 }
 
 sub read_fence_config {

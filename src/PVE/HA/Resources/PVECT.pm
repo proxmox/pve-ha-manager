@@ -38,9 +38,9 @@ sub type {
 }
 
 sub verify_name {
-    my ($class, $name) = @_;
+    my ($class, $vmid) = @_;
 
-    die "invalid VMID\n" if $name !~ m/^[1-9][0-9]+$/;
+    die "invalid VMID\n" if $vmid !~ m/^[1-9][0-9]+$/;
 }
 
 sub options {

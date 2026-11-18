@@ -246,7 +246,7 @@ __PACKAGE__->register_method({
         PVE::Cluster::check_cfs_quorum();
         mkdir("/etc/pve/ha");
 
-        my ($sid, $type, $name) = PVE::HA::Config::parse_sid(extract_param($param, 'sid'));
+        my ($sid, $type, $vmid) = PVE::HA::Config::parse_sid(extract_param($param, 'sid'));
 
         if (my $param_type = extract_param($param, 'type')) {
             # useless, but do it anyway
@@ -257,9 +257,9 @@ __PACKAGE__->register_method({
             if defined($param->{group}) && PVE::HA::Config::have_groups_been_migrated();
 
         my $plugin = PVE::HA::Resources->lookup($type);
-        $plugin->verify_name($name);
+        $plugin->verify_name($vmid);
 
-        $plugin->exists($name);
+        $plugin->exists($vmid);
 
         my $opts = $plugin->check_config($sid, $param, 1, 1);
 
@@ -301,7 +301,7 @@ __PACKAGE__->register_method({
         my $digest = extract_param($param, 'digest');
         my $delete = extract_param($param, 'delete');
 
-        my ($sid, $type, $name) = PVE::HA::Config::parse_sid(extract_param($param, 'sid'));
+        my ($sid, $type, $vmid) = PVE::HA::Config::parse_sid(extract_param($param, 'sid'));
 
         if (my $param_type = extract_param($param, 'type')) {
             # useless, but do it anyway
@@ -361,7 +361,7 @@ __PACKAGE__->register_method({
     code => sub {
         my ($param) = @_;
 
-        my ($sid, $type, $name) = PVE::HA::Config::parse_sid(extract_param($param, 'sid'));
+        my ($sid, $type, $vmid) = PVE::HA::Config::parse_sid(extract_param($param, 'sid'));
         my $purge = extract_param($param, 'purge') // 1;
 
         if (!PVE::HA::Config::service_is_configured($sid)) {
@@ -461,7 +461,7 @@ __PACKAGE__->register_method({
 
         my $result = {};
 
-        my ($sid, $type, $name) = PVE::HA::Config::parse_sid(extract_param($param, 'sid'));
+        my ($sid, $type, $vmid) = PVE::HA::Config::parse_sid(extract_param($param, 'sid'));
         my $req_node = extract_param($param, 'node');
         my $resource_type = extract_param($param, 'resource-type');
         if ($resource_type ne $type) {
@@ -585,7 +585,7 @@ __PACKAGE__->register_method({
 
         my $result = {};
 
-        my ($sid, $type, $name) = PVE::HA::Config::parse_sid(extract_param($param, 'sid'));
+        my ($sid, $type, $vmid) = PVE::HA::Config::parse_sid(extract_param($param, 'sid'));
         my $req_node = extract_param($param, 'node');
 
         PVE::HA::Config::service_is_ha_managed($sid);

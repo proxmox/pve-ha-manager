@@ -209,11 +209,11 @@ sub exec_fence_agent {
 sub steal_service {
     my ($self, $sid, $current_node, $new_node) = @_;
 
-    my (undef, $type, $name) = PVE::HA::Config::parse_sid($sid);
+    my (undef, $type, $vmid) = PVE::HA::Config::parse_sid($sid);
 
     if (my $plugin = PVE::HA::Resources->lookup($type)) {
-        my $old = $plugin->config_file($name, $current_node);
-        my $new = $plugin->config_file($name, $new_node);
+        my $old = $plugin->config_file($vmid, $current_node);
+        my $new = $plugin->config_file($vmid, $new_node);
         rename($old, $new)
             || die "rename '$old' to '$new' failed - $!\n";
     } else {

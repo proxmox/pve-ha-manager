@@ -193,8 +193,8 @@ our $cmddef = {
         sub {
             my $res = shift;
             foreach my $rec (sort { $a->{sid} cmp $b->{sid} } @$res) {
-                my ($type, $name) = split(':', $rec->{sid}, 2);
-                print "$type:$name\n";
+                my ($type, $vmid) = split(':', $rec->{sid}, 2);
+                print "$type:$vmid\n";
                 foreach my $k (sort keys %$rec) {
                     next
                         if $k eq 'digest'
