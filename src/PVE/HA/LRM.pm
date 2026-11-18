@@ -912,6 +912,9 @@ sub resource_command_finished {
 
     return if $exit_code == ETRY_AGAIN; # tell nobody, simply retry
 
+    # do not report the result as the resource command uid is already stale
+    return if !$self->{service_status_uids}->{$uid};
+
     $self->{results}->{$uid} = {
         sid => $w->{sid},
         state => $w->{state},
