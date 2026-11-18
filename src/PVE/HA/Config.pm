@@ -114,7 +114,7 @@ my sub checked_resources_config {
 
     foreach my $sid (keys %{ $cfg->{ids} }) {
         my $d = $cfg->{ids}->{$sid};
-        my (undef, undef, $vmid) = parse_sid($sid);
+        my (undef, $vmid) = parse_sid($sid);
         $d->{state} = 'started' if !defined($d->{state});
         $d->{state} = 'started' if $d->{state} eq 'enabled'; # backward compatibility
         $d->{failback} = 1 if !defined($d->{failback});
@@ -148,7 +148,7 @@ sub read_and_check_resources_config {
 my sub update_single_resource_config_inplace {
     my ($cfg, $sid, $param, $delete) = @_;
 
-    (undef, my $type) = parse_sid($sid);
+    my ($type) = parse_sid($sid);
 
     my $scfg = $cfg->{ids}->{$sid}
         || die "no such resource '$sid'\n";
@@ -199,7 +199,7 @@ sub parse_sid {
     my ($sid) = @_;
 
     if (my ($type, $vmid) = $sid =~ m/^(\S+):(\S+)$/) {
-        return ($sid, $type, $vmid);
+        return ($type, $vmid);
     } else {
         die "unable to parse service id '$sid'\n";
     }
@@ -219,7 +219,7 @@ sub parse_vmid_or_sid {
             die "unable to detect SID from VMID - VM/CT $vmid does not exist\n";
         }
     } else {
-        return parse_sid($sid);
+        return ($sid, parse_sid($sid));
     }
 }
 

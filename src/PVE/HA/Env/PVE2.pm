@@ -209,7 +209,7 @@ sub exec_fence_agent {
 sub steal_service {
     my ($self, $sid, $current_node, $new_node) = @_;
 
-    my (undef, $type, $vmid) = PVE::HA::Config::parse_sid($sid);
+    my ($type, $vmid) = PVE::HA::Config::parse_sid($sid);
 
     if (my $plugin = PVE::HA::Resources->lookup($type)) {
         my $old = $plugin->config_file($vmid, $current_node);

@@ -285,7 +285,7 @@ sub load_balance {
 
     my ($sid, $source, $target) = $migration->@{qw(sid source-node target-node)};
 
-    my (undef, $type) = $haenv->parse_sid($sid);
+    my ($type) = $haenv->parse_sid($sid);
     my $task = $type eq 'vm' ? "migrate" : "relocate";
     my $cmd = "$task $sid $target";
 
@@ -561,7 +561,7 @@ my $fence_recovery_cleanup = sub {
 
     my $haenv = $self->{haenv};
 
-    my (undef, $type, $id) = $haenv->parse_sid($sid);
+    my ($type, $id) = $haenv->parse_sid($sid);
     my $plugin = PVE::HA::Resources->lookup($type);
 
     # should not happen
@@ -667,7 +667,7 @@ sub queue_resource_motion {
         next if $ss->{$csid}->{node} && $ss->{$csid}->{node} eq $target;
         next if $ss->{$csid}->{target} && $ss->{$csid}->{target} eq $target;
 
-        my $type = ($haenv->parse_sid($csid))[1];
+        my ($type) = $haenv->parse_sid($csid);
         my $applicable_migrate_options = $migrate_options_for_type->($type);
 
         $haenv->log(

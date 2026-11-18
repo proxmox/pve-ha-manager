@@ -234,7 +234,7 @@ sub parse_sid {
     my $vmid = $2;
     my $type = $1;
 
-    return ($sid, $type, $vmid);
+    return ($type, $vmid);
 }
 
 sub read_fence_config {

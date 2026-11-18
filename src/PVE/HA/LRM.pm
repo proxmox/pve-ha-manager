@@ -950,7 +950,7 @@ sub exec_resource_agent {
 
     my $nodename = $haenv->nodename();
 
-    my (undef, $service_type, $service_name) = $haenv->parse_sid($sid);
+    my ($service_type, $service_name) = $haenv->parse_sid($sid);
 
     my $plugin = PVE::HA::Resources->lookup($service_type);
     if (!$plugin) {
