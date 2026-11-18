@@ -222,7 +222,7 @@ __PACKAGE__->register_method({
         my $cfg = PVE::HA::Config::read_resources_config();
         my $exclude_group_property = PVE::HA::Config::have_groups_been_migrated();
 
-        my $sid = PVE::HA::Config::parse_sid($param->{sid});
+        my ($sid) = PVE::HA::Config::parse_sid($param->{sid});
 
         return &$api_copy_config($cfg, $sid, $exclude_group_property);
     },

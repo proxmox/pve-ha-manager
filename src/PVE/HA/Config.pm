@@ -218,7 +218,7 @@ sub parse_sid {
         die "unable to parse service id '$sid'\n";
     }
 
-    return wantarray ? ($sid, $type, $vmid) : $sid;
+    return ($sid, $type, $vmid);
 }
 
 sub read_rules_config {
