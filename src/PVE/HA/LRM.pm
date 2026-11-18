@@ -385,7 +385,7 @@ sub work {
     my $status = $self->get_local_status();
     my $state = $status->{state};
 
-    $self->update_lrm_status();
+    my $status_update_successful = $self->update_lrm_status();
 
     my $fence_request = $self->is_fence_requested();
 
@@ -516,7 +516,7 @@ sub work {
 
             # if we could not get the current service status there's no point
             # in doing anything, try again next round.
-            return if !$self->update_lrm_status();
+            return if !$status_update_successful;
 
             if ($self->{shutdown_request}) {
 
@@ -621,7 +621,7 @@ sub work {
         eval {
             # if we could not get the current service status there's no point
             # in doing anything, try again next round.
-            return if !$self->update_lrm_status();
+            return if !$status_update_successful;
 
             # wait until all active services moved away
             my $service_count = $self->active_service_count();

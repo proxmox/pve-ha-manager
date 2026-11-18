@@ -96,52 +96,42 @@ info    420      cmdlist: execute cfs node2 rw fail
 err     422    node2/crm: could not read manager status: cfs connection refused - not mounted?
 err     422    node2/crm: got unexpected error - cfs connection refused - not mounted?
 err     423    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
-err     423    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
 err     423    node2/lrm: unable to write lrm status file - cfs connection refused - not mounted?
 err     442    node2/crm: could not read manager status: cfs connection refused - not mounted?
 err     442    node2/crm: got unexpected error - cfs connection refused - not mounted?
-err     443    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
 err     443    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
 err     443    node2/lrm: unable to write lrm status file - cfs connection refused - not mounted?
 err     462    node2/crm: could not read manager status: cfs connection refused - not mounted?
 err     462    node2/crm: got unexpected error - cfs connection refused - not mounted?
 err     463    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
-err     463    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
 err     463    node2/lrm: unable to write lrm status file - cfs connection refused - not mounted?
 err     482    node2/crm: could not read manager status: cfs connection refused - not mounted?
 err     482    node2/crm: got unexpected error - cfs connection refused - not mounted?
 err     483    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
-err     483    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
 err     483    node2/lrm: unable to write lrm status file - cfs connection refused - not mounted?
 err     502    node2/crm: could not read manager status: cfs connection refused - not mounted?
 err     502    node2/crm: got unexpected error - cfs connection refused - not mounted?
-err     503    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
 err     503    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
 err     503    node2/lrm: unable to write lrm status file - cfs connection refused - not mounted?
 info    520      cmdlist: execute pve-manager-version node2 set 9.0.0
 err     522    node2/crm: could not read manager status: cfs connection refused - not mounted?
 err     522    node2/crm: got unexpected error - cfs connection refused - not mounted?
 err     523    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
-err     523    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
 err     523    node2/lrm: unable to write lrm status file - cfs connection refused - not mounted?
 err     542    node2/crm: could not read manager status: cfs connection refused - not mounted?
 err     542    node2/crm: got unexpected error - cfs connection refused - not mounted?
-err     543    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
 err     543    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
 err     543    node2/lrm: unable to write lrm status file - cfs connection refused - not mounted?
 err     562    node2/crm: could not read manager status: cfs connection refused - not mounted?
 err     562    node2/crm: got unexpected error - cfs connection refused - not mounted?
 err     563    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
-err     563    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
 err     563    node2/lrm: unable to write lrm status file - cfs connection refused - not mounted?
 err     582    node2/crm: could not read manager status: cfs connection refused - not mounted?
 err     582    node2/crm: got unexpected error - cfs connection refused - not mounted?
 err     583    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
-err     583    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
 err     583    node2/lrm: unable to write lrm status file - cfs connection refused - not mounted?
 err     602    node2/crm: could not read manager status: cfs connection refused - not mounted?
 err     602    node2/crm: got unexpected error - cfs connection refused - not mounted?
-err     603    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
 err     603    node2/lrm: updating service status from manager failed: cfs connection refused - not mounted?
 err     603    node2/lrm: unable to write lrm status file - cfs connection refused - not mounted?
 info    620      cmdlist: execute cfs node2 rw work
