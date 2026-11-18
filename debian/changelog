@@ -1,3 +1,26 @@
+pve-ha-manager (5.2.6) trixie; urgency=medium
+
+  * fix #7974: dynamic scheduler: predict the effect of migrating a VM from
+    its memory usage on the host, which is also what the imbalance that
+    triggers rebalancing is based on. Using the memory usage inside the guest
+    instead could cause migrations back and forth. Containers keep using their
+    memory usage, as there is no host value for them.
+
+  * fix #8240: lrm: start the queued commands that waited the longest first,
+    as intended. With more resources than the LRM could handle in one round,
+    it always picked the commands of the same resources, so others could stay
+    in a state like 'starting' for as long as the load lasted.
+
+  * migrate: support migration options that the VM and container migrate API
+    endpoints forward, currently 'with-conntrack-state' for VMs (fix #7053)
+    and 'skip-config-check' for both. The LRM uses them when migrating the
+    resource and, filtered by resource type, the resources that move along
+    due to positive resource affinity rules. This needs pve-manager 9.2.31 or
+    newer on all nodes, otherwise a warning is logged and the options are
+    ignored.
+
+ -- Proxmox Support Team <support@proxmox.com>  Wed, 18 Nov 2026 14:35:28 +0100
+
 pve-ha-manager (5.2.5) trixie; urgency=medium
 
   * rules: node affinity: add support for negative node affinity rules through
