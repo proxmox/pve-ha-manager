@@ -285,7 +285,7 @@ sub load_balance {
 
     my ($sid, $source, $target) = $migration->@{qw(sid source-node target-node)};
 
-    my (undef, $type, $id) = $haenv->parse_sid($sid);
+    my (undef, $type) = $haenv->parse_sid($sid);
     my $task = $type eq 'vm' ? "migrate" : "relocate";
     my $cmd = "$task $sid $target";
 
