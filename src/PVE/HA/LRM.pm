@@ -41,6 +41,13 @@ sub new {
         mode => 'active',
         cluster_state_update => 0,
         active_idle_rounds => 0,
+        # service_status from the manager status read in the current work() iteration; contains
+        # the HA resources of all nodes, not only those assigned to the local node
+        service_status => {},
+        # the local node's node_status from the manager status read in the current work()
+        # iteration, only used to check whether a fence for the node is requested; see
+        # $valid_node_states in PVE::HA::NodeStatus for possible values
+        node_status => 'unknown',
     }, $class;
 
     $self->set_local_status({ state => 'wait_for_agent_lock' });
@@ -202,6 +209,14 @@ sub flush_lrm_status {
 
     return 1;
 }
+
+=head3 $self->update_lrm_status()
+
+Updates the internal LRM properties from the current C<manager_status>.
+
+Returns 1 if the update was successful, otherwise returns undef.
+
+=cut
 
 sub update_lrm_status {
     my ($self) = @_;
