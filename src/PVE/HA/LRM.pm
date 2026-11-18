@@ -149,7 +149,7 @@ sub shutdown_request {
 
     $self->{shutdown_request} = $haenv->get_time();
 
-    eval { $self->update_lrm_status() or die "not quorate?\n"; };
+    eval { $self->flush_lrm_status() or die "not quorate?\n"; };
     if (my $err = $@) {
         $haenv->log('err', "unable to update lrm status file - $err");
     }
@@ -180,7 +180,7 @@ sub set_local_status {
     $self->{status} = $new;
 }
 
-sub update_lrm_status {
+sub flush_lrm_status {
     my ($self) = @_;
 
     my $haenv = $self->{haenv};
@@ -359,7 +359,7 @@ sub work {
     my $haenv = $self->{haenv};
 
     if (!$wrote_lrm_status_at_startup) {
-        if ($self->update_lrm_status()) {
+        if ($self->flush_lrm_status()) {
             $wrote_lrm_status_at_startup = 1;
         } else {
             # do nothing
@@ -484,7 +484,7 @@ sub work {
 
         return 0 if $self->{shutdown_request};
 
-        $self->update_lrm_status();
+        $self->flush_lrm_status();
 
         $haenv->sleep(5);
 
@@ -552,7 +552,7 @@ sub work {
             $haenv->log('err', "got unexpected error - $err");
         }
 
-        $self->update_lrm_status();
+        $self->flush_lrm_status();
 
         return 0 if $shutdown;
 
@@ -630,7 +630,7 @@ sub work {
             $haenv->log('err', "got unexpected error - $err");
         }
 
-        $self->update_lrm_status();
+        $self->flush_lrm_status();
 
         return 0 if $exit_lrm;
 
