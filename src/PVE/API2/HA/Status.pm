@@ -113,6 +113,13 @@ __PACKAGE__->register_method({
                     type => "boolean",
                     optional => 1,
                 },
+                'maintenance-request-queued' => {
+                    description => "For type 'lrm'. Whether a request to enable or disable"
+                        . " maintenance mode for the node is queued and not yet processed by"
+                        . " the CRM.",
+                    type => "boolean",
+                    optional => 1,
+                },
                 crm_state => {
                     description => "For type 'service'. Service state as seen by the CRM.",
                     type => "string",
@@ -266,6 +273,8 @@ __PACKAGE__->register_method({
                 };
         }
 
+        my $maintenance_queued_nodes = PVE::HA::Config::get_maintenance_queued_nodes();
+
         foreach my $node (sort keys %{ $status->{node_status} }) {
             my $active_count =
                 PVE::HA::Tools::count_active_services($status->{service_status}, $node);
@@ -273,6 +282,7 @@ __PACKAGE__->register_method({
             my $id = "lrm:$node";
             my $node_request = $status->{node_request} // {};
             my $maintenance_requested = $node_request->{$node}->{maintenance} ? 1 : 0;
+            my $maintenance_queued = $maintenance_queued_nodes->{$node} ? 1 : 0;
             if (!$lrm_status->{timestamp}) {
                 push @$res,
                     {
@@ -281,6 +291,7 @@ __PACKAGE__->register_method({
                         node => $node,
                         status => "$node (unable to read lrm status)",
                         'maintenance-requested' => $maintenance_requested,
+                        'maintenance-request-queued' => $maintenance_queued,
                     };
             } else {
                 my $status_str = &$timestamp_to_status($ctime, $lrm_status->{timestamp});
@@ -325,6 +336,7 @@ __PACKAGE__->register_method({
                         status => $status_text,
                         timestamp => $lrm_status->{timestamp},
                         'maintenance-requested' => $maintenance_requested,
+                        'maintenance-request-queued' => $maintenance_queued,
                     };
             }
         }

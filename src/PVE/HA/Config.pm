@@ -344,6 +344,18 @@ sub any_pending_crm_command {
     return defined($data) && length $data;
 }
 
+# returns a hash set of the nodes with a queued request to enable or disable maintenance mode
+sub get_maintenance_queued_nodes {
+    my $cmdlist = cfs_read_file($crm_commands_filename) // '';
+
+    my $nodes = {};
+    for my $cmd (split(/\n/, $cmdlist)) {
+        $nodes->{$1} = 1 if $cmd =~ m/^(?:enable|disable)-node-maintenance\s+(\S+)$/;
+    }
+
+    return $nodes;
+}
+
 sub read_crm_commands {
 
     my $code = sub {
