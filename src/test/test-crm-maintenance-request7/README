@@ -1,0 +1,6 @@
+Test that requesting the maintenance mode for a node that is already in
+maintenance mode because of the 'migrate' shutdown policy records the request,
+so that the node stays in maintenance mode after it is powered on again.
+
+Also test that a request to enable the maintenance mode is not lost if it is
+queued directly after a request to disable it.

@@ -791,7 +791,7 @@ sub update_crm_commands {
             my $node = $1;
 
             my $state = $ns->get_node_state($node);
-            my ($level, $reason) = PVE::HA::Helpers::check_enable_maintenance($state, $ms);
+            my ($level, $reason) = PVE::HA::Helpers::check_enable_maintenance($node, $state, $ms);
             if (defined($reason)) {
                 $haenv->log($level, "ignoring maintenance mode request for node '$node' - $reason");
             } else {

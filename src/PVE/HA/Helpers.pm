@@ -62,8 +62,9 @@ sub get_resource_motion_info($ss, $sid, $cd, $online_nodes, $compiled_rules) {
 
 =head3 check_enable_maintenance
 
-Checks whether a request to enable the maintenance mode for a node in the HA
-node state C<$node_state> can be recorded in the manager status C<$ms>.
+Checks whether a request to enable the maintenance mode for C<$node>, which is
+in the HA node state C<$node_state>, can be recorded in the manager status
+C<$ms>.
 
 Returns an empty list if the request can be recorded. Otherwise, returns a list
 of two elements, where the first element is the log level and the second element
@@ -71,10 +72,19 @@ is the reason why the request is ignored.
 
 =cut
 
-sub check_enable_maintenance($node_state, $ms) {
+sub check_enable_maintenance($node, $node_state, $ms) {
     return ('warning', "HA stack is disarmed") if $ms->{disarm};
-    return ('info', "node is already in maintenance state") if $node_state eq 'maintenance';
-    return ('err', "node is not online") if $node_state ne 'online';
+
+    if ($node_state eq 'maintenance') {
+        # only ignore the request if one is already recorded, as the node can be in maintenance
+        # without one: while it shuts down with the 'migrate' shutdown policy, or if a disable
+        # request queued right before this one cleared it, as the node state only catches up in
+        # the next round. recording it keeps the node in maintenance either way
+        my $request = ($ms->{node_request} // {})->{$node} // {};
+        return ('info', "node is already in maintenance state") if $request->{maintenance};
+    } elsif ($node_state ne 'online') {
+        return ('err', "node is not online");
+    }
 
     return;
 }
