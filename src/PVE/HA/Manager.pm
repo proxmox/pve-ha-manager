@@ -791,23 +791,11 @@ sub update_crm_commands {
             my $node = $1;
 
             my $state = $ns->get_node_state($node);
-            if ($ms->{disarm}) {
-                $haenv->log(
-                    'warning',
-                    "ignoring maintenance mode request for node '$node' - HA stack is disarmed",
-                );
-            } elsif ($state eq 'online') {
-                $ms->{node_request}->{$node}->{maintenance} = 1;
-            } elsif ($state eq 'maintenance') {
-                $haenv->log(
-                    'info',
-                    "ignoring maintenance mode request for node '$node' - node is already in maintenance state",
-                );
+            my ($level, $reason) = PVE::HA::Helpers::check_enable_maintenance($state, $ms);
+            if (defined($reason)) {
+                $haenv->log($level, "ignoring maintenance mode request for node '$node' - $reason");
             } else {
-                $haenv->log(
-                    'err',
-                    "ignoring maintenance mode request for node '$node' - node is not online",
-                );
+                $ms->{node_request}->{$node}->{maintenance} = 1;
             }
         } elsif ($cmd =~ m/^disable-node-maintenance\s+(\S+)$/) {
             my $node = $1;
