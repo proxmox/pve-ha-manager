@@ -1,0 +1,3 @@
+Test that the CRM ignores requests to enable the maintenance mode for a node
+that is already in maintenance mode, and while the HA stack is disarmed,
+respectively.
