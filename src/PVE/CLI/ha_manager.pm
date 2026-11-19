@@ -14,6 +14,7 @@ use PVE::RPCEnvironment;
 
 use PVE::HA::Config; # needed for bash completion in PVE::HA::Tools!
 use PVE::HA::Env::PVE2;
+use PVE::HA::Helpers;
 use PVE::HA::Tools;
 use PVE::API2::HA::Resources;
 use PVE::API2::HA::Groups;
@@ -138,10 +139,38 @@ __PACKAGE__->register_method({
     code => sub {
         my ($param) = @_;
 
-        PVE::Cluster::check_node_exists($param->{node});
+        my $node = $param->{node};
+        PVE::Cluster::check_node_exists($node);
+
+        my $action = $param->{disable} ? 'disable' : 'enable';
+        my $ms = PVE::HA::Config::read_manager_status();
+
+        # maintenance mode only affects HA managed resources and queuing the CRM command for a
+        # node unknown to HA would make an idle CRM become active for nothing
+        my $node_state = $ms->{node_status}->{$node};
+        die "cannot $action maintenance mode for node '$node' - not tracked by HA yet\n"
+            if !defined($node_state);
+
+        if ($action eq 'enable') {
+            # an already recorded request stays in effect, so requesting it again must not fail,
+            # for example while HA is disarmed
+            my $requested = $ms->{node_request}->{$node}->{maintenance};
+            # the recorded state is outdated if no CRM is currently active or if commands queued
+            # before this one, for example arm-ha, can still change it. the CRM processing the
+            # request then decides on fresh state
+            my $current = $timestamp_to_status->(time(), $ms->{timestamp} // 0) eq 'active'
+                && !PVE::HA::Config::any_pending_crm_command();
+
+            if (!$requested && $current) {
+                my (undef, $reason) =
+                    PVE::HA::Helpers::check_enable_maintenance($node, $node_state, $ms);
+                die "cannot enable maintenance mode for node '$node' - $reason\n"
+                    if defined($reason);
+            }
+        }
 
         my $cmd = $param->{disable} ? 'disable-node-maintenance' : 'enable-node-maintenance';
-        PVE::HA::Config::queue_crm_commands("$cmd $param->{node}");
+        PVE::HA::Config::queue_crm_commands("$cmd $node");
 
         return undef;
     },
