@@ -1,3 +1,37 @@
+pve-ha-manager (5.2.7) trixie; urgency=medium
+
+  * lrm: catch and log errors while in maintenance mode instead of exiting.
+    Previously, failing to read the manager status, for example on a
+    transient pmxcfs error, made the LRM exit with its watchdog still armed
+    and its agent lock still held if HA resources were active on the node.
+
+  * lrm: read the manager status and the HA resource config only once per
+    round, and prune stale command results once per round instead of for
+    every finished command. This considerably reduces the work per round with
+    many HA resources, for example when starting several hundred HA resources
+    on a node at once.
+
+  * node maintenance: record a request to enable the maintenance mode also
+    for a node that is already in maintenance without one, most notably while
+    it shuts down or reboots with the 'migrate' shutdown policy. Such a node
+    now stays in maintenance mode once it is back online, instead of getting
+    its services moved back. This also no longer drops a request to enable
+    the maintenance mode that was queued right after one to disable it.
+
+  * cli: node-maintenance: reject requests that the CRM would ignore and
+    report the reason, instead of queuing them and only logging that the CRM
+    ignored them. This covers enabling the maintenance mode while HA is
+    disarmed or for a node that is not online, and any request for a node
+    the HA stack does not track yet. Requesting the maintenance mode again
+    for a node it is already requested for still succeeds. The CRM's log
+    messages for ignored requests now share a format that names the node.
+
+  * api: status: report for LRM entries whether the maintenance mode is
+    requested for the node and whether such a request is still queued for
+    the CRM, used by the new node maintenance menu in the web interface.
+
+ -- Proxmox Support Team <support@proxmox.com>  Thu, 19 Nov 2026 23:06:16 +0100
+
 pve-ha-manager (5.2.6) trixie; urgency=medium
 
   * fix #7974: dynamic scheduler: predict the effect of migrating a VM from
