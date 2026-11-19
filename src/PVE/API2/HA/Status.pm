@@ -107,6 +107,12 @@ __PACKAGE__->register_method({
                     type => "integer",
                     optional => 1,
                 },
+                'maintenance-requested' => {
+                    description => "For type 'lrm'. Whether maintenance mode was manually"
+                        . " requested for the node.",
+                    type => "boolean",
+                    optional => 1,
+                },
                 crm_state => {
                     description => "For type 'service'. Service state as seen by the CRM.",
                     type => "string",
@@ -265,6 +271,8 @@ __PACKAGE__->register_method({
                 PVE::HA::Tools::count_active_services($status->{service_status}, $node);
             my $lrm_status = PVE::HA::Config::read_lrm_status($node);
             my $id = "lrm:$node";
+            my $node_request = $status->{node_request} // {};
+            my $maintenance_requested = $node_request->{$node}->{maintenance} ? 1 : 0;
             if (!$lrm_status->{timestamp}) {
                 push @$res,
                     {
@@ -272,6 +280,7 @@ __PACKAGE__->register_method({
                         type => 'lrm',
                         node => $node,
                         status => "$node (unable to read lrm status)",
+                        'maintenance-requested' => $maintenance_requested,
                     };
             } else {
                 my $status_str = &$timestamp_to_status($ctime, $lrm_status->{timestamp});
@@ -315,6 +324,7 @@ __PACKAGE__->register_method({
                         node => $node,
                         status => $status_text,
                         timestamp => $lrm_status->{timestamp},
+                        'maintenance-requested' => $maintenance_requested,
                     };
             }
         }
