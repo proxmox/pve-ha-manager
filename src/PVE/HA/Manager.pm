@@ -794,17 +794,20 @@ sub update_crm_commands {
             if ($ms->{disarm}) {
                 $haenv->log(
                     'warning',
-                    "ignoring maintenance command for node $node - HA stack is disarmed",
+                    "ignoring maintenance mode request for node '$node' - HA stack is disarmed",
                 );
             } elsif ($state eq 'online') {
                 $ms->{node_request}->{$node}->{maintenance} = 1;
             } elsif ($state eq 'maintenance') {
                 $haenv->log(
                     'info',
-                    "ignoring crm command - node $node is already in maintenance state",
+                    "ignoring maintenance mode request for node '$node' - node is already in maintenance state",
                 );
             } else {
-                $haenv->log('err', "crm command error - node not online: $cmd");
+                $haenv->log(
+                    'err',
+                    "ignoring maintenance mode request for node '$node' - node is not online",
+                );
             }
         } elsif ($cmd =~ m/^disable-node-maintenance\s+(\S+)$/) {
             my $node = $1;

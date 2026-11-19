@@ -42,7 +42,7 @@ info    160    node1/crm: service 'vm:103': state changed from 'migrate' to 'sta
 info    163    node2/lrm: starting service vm:103
 info    163    node2/lrm: service status vm:103 started
 info    220      cmdlist: execute crm node3 enable-node-maintenance
-info    220    node1/crm: ignoring crm command - node node3 is already in maintenance state
+info    220    node1/crm: ignoring maintenance mode request for node 'node3' - node is already in maintenance state
 info    320      cmdlist: execute crm node1 disarm-ha freeze
 info    320    node1/crm: got crm command: disarm-ha freeze
 info    320    node1/crm: disarm: freezing service 'vm:101' (was 'started')
@@ -55,7 +55,7 @@ info    323    node2/lrm: status change active => wait_for_agent_lock
 info    340    node1/crm: all LRMs disarmed, HA stack is now fully disarmed
 info    340    node1/crm: HA stack fully disarmed, releasing CRM watchdog
 info    420      cmdlist: execute crm node2 enable-node-maintenance
-warn    420    node1/crm: ignoring maintenance command for node node2 - HA stack is disarmed
+warn    420    node1/crm: ignoring maintenance mode request for node 'node2' - HA stack is disarmed
 info    520      cmdlist: execute crm node1 arm-ha
 info    520    node1/crm: got crm command: arm-ha
 info    520    node1/crm: re-arming HA stack
