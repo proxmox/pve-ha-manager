@@ -1083,6 +1083,13 @@ sub exec_resource_agent {
             return IGNORED;
         }
 
+        eval { $plugin->assert_migration_target($haenv, $id, $target) };
+        if (my $err = $@) {
+            chomp($err);
+            $haenv->log("err", "service $sid not moved - $err");
+            return ERROR;
+        }
+
         my $online = ($cmd eq 'migrate') ? 1 : 0;
 
         my $res = $plugin->migrate($haenv, $id, $target, $online, $params->{'migrate-options'});

@@ -1,0 +1,11 @@
+Test requested moves between nodes whose Proxmox VE versions differ in whether
+they keep the guest identity. Only a source node that keeps the identity
+refuses a target that would drop it.
+
+The expected outcome is:
+- The moves of vm:101 and ct:102 from node1 to node2 are done, as node1 does
+  not keep the guest identity either
+- The moves of vm:101 and ct:102 from node2 to node3 are done, as node3 keeps
+  the guest identity
+- The moves of vm:101 and ct:102 from node3 back to node1 are refused before
+  the services are stopped. Both keep running on node3

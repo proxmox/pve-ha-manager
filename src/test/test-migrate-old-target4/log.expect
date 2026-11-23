@@ -1,0 +1,52 @@
+info      0     hardware: starting simulation
+info     20      cmdlist: execute power node1 on
+info     20    node1/crm: status change startup => wait_for_quorum
+info     20    node1/lrm: status change startup => wait_for_agent_lock
+info     20      cmdlist: execute power node2 on
+info     20    node2/crm: status change startup => wait_for_quorum
+info     20    node2/lrm: status change startup => wait_for_agent_lock
+info     20      cmdlist: execute power node3 on
+info     20    node3/crm: status change startup => wait_for_quorum
+info     20    node3/lrm: status change startup => wait_for_agent_lock
+info     20    node1/crm: got lock 'ha_manager_lock'
+info     20    node1/crm: status change wait_for_quorum => master
+info     20    node1/crm: using scheduler mode 'static'
+info     20    node1/crm: node 'node1': state changed from 'unknown' => 'online'
+info     20    node1/crm: node 'node2': state changed from 'unknown' => 'online'
+info     20    node1/crm: node 'node3': state changed from 'unknown' => 'online'
+info     20    node1/crm: adding new service 'ct:103' on node 'node1'
+info     20    node1/crm: adding new service 'vm:101' on node 'node1'
+info     20    node1/crm: adding new service 'vm:102' on node 'node1'
+info     20    node1/crm: service vm:101: re-balance selected new node node2 for startup
+info     20    node1/crm: service 'vm:101': state changed from 'request_start' to 'request_start_balance'  (node = node1, target = node2)
+info     20    node1/crm: service vm:102: re-balance selected new node node3 for startup
+info     20    node1/crm: service 'vm:102': state changed from 'request_start' to 'request_start_balance'  (node = node1, target = node3)
+info     21    node1/lrm: got lock 'ha_agent_node1_lock'
+info     21    node1/lrm: status change wait_for_agent_lock => active
+err      21    node1/lrm: service vm:101 not moved - node 'node2' runs Proxmox VE 9.2.28, keeping the guest identity requires 9.2.29 or newer - upgrade the node first
+err      21    node1/lrm: service vm:102 not moved - node 'node3' runs Proxmox VE 9.2.28, keeping the guest identity requires 9.2.29 or newer - upgrade the node first
+info     22    node2/crm: status change wait_for_quorum => slave
+info     23    node2/lrm: got lock 'ha_agent_node2_lock'
+info     23    node2/lrm: status change wait_for_agent_lock => active
+info     24    node3/crm: status change wait_for_quorum => slave
+info     25    node3/lrm: got lock 'ha_agent_node3_lock'
+info     25    node3/lrm: status change wait_for_agent_lock => active
+info     40    node1/crm: service 'ct:103': state changed from 'request_stop' to 'stopped'
+err      40    node1/crm: service 'vm:101' - migration failed (exit code 1)
+info     40    node1/crm: service 'vm:101': state changed from 'request_start_balance' to 'started'  (node = node1)
+err      40    node1/crm: service 'vm:102' - migration failed (exit code 1)
+info     40    node1/crm: service 'vm:102': state changed from 'request_start_balance' to 'started'  (node = node1)
+info     41    node1/lrm: starting service vm:101
+info     41    node1/lrm: service status vm:101 started
+info     41    node1/lrm: starting service vm:102
+info     41    node1/lrm: service status vm:102 started
+info    120      cmdlist: execute service ct:103 started
+info    120    node1/crm: service 'ct:103': state changed from 'stopped' to 'request_start'  (node = node1)
+info    120    node1/crm: service ct:103: re-balance selected new node node2 for startup
+info    120    node1/crm: service 'ct:103': state changed from 'request_start' to 'request_start_balance'  (node = node1, target = node2)
+err     121    node1/lrm: service ct:103 not moved - node 'node2' runs Proxmox VE 9.2.28, keeping the guest identity requires 9.2.29 or newer - upgrade the node first
+err     140    node1/crm: service 'ct:103' - migration failed (exit code 1)
+info    140    node1/crm: service 'ct:103': state changed from 'request_start_balance' to 'started'  (node = node1)
+info    141    node1/lrm: starting service ct:103
+info    141    node1/lrm: service status ct:103 started
+info    720     hardware: exit simulation - done

@@ -1,0 +1,7 @@
+Test the rebalancing on start of a service, where the selected node runs a
+Proxmox VE version that would drop the guest identity, while the current node
+keeps it.
+
+The expected outcome is:
+- The move of ct:103 to node2 for its start is refused
+- ct:103 is started on its current node node1 instead

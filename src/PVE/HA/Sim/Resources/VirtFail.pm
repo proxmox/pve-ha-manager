@@ -83,6 +83,13 @@ sub shutdown {
     return $class->SUPER::shutdown($haenv, $id);
 }
 
+# its migration fails as its ID says, not because of the version of the target node
+sub assert_migration_target {
+    my ($class, $haenv, $id, $target) = @_;
+
+    return;
+}
+
 sub migrate {
     my ($class, $haenv, $id, $target, $online, $migrate_options) = @_;
 

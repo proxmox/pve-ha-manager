@@ -1,0 +1,10 @@
+Test enabling the maintenance mode on a node that keeps the guest identity,
+where one of the other nodes runs a Proxmox VE version that would drop it.
+
+The expected outcome is:
+- vm:101 is migrated to node3
+- The migration of vm:103 and the relocation of ct:102 to node2 are refused
+  before the services are stopped. Both keep running on node1
+- As for any move that keeps failing, the CRM retries vm:103 and ct:102 with
+  node2 until the maintenance mode is disabled again
+- vm:101 is migrated back to node1 after the maintenance mode is disabled

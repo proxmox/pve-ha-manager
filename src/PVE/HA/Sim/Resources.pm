@@ -3,11 +3,18 @@ package PVE::HA::Sim::Resources;
 use strict;
 use warnings;
 
+use PVE::HA::Tools;
+
 use base qw(PVE::HA::Resources);
 
 # provides some base methods for virtual resources (used in simulation/testing).
 # reduces code duplication and it's targeted for the main PVE service types, namely
 # virtual machines (VM) and container (CT)
+
+# Plays the role of PVE::GuestIdentity::MIN_PVE_MANAGER_VERSION for the simulated versions of the
+# tests, with a value of its own: nodes with at least this version keep the guest identity and
+# refuse to move guests to nodes with an older version, which would drop it.
+my $GUEST_IDENTITY_MIN_VERSION = '9.2.29';
 
 sub verify_name {
     my ($class, $id) = @_;
@@ -137,6 +144,20 @@ sub migrate_json_properties {
         description => 'A migration property common to resource types.',
     };
     return $props;
+}
+
+# models the target check of the migration API of guests
+sub assert_migration_target {
+    my ($class, $haenv, $id, $target) = @_;
+
+    my $version = $haenv->get_node_version($haenv->nodename());
+    return if !PVE::HA::Tools::has_min_version($version, $GUEST_IDENTITY_MIN_VERSION);
+
+    my $target_version = $haenv->get_node_version($target);
+    if (!PVE::HA::Tools::has_min_version($target_version, $GUEST_IDENTITY_MIN_VERSION)) {
+        die "node '$target' runs Proxmox VE $target_version, keeping the guest identity requires"
+            . " $GUEST_IDENTITY_MIN_VERSION or newer - upgrade the node first\n";
+    }
 }
 
 sub remove_locks {

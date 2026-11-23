@@ -1,0 +1,8 @@
+Test requested migrations and relocations to a node whose Proxmox VE version
+would drop the guest identity, while the source node keeps it.
+
+The expected outcome is:
+- The moves of vm:101 and ct:102 to node2 are refused before the services are
+  stopped. Both keep running on node1
+- The moves of vm:101 and ct:102 to node3, which keeps the guest identity, are
+  done as usual

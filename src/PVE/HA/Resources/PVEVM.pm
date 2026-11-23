@@ -9,6 +9,8 @@ use PVE::HA::Tools;
 
 BEGIN {
     if (!$ENV{PVE_GENERATING_DOCS}) {
+        require PVE::GuestIdentity;
+        import PVE::GuestIdentity;
         require PVE::QemuConfig;
         import PVE::QemuConfig;
         require PVE::QemuServer;
@@ -149,6 +151,13 @@ sub migrate {
 
     # check if vm really moved
     return !(-f $oldconfig);
+}
+
+sub assert_migration_target {
+    my ($class, $haenv, $id, $target) = @_;
+
+    # the migrate API refuses such a node as well, but only after a relocation stopped the VM
+    PVE::GuestIdentity::assert_node_supports_identity($target);
 }
 
 sub check_running {
