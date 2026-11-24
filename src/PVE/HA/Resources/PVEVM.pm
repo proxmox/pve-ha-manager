@@ -153,10 +153,28 @@ sub migrate {
     return !(-f $oldconfig);
 }
 
-sub assert_migration_target {
-    my ($class, $haenv, $id, $target) = @_;
+# Whether a relocation of the running VM writes its config before the 'migrate' lock gets set: the
+# shutdown applies pending changes, and preparing the migration removes left-over fleecing images.
+# FIXME: remove with PVE 10, as all nodes then keep identities
+my sub relocation_writes_config {
+    my ($vmid) = @_;
 
-    # the migrate API refuses such a node as well, but only after a relocation stopped the VM
+    my $conf = PVE::QemuConfig->load_config($vmid);
+    return 1 if scalar(keys(($conf->{pending} // {})->%*));
+    return defined($conf->{'special-sections'}->{fleecing});
+}
+
+sub assert_migration_target {
+    my ($class, $haenv, $id, $target, $online) = @_;
+
+    # FIXME: remove with PVE 10, as all nodes then keep identities
+    # Like the migrate API, only refuse a node that would drop the identity the VM has, but before a
+    # relocation stops the VM. A config write of the relocation also assigns an identity to a VM
+    # without one.
+    my $gets_identity =
+        !$online && $class->check_running($haenv, $id) && relocation_writes_config($id);
+    return if !$gets_identity && !PVE::QemuConfig->has_stored_identity($id);
+
     PVE::GuestIdentity::assert_node_supports_identity($target);
 }
 

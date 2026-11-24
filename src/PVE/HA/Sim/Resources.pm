@@ -14,6 +14,7 @@ use base qw(PVE::HA::Resources);
 # Plays the role of PVE::GuestIdentity::MIN_PVE_MANAGER_VERSION for the simulated versions of the
 # tests, with a value of its own: nodes with at least this version keep the guest identity and
 # refuse to move guests to nodes with an older version, which would drop it.
+# FIXME: remove with PVE 10, as all nodes then keep identities
 my $GUEST_IDENTITY_MIN_VERSION = '9.2.29';
 
 sub verify_name {
@@ -146,10 +147,12 @@ sub migrate_json_properties {
     return $props;
 }
 
-# models the target check of the migration API of guests
+# Models the target check of the migration API of guests. The check only applies to a guest with an
+# identity, and here every guest on an upgraded node counts as one.
 sub assert_migration_target {
-    my ($class, $haenv, $id, $target) = @_;
+    my ($class, $haenv, $id, $target, $online) = @_;
 
+    # FIXME: remove with PVE 10, as all nodes then keep identities
     my $version = $haenv->get_node_version($haenv->nodename());
     return if !PVE::HA::Tools::has_min_version($version, $GUEST_IDENTITY_MIN_VERSION);
 

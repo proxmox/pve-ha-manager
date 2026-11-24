@@ -148,9 +148,15 @@ sub migrate {
 }
 
 sub assert_migration_target {
-    my ($class, $haenv, $id, $target) = @_;
+    my ($class, $haenv, $id, $target, $online) = @_;
 
-    # the migrate API refuses such a node as well, but only after the container got stopped
+    # FIXME: remove with PVE 10, as all nodes then keep identities
+    # like the migrate API, only refuse a node that would drop the identity the container has or
+    # gets when stopped, but before migrate() stops it
+    my $conf = PVE::LXC::Config->load_config($id);
+    my $running = $class->check_running($haenv, $id);
+    return if !PVE::LXC::Config->migration_needs_identity_support($id, $conf, $running);
+
     PVE::GuestIdentity::assert_node_supports_identity($target);
 }
 

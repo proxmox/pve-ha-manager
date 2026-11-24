@@ -180,10 +180,10 @@ sub migrate_json_properties {
     die "implement in subclass";
 }
 
-# Dies if the service $id must not be moved to the node $target. The LRM checks this before calling
-# migrate(), as that already shuts the service down for a relocation.
+# Dies if the service $id must not be moved to the node $target, online or not, see migrate(). The
+# LRM checks this before calling migrate(), as that already shuts the service down for a relocation.
 sub assert_migration_target {
-    my ($class, $haenv, $id, $target) = @_;
+    my ($class, $haenv, $id, $target, $online) = @_;
 
     return;
 }

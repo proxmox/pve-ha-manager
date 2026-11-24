@@ -84,8 +84,9 @@ sub shutdown {
 }
 
 # its migration fails as its ID says, not because of the version of the target node
+# FIXME: remove with PVE 10, as all nodes then keep identities
 sub assert_migration_target {
-    my ($class, $haenv, $id, $target) = @_;
+    my ($class, $haenv, $id, $target, $online) = @_;
 
     return;
 }

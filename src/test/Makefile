@@ -7,6 +7,7 @@ test:
 	./test_failover1.pl
 	./test_rules_config.pl
 	./test_resource_bundles.pl
+	./test_resource_identity_check.pl
 	./ha-tester.pl
 	./test_fence_config.pl
 	@echo "-- end regression tests (success) --"
