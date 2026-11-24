@@ -1,3 +1,16 @@
+pve-ha-manager (5.2.8) trixie; urgency=medium
+
+  * lrm: before stopping a guest for its migration, check whether the target
+    node would drop the guest identity, and if so, keep the guest running on
+    its source node. That only applies to guests with an identity, or that
+    get one when the move stops them, and to nodes with pve-manager before
+    9.2.33. Before, the migration API refused such a node only after the
+    guest was stopped, so manual moves restarted it needlessly and automatic
+    moves left it stopped. Maintenance mode and shutdown with the 'migrate'
+    policy stay blocked for these guests until the targets are upgraded.
+
+ -- Proxmox Support Team <support@proxmox.com>  Tue, 24 Nov 2026 10:23:02 +0100
+
 pve-ha-manager (5.2.7) trixie; urgency=medium
 
   * lrm: catch and log errors while in maintenance mode instead of exiting.
